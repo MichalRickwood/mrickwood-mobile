@@ -17,6 +17,7 @@ import { ApiError } from "@/lib/api";
 import { endpoints } from "@/lib/endpoints";
 import { API_BASE_URL, APP_NAME } from "@/lib/config";
 import { colors, fontSize, radius, spacing } from "@/constants/theme";
+import OauthButtons from "@/components/OauthButtons";
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -169,9 +170,7 @@ export default function RegisterScreen() {
             <Text style={styles.buttonText}>{submitting ? "Registruji…" : "Vytvořit účet"}</Text>
           </Pressable>
 
-          <Text style={styles.help}>
-            Telefon a IČO firmy doplníte po prvním přihlášení.
-          </Text>
+          <OauthButtons onError={(msg) => setError(msg)} />
 
           <Pressable onPress={() => router.replace("/(auth)/login")} style={styles.bottomLink}>
             <Text style={styles.bottomLinkText}>

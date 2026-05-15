@@ -16,6 +16,7 @@ import { useAuth } from "@/lib/auth-context";
 import { ApiError } from "@/lib/api";
 import { APP_NAME } from "@/lib/config";
 import { colors, fontSize, radius, spacing } from "@/constants/theme";
+import OauthButtons from "@/components/OauthButtons";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -106,6 +107,8 @@ export default function LoginScreen() {
             >
               <Text style={styles.buttonText}>{busy ? "Přihlašuji…" : "Přihlásit"}</Text>
             </Pressable>
+
+            <OauthButtons onError={(msg) => setError(msg)} />
 
             <Pressable onPress={() => router.push("/(auth)/register")} style={styles.bottomLink}>
               <Text style={styles.bottomLinkText}>

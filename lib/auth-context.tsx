@@ -11,6 +11,8 @@ interface AuthState {
   profileComplete: boolean | null;
   refreshProfile: () => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
+  /** Voláno OAuth helpers po úspěšném sign-in — token už je v SecureStore. */
+  applyOauthSession: (user: StoredUser) => void;
   signOut: () => Promise<void>;
 }
 
@@ -92,6 +94,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [refreshProfile],
   );
 
+  const applyOauthSession = useCallback(
+    (oauthUser: StoredUser) => {
+      setUser(oauthUser);
+      setStatus("authenticated");
+      void registerForPushNotifications().then((t) => {
+        pushTokenRef.current = t;
+      });
+      void refreshProfile();
+    },
+    [refreshProfile],
+  );
+
   const signOut = useCallback(async () => {
     await unregisterPushNotifications(pushTokenRef.current);
     pushTokenRef.current = null;
@@ -102,7 +116,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ status, user, profileComplete, refreshProfile, signIn, signOut }}>
+    <AuthContext.Provider
+      value={{ status, user, profileComplete, refreshProfile, signIn, applyOauthSession, signOut }}
+    >
       {children}
     </AuthContext.Provider>
   );
