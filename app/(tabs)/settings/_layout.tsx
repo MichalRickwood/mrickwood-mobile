@@ -13,8 +13,6 @@ export default function SettingsLayout() {
     >
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="profile" options={{ title: "Firemní údaje" }} />
-      <Stack.Screen name="language" options={{ title: "Jazyk" }} />
-      <Stack.Screen name="appearance" options={{ title: "Vzhled" }} />
       <Stack.Screen name="account" options={{ title: "Účet" }} />
     </Stack>
   );

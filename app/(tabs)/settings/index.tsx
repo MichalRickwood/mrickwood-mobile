@@ -2,23 +2,28 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/lib/auth-context";
-import { useI18n } from "@/lib/i18n";
 import { APP_NAME } from "@/lib/config";
 import { colors, fontSize, radius, spacing } from "@/constants/theme";
+import LocaleSwitcher from "@/components/LocaleSwitcher";
+import AppearanceSwitcher from "@/components/AppearanceSwitcher";
 
 /**
- * Settings index — list sub-sekcí. Stejný pattern jako webový /dashboard/settings
- * (notifications, security, billing, account). Každá row otevírá detail screen.
+ * Settings index — list sub-sekcí. Nahoře v headeru pills pro jazyk a vzhled
+ * (rychlý přístup, ne celá sub-stránka).
  */
 export default function SettingsIndexScreen() {
   const router = useRouter();
   const { user } = useAuth();
-  const { locale } = useI18n();
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
       <View style={styles.header}>
         <Text style={styles.title}>Nastavení</Text>
+        <View style={styles.headerPills}>
+          <LocaleSwitcher />
+          <View style={styles.pillGap} />
+          <AppearanceSwitcher />
+        </View>
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll}>
@@ -36,16 +41,6 @@ export default function SettingsIndexScreen() {
             hint="Telefon, IČO, fakturace"
             onPress={() => router.push("/(tabs)/settings/profile")}
           />
-          <SectionRow
-            label="Jazyk"
-            hint={localeLabel(locale)}
-            onPress={() => router.push("/(tabs)/settings/language")}
-          />
-          <SectionRow
-            label="Vzhled"
-            hint="Světlý / tmavý režim"
-            onPress={() => router.push("/(tabs)/settings/appearance")}
-          />
         </View>
 
         <View style={styles.group}>
@@ -60,13 +55,6 @@ export default function SettingsIndexScreen() {
       </ScrollView>
     </SafeAreaView>
   );
-}
-
-function localeLabel(code: string): string {
-  if (code === "cs") return "Čeština";
-  if (code === "en") return "English";
-  if (code === "de") return "Deutsch";
-  return code;
 }
 
 function SectionRow({
@@ -94,7 +82,16 @@ function SectionRow({
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
-  header: { paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.lg },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.lg,
+  },
+  headerPills: { flexDirection: "row", alignItems: "center" },
+  pillGap: { width: spacing.sm },
   title: { fontSize: fontSize.xxl, fontWeight: "700", color: colors.text, letterSpacing: -0.5 },
   scroll: { padding: spacing.xl, paddingTop: 0 },
   userCard: {
@@ -121,8 +118,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.lg,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
   },
   rowPressed: { backgroundColor: colors.bg },
   rowLabel: { fontSize: fontSize.base, color: colors.text, fontWeight: "500" },
