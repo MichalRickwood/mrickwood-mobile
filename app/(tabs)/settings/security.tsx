@@ -10,7 +10,6 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { ApiError } from "@/lib/api";
 import { endpoints } from "@/lib/endpoints";
 import { useI18n } from "@/lib/i18n";
@@ -80,18 +79,18 @@ export default function SecurityScreen() {
 
   if (loading || hasPassword === null) {
     return (
-      <SafeAreaView style={styles.safe} edges={["bottom"]}>
+      <View style={styles.safe}>
         <View style={styles.center}>
           <ActivityIndicator color={colors.textSubtle} />
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   const submitDisabled = saving || !next || !next2 || (hasPassword && !current);
 
   return (
-    <SafeAreaView style={styles.safe} edges={["bottom"]}>
+    <View style={styles.safe}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={styles.flex}
@@ -169,7 +168,7 @@ export default function SecurityScreen() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 

@@ -9,7 +9,6 @@ import {
   Text,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { ApiError } from "@/lib/api";
 import { endpoints, type NotificationSettings } from "@/lib/endpoints";
 import { useI18n } from "@/lib/i18n";
@@ -107,16 +106,16 @@ export default function NotificationsScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.safe} edges={["bottom"]}>
+      <View style={styles.safe}>
         <View style={styles.center}>
           <ActivityIndicator color={colors.textSubtle} />
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.safe} edges={["bottom"]}>
+    <View style={styles.safe}>
       <ScrollView contentContainerStyle={styles.scroll}>
         <Text style={styles.sectionLabel}>{t("settings", "pushTitle")}</Text>
         <View style={styles.group}>
@@ -193,7 +192,7 @@ export default function NotificationsScreen() {
           </View>
         )}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 

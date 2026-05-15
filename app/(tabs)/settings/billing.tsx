@@ -8,7 +8,6 @@ import {
   Text,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { ApiError } from "@/lib/api";
 import { endpoints, type BillingSummary } from "@/lib/endpoints";
 import { useI18n } from "@/lib/i18n";
@@ -46,21 +45,21 @@ export default function BillingScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.safe} edges={["bottom"]}>
+      <View style={styles.safe}>
         <View style={styles.center}>
           <ActivityIndicator color={colors.textSubtle} />
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   if (!data) {
     return (
-      <SafeAreaView style={styles.safe} edges={["bottom"]}>
+      <View style={styles.safe}>
         <View style={styles.center}>
           <Text style={styles.errorText}>{error ?? t("settings", "loadFailed")}</Text>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
@@ -76,7 +75,7 @@ export default function BillingScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safe} edges={["bottom"]}>
+    <View style={styles.safe}>
       <ScrollView contentContainerStyle={styles.scroll}>
         <View style={styles.card}>
           <Row styles={styles} label={t("settings", "billingPlanLabel")} value={planLabel} />
@@ -128,7 +127,7 @@ export default function BillingScreen() {
         </Pressable>
         <Text style={styles.webHint}>{t("settings", "billingManageOnWebHint")}</Text>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
