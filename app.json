@@ -30,7 +30,8 @@
           "icon": "./assets/icon.png",
           "color": "#1C1917"
         }
-      ]
+      ],
+      "expo-localization"
     ],
     "extra": {
       "router": {},

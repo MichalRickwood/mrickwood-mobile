@@ -18,9 +18,12 @@ import { endpoints } from "@/lib/endpoints";
 import { API_BASE_URL, APP_NAME } from "@/lib/config";
 import { colors, fontSize, radius, spacing } from "@/constants/theme";
 import OauthButtons from "@/components/OauthButtons";
+import LocaleSwitcher from "@/components/LocaleSwitcher";
+import { useI18n } from "@/lib/i18n";
 
 export default function RegisterScreen() {
   const router = useRouter();
+  const { t, locale } = useI18n();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -48,34 +51,44 @@ export default function RegisterScreen() {
         email: email.trim().toLowerCase(),
         password,
         name: name.trim(),
-        locale: "cs",
+        locale,
         consentVop,
         consentGdpr,
       });
       setSuccess(true);
     } catch (err) {
-      if (err instanceof ApiError) setError(err.message || "Registrace selhala.");
-      else setError("Chyba sítě. Zkuste to znovu.");
+      if (err instanceof ApiError) setError(err.message || t("register", "errorDefault"));
+      else setError(t("register", "errorNetwork"));
     } finally {
       setSubmitting(false);
     }
   }
 
   if (success) {
+    const body = t("register", "successBody", { email });
+    const [bodyBefore, bodyAfter] = body.split("{email}");
     return (
       <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
         <View style={styles.successWrap}>
           <Image source={require("@/assets/logo.png")} style={styles.logoSmall} resizeMode="contain" />
-          <Text style={styles.successTitle}>Zkontrolujte email</Text>
+          <Text style={styles.successTitle}>{t("register", "successTitle")}</Text>
           <Text style={styles.successBody}>
-            Odeslali jsme ověřovací odkaz na <Text style={styles.bold}>{email}</Text>. Klikněte na něj
-            pro aktivaci účtu, pak se můžete přihlásit a doplnit kontaktní údaje.
+            {/* fallback — pokud t() už interpoloval, použijeme rovnou */}
+            {bodyAfter !== undefined ? (
+              <>
+                {bodyBefore}
+                <Text style={styles.bold}>{email}</Text>
+                {bodyAfter}
+              </>
+            ) : (
+              body
+            )}
           </Text>
           <Pressable
             onPress={() => router.replace("/(auth)/login")}
             style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
           >
-            <Text style={styles.buttonText}>Zpět na přihlášení</Text>
+            <Text style={styles.buttonText}>{t("register", "successCta")}</Text>
           </Pressable>
         </View>
       </SafeAreaView>
@@ -84,22 +97,30 @@ export default function RegisterScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
+      <View style={styles.topBar}>
+        <LocaleSwitcher />
+      </View>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={styles.flex}
       >
-        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+        <ScrollView
+          contentContainerStyle={styles.scroll}
+          keyboardShouldPersistTaps="handled"
+          bounces={false}
+          showsVerticalScrollIndicator={false}
+        >
           <View style={styles.brand}>
             <Image source={require("@/assets/logo.png")} style={styles.logoSmall} resizeMode="contain" />
             <Text style={styles.brandText}>{APP_NAME}</Text>
-            <Text style={styles.brandSub}>Vytvořit účet</Text>
+            <Text style={styles.brandSub}>{t("register", "title")}</Text>
           </View>
 
-          <Field label="Jméno">
+          <Field label={t("register", "nameLabel")}>
             <TextInput
               value={name}
               onChangeText={setName}
-              placeholder="Jan Novák"
+              placeholder={t("register", "namePlaceholder")}
               placeholderTextColor={colors.textFaint}
               autoCorrect={false}
               autoCapitalize="words"
@@ -108,11 +129,11 @@ export default function RegisterScreen() {
             />
           </Field>
 
-          <Field label="Email">
+          <Field label={t("register", "emailLabel")}>
             <TextInput
               value={email}
               onChangeText={(v) => setEmail(v.trim().toLowerCase())}
-              placeholder="jan@firma.cz"
+              placeholder={t("register", "emailPlaceholder")}
               placeholderTextColor={colors.textFaint}
               autoCorrect={false}
               autoCapitalize="none"
@@ -124,11 +145,11 @@ export default function RegisterScreen() {
             />
           </Field>
 
-          <Field label="Heslo (min. 8 znaků)">
+          <Field label={t("register", "passwordLabel")}>
             <TextInput
               value={password}
               onChangeText={setPassword}
-              placeholder="Vaše heslo"
+              placeholder={t("register", "passwordPlaceholder")}
               placeholderTextColor={colors.textFaint}
               secureTextEntry
               autoComplete="new-password"
@@ -141,18 +162,18 @@ export default function RegisterScreen() {
             <Checkbox
               checked={consentVop}
               onToggle={() => setConsentVop((v) => !v)}
-              label="Souhlasím s"
-              linkText="obchodními podmínkami"
+              label={t("register", "consentVopPre")}
+              linkText={t("register", "consentVopLink")}
               linkUrl={`${API_BASE_URL}/vop`}
-              tail="a potvrzuji, že jednám v rámci podnikatelské činnosti."
+              tail={t("register", "consentVopTail")}
             />
             <Checkbox
               checked={consentGdpr}
               onToggle={() => setConsentGdpr((v) => !v)}
-              label="Souhlasím se"
-              linkText="zpracováním osobních údajů"
+              label={t("register", "consentGdprPre")}
+              linkText={t("register", "consentGdprLink")}
               linkUrl={`${API_BASE_URL}/gdpr`}
-              tail="dle GDPR."
+              tail={t("register", "consentGdprTail")}
             />
           </View>
 
@@ -167,14 +188,17 @@ export default function RegisterScreen() {
               pressed && styles.buttonPressed,
             ]}
           >
-            <Text style={styles.buttonText}>{submitting ? "Registruji…" : "Vytvořit účet"}</Text>
+            <Text style={styles.buttonText}>
+              {submitting ? t("register", "submitting") : t("register", "submit")}
+            </Text>
           </Pressable>
 
           <OauthButtons onError={(msg) => setError(msg)} />
 
           <Pressable onPress={() => router.replace("/(auth)/login")} style={styles.bottomLink}>
             <Text style={styles.bottomLinkText}>
-              Máte účet? <Text style={styles.bottomLinkAccent}>Přihlásit se</Text>
+              {t("register", "haveAccount")}{" "}
+              <Text style={styles.bottomLinkAccent}>{t("register", "loginLink")}</Text>
             </Text>
           </Pressable>
         </ScrollView>
@@ -232,6 +256,12 @@ function Checkbox({
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   flex: { flex: 1 },
+  topBar: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.sm,
+  },
   scroll: { padding: spacing.xl, paddingBottom: spacing.xxl * 2 },
   brand: { alignItems: "center", marginBottom: spacing.xl },
   logoSmall: { width: 72, height: 72, marginBottom: spacing.md },

@@ -17,10 +17,13 @@ import { ApiError } from "@/lib/api";
 import { APP_NAME } from "@/lib/config";
 import { colors, fontSize, radius, spacing } from "@/constants/theme";
 import OauthButtons from "@/components/OauthButtons";
+import LocaleSwitcher from "@/components/LocaleSwitcher";
+import { useI18n } from "@/lib/i18n";
 
 export default function LoginScreen() {
   const router = useRouter();
   const { signIn } = useAuth();
+  const { t } = useI18n();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -32,14 +35,13 @@ export default function LoginScreen() {
     setError(null);
     try {
       await signIn(email.trim().toLowerCase(), password);
-      // Navigaci řeší RouterGuard po změně status na authenticated.
     } catch (err) {
       if (err instanceof ApiError) {
-        if (err.status === 401) setError("Neplatný email nebo heslo.");
-        else if (err.status === 403) setError(err.message || "Účet není aktivní.");
-        else setError(err.message || "Přihlášení selhalo.");
+        if (err.status === 401) setError(t("login", "errorInvalid"));
+        else if (err.status === 403) setError(err.message || t("login", "errorAccount"));
+        else setError(err.message || t("login", "errorGeneric"));
       } else {
-        setError("Chyba sítě. Zkuste to znovu.");
+        setError(t("login", "errorNetwork"));
       }
     } finally {
       setBusy(false);
@@ -48,6 +50,9 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
+      <View style={styles.topBar}>
+        <LocaleSwitcher />
+      </View>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={styles.flex}
@@ -55,6 +60,8 @@ export default function LoginScreen() {
         <ScrollView
           contentContainerStyle={styles.scroll}
           keyboardShouldPersistTaps="handled"
+          bounces={false}
+          showsVerticalScrollIndicator={false}
         >
           <View style={styles.brand}>
             <Image
@@ -63,11 +70,11 @@ export default function LoginScreen() {
               resizeMode="contain"
             />
             <Text style={styles.brandText}>{APP_NAME}</Text>
-            <Text style={styles.brandSub}>Vyhledávání veřejných zakázek</Text>
+            <Text style={styles.brandSub}>{t("brand", "tagline")}</Text>
           </View>
 
           <View style={styles.form}>
-            <Text style={styles.label}>Email</Text>
+            <Text style={styles.label}>{t("login", "emailLabel")}</Text>
             <TextInput
               value={email}
               onChangeText={setEmail}
@@ -75,19 +82,19 @@ export default function LoginScreen() {
               autoCorrect={false}
               autoComplete="email"
               keyboardType="email-address"
-              placeholder="jan@firma.cz"
+              placeholder={t("login", "emailPlaceholder")}
               placeholderTextColor={colors.textFaint}
               style={styles.input}
               returnKeyType="next"
             />
 
-            <Text style={[styles.label, styles.mt]}>Heslo</Text>
+            <Text style={[styles.label, styles.mt]}>{t("login", "passwordLabel")}</Text>
             <TextInput
               value={password}
               onChangeText={setPassword}
               secureTextEntry
               autoComplete="password"
-              placeholder="Vaše heslo"
+              placeholder={t("login", "passwordPlaceholder")}
               placeholderTextColor={colors.textFaint}
               style={styles.input}
               returnKeyType="done"
@@ -105,14 +112,17 @@ export default function LoginScreen() {
                 pressed && styles.buttonPressed,
               ]}
             >
-              <Text style={styles.buttonText}>{busy ? "Přihlašuji…" : "Přihlásit"}</Text>
+              <Text style={styles.buttonText}>
+                {busy ? t("login", "submitting") : t("login", "submit")}
+              </Text>
             </Pressable>
 
             <OauthButtons onError={(msg) => setError(msg)} />
 
             <Pressable onPress={() => router.push("/(auth)/register")} style={styles.bottomLink}>
               <Text style={styles.bottomLinkText}>
-                Nemáte účet? <Text style={styles.bottomLinkAccent}>Zaregistrovat se</Text>
+                {t("login", "noAccount")}{" "}
+                <Text style={styles.bottomLinkAccent}>{t("login", "register")}</Text>
               </Text>
             </Pressable>
           </View>
@@ -125,11 +135,17 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   flex: { flex: 1 },
+  topBar: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.sm,
+  },
   scroll: { flexGrow: 1, justifyContent: "center", padding: spacing.xl },
-  brand: { marginBottom: spacing.xxl, alignItems: "center" },
-  brandIcon: { width: 96, height: 96, marginBottom: spacing.lg },
-  brandText: { fontSize: 36, fontWeight: "700", color: colors.text, letterSpacing: -0.5 },
-  brandSub: { fontSize: fontSize.sm, color: colors.textSubtle, marginTop: spacing.sm },
+  brand: { marginBottom: spacing.lg, alignItems: "center" },
+  brandIcon: { width: 72, height: 72, marginBottom: spacing.xs },
+  brandText: { fontSize: 32, fontWeight: "700", color: colors.text, letterSpacing: -0.5 },
+  brandSub: { fontSize: fontSize.sm, color: colors.textSubtle, marginTop: spacing.xs },
   form: { gap: 0 },
   label: { fontSize: fontSize.xs, fontWeight: "600", color: colors.text, marginBottom: spacing.sm },
   mt: { marginTop: spacing.lg },

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text, View, ActivityIndicator } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { useAuth } from "@/lib/auth-context";
+import { useI18n } from "@/lib/i18n";
 import {
   useGoogleAuth,
   useGithubAuth,
@@ -22,6 +23,7 @@ import { colors, fontSize, radius, spacing } from "@/constants/theme";
  */
 export default function OauthButtons({ onError }: { onError: (msg: string) => void }) {
   const { applyOauthSession } = useAuth();
+  const { t } = useI18n();
   const [busyProvider, setBusyProvider] = useState<"google" | "apple" | "github" | null>(null);
 
   const google = isGoogleConfigured() ? useGoogleAuth() : null;
@@ -106,7 +108,7 @@ export default function OauthButtons({ onError }: { onError: (msg: string) => vo
     <View style={styles.wrap}>
       <View style={styles.divider}>
         <View style={styles.dividerLine} />
-        <Text style={styles.dividerText}>nebo</Text>
+        <Text style={styles.dividerText}>{t("oauth", "divider")}</Text>
         <View style={styles.dividerLine} />
       </View>
 
@@ -114,7 +116,7 @@ export default function OauthButtons({ onError }: { onError: (msg: string) => vo
         <ProviderButton
           variant="apple"
           icon={<FontAwesome name="apple" size={20} color="#fff" />}
-          label="Pokračovat přes Apple"
+          label={t("oauth", "apple")}
           loading={busyProvider === "apple"}
           disabled={!!busyProvider}
           onPress={tryApple}
@@ -125,7 +127,7 @@ export default function OauthButtons({ onError }: { onError: (msg: string) => vo
         <ProviderButton
           variant="light"
           icon={<FontAwesome name="google" size={18} color="#EA4335" />}
-          label="Pokračovat přes Google"
+          label={t("oauth", "google")}
           loading={busyProvider === "google"}
           disabled={!!busyProvider}
           onPress={tryGoogle}
@@ -136,7 +138,7 @@ export default function OauthButtons({ onError }: { onError: (msg: string) => vo
         <ProviderButton
           variant="light"
           icon={<FontAwesome name="github" size={20} color={colors.text} />}
-          label="Pokračovat přes GitHub"
+          label={t("oauth", "github")}
           loading={busyProvider === "github"}
           disabled={!!busyProvider}
           onPress={tryGithub}
