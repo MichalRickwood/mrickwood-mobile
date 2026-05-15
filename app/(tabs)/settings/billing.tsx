@@ -429,14 +429,6 @@ export default function BillingScreen() {
               multiline
               onChangeText={(v) => profileDraft && scheduleProfileSave({ ...profileDraft, address: v })}
             />
-            <ProfileField
-              styles={styles}
-              label={t("settings", "billingProfileEmail")}
-              value={profileDraft?.email ?? ""}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              onChangeText={(v) => profileDraft && scheduleProfileSave({ ...profileDraft, email: v })}
-            />
             {savingProfile && (
               <Text style={styles.savingHint}>{t("settings", "billingSavingProfile")}</Text>
             )}

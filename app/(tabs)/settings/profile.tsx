@@ -41,6 +41,7 @@ export default function ProfileScreen() {
   const [name, setName] = useState("");
   const [dialCode, setDialCode] = useState(defaultDialCodeForLocale(locale));
   const [phoneLocal, setPhoneLocal] = useState("");
+  const [billingEmail, setBillingEmail] = useState("");
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const [error, setError] = useState<string | null>(null);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -49,7 +50,10 @@ export default function ProfileScreen() {
     let cancelled = false;
     (async () => {
       try {
-        const p = await endpoints.profile();
+        const [p, billing] = await Promise.all([
+          endpoints.profile(),
+          endpoints.getBilling().catch(() => null),
+        ]);
         if (cancelled) return;
         setName(p.name ?? "");
         if (p.phone) {
@@ -61,6 +65,7 @@ export default function ProfileScreen() {
             setPhoneLocal(p.phone);
           }
         }
+        setBillingEmail(billing?.billingProfile.email ?? "");
       } catch (e) {
         if (!cancelled) setError(e instanceof ApiError ? e.message : t("settings", "loadFailed"));
       } finally {
@@ -108,6 +113,25 @@ export default function ProfileScreen() {
     const cleanDigits = phoneLocal.replace(/\s+/g, "");
     const phone = cleanDigits ? `${code} ${cleanDigits}` : null;
     scheduleSave({ phone });
+  }
+
+  function onBillingEmailChange(v: string) {
+    setBillingEmail(v);
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => void persistBillingEmail(v.trim()), SAVE_DEBOUNCE_MS);
+  }
+
+  async function persistBillingEmail(value: string) {
+    setSaveState("saving");
+    setError(null);
+    try {
+      await endpoints.updateBilling({ billingProfile: { email: value } });
+      setSaveState("saved");
+      setTimeout(() => setSaveState((s) => (s === "saved" ? "idle" : s)), 2000);
+    } catch (e) {
+      setSaveState("idle");
+      setError(e instanceof ApiError ? e.message : t("settings", "billingSaveFailed"));
+    }
   }
 
   const dialItems: PickerItem[] = useMemo(
@@ -175,6 +199,18 @@ export default function ProfileScreen() {
               <Text style={styles.readonlyText}>{user?.email ?? ""}</Text>
             </View>
 
+            <Text style={[styles.label, styles.spacer]}>{t("settings", "profileBillingEmailLabel")}</Text>
+            <TextInput
+              value={billingEmail}
+              onChangeText={onBillingEmailChange}
+              placeholder={user?.email ?? ""}
+              placeholderTextColor={colors.textFaint}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              style={styles.input}
+            />
+            <Text style={styles.helperText}>{t("settings", "profileBillingEmailHint")}</Text>
+
             {saveState === "saving" && (
               <Text style={styles.savingHint}>{t("settings", "billingSavingProfile")}</Text>
             )}
@@ -230,4 +266,5 @@ const makeStyles = (colors: Colors) =>
     savingHint: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: spacing.sm },
     savedHint: { fontSize: fontSize.xs, color: colors.success, marginTop: spacing.sm },
     errorText: { fontSize: fontSize.sm, color: colors.danger, marginTop: spacing.sm },
+    helperText: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: spacing.xs, lineHeight: 16 },
   });

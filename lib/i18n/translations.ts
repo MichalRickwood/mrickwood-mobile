@@ -107,6 +107,8 @@ export interface Dict {
     sectionAccountHint: string;
     accountEmail: string;
     accountName: string;
+    profileBillingEmailLabel: string;
+    profileBillingEmailHint: string;
     deleteNote: string;
     signOut: string;
     back: string;
@@ -381,6 +383,8 @@ const cs: Dict = {
     sectionAccountHint: "Odhlášení, export dat, smazání účtu",
     accountEmail: "Email",
     accountName: "Jméno",
+    profileBillingEmailLabel: "Fakturační email",
+    profileBillingEmailHint: "Pokud se liší od přihlašovacího emailu, doklady posíláme na oba.",
     deleteNote: "Smazání účtu zatím přes web — bude přidáno do appky v další verzi.",
     signOut: "Odhlásit se",
     back: "Zpět",
@@ -650,6 +654,8 @@ const en: Dict = {
     sectionAccountHint: "Sign out, data export, delete account",
     accountEmail: "Email",
     accountName: "Name",
+    profileBillingEmailLabel: "Billing email",
+    profileBillingEmailHint: "If different from the sign-in email, invoices go to both.",
     deleteNote: "Account deletion is on the web for now — coming to the app in a later version.",
     signOut: "Sign out",
     back: "Back",
@@ -921,6 +927,8 @@ const de: Dict = {
     sectionAccountHint: "Abmelden, Datenexport, Konto löschen",
     accountEmail: "E-Mail",
     accountName: "Name",
+    profileBillingEmailLabel: "Rechnungs-E-Mail",
+    profileBillingEmailHint: "Wenn sie sich von der Anmelde-E-Mail unterscheidet, senden wir Belege an beide.",
     deleteNote: "Kontolöschung ist derzeit über die Website — kommt in einer späteren App-Version.",
     signOut: "Abmelden",
     back: "Zurück",
