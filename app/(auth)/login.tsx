@@ -11,12 +11,14 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
 import { useAuth } from "@/lib/auth-context";
 import { ApiError } from "@/lib/api";
 import { APP_NAME } from "@/lib/config";
 import { colors, fontSize, radius, spacing } from "@/constants/theme";
 
 export default function LoginScreen() {
+  const router = useRouter();
   const { signIn } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -105,9 +107,11 @@ export default function LoginScreen() {
               <Text style={styles.buttonText}>{busy ? "Přihlašuji…" : "Přihlásit"}</Text>
             </Pressable>
 
-            <Text style={styles.help}>
-              Účet zakládejte na mrickwood.cz. V appce zatím jen přihlášení.
-            </Text>
+            <Pressable onPress={() => router.push("/(auth)/register")} style={styles.bottomLink}>
+              <Text style={styles.bottomLinkText}>
+                Nemáte účet? <Text style={styles.bottomLinkAccent}>Zaregistrovat se</Text>
+              </Text>
+            </Pressable>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -155,5 +159,7 @@ const styles = StyleSheet.create({
   buttonDisabled: { opacity: 0.4 },
   buttonPressed: { backgroundColor: colors.accentHover },
   buttonText: { color: "#fff", fontSize: fontSize.base, fontWeight: "600" },
-  help: { marginTop: spacing.xl, fontSize: fontSize.xs, color: colors.textSubtle, textAlign: "center" },
+  bottomLink: { marginTop: spacing.xl, alignItems: "center" },
+  bottomLinkText: { fontSize: fontSize.sm, color: colors.textSubtle },
+  bottomLinkAccent: { color: colors.text, fontWeight: "600" },
 });

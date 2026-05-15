@@ -61,10 +61,29 @@ export interface LeadFilterRow {
   maxValue: number | null;
 }
 
+export interface RegisterInput {
+  email: string;
+  password: string;
+  name: string;
+  phone: string;
+  country: string | null;
+  company: string | null;
+  ico: string | null;
+  dic: string | null;
+  address: string | null;
+  locale: string;
+  consentVop: boolean;
+  consentGdpr: boolean;
+}
+
 export const endpoints = {
   // Auth
   login: (email: string, password: string) =>
     api.post<MobileLoginResponse>("/api/auth/mobile/login", { email, password }, { noAuth: true }),
+
+  // Register — vrací { success, userId }. User pak musí potvrdit email z linku.
+  register: (input: RegisterInput) =>
+    api.post<{ success: boolean; userId: string }>("/api/auth/register", input, { noAuth: true }),
 
   // Aktuální user (verifikace JWT na startu)
   me: () => api.get<{ user: MobileLoginResponse["user"] }>("/api/auth/mobile/me"),
