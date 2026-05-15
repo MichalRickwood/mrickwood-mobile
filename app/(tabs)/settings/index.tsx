@@ -1,10 +1,12 @@
+import { useMemo } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/lib/auth-context";
 import { useI18n } from "@/lib/i18n";
+import { useTheme } from "@/lib/theme-context";
 import { APP_NAME } from "@/lib/config";
-import { colors, fontSize, radius, spacing } from "@/constants/theme";
+import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
 import AppearanceSwitcher from "@/components/AppearanceSwitcher";
 
@@ -12,6 +14,8 @@ export default function SettingsIndexScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const { t } = useI18n();
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
@@ -35,6 +39,7 @@ export default function SettingsIndexScreen() {
 
         <View style={styles.group}>
           <SectionRow
+            styles={styles}
             label={t("settings", "sectionProfile")}
             hint={t("settings", "sectionProfileHint")}
             onPress={() => router.push("/(tabs)/settings/profile")}
@@ -43,6 +48,7 @@ export default function SettingsIndexScreen() {
 
         <View style={styles.group}>
           <SectionRow
+            styles={styles}
             label={t("settings", "sectionAccount")}
             hint={t("settings", "sectionAccountHint")}
             onPress={() => router.push("/(tabs)/settings/account")}
@@ -56,10 +62,12 @@ export default function SettingsIndexScreen() {
 }
 
 function SectionRow({
+  styles,
   label,
   hint,
   onPress,
 }: {
+  styles: ReturnType<typeof makeStyles>;
   label: string;
   hint?: string;
   onPress: () => void;
@@ -78,48 +86,55 @@ function SectionRow({
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.bg },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.lg,
-    paddingBottom: spacing.lg,
-  },
-  headerPills: { flexDirection: "row", alignItems: "center" },
-  pillGap: { width: spacing.sm },
-  title: { fontSize: fontSize.xxl, fontWeight: "700", color: colors.text, letterSpacing: -0.5 },
-  scroll: { padding: spacing.xl, paddingTop: 0 },
-  userCard: {
-    backgroundColor: colors.card,
-    borderRadius: radius.lg,
-    padding: spacing.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    marginBottom: spacing.lg,
-  },
-  userLabel: { fontSize: fontSize.xs, color: colors.textSubtle, fontWeight: "500", textTransform: "uppercase", letterSpacing: 0.5 },
-  userValue: { fontSize: fontSize.base, color: colors.text, fontWeight: "600", marginTop: spacing.sm },
-  userSub: { fontSize: fontSize.sm, color: colors.textSubtle, marginTop: spacing.xs },
-  group: {
-    backgroundColor: colors.card,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    marginBottom: spacing.lg,
-    overflow: "hidden",
-  },
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.lg,
-  },
-  rowPressed: { backgroundColor: colors.bg },
-  rowLabel: { fontSize: fontSize.base, color: colors.text, fontWeight: "500" },
-  rowHint: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: 2 },
-  rowChevron: { fontSize: 22, color: colors.textFaint, marginLeft: spacing.md },
-  version: { textAlign: "center", marginTop: spacing.lg, fontSize: fontSize.xs, color: colors.textFaint },
-});
+const makeStyles = (colors: Colors) =>
+  StyleSheet.create({
+    safe: { flex: 1, backgroundColor: colors.bg },
+    header: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingHorizontal: spacing.xl,
+      paddingTop: spacing.lg,
+      paddingBottom: spacing.lg,
+    },
+    headerPills: { flexDirection: "row", alignItems: "center" },
+    pillGap: { width: spacing.sm },
+    title: { fontSize: fontSize.xxl, fontWeight: "700", color: colors.text, letterSpacing: -0.5 },
+    scroll: { padding: spacing.xl, paddingTop: 0 },
+    userCard: {
+      backgroundColor: colors.card,
+      borderRadius: radius.lg,
+      padding: spacing.lg,
+      borderWidth: 1,
+      borderColor: colors.border,
+      marginBottom: spacing.lg,
+    },
+    userLabel: {
+      fontSize: fontSize.xs,
+      color: colors.textSubtle,
+      fontWeight: "500",
+      textTransform: "uppercase",
+      letterSpacing: 0.5,
+    },
+    userValue: { fontSize: fontSize.base, color: colors.text, fontWeight: "600", marginTop: spacing.sm },
+    userSub: { fontSize: fontSize.sm, color: colors.textSubtle, marginTop: spacing.xs },
+    group: {
+      backgroundColor: colors.card,
+      borderRadius: radius.lg,
+      borderWidth: 1,
+      borderColor: colors.border,
+      marginBottom: spacing.lg,
+      overflow: "hidden",
+    },
+    row: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.lg,
+    },
+    rowPressed: { backgroundColor: colors.bg },
+    rowLabel: { fontSize: fontSize.base, color: colors.text, fontWeight: "500" },
+    rowHint: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: 2 },
+    rowChevron: { fontSize: 22, color: colors.textFaint, marginLeft: spacing.md },
+    version: { textAlign: "center", marginTop: spacing.lg, fontSize: fontSize.xs, color: colors.textFaint },
+  });

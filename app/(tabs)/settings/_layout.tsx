@@ -1,9 +1,11 @@
 import { Stack } from "expo-router";
 import { useI18n } from "@/lib/i18n";
-import { colors, fontSize } from "@/constants/theme";
+import { useTheme } from "@/lib/theme-context";
+import { fontSize } from "@/constants/theme";
 
 export default function SettingsLayout() {
   const { t } = useI18n();
+  const { colors } = useTheme();
   return (
     <Stack
       screenOptions={{

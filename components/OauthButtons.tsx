@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Pressable, StyleSheet, Text, View, ActivityIndicator } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { useAuth } from "@/lib/auth-context";
 import { useI18n } from "@/lib/i18n";
+import { useTheme } from "@/lib/theme-context";
 import {
   useGoogleAuth,
   useGithubAuth,
@@ -13,7 +14,7 @@ import {
   isGithubConfigured,
   isAppleAvailable,
 } from "@/lib/oauth";
-import { colors, fontSize, radius, spacing } from "@/constants/theme";
+import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 
 /**
  * 3 OAuth tlačítka (Apple, Google, GitHub) v custom designu — konzistentní
@@ -24,6 +25,8 @@ import { colors, fontSize, radius, spacing } from "@/constants/theme";
 export default function OauthButtons({ onError }: { onError: (msg: string) => void }) {
   const { applyOauthSession } = useAuth();
   const { t } = useI18n();
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const [busyProvider, setBusyProvider] = useState<"google" | "apple" | "github" | null>(null);
 
   const google = isGoogleConfigured() ? useGoogleAuth() : null;
@@ -114,6 +117,8 @@ export default function OauthButtons({ onError }: { onError: (msg: string) => vo
 
       {isAppleAvailable() && (
         <ProviderButton
+          styles={styles}
+          colors={colors}
           variant="apple"
           icon={<FontAwesome name="apple" size={20} color="#fff" />}
           label={t("oauth", "apple")}
@@ -125,6 +130,8 @@ export default function OauthButtons({ onError }: { onError: (msg: string) => vo
 
       {google && (
         <ProviderButton
+          styles={styles}
+          colors={colors}
           variant="light"
           icon={<FontAwesome name="google" size={18} color="#EA4335" />}
           label={t("oauth", "google")}
@@ -136,6 +143,8 @@ export default function OauthButtons({ onError }: { onError: (msg: string) => vo
 
       {github && (
         <ProviderButton
+          styles={styles}
+          colors={colors}
           variant="light"
           icon={<FontAwesome name="github" size={20} color={colors.text} />}
           label={t("oauth", "github")}
@@ -149,6 +158,8 @@ export default function OauthButtons({ onError }: { onError: (msg: string) => vo
 }
 
 function ProviderButton({
+  styles,
+  colors,
   variant,
   icon,
   label,
@@ -156,6 +167,8 @@ function ProviderButton({
   disabled,
   onPress,
 }: {
+  styles: ReturnType<typeof makeStyles>;
+  colors: Colors;
   variant: "apple" | "light";
   icon: React.ReactNode;
   label: string;
@@ -187,7 +200,7 @@ function ProviderButton({
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Colors) => StyleSheet.create({
   wrap: { marginTop: spacing.xl },
   divider: { flexDirection: "row", alignItems: "center", marginBottom: spacing.md },
   dividerLine: { flex: 1, height: 1, backgroundColor: colors.border },

@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider, useAuth } from "@/lib/auth-context";
 import { I18nProvider } from "@/lib/i18n";
+import { ThemeProvider, useTheme } from "@/lib/theme-context";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -16,10 +17,7 @@ const queryClient = new QueryClient({
 });
 
 /**
- * Router guard — přesměruje podle auth stavu.
- * - anonymous → /(auth)/login
- * - authenticated → /(tabs)
- * Profile completion (telefon, IČO) je dobrovolný v Settings tabu, ne blokující.
+ * Router guard — anon → login, auth → tabs.
  */
 function RouterGuard() {
   const { status } = useAuth();
@@ -46,16 +44,27 @@ function RouterGuard() {
   );
 }
 
+/**
+ * StatusBar follows the active theme — světlý styl pro dark mode (bílý text na tmavém),
+ * tmavý styl pro light mode (černý text na světlém).
+ */
+function ThemedStatusBar() {
+  const { isDark } = useTheme();
+  return <StatusBar style={isDark ? "light" : "dark"} />;
+}
+
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <I18nProvider>
-        <QueryClientProvider client={queryClient}>
-          <AuthProvider>
-            <StatusBar style="dark" />
-            <RouterGuard />
-          </AuthProvider>
-        </QueryClientProvider>
+        <ThemeProvider>
+          <QueryClientProvider client={queryClient}>
+            <AuthProvider>
+              <ThemedStatusBar />
+              <RouterGuard />
+            </AuthProvider>
+          </QueryClientProvider>
+        </ThemeProvider>
       </I18nProvider>
     </SafeAreaProvider>
   );

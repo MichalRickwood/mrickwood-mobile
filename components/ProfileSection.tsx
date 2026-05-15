@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -17,7 +17,8 @@ import {
 import { SUPPORTED_COUNTRIES, lookupCompanyById } from "@/lib/company-lookup";
 import Picker, { type PickerItem } from "./Picker";
 import { useI18n } from "@/lib/i18n";
-import { colors, fontSize, radius, spacing } from "@/constants/theme";
+import { useTheme } from "@/lib/theme-context";
+import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 
 const LOOKUP_DEBOUNCE_MS = 600;
 
@@ -37,6 +38,8 @@ type SaveState = "idle" | "saving" | "saved" | "error";
  */
 export default function ProfileSection() {
   const { t, locale } = useI18n();
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const [loading, setLoading] = useState(true);
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -172,15 +175,13 @@ export default function ProfileSection() {
   return (
     <View style={styles.card}>
       <View style={styles.headerRow}>
-        <Text style={styles.title}>Firemní údaje</Text>
-        {saveState === "saving" && <Text style={styles.statusSaving}>Ukládám…</Text>}
-        {saveState === "saved" && <Text style={styles.statusSaved}>Uloženo</Text>}
+        <Text style={styles.title}>{t("settings", "companyTitle")}</Text>
+        {saveState === "saving" && <Text style={styles.statusSaving}>{t("settings", "companySaving")}</Text>}
+        {saveState === "saved" && <Text style={styles.statusSaved}>{t("settings", "companySaved")}</Text>}
       </View>
-      <Text style={styles.subtitle}>
-        Dobrovolné. IČO + telefon umožní plnou aktivaci služeb a fakturaci.
-      </Text>
+      <Text style={styles.subtitle}>{t("settings", "companySubtitle")}</Text>
 
-      <Field label={t("profileComplete", "phoneLabel")}>
+      <Field styles={styles} label={t("profileComplete", "phoneLabel")}>
         <View style={styles.phoneRow}>
           <View style={styles.dialCodeBox}>
             <Picker
@@ -205,7 +206,7 @@ export default function ProfileSection() {
         </View>
       </Field>
 
-      <Field label={t("profileComplete", "countryLabel")}>
+      <Field styles={styles} label={t("profileComplete", "countryLabel")}>
         <Picker
           items={SUPPORTED_COUNTRIES.map((c): PickerItem => ({ value: c.code, label: c.label }))}
           value={country}
@@ -215,7 +216,7 @@ export default function ProfileSection() {
         />
       </Field>
 
-      <Field label={t("profileComplete", "icoLabel")}>
+      <Field styles={styles} label={t("profileComplete", "icoLabel")}>
         <TextInput
           value={ico}
           onChangeText={handleIcoChange}
@@ -226,7 +227,7 @@ export default function ProfileSection() {
           autoCapitalize="characters"
           style={styles.input}
         />
-        <LookupStatus state={lookup} t={t} />
+        <LookupStatus styles={styles} colors={colors} state={lookup} t={t} />
       </Field>
 
       {saveError && <Text style={styles.error}>{saveError}</Text>}
@@ -241,14 +242,22 @@ export default function ProfileSection() {
         ]}
       >
         <Text style={styles.buttonText}>
-          {saveState === "saving" ? "Ukládám…" : "Uložit"}
+          {saveState === "saving" ? t("settings", "companySaveBtnLoading") : t("settings", "companySaveBtn")}
         </Text>
       </Pressable>
     </View>
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({
+  styles,
+  label,
+  children,
+}: {
+  styles: ReturnType<typeof makeStyles>;
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <View style={styles.field}>
       <Text style={styles.label}>{label}</Text>
@@ -258,9 +267,13 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 function LookupStatus({
+  styles,
+  colors,
   state,
   t,
 }: {
+  styles: ReturnType<typeof makeStyles>;
+  colors: Colors;
   state: LookupState;
   t: (s: "profileComplete", k: "lookupSearching" | "lookupNotFound" | "lookupError", p?: Record<string, string>) => string;
 }) {
@@ -288,7 +301,8 @@ function LookupStatus({
   return <Text style={styles.lookupError}>{t("profileComplete", "lookupError", { message: state.message })}</Text>;
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Colors) =>
+  StyleSheet.create({
   card: {
     backgroundColor: colors.card,
     borderRadius: radius.lg,

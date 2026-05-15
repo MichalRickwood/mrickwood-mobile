@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   FlatList,
   Modal,
@@ -9,18 +9,8 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { colors, fontSize, radius, spacing } from "@/constants/theme";
-
-/**
- * Generický bottom-sheet picker. Použití:
- *   <Picker
- *     items={[{ value: "CZ", label: "Česká republika" }, ...]}
- *     value={country}
- *     onChange={setCountry}
- *     placeholder="Vyberte zemi"
- *     searchable
- *   />
- */
+import { useTheme } from "@/lib/theme-context";
+import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 
 export interface PickerItem {
   value: string;
@@ -37,6 +27,8 @@ interface Props {
 }
 
 export default function Picker({ items, value, onChange, placeholder, searchable, disabled }: Props) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const selected = items.find((i) => i.value === value);
@@ -117,53 +109,55 @@ export default function Picker({ items, value, onChange, placeholder, searchable
   );
 }
 
-const styles = StyleSheet.create({
-  trigger: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
-    backgroundColor: colors.card,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  triggerDisabled: { opacity: 0.5 },
-  triggerPressed: { borderColor: colors.text },
-  triggerText: { fontSize: fontSize.base, color: colors.text, flex: 1 },
-  placeholder: { color: colors.textFaint },
-  chevron: { fontSize: fontSize.sm, color: colors.textSubtle, marginLeft: spacing.sm },
-  sheet: { flex: 1, backgroundColor: colors.card },
-  sheetHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  cancelBtn: { fontSize: fontSize.base, color: colors.link, width: 60 },
-  sheetTitle: { fontSize: fontSize.base, fontWeight: "600", color: colors.text },
-  searchWrap: { padding: spacing.lg, borderBottomWidth: 1, borderBottomColor: colors.border },
-  searchInput: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    fontSize: fontSize.base,
-    backgroundColor: colors.bg,
-  },
-  item: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-  },
-  itemText: { fontSize: fontSize.base, color: colors.text, flex: 1 },
-  check: { fontSize: fontSize.base, color: colors.text, fontWeight: "600" },
-  sep: { height: 1, backgroundColor: colors.border, marginHorizontal: spacing.lg },
-});
+const makeStyles = (colors: Colors) =>
+  StyleSheet.create({
+    trigger: {
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.md,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.md,
+      backgroundColor: colors.card,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+    },
+    triggerDisabled: { opacity: 0.5 },
+    triggerPressed: { borderColor: colors.text },
+    triggerText: { fontSize: fontSize.base, color: colors.text, flex: 1 },
+    placeholder: { color: colors.textFaint },
+    chevron: { fontSize: fontSize.sm, color: colors.textSubtle, marginLeft: spacing.sm },
+    sheet: { flex: 1, backgroundColor: colors.card },
+    sheetHeader: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    cancelBtn: { fontSize: fontSize.base, color: colors.link, width: 60 },
+    sheetTitle: { fontSize: fontSize.base, fontWeight: "600", color: colors.text },
+    searchWrap: { padding: spacing.lg, borderBottomWidth: 1, borderBottomColor: colors.border },
+    searchInput: {
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.md,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      fontSize: fontSize.base,
+      backgroundColor: colors.bg,
+      color: colors.text,
+    },
+    item: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+    },
+    itemText: { fontSize: fontSize.base, color: colors.text, flex: 1 },
+    check: { fontSize: fontSize.base, color: colors.text, fontWeight: "600" },
+    sep: { height: 1, backgroundColor: colors.border, marginHorizontal: spacing.lg },
+  });
