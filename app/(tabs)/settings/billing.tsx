@@ -149,7 +149,9 @@ function Row({
   );
 }
 
-function stateToLabel(state: NonNullable<BillingSummary["state"]>, t: (s: "settings", k: string) => string): string {
+type TFn = ReturnType<typeof useI18n>["t"];
+
+function stateToLabel(state: NonNullable<BillingSummary["state"]>, t: TFn): string {
   switch (state) {
     case "TRIAL":
       return t("settings", "billingStateTrial");
@@ -164,7 +166,7 @@ function stateToLabel(state: NonNullable<BillingSummary["state"]>, t: (s: "setti
   }
 }
 
-function cycleToLabel(cycle: NonNullable<BillingSummary["cycle"]>, t: (s: "settings", k: string) => string): string {
+function cycleToLabel(cycle: NonNullable<BillingSummary["cycle"]>, t: TFn): string {
   return cycle === "MONTHLY" ? t("settings", "billingCycleMonthly") : t("settings", "billingCycleYearly");
 }
 

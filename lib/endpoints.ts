@@ -151,8 +151,9 @@ export const endpoints = {
   // Billing summary (read-only, mobile)
   getBilling: () => api.get<BillingSummary>("/api/mobile/billing"),
 
-  // Account export (vrací JSON snapshot uživatelských dat)
-  exportAccount: () => api.get<unknown>("/api/mobile/account/export"),
+  // Account export — pošle JSON přílohou na email uživatele (mobile-only flow).
+  exportAccount: () =>
+    api.post<{ sent: true; email: string }>("/api/mobile/account/export"),
 
   // Cancel / Delete flow (request → email s 8-char kódem → confirm)
   requestAccountCancel: (action: "DEACTIVATE" | "DELETE") =>

@@ -5,7 +5,6 @@ import {
   Platform,
   Pressable,
   ScrollView,
-  Share,
   StyleSheet,
   Text,
   TextInput,
@@ -29,6 +28,7 @@ export default function AccountScreen() {
   const styles = useMemo(() => makeStyles(colors), [colors]);
 
   const [exporting, setExporting] = useState(false);
+  const [exportSentTo, setExportSentTo] = useState<string | null>(null);
   const [mode, setMode] = useState<FlowMode>("idle");
   const [pendingAction, setPendingAction] = useState<CancelAction>("DEACTIVATE");
   const [intentChecked, setIntentChecked] = useState(false);
@@ -51,17 +51,14 @@ export default function AccountScreen() {
     );
   }
 
-  async function downloadExport() {
+  async function sendExportEmail() {
     if (exporting) return;
     setExporting(true);
     setError(null);
+    setExportSentTo(null);
     try {
-      const data = await endpoints.exportAccount();
-      const json = JSON.stringify(data, null, 2);
-      await Share.share({
-        message: json,
-        title: `tendero-export-${new Date().toISOString().slice(0, 10)}.json`,
-      });
+      const r = await endpoints.exportAccount();
+      setExportSentTo(r.email);
     } catch (e) {
       setError(e instanceof ApiError ? e.message : t("settings", "exportError"));
     } finally {
@@ -151,7 +148,7 @@ export default function AccountScreen() {
             subtitle={t("settings", "exportSubtitle")}
           >
             <Pressable
-              onPress={downloadExport}
+              onPress={sendExportEmail}
               disabled={exporting || mode !== "idle"}
               style={({ pressed }) => [
                 styles.primaryBtn,
@@ -163,6 +160,14 @@ export default function AccountScreen() {
                 {exporting ? t("settings", "exporting") : t("settings", "exportButton")}
               </Text>
             </Pressable>
+            {exportSentTo && (
+              <Text style={styles.exportSuccess}>
+                {t("settings", "exportSentMessage", { email: exportSentTo })}
+              </Text>
+            )}
+            {error && !exportSentTo && mode === "idle" && (
+              <Text style={styles.exportError}>{error}</Text>
+            )}
           </Section>
 
           {/* Deactivate */}
@@ -524,6 +529,18 @@ const makeStyles = (colors: Colors) =>
       alignSelf: "flex-start",
     },
     primaryBtnText: { color: colors.accentForeground, fontSize: fontSize.sm, fontWeight: "600" },
+    exportSuccess: {
+      fontSize: fontSize.sm,
+      color: colors.success,
+      marginTop: spacing.md,
+      lineHeight: 18,
+    },
+    exportError: {
+      fontSize: fontSize.sm,
+      color: colors.danger,
+      marginTop: spacing.md,
+      lineHeight: 18,
+    },
     warnBtn: {
       backgroundColor: colors.warningBg,
       borderWidth: 1,
