@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {
+  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -53,6 +54,11 @@ export default function LoginScreen() {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.brand}>
+            <Image
+              source={require("@/assets/icon.png")}
+              style={styles.brandIcon}
+              resizeMode="contain"
+            />
             <Text style={styles.brandText}>{APP_NAME}</Text>
             <Text style={styles.brandSub}>Vyhledávání veřejných zakázek</Text>
           </View>
@@ -114,6 +120,7 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   scroll: { flexGrow: 1, justifyContent: "center", padding: spacing.xl },
   brand: { marginBottom: spacing.xxl, alignItems: "center" },
+  brandIcon: { width: 96, height: 96, marginBottom: spacing.lg },
   brandText: { fontSize: 36, fontWeight: "700", color: colors.text, letterSpacing: -0.5 },
   brandSub: { fontSize: fontSize.sm, color: colors.textSubtle, marginTop: spacing.sm },
   form: { gap: 0 },
