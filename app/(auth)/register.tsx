@@ -145,7 +145,7 @@ export default function RegisterScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
+    <SafeAreaView style={styles.safe} edges={["top"]}>
       <View style={styles.topBar}>
         <LocaleSwitcher />
         <View style={styles.pillGap} />
@@ -158,7 +158,6 @@ export default function RegisterScreen() {
         <ScrollView
           contentContainerStyle={styles.scroll}
           keyboardShouldPersistTaps="handled"
-          bounces={false}
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.brand}>
@@ -326,10 +325,10 @@ const makeStyles = (colors: Colors) =>
     paddingTop: spacing.sm,
   },
   pillGap: { width: spacing.sm },
-  scroll: { padding: spacing.xl, paddingBottom: 120 },
-  brand: { alignItems: "center", marginBottom: spacing.xl },
-  logoSmall: { width: 72, height: 72, marginBottom: spacing.md, alignSelf: "center" },
-  brandText: { fontSize: 28, fontWeight: "700", color: colors.text, letterSpacing: -0.5 },
+  scroll: { padding: spacing.xl, paddingBottom: 60 },
+  brand: { alignItems: "center", marginBottom: spacing.lg },
+  logoSmall: { width: 56, height: 56, marginBottom: spacing.sm, alignSelf: "center" },
+  brandText: { fontSize: 24, fontWeight: "700", color: colors.text, letterSpacing: -0.5 },
   brandSub: { fontSize: fontSize.sm, color: colors.textSubtle, marginTop: spacing.xs },
   field: { marginBottom: spacing.lg },
   label: { fontSize: fontSize.xs, fontWeight: "600", color: colors.text, marginBottom: spacing.sm },
