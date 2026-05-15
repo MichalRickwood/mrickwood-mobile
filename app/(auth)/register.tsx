@@ -28,8 +28,11 @@ export default function RegisterScreen() {
   const router = useRouter();
   const { t, locale } = useI18n();
   const { signIn } = useAuth();
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
+  const logoSrc = isDark
+    ? require("@/assets/logo-dark.png")
+    : require("@/assets/logo.png");
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -100,7 +103,7 @@ export default function RegisterScreen() {
     return (
       <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
         <View style={styles.successWrap}>
-          <Image source={require("@/assets/logo.png")} style={styles.logoSmall} resizeMode="contain" />
+          <Image source={logoSrc} style={styles.logoSmall} resizeMode="contain" />
           <Text style={styles.successTitle}>{t("register", "successTitle")}</Text>
           <Text style={styles.successBody}>
             {bodyAfter !== undefined ? (
@@ -159,7 +162,7 @@ export default function RegisterScreen() {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.brand}>
-            <Image source={require("@/assets/logo.png")} style={styles.logoSmall} resizeMode="contain" />
+            <Image source={logoSrc} style={styles.logoSmall} resizeMode="contain" />
             <Text style={styles.brandText}>{APP_NAME}</Text>
             <Text style={styles.brandSub}>{t("register", "title")}</Text>
           </View>
@@ -323,7 +326,7 @@ const makeStyles = (colors: Colors) =>
     paddingTop: spacing.sm,
   },
   pillGap: { width: spacing.sm },
-  scroll: { padding: spacing.xl, paddingBottom: spacing.xxl * 2 },
+  scroll: { padding: spacing.xl, paddingBottom: 120 },
   brand: { alignItems: "center", marginBottom: spacing.xl },
   logoSmall: { width: 72, height: 72, marginBottom: spacing.md, alignSelf: "center" },
   brandText: { fontSize: 28, fontWeight: "700", color: colors.text, letterSpacing: -0.5 },

@@ -29,8 +29,11 @@ export default function LoginScreen() {
   const router = useRouter();
   const { signIn } = useAuth();
   const { t } = useI18n();
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
+  const logoSrc = isDark
+    ? require("@/assets/logo-dark.png")
+    : require("@/assets/logo.png");
   const [email, setEmail] = useState(DEV_EMAIL);
   const [password, setPassword] = useState(DEV_PASSWORD);
   const [error, setError] = useState<string | null>(null);
@@ -73,11 +76,7 @@ export default function LoginScreen() {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.brand}>
-            <Image
-              source={require("@/assets/logo.png")}
-              style={styles.brandIcon}
-              resizeMode="contain"
-            />
+            <Image source={logoSrc} style={styles.brandIcon} resizeMode="contain" />
             <Text style={styles.brandText}>{APP_NAME}</Text>
             <Text style={styles.brandSub}>{t("brand", "tagline")}</Text>
           </View>
