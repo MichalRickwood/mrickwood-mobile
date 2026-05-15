@@ -215,6 +215,7 @@ export interface BillingProfileShape {
   dic: string;
   address: string;
   email: string;
+  country: string;
 }
 
 export interface BillingCardInfo {

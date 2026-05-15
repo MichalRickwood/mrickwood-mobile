@@ -27,10 +27,20 @@ import {
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme-context";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
+import { SUPPORTED_COUNTRIES, lookupCompanyById } from "@/lib/company-lookup";
+import Picker, { type PickerItem } from "@/components/Picker";
 
 const LOCALE_MAP: Record<string, string> = { cs: "cs-CZ", en: "en-GB", de: "de-DE" };
 const NUMBER_LOCALE_MAP: Record<string, string> = { cs: "cs-CZ", en: "en-US", de: "de-DE" };
 const SAVE_DEBOUNCE_MS = 700;
+const LOOKUP_DEBOUNCE_MS = 600;
+
+type LookupState =
+  | { kind: "idle" }
+  | { kind: "loading" }
+  | { kind: "found"; name: string; address: string; vatNumber: string | null }
+  | { kind: "not_found" }
+  | { kind: "error"; message: string };
 
 type TFn = ReturnType<typeof useI18n>["t"];
 
@@ -53,7 +63,10 @@ export default function BillingScreen() {
   >(null);
   const [openingInvoiceId, setOpeningInvoiceId] = useState<string | null>(null);
   const [serviceBusy, setServiceBusy] = useState<ApiServiceId | null>(null);
+  const [lookup, setLookup] = useState<LookupState>({ kind: "idle" });
   const profileSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lookupTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lookupAbortRef = useRef<AbortController | null>(null);
 
   const refresh = useCallback(async () => {
     setError(null);
@@ -64,7 +77,12 @@ export default function BillingScreen() {
       ]);
       setData(state);
       setInvoices(inv.invoices);
-      setProfileDraft(state.billingProfile);
+      // Normalize country fallback (legacy profiles bez country = CZ)
+      const profile: BillingProfileShape = {
+        ...state.billingProfile,
+        country: state.billingProfile.country || "CZ",
+      };
+      setProfileDraft(profile);
     } catch (e) {
       setError(e instanceof ApiError ? e.message : t("settings", "loadFailed"));
     }
@@ -102,6 +120,53 @@ export default function BillingScreen() {
     profileSaveTimer.current = setTimeout(() => {
       void saveProfile(next);
     }, SAVE_DEBOUNCE_MS);
+  }
+
+  function runLookup(country: string, ico: string) {
+    if (lookupAbortRef.current) lookupAbortRef.current.abort();
+    if (!ico.trim() || !country) {
+      setLookup({ kind: "idle" });
+      return;
+    }
+    const ctrl = new AbortController();
+    lookupAbortRef.current = ctrl;
+    setLookup({ kind: "loading" });
+    lookupCompanyById(country, ico.trim(), ctrl.signal)
+      .then((r) => {
+        if (ctrl.signal.aborted) return;
+        if (!r.found) {
+          setLookup({ kind: "not_found" });
+          return;
+        }
+        setLookup({
+          kind: "found",
+          name: r.name,
+          address: r.address,
+          vatNumber: r.vatNumber ?? null,
+        });
+        // Auto-fill prázdná pole (nepřepisujeme, pokud user už vyplnil ručně).
+        setProfileDraft((prev) => {
+          if (!prev) return prev;
+          const next: BillingProfileShape = {
+            ...prev,
+            name: prev.name || r.name,
+            address: prev.address || r.address,
+            dic: prev.dic || (r.vatNumber ?? prev.dic),
+          };
+          // Persist auto-fill bez čekání na debounce.
+          void saveProfile(next);
+          return next;
+        });
+      })
+      .catch((e: unknown) => {
+        if (ctrl.signal.aborted) return;
+        setLookup({ kind: "error", message: (e as Error).message });
+      });
+  }
+
+  function scheduleLookup(country: string, ico: string) {
+    if (lookupTimer.current) clearTimeout(lookupTimer.current);
+    lookupTimer.current = setTimeout(() => runLookup(country, ico), LOOKUP_DEBOUNCE_MS);
   }
 
   async function saveProfile(profile: BillingProfileShape) {
@@ -317,18 +382,39 @@ export default function BillingScreen() {
 
           {/* Fakturační údaje */}
           <Section styles={styles} title={t("settings", "billingProfileSection")}>
-            <ProfileField
-              styles={styles}
-              label={t("settings", "billingProfileName")}
-              value={profileDraft?.name ?? ""}
-              onChangeText={(v) => profileDraft && scheduleProfileSave({ ...profileDraft, name: v })}
-            />
+            <View style={styles.field}>
+              <Text style={styles.fieldLabel}>{t("profileComplete", "countryLabel")}</Text>
+              <Picker
+                items={SUPPORTED_COUNTRIES.map((c) => ({ value: c.code, label: c.label }))}
+                value={profileDraft?.country || "CZ"}
+                onChange={(v) => {
+                  if (!profileDraft) return;
+                  const next = { ...profileDraft, country: v };
+                  scheduleProfileSave(next);
+                  if (profileDraft.ico.trim()) scheduleLookup(v, profileDraft.ico);
+                }}
+                placeholder={t("profileComplete", "countryPlaceholder")}
+                searchable
+              />
+            </View>
             <ProfileField
               styles={styles}
               label={t("settings", "billingProfileIco")}
               value={profileDraft?.ico ?? ""}
               keyboardType="numbers-and-punctuation"
-              onChangeText={(v) => profileDraft && scheduleProfileSave({ ...profileDraft, ico: v })}
+              onChangeText={(v) => {
+                if (!profileDraft) return;
+                const next = { ...profileDraft, ico: v };
+                scheduleProfileSave(next);
+                scheduleLookup(profileDraft.country || "CZ", v);
+              }}
+            />
+            <LookupHint styles={styles} t={t} lookup={lookup} />
+            <ProfileField
+              styles={styles}
+              label={t("settings", "billingProfileName")}
+              value={profileDraft?.name ?? ""}
+              onChangeText={(v) => profileDraft && scheduleProfileSave({ ...profileDraft, name: v })}
             />
             <ProfileField
               styles={styles}
@@ -633,6 +719,41 @@ function PlanSummary({
   );
 }
 
+function LookupHint({
+  styles,
+  t,
+  lookup,
+}: {
+  styles: ReturnType<typeof makeStyles>;
+  t: TFn;
+  lookup: LookupState;
+}) {
+  if (lookup.kind === "idle") return null;
+  if (lookup.kind === "loading") {
+    return (
+      <View style={styles.lookupRow}>
+        <ActivityIndicator size="small" />
+        <Text style={styles.lookupHint}>{t("profileComplete", "lookupSearching")}</Text>
+      </View>
+    );
+  }
+  if (lookup.kind === "found") {
+    return (
+      <Text style={[styles.lookupHint, { color: styles.savedHint.color }]} numberOfLines={2}>
+        ✓ {lookup.name}
+      </Text>
+    );
+  }
+  if (lookup.kind === "not_found") {
+    return <Text style={styles.lookupWarn}>{t("profileComplete", "lookupNotFound")}</Text>;
+  }
+  return (
+    <Text style={styles.lookupWarn}>
+      {t("profileComplete", "lookupError", { message: lookup.message })}
+    </Text>
+  );
+}
+
 function Section({
   styles,
   title,
@@ -921,6 +1042,9 @@ const makeStyles = (colors: Colors) =>
     inputMultiline: { minHeight: 60, paddingTop: spacing.sm + 2, textAlignVertical: "top" },
     savingHint: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: spacing.xs },
     savedHint: { fontSize: fontSize.xs, color: colors.success, marginTop: spacing.xs },
+    lookupRow: { flexDirection: "row", alignItems: "center", gap: spacing.sm, marginTop: -spacing.sm, marginBottom: spacing.md },
+    lookupHint: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: -spacing.sm, marginBottom: spacing.md },
+    lookupWarn: { fontSize: fontSize.xs, color: colors.warning, marginTop: -spacing.sm, marginBottom: spacing.md },
 
     segments: { flexDirection: "row", gap: spacing.sm },
     segment: {

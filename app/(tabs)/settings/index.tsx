@@ -30,21 +30,18 @@ export default function SettingsIndexScreen() {
 
       <ScrollView contentContainerStyle={styles.scroll}>
         {user && (
-          <View style={styles.userCard}>
-            <Text style={styles.userLabel}>{t("settings", "signedInAs")}</Text>
-            <Text style={styles.userValue}>{user.name || user.email}</Text>
-            {user.name && <Text style={styles.userSub}>{user.email}</Text>}
-          </View>
-        )}
-
-        <View style={styles.group}>
-          <SectionRow
-            styles={styles}
-            label={t("settings", "sectionProfile")}
-            hint={t("settings", "sectionProfileHint")}
+          <Pressable
             onPress={() => router.push("/(tabs)/settings/profile")}
-          />
-        </View>
+            style={({ pressed }) => [styles.userCard, pressed && styles.rowPressed]}
+          >
+            <View style={{ flex: 1 }}>
+              <Text style={styles.userLabel}>{t("settings", "signedInAs")}</Text>
+              <Text style={styles.userValue}>{user.name || user.email}</Text>
+              {user.name && <Text style={styles.userSub}>{user.email}</Text>}
+            </View>
+            <Text style={styles.rowChevron}>›</Text>
+          </Pressable>
+        )}
 
         <View style={styles.group}>
           <SectionRow
@@ -129,6 +126,8 @@ const makeStyles = (colors: Colors) =>
     title: { fontSize: fontSize.xxl, fontWeight: "700", color: colors.text, letterSpacing: -0.5 },
     scroll: { padding: spacing.xl, paddingTop: 0 },
     userCard: {
+      flexDirection: "row",
+      alignItems: "center",
       backgroundColor: colors.card,
       borderRadius: radius.lg,
       padding: spacing.lg,
