@@ -1,19 +1,21 @@
 import { Stack } from "expo-router";
+import { useI18n } from "@/lib/i18n";
 import { colors, fontSize } from "@/constants/theme";
 
 export default function SettingsLayout() {
+  const { t } = useI18n();
   return (
     <Stack
       screenOptions={{
         headerStyle: { backgroundColor: colors.bg },
         headerTintColor: colors.text,
         headerTitleStyle: { fontSize: fontSize.base, fontWeight: "600" },
-        headerBackTitle: "Zpět",
+        headerBackTitle: t("settings", "cancel"),
       }}
     >
       <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="profile" options={{ title: "Firemní údaje" }} />
-      <Stack.Screen name="account" options={{ title: "Účet" }} />
+      <Stack.Screen name="profile" options={{ title: t("settings", "profileTitle") }} />
+      <Stack.Screen name="account" options={{ title: t("settings", "accountTitle") }} />
     </Stack>
   );
 }

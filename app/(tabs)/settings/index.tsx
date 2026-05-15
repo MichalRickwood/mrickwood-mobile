@@ -2,23 +2,21 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/lib/auth-context";
+import { useI18n } from "@/lib/i18n";
 import { APP_NAME } from "@/lib/config";
 import { colors, fontSize, radius, spacing } from "@/constants/theme";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
 import AppearanceSwitcher from "@/components/AppearanceSwitcher";
 
-/**
- * Settings index — list sub-sekcí. Nahoře v headeru pills pro jazyk a vzhled
- * (rychlý přístup, ne celá sub-stránka).
- */
 export default function SettingsIndexScreen() {
   const router = useRouter();
   const { user } = useAuth();
+  const { t } = useI18n();
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
       <View style={styles.header}>
-        <Text style={styles.title}>Nastavení</Text>
+        <Text style={styles.title}>{t("settings", "title")}</Text>
         <View style={styles.headerPills}>
           <LocaleSwitcher />
           <View style={styles.pillGap} />
@@ -29,7 +27,7 @@ export default function SettingsIndexScreen() {
       <ScrollView contentContainerStyle={styles.scroll}>
         {user && (
           <View style={styles.userCard}>
-            <Text style={styles.userLabel}>Přihlášen jako</Text>
+            <Text style={styles.userLabel}>{t("settings", "signedInAs")}</Text>
             <Text style={styles.userValue}>{user.name || user.email}</Text>
             {user.name && <Text style={styles.userSub}>{user.email}</Text>}
           </View>
@@ -37,16 +35,16 @@ export default function SettingsIndexScreen() {
 
         <View style={styles.group}>
           <SectionRow
-            label="Firemní údaje"
-            hint="Telefon, IČO, fakturace"
+            label={t("settings", "sectionProfile")}
+            hint={t("settings", "sectionProfileHint")}
             onPress={() => router.push("/(tabs)/settings/profile")}
           />
         </View>
 
         <View style={styles.group}>
           <SectionRow
-            label="Účet"
-            hint="Odhlásit, smazat účet"
+            label={t("settings", "sectionAccount")}
+            hint={t("settings", "sectionAccountHint")}
             onPress={() => router.push("/(tabs)/settings/account")}
           />
         </View>

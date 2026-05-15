@@ -1,11 +1,36 @@
 /**
- * Sjednocený design tokenset, mapuje na barvy z webu (mrickwood.cz),
- * abychom měli vizuální kontinuitu mezi appkou a portálem.
+ * Design tokens — light + dark palettes pro Tendero.
+ *
+ * Light = sjednoceno s webovým mrickwood.cz (stone/zinc gray scale).
+ * Dark = inverse s mírnými warm tones (ne čistá čerň — vypadá teplej a méně OLED-aggressive).
  */
 
-export const colors = {
+export interface Colors {
+  bg: string;
+  card: string;
+  cardElevated: string;
+  border: string;
+  borderHover: string;
+  text: string;
+  textMuted: string;
+  textSubtle: string;
+  textFaint: string;
+  accent: string;
+  accentHover: string;
+  accentForeground: string;
+  danger: string;
+  dangerBg: string;
+  warning: string;
+  warningBg: string;
+  success: string;
+  successBg: string;
+  link: string;
+}
+
+export const lightColors: Colors = {
   bg: "#FAFAF9",
   card: "#FFFFFF",
+  cardElevated: "#FFFFFF",
   border: "#E7E5E4",
   borderHover: "#A8A29E",
   text: "#1C1917",
@@ -14,6 +39,7 @@ export const colors = {
   textFaint: "#A8A29E",
   accent: "#1C1917",
   accentHover: "#0C0A09",
+  accentForeground: "#FFFFFF",
   danger: "#DC2626",
   dangerBg: "#FEE2E2",
   warning: "#F59E0B",
@@ -22,6 +48,35 @@ export const colors = {
   successBg: "#F0FDF4",
   link: "#2563EB",
 };
+
+export const darkColors: Colors = {
+  bg: "#0C0A09",
+  card: "#1C1917",
+  cardElevated: "#292524",
+  border: "#292524",
+  borderHover: "#57534E",
+  text: "#FAFAF9",
+  textMuted: "#D6D3D1",
+  textSubtle: "#A8A29E",
+  textFaint: "#78716C",
+  accent: "#FAFAF9",
+  accentHover: "#E7E5E4",
+  accentForeground: "#1C1917",
+  danger: "#F87171",
+  dangerBg: "#3A1212",
+  warning: "#FBBF24",
+  warningBg: "#3A2A08",
+  success: "#4ADE80",
+  successBg: "#0F2A18",
+  link: "#60A5FA",
+};
+
+/**
+ * @deprecated Use `useTheme()` hook from `@/lib/theme-context` instead.
+ * Tato static export zůstává pro backwards compat — některé legacy komponenty
+ * ji ještě používají. Při refaktoru je migrujeme na hook.
+ */
+export const colors = lightColors;
 
 export const spacing = {
   xs: 4,

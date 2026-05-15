@@ -1,38 +1,42 @@
 import { useState } from "react";
 import { ActionSheetIOS, Alert, Platform, Pressable, StyleSheet, Text } from "react-native";
+import { useI18n } from "@/lib/i18n";
 import { colors, fontSize, radius, spacing } from "@/constants/theme";
 
 /**
- * Placeholder pill pro Phase 2 — světlý / tmavý / system. Aktuálně jen UI,
- * pod ním ThemeContext + colors swap přijde v dalším kroku. Pro teď vždy
- * vybráno "AUTO" a kliknutí ukáže info že přijde brzy.
+ * Placeholder pill pro Phase 2 — světlý / tmavý / system.
  */
 
 type Mode = "system" | "light" | "dark";
 
-const LABEL: Record<Mode, string> = {
-  system: "AUTO",
-  light: "DEN",
-  dark: "NOC",
-};
-
 export default function AppearanceSwitcher() {
+  const { t, dict } = useI18n();
   const [mode] = useState<Mode>("system");
+
+  const LABEL: Record<Mode, string> = {
+    system: dict.settings.appearancePillSystem,
+    light: dict.settings.appearancePillLight,
+    dark: dict.settings.appearancePillDark,
+  };
 
   function open() {
     if (Platform.OS !== "ios") return;
     ActionSheetIOS.showActionSheetWithOptions(
       {
-        title: "Vzhled",
-        message: "Tmavý režim přijde v další verzi appky.",
-        options: ["Podle systému", "Světlý", "Tmavý", "Zrušit"],
+        title: t("settings", "appearanceTitle"),
+        message: t("settings", "appearanceMessage"),
+        options: [
+          t("settings", "appearanceSystem"),
+          t("settings", "appearanceLight"),
+          t("settings", "appearanceDark"),
+          t("settings", "cancel"),
+        ],
         cancelButtonIndex: 3,
         userInterfaceStyle: "light",
       },
       (idx) => {
         if (idx >= 0 && idx <= 2) {
-          // Phase 2 — wire to ThemeContext
-          Alert.alert("Vzhled", "Tmavý/světlý režim přidáme brzy — pro teď je vše světlé.");
+          Alert.alert(t("settings", "appearanceComingSoon"), t("settings", "appearanceComingSoonBody"));
         }
       },
     );

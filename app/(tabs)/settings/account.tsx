@@ -1,20 +1,22 @@
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "@/lib/auth-context";
+import { useI18n } from "@/lib/i18n";
 import { colors, fontSize, radius, spacing } from "@/constants/theme";
 
-/**
- * Account sekce — odhlášení + budoucí "Smazat účet" (Apple Review iOS 16+
- * povinné, řešíme později jako separátní flow).
- */
 export default function AccountScreen() {
   const { user, signOut } = useAuth();
+  const { t } = useI18n();
 
   function confirmSignOut() {
-    Alert.alert("Odhlásit se", "Opravdu se chcete odhlásit?", [
-      { text: "Zrušit", style: "cancel" },
-      { text: "Odhlásit", style: "destructive", onPress: () => void signOut() },
-    ]);
+    Alert.alert(
+      t("settings", "signOutConfirmTitle"),
+      t("settings", "signOutConfirmBody"),
+      [
+        { text: t("settings", "cancel"), style: "cancel" },
+        { text: t("settings", "confirm"), style: "destructive", onPress: () => void signOut() },
+      ],
+    );
   }
 
   return (
@@ -22,11 +24,11 @@ export default function AccountScreen() {
       <ScrollView contentContainerStyle={styles.scroll}>
         {user && (
           <View style={styles.card}>
-            <Text style={styles.label}>Email</Text>
+            <Text style={styles.label}>{t("settings", "accountEmail")}</Text>
             <Text style={styles.value}>{user.email}</Text>
             {user.name && (
               <>
-                <Text style={[styles.label, styles.spacer]}>Jméno</Text>
+                <Text style={[styles.label, styles.spacer]}>{t("settings", "accountName")}</Text>
                 <Text style={styles.value}>{user.name}</Text>
               </>
             )}
@@ -37,12 +39,10 @@ export default function AccountScreen() {
           onPress={confirmSignOut}
           style={({ pressed }) => [styles.signOut, pressed && { opacity: 0.7 }]}
         >
-          <Text style={styles.signOutText}>Odhlásit se</Text>
+          <Text style={styles.signOutText}>{t("settings", "signOut")}</Text>
         </Pressable>
 
-        <Text style={styles.deleteNote}>
-          Smazání účtu zatím přes web — bude přidáno do appky v další verzi.
-        </Text>
+        <Text style={styles.deleteNote}>{t("settings", "deleteNote")}</Text>
       </ScrollView>
     </SafeAreaView>
   );

@@ -20,12 +20,18 @@ import OauthButtons from "@/components/OauthButtons";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
 import { useI18n } from "@/lib/i18n";
 
+// __DEV__ flag = true v Expo dev / EAS development build, false v production
+// build. Prefill credentials z env (EXPO_PUBLIC_DEV_*) jen pro dev pohodu —
+// v prod buildu nikdy nedosadí, i kdyby env zůstal.
+const DEV_EMAIL = __DEV__ ? process.env.EXPO_PUBLIC_DEV_EMAIL ?? "" : "";
+const DEV_PASSWORD = __DEV__ ? process.env.EXPO_PUBLIC_DEV_PASSWORD ?? "" : "";
+
 export default function LoginScreen() {
   const router = useRouter();
   const { signIn } = useAuth();
   const { t } = useI18n();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState(DEV_EMAIL);
+  const [password, setPassword] = useState(DEV_PASSWORD);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 

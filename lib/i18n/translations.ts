@@ -101,12 +101,36 @@ export interface Dict {
   settings: {
     title: string;
     signedInAs: string;
-    openWebDashboard: string;
+    sectionProfile: string;
+    sectionProfileHint: string;
+    sectionAccount: string;
+    sectionAccountHint: string;
+    accountEmail: string;
+    accountName: string;
+    deleteNote: string;
     signOut: string;
     signOutConfirmTitle: string;
     signOutConfirmBody: string;
     cancel: string;
     confirm: string;
+    profileTitle: string;
+    accountTitle: string;
+    appearancePillSystem: string;
+    appearancePillLight: string;
+    appearancePillDark: string;
+    appearanceTitle: string;
+    appearanceMessage: string;
+    appearanceSystem: string;
+    appearanceLight: string;
+    appearanceDark: string;
+    appearanceComingSoon: string;
+    appearanceComingSoonBody: string;
+    companyTitle: string;
+    companySubtitle: string;
+    companySaveBtn: string;
+    companySaveBtnLoading: string;
+    companySaving: string;
+    companySaved: string;
   };
   oauth: {
     divider: string;
@@ -213,12 +237,36 @@ const cs: Dict = {
   settings: {
     title: "Nastavení",
     signedInAs: "Přihlášen jako",
-    openWebDashboard: "Otevřít web dashboard",
+    sectionProfile: "Firemní údaje",
+    sectionProfileHint: "Telefon, IČO, fakturace",
+    sectionAccount: "Účet",
+    sectionAccountHint: "Odhlásit, smazat účet",
+    accountEmail: "Email",
+    accountName: "Jméno",
+    deleteNote: "Smazání účtu zatím přes web — bude přidáno do appky v další verzi.",
     signOut: "Odhlásit se",
     signOutConfirmTitle: "Odhlásit se",
     signOutConfirmBody: "Opravdu se chcete odhlásit?",
     cancel: "Zrušit",
     confirm: "Odhlásit",
+    profileTitle: "Firemní údaje",
+    accountTitle: "Účet",
+    appearancePillSystem: "AUTO",
+    appearancePillLight: "DEN",
+    appearancePillDark: "NOC",
+    appearanceTitle: "Vzhled",
+    appearanceMessage: "Tmavý režim přijde v další verzi appky.",
+    appearanceSystem: "Podle systému",
+    appearanceLight: "Světlý",
+    appearanceDark: "Tmavý",
+    appearanceComingSoon: "Vzhled",
+    appearanceComingSoonBody: "Tmavý/světlý režim přidáme brzy — pro teď je vše světlé.",
+    companyTitle: "Firemní údaje",
+    companySubtitle: "Dobrovolné. IČO + telefon umožní plnou aktivaci služeb a fakturaci.",
+    companySaveBtn: "Uložit",
+    companySaveBtnLoading: "Ukládám…",
+    companySaving: "Ukládám…",
+    companySaved: "Uloženo",
   },
   oauth: {
     divider: "nebo",
@@ -320,12 +368,36 @@ const en: Dict = {
   settings: {
     title: "Settings",
     signedInAs: "Signed in as",
-    openWebDashboard: "Open web dashboard",
+    sectionProfile: "Company details",
+    sectionProfileHint: "Phone, tax ID, billing",
+    sectionAccount: "Account",
+    sectionAccountHint: "Sign out, delete account",
+    accountEmail: "Email",
+    accountName: "Name",
+    deleteNote: "Account deletion is on the web for now — coming to the app in a later version.",
     signOut: "Sign out",
     signOutConfirmTitle: "Sign out",
     signOutConfirmBody: "Do you really want to sign out?",
     cancel: "Cancel",
     confirm: "Sign out",
+    profileTitle: "Company details",
+    accountTitle: "Account",
+    appearancePillSystem: "AUTO",
+    appearancePillLight: "DAY",
+    appearancePillDark: "NIGHT",
+    appearanceTitle: "Appearance",
+    appearanceMessage: "Dark mode is coming in a later version.",
+    appearanceSystem: "System",
+    appearanceLight: "Light",
+    appearanceDark: "Dark",
+    appearanceComingSoon: "Appearance",
+    appearanceComingSoonBody: "Dark/light mode coming soon — everything is light for now.",
+    companyTitle: "Company details",
+    companySubtitle: "Optional. Tax ID + phone enable full service activation and billing.",
+    companySaveBtn: "Save",
+    companySaveBtnLoading: "Saving…",
+    companySaving: "Saving…",
+    companySaved: "Saved",
   },
   oauth: {
     divider: "or",
@@ -429,12 +501,36 @@ const de: Dict = {
   settings: {
     title: "Einstellungen",
     signedInAs: "Angemeldet als",
-    openWebDashboard: "Web-Dashboard öffnen",
+    sectionProfile: "Firmendaten",
+    sectionProfileHint: "Telefon, USt-IdNr., Abrechnung",
+    sectionAccount: "Konto",
+    sectionAccountHint: "Abmelden, Konto löschen",
+    accountEmail: "E-Mail",
+    accountName: "Name",
+    deleteNote: "Kontolöschung ist derzeit über die Website — kommt in einer späteren App-Version.",
     signOut: "Abmelden",
     signOutConfirmTitle: "Abmelden",
     signOutConfirmBody: "Möchten Sie sich wirklich abmelden?",
     cancel: "Abbrechen",
     confirm: "Abmelden",
+    profileTitle: "Firmendaten",
+    accountTitle: "Konto",
+    appearancePillSystem: "AUTO",
+    appearancePillLight: "HELL",
+    appearancePillDark: "DUNKEL",
+    appearanceTitle: "Aussehen",
+    appearanceMessage: "Dunkelmodus kommt in einer späteren Version.",
+    appearanceSystem: "System",
+    appearanceLight: "Hell",
+    appearanceDark: "Dunkel",
+    appearanceComingSoon: "Aussehen",
+    appearanceComingSoonBody: "Hell/Dunkel-Modus kommt bald — vorerst ist alles hell.",
+    companyTitle: "Firmendaten",
+    companySubtitle: "Optional. USt-IdNr. + Telefon ermöglichen volle Serviceaktivierung und Abrechnung.",
+    companySaveBtn: "Speichern",
+    companySaveBtnLoading: "Speichere…",
+    companySaving: "Speichere…",
+    companySaved: "Gespeichert",
   },
   oauth: {
     divider: "oder",
