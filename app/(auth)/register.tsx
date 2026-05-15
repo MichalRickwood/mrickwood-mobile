@@ -20,16 +20,20 @@ import { colors, fontSize, radius, spacing } from "@/constants/theme";
 import OauthButtons from "@/components/OauthButtons";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
 import { useI18n } from "@/lib/i18n";
+import { useAuth } from "@/lib/auth-context";
 
 export default function RegisterScreen() {
   const router = useRouter();
   const { t, locale } = useI18n();
+  const { signIn } = useAuth();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [consentVop, setConsentVop] = useState(false);
   const [consentGdpr, setConsentGdpr] = useState(false);
+  const [checking, setChecking] = useState(false);
+  const [checkError, setCheckError] = useState<string | null>(null);
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -64,6 +68,29 @@ export default function RegisterScreen() {
     }
   }
 
+  async function tryAutoLogin() {
+    if (checking) return;
+    setChecking(true);
+    setCheckError(null);
+    try {
+      await signIn(email.trim().toLowerCase(), password);
+      // Explicit navigation — RouterGuard reaguje asynchronně přes useEffect a
+      // často to nestihne před tím než user vidí "nic se nestalo". Profile-complete
+      // screen sám zkontroluje stav a redirectne do (tabs) pokud je hotové.
+      router.replace("/profile-complete");
+    } catch (err) {
+      if (err instanceof ApiError) {
+        if (err.status === 403) setCheckError(t("register", "successNotVerified"));
+        else if (err.status === 401) setCheckError(t("register", "successNotVerified"));
+        else setCheckError(err.message || t("register", "errorDefault"));
+      } else {
+        setCheckError(t("register", "errorNetwork"));
+      }
+    } finally {
+      setChecking(false);
+    }
+  }
+
   if (success) {
     const body = t("register", "successBody", { email });
     const [bodyBefore, bodyAfter] = body.split("{email}");
@@ -73,7 +100,6 @@ export default function RegisterScreen() {
           <Image source={require("@/assets/logo.png")} style={styles.logoSmall} resizeMode="contain" />
           <Text style={styles.successTitle}>{t("register", "successTitle")}</Text>
           <Text style={styles.successBody}>
-            {/* fallback — pokud t() už interpoloval, použijeme rovnou */}
             {bodyAfter !== undefined ? (
               <>
                 {bodyBefore}
@@ -84,11 +110,28 @@ export default function RegisterScreen() {
               body
             )}
           </Text>
+
+          {checkError && <Text style={styles.successError}>{checkError}</Text>}
+
+          <Pressable
+            onPress={tryAutoLogin}
+            disabled={checking}
+            style={({ pressed }) => [
+              styles.successButton,
+              checking && styles.buttonDisabled,
+              pressed && styles.buttonPressed,
+            ]}
+          >
+            <Text style={styles.buttonText}>
+              {checking ? t("register", "successCheckBtnLoading") : t("register", "successCheckBtn")}
+            </Text>
+          </Pressable>
+
           <Pressable
             onPress={() => router.replace("/(auth)/login")}
-            style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
+            style={styles.successSecondary}
           >
-            <Text style={styles.buttonText}>{t("register", "successCta")}</Text>
+            <Text style={styles.successSecondaryText}>{t("register", "successCta")}</Text>
           </Pressable>
         </View>
       </SafeAreaView>
@@ -264,7 +307,7 @@ const styles = StyleSheet.create({
   },
   scroll: { padding: spacing.xl, paddingBottom: spacing.xxl * 2 },
   brand: { alignItems: "center", marginBottom: spacing.xl },
-  logoSmall: { width: 72, height: 72, marginBottom: spacing.md },
+  logoSmall: { width: 72, height: 72, marginBottom: spacing.md, alignSelf: "center" },
   brandText: { fontSize: 28, fontWeight: "700", color: colors.text, letterSpacing: -0.5 },
   brandSub: { fontSize: fontSize.sm, color: colors.textSubtle, marginTop: spacing.xs },
   field: { marginBottom: spacing.lg },
@@ -319,8 +362,36 @@ const styles = StyleSheet.create({
   bottomLink: { marginTop: spacing.xl, alignItems: "center" },
   bottomLinkText: { fontSize: fontSize.sm, color: colors.textSubtle },
   bottomLinkAccent: { color: colors.text, fontWeight: "600" },
-  successWrap: { flex: 1, padding: spacing.xl, justifyContent: "center", alignItems: "center" },
-  successTitle: { fontSize: fontSize.xl, fontWeight: "700", color: colors.text, marginTop: spacing.lg },
+  successWrap: { flex: 1, padding: spacing.xl, justifyContent: "center", alignItems: "stretch" },
+  successTitle: { fontSize: fontSize.xl, fontWeight: "700", color: colors.text, marginTop: spacing.lg, textAlign: "center" },
   successBody: { fontSize: fontSize.base, color: colors.textMuted, marginTop: spacing.md, textAlign: "center", lineHeight: 22 },
+  successError: {
+    marginTop: spacing.lg,
+    color: colors.danger,
+    fontSize: fontSize.sm,
+    backgroundColor: colors.dangerBg,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.sm,
+    textAlign: "center",
+  },
+  successButton: {
+    marginTop: spacing.xl,
+    backgroundColor: colors.accent,
+    borderRadius: radius.md,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    alignItems: "center",
+  },
+  successSecondary: {
+    marginTop: spacing.md,
+    paddingVertical: spacing.sm,
+    alignItems: "center",
+  },
+  successSecondaryText: {
+    color: colors.textSubtle,
+    fontSize: fontSize.sm,
+    fontWeight: "500",
+  },
   bold: { fontWeight: "600", color: colors.text },
 });

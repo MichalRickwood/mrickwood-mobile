@@ -50,6 +50,9 @@ export interface Dict {
     successTitle: string;
     successBody: string;
     successCta: string;
+    successCheckBtn: string;
+    successCheckBtnLoading: string;
+    successNotVerified: string;
     errorDefault: string;
     errorNetwork: string;
   };
@@ -156,8 +159,11 @@ const cs: Dict = {
     loginLink: "Přihlásit se",
     successTitle: "Zkontrolujte email",
     successBody:
-      "Odeslali jsme ověřovací odkaz na {email}. Klikněte na něj pro aktivaci účtu, pak se můžete přihlásit a doplnit kontaktní údaje.",
+      "Odeslali jsme ověřovací odkaz na {email}. Klikněte na něj a vraťte se zpět do appky.",
     successCta: "Zpět na přihlášení",
+    successCheckBtn: "Mám potvrzeno – přihlásit",
+    successCheckBtnLoading: "Přihlašuji…",
+    successNotVerified: "Email ještě není potvrzený. Zkontrolujte schránku.",
     errorDefault: "Registrace selhala.",
     errorNetwork: "Chyba sítě. Zkuste to znovu.",
   },
@@ -261,8 +267,11 @@ const en: Dict = {
     loginLink: "Sign in",
     successTitle: "Check your email",
     successBody:
-      "We sent a verification link to {email}. Click it to activate your account, then sign in and complete your details.",
+      "We sent a verification link to {email}. Click it, then come back to the app.",
     successCta: "Back to sign in",
+    successCheckBtn: "I have confirmed – sign in",
+    successCheckBtnLoading: "Signing in…",
+    successNotVerified: "Email not verified yet. Check your inbox.",
     errorDefault: "Registration failed.",
     errorNetwork: "Network error. Please try again.",
   },
@@ -365,8 +374,11 @@ const de: Dict = {
     loginLink: "Anmelden",
     successTitle: "E-Mail prüfen",
     successBody:
-      "Wir haben einen Bestätigungslink an {email} gesendet. Klicken Sie ihn an, um Ihr Konto zu aktivieren.",
+      "Wir haben einen Bestätigungslink an {email} gesendet. Klicken Sie ihn an und kehren Sie zur App zurück.",
     successCta: "Zurück zur Anmeldung",
+    successCheckBtn: "Bestätigt – Anmelden",
+    successCheckBtnLoading: "Anmelden…",
+    successNotVerified: "E-Mail noch nicht bestätigt. Prüfen Sie Ihr Postfach.",
     errorDefault: "Registrierung fehlgeschlagen.",
     errorNetwork: "Netzwerkfehler. Bitte erneut versuchen.",
   },

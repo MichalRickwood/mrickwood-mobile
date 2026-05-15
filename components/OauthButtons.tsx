@@ -188,8 +188,8 @@ function ProviderButton({
 }
 
 const styles = StyleSheet.create({
-  wrap: { marginTop: spacing.xl, gap: spacing.md },
-  divider: { flexDirection: "row", alignItems: "center", marginBottom: spacing.sm },
+  wrap: { marginTop: spacing.xl },
+  divider: { flexDirection: "row", alignItems: "center", marginBottom: spacing.md },
   dividerLine: { flex: 1, height: 1, backgroundColor: colors.border },
   dividerText: { marginHorizontal: spacing.md, fontSize: fontSize.xs, color: colors.textSubtle },
   button: {
@@ -199,6 +199,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     minHeight: 48,
+    marginBottom: spacing.md,
   },
   buttonApple: { backgroundColor: "#000" },
   buttonApplePressed: { backgroundColor: "#1a1a1a" },
@@ -212,9 +213,8 @@ const styles = StyleSheet.create({
   buttonContent: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.md,
   },
-  iconWrap: { width: 22, alignItems: "center" },
+  iconWrap: { width: 22, alignItems: "center", marginRight: spacing.md },
   buttonText: { color: colors.text, fontSize: fontSize.base, fontWeight: "500" },
   buttonTextApple: { color: "#fff", fontWeight: "600" },
 });
