@@ -148,8 +148,46 @@ export const endpoints = {
   changePassword: (input: { currentPassword?: string; newPassword: string }) =>
     api.post<{ ok: true }>("/api/mobile/password", input),
 
-  // Billing summary (read-only, mobile)
-  getBilling: () => api.get<BillingSummary>("/api/mobile/billing"),
+  // Billing — full self-service state (profile, mode, cycle, services, card, invoice)
+  getBilling: () => api.get<BillingFullState>("/api/mobile/billing"),
+  updateBilling: (input: BillingUpdateInput) =>
+    api.patch<{ ok: true }>("/api/mobile/billing", input),
+
+  // Stripe Checkout (mobile deep links). Mobile otevře `url` ve WebBrowser.
+  createBillingCheckout: () =>
+    api.post<{ url: string }>("/api/mobile/billing/checkout"),
+  disconnectCard: () => api.delete<{ ok: true }>("/api/mobile/billing/checkout"),
+
+  // Proforma faktura (pro INVOICE režim)
+  createProforma: (cycle: BillingCycle) =>
+    api.post<{
+      ok: true;
+      invoiceId: string;
+      invoiceNumber: string;
+      totalAmount: number;
+      dueDate: string;
+      cycle: BillingCycle;
+    }>("/api/mobile/billing/proforma", { cycle }),
+  deleteProforma: () => api.delete<{ ok: true }>("/api/mobile/billing/proforma"),
+
+  // Cancel / reactivate service auto-renewal
+  cancelService: (service: ApiServiceId) =>
+    api.post<{ ok: true; alreadyScheduled?: boolean }>(
+      "/api/mobile/billing/cancel-service",
+      { service },
+    ),
+  reactivateService: (service: ApiServiceId) =>
+    api.delete<{ ok: true; alreadyActive?: boolean }>(
+      `/api/mobile/billing/cancel-service?service=${service}`,
+    ),
+
+  // Faktury
+  getInvoices: () =>
+    api.get<{ invoices: InvoiceRow[] }>("/api/mobile/billing/invoices"),
+  getInvoicePdfUrl: (invoiceId: string) =>
+    api.post<{ url: string; expiresIn: number }>(
+      `/api/mobile/billing/invoices/${encodeURIComponent(invoiceId)}/pdf-url`,
+    ),
 
   // Account export — pošle JSON přílohou na email uživatele (mobile-only flow).
   exportAccount: () =>
@@ -169,14 +207,66 @@ export type BillingTier = "FREE" | "PAID";
 export type BillingState = "TRIAL" | "ACTIVE" | "PAST_DUE" | "SUSPENDED" | "CANCELED";
 export type BillingCycle = "MONTHLY" | "YEARLY";
 export type BillingMode = "CARD" | "INVOICE";
+export type ApiServiceId = "PRICING" | "LEADS" | "PROCUREMENT" | "MANAGEMENT";
 
-export interface BillingSummary {
-  service: "LEADS";
+export interface BillingProfileShape {
+  name: string;
+  ico: string;
+  dic: string;
+  address: string;
+  email: string;
+}
+
+export interface BillingCardInfo {
+  brand: string;
+  last4: string;
+  expMonth: number;
+  expYear: number;
+}
+
+export interface BillingInvoiceLite {
+  id: string;
+  number: string;
+  status: string;
+  totalAmount: number;
+  pdfPath: string | null;
+  paidDate: string | null;
+}
+
+export interface BillingServiceRow {
+  service: ApiServiceId;
   tier: BillingTier;
-  state: BillingState | null;
+  state: BillingState;
   trialEndsAt: string | null;
   paidUntil: string | null;
   cancelAtPeriodEnd: boolean;
+}
+
+export interface BillingFullState {
+  billingMode: BillingMode | null;
+  billingCycle: BillingCycle | null;
+  billingProfile: BillingProfileShape;
+  card: BillingCardInfo | null;
+  invoice: BillingInvoiceLite | null;
+  services: BillingServiceRow[];
+}
+
+export interface BillingUpdateInput {
+  billingMode?: BillingMode;
+  billingCycle?: BillingCycle;
+  billingProfile?: Partial<BillingProfileShape>;
+}
+
+export type InvoiceKind = "PROFORMA" | "TAX_DOCUMENT";
+
+export interface InvoiceRow {
+  id: string;
+  number: string;
+  kind: InvoiceKind;
+  status: string;
+  totalAmount: number;
+  hasPdf: boolean;
+  paidDate: string | null;
+  createdAt: string;
   cycle: BillingCycle | null;
-  paymentMode: BillingMode | null;
 }

@@ -192,6 +192,53 @@ export interface Dict {
     billingManageOnWebHint: string;
     billingUpgradeCta: string;
     billingNotSet: string;
+    billingProfileSection: string;
+    billingProfileName: string;
+    billingProfileIco: string;
+    billingProfileDic: string;
+    billingProfileAddress: string;
+    billingProfileEmail: string;
+    billingModeSection: string;
+    billingModeCard: string;
+    billingModeInvoice: string;
+    billingCycleSection: string;
+    billingCardSection: string;
+    billingCardConnect: string;
+    billingCardConnecting: string;
+    billingCardDisconnect: string;
+    billingCardExp: string;
+    billingProformaSection: string;
+    billingProformaGenerate: string;
+    billingProformaGenerating: string;
+    billingProformaRegenerate: string;
+    billingProformaDelete: string;
+    billingProformaActive: string;
+    billingProformaConfirmDelete: string;
+    billingProformaConfirmRegenerate: string;
+    billingInvoicesSection: string;
+    billingInvoicesEmpty: string;
+    billingInvoicesOpenPdf: string;
+    billingInvoicesOpening: string;
+    billingInvoicesKindProforma: string;
+    billingInvoicesKindTax: string;
+    billingServicesSection: string;
+    billingServicesEmpty: string;
+    billingServiceCancel: string;
+    billingServiceReactivate: string;
+    billingServiceCanceled: string;
+    billingServiceTrialEnds: string;
+    billingServicePaidUntil: string;
+    billingCheckoutOpening: string;
+    billingCheckoutFailed: string;
+    billingDeepLinkSuccess: string;
+    billingDeepLinkCancel: string;
+    billingSavingProfile: string;
+    billingProfileSavedToast: string;
+    billingSaveFailed: string;
+    serviceLeads: string;
+    servicePricing: string;
+    serviceProcurement: string;
+    serviceManagement: string;
     securityTitle: string;
     passwordTitleChange: string;
     passwordTitleSet: string;
@@ -419,6 +466,53 @@ const cs: Dict = {
     billingManageOnWebHint: "Upgrade plánu, změna platby a faktury jsou nyní jen v dashboardu na webu.",
     billingUpgradeCta: "Upgradovat plán",
     billingNotSet: "Nenastaveno",
+    billingProfileSection: "Fakturační údaje",
+    billingProfileName: "Název firmy",
+    billingProfileIco: "IČO",
+    billingProfileDic: "DIČ",
+    billingProfileAddress: "Adresa",
+    billingProfileEmail: "Email pro faktury",
+    billingModeSection: "Způsob platby",
+    billingModeCard: "Karta",
+    billingModeInvoice: "Faktura",
+    billingCycleSection: "Cyklus fakturace",
+    billingCardSection: "Platební karta",
+    billingCardConnect: "Připojit kartu",
+    billingCardConnecting: "Otevírám platbu…",
+    billingCardDisconnect: "Odpojit kartu",
+    billingCardExp: "Platnost {month}/{year}",
+    billingProformaSection: "Zálohová faktura",
+    billingProformaGenerate: "Vystavit zálohovou fakturu",
+    billingProformaGenerating: "Vystavuji…",
+    billingProformaRegenerate: "Přegenerovat",
+    billingProformaDelete: "Smazat",
+    billingProformaActive: "Aktivní zálohová faktura: {number} ({amount})",
+    billingProformaConfirmDelete: "Opravdu smazat aktuální zálohovou fakturu?",
+    billingProformaConfirmRegenerate: "Stávající zálohovou fakturu smažeme a vystavíme novou. Pokračovat?",
+    billingInvoicesSection: "Faktury a doklady",
+    billingInvoicesEmpty: "Zatím žádné faktury.",
+    billingInvoicesOpenPdf: "Otevřít PDF",
+    billingInvoicesOpening: "Otevírám…",
+    billingInvoicesKindProforma: "Záloha",
+    billingInvoicesKindTax: "Daňový doklad",
+    billingServicesSection: "Aktivní služby",
+    billingServicesEmpty: "Žádné aktivní služby.",
+    billingServiceCancel: "Ukončit automatickou obnovu",
+    billingServiceReactivate: "Obnovit automatickou obnovu",
+    billingServiceCanceled: "Auto-obnova vypnuta",
+    billingServiceTrialEnds: "Trial do {date}",
+    billingServicePaidUntil: "Předplaceno do {date}",
+    billingCheckoutOpening: "Otevírám zabezpečenou platbu Stripe…",
+    billingCheckoutFailed: "Otevření platby selhalo.",
+    billingDeepLinkSuccess: "Platba dokončena. Aktualizuji stav…",
+    billingDeepLinkCancel: "Platba zrušena.",
+    billingSavingProfile: "Ukládám…",
+    billingProfileSavedToast: "Fakturační údaje uloženy.",
+    billingSaveFailed: "Uložení selhalo.",
+    serviceLeads: "Veřejné zakázky",
+    servicePricing: "Pricing API",
+    serviceProcurement: "Procurement",
+    serviceManagement: "Management API",
     securityTitle: "Bezpečnost",
     passwordTitleChange: "Změnit heslo",
     passwordTitleSet: "Nastavit heslo",
@@ -641,6 +735,53 @@ const en: Dict = {
     billingManageOnWebHint: "Plan upgrades, payment changes and invoices are currently only in the web dashboard.",
     billingUpgradeCta: "Upgrade plan",
     billingNotSet: "Not set",
+    billingProfileSection: "Billing details",
+    billingProfileName: "Company name",
+    billingProfileIco: "Tax ID",
+    billingProfileDic: "VAT ID",
+    billingProfileAddress: "Address",
+    billingProfileEmail: "Email for invoices",
+    billingModeSection: "Payment method",
+    billingModeCard: "Card",
+    billingModeInvoice: "Invoice",
+    billingCycleSection: "Billing cycle",
+    billingCardSection: "Payment card",
+    billingCardConnect: "Connect card",
+    billingCardConnecting: "Opening checkout…",
+    billingCardDisconnect: "Disconnect card",
+    billingCardExp: "Expires {month}/{year}",
+    billingProformaSection: "Proforma invoice",
+    billingProformaGenerate: "Issue proforma invoice",
+    billingProformaGenerating: "Issuing…",
+    billingProformaRegenerate: "Regenerate",
+    billingProformaDelete: "Delete",
+    billingProformaActive: "Active proforma: {number} ({amount})",
+    billingProformaConfirmDelete: "Really delete the current proforma?",
+    billingProformaConfirmRegenerate: "We'll delete the current proforma and issue a new one. Continue?",
+    billingInvoicesSection: "Invoices",
+    billingInvoicesEmpty: "No invoices yet.",
+    billingInvoicesOpenPdf: "Open PDF",
+    billingInvoicesOpening: "Opening…",
+    billingInvoicesKindProforma: "Proforma",
+    billingInvoicesKindTax: "Tax document",
+    billingServicesSection: "Active services",
+    billingServicesEmpty: "No active services.",
+    billingServiceCancel: "Cancel auto-renewal",
+    billingServiceReactivate: "Resume auto-renewal",
+    billingServiceCanceled: "Auto-renewal off",
+    billingServiceTrialEnds: "Trial until {date}",
+    billingServicePaidUntil: "Paid until {date}",
+    billingCheckoutOpening: "Opening Stripe secure checkout…",
+    billingCheckoutFailed: "Failed to open checkout.",
+    billingDeepLinkSuccess: "Payment completed. Refreshing…",
+    billingDeepLinkCancel: "Payment canceled.",
+    billingSavingProfile: "Saving…",
+    billingProfileSavedToast: "Billing details saved.",
+    billingSaveFailed: "Save failed.",
+    serviceLeads: "Public tenders",
+    servicePricing: "Pricing API",
+    serviceProcurement: "Procurement",
+    serviceManagement: "Management API",
     securityTitle: "Security",
     passwordTitleChange: "Change password",
     passwordTitleSet: "Set password",
@@ -865,6 +1006,53 @@ const de: Dict = {
     billingManageOnWebHint: "Tarif-Upgrades, Zahlungsänderungen und Rechnungen sind derzeit nur im Web-Dashboard verfügbar.",
     billingUpgradeCta: "Tarif upgraden",
     billingNotSet: "Nicht festgelegt",
+    billingProfileSection: "Rechnungsdaten",
+    billingProfileName: "Firmenname",
+    billingProfileIco: "Steuernummer",
+    billingProfileDic: "USt-IdNr.",
+    billingProfileAddress: "Adresse",
+    billingProfileEmail: "E-Mail für Rechnungen",
+    billingModeSection: "Zahlungsmethode",
+    billingModeCard: "Karte",
+    billingModeInvoice: "Rechnung",
+    billingCycleSection: "Abrechnungszyklus",
+    billingCardSection: "Zahlungskarte",
+    billingCardConnect: "Karte verknüpfen",
+    billingCardConnecting: "Checkout wird geöffnet…",
+    billingCardDisconnect: "Karte trennen",
+    billingCardExp: "Gültig bis {month}/{year}",
+    billingProformaSection: "Vorausrechnung",
+    billingProformaGenerate: "Vorausrechnung ausstellen",
+    billingProformaGenerating: "Wird ausgestellt…",
+    billingProformaRegenerate: "Neu generieren",
+    billingProformaDelete: "Löschen",
+    billingProformaActive: "Aktive Vorausrechnung: {number} ({amount})",
+    billingProformaConfirmDelete: "Aktuelle Vorausrechnung wirklich löschen?",
+    billingProformaConfirmRegenerate: "Wir löschen die aktuelle Vorausrechnung und stellen eine neue aus. Fortfahren?",
+    billingInvoicesSection: "Rechnungen",
+    billingInvoicesEmpty: "Noch keine Rechnungen.",
+    billingInvoicesOpenPdf: "PDF öffnen",
+    billingInvoicesOpening: "Wird geöffnet…",
+    billingInvoicesKindProforma: "Vorausrechnung",
+    billingInvoicesKindTax: "Steuerbeleg",
+    billingServicesSection: "Aktive Dienste",
+    billingServicesEmpty: "Keine aktiven Dienste.",
+    billingServiceCancel: "Automatische Verlängerung beenden",
+    billingServiceReactivate: "Automatische Verlängerung fortsetzen",
+    billingServiceCanceled: "Auto-Verlängerung aus",
+    billingServiceTrialEnds: "Testphase bis {date}",
+    billingServicePaidUntil: "Bezahlt bis {date}",
+    billingCheckoutOpening: "Sicherer Stripe-Checkout wird geöffnet…",
+    billingCheckoutFailed: "Checkout konnte nicht geöffnet werden.",
+    billingDeepLinkSuccess: "Zahlung abgeschlossen. Aktualisiere…",
+    billingDeepLinkCancel: "Zahlung abgebrochen.",
+    billingSavingProfile: "Speichere…",
+    billingProfileSavedToast: "Rechnungsdaten gespeichert.",
+    billingSaveFailed: "Speichern fehlgeschlagen.",
+    serviceLeads: "Öffentliche Ausschreibungen",
+    servicePricing: "Pricing API",
+    serviceProcurement: "Procurement",
+    serviceManagement: "Management API",
     securityTitle: "Sicherheit",
     passwordTitleChange: "Passwort ändern",
     passwordTitleSet: "Passwort festlegen",
