@@ -1,7 +1,37 @@
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Platform } from "react-native";
 import { endpoints } from "./endpoints";
+
+const PUSH_TOKEN_STORAGE_KEY = "tendero.pushToken";
+
+export type PushStatus =
+  | { kind: "active"; token: string }
+  | { kind: "off" }
+  | { kind: "denied" }
+  | { kind: "unsupported" };
+
+export async function getPushStatus(): Promise<PushStatus> {
+  if (!Device.isDevice) return { kind: "unsupported" };
+  const { status } = await Notifications.getPermissionsAsync();
+  if (status === "denied") return { kind: "denied" };
+  const saved = await AsyncStorage.getItem(PUSH_TOKEN_STORAGE_KEY);
+  if (status === "granted" && saved) return { kind: "active", token: saved };
+  return { kind: "off" };
+}
+
+export async function disablePush(): Promise<void> {
+  const saved = await AsyncStorage.getItem(PUSH_TOKEN_STORAGE_KEY);
+  if (saved) {
+    try {
+      await endpoints.unregisterPushDevice(saved);
+    } catch (e) {
+      console.warn("[push] disable failed:", (e as Error).message);
+    }
+  }
+  await AsyncStorage.removeItem(PUSH_TOKEN_STORAGE_KEY);
+}
 
 /**
  * Expo push notification registrace.
@@ -47,6 +77,7 @@ export async function registerForPushNotifications(): Promise<string | null> {
   const platform: "ios" | "android" = Platform.OS === "ios" ? "ios" : "android";
   try {
     await endpoints.registerPushDevice(expoToken, platform);
+    await AsyncStorage.setItem(PUSH_TOKEN_STORAGE_KEY, expoToken);
   } catch (e) {
     // Síťová chyba — token vrátíme, zkusíme registrovat příště.
     console.warn("[push] register failed:", (e as Error).message);
@@ -61,4 +92,5 @@ export async function unregisterPushNotifications(token: string | null): Promise
   } catch (e) {
     console.warn("[push] unregister failed:", (e as Error).message);
   }
+  await AsyncStorage.removeItem(PUSH_TOKEN_STORAGE_KEY);
 }

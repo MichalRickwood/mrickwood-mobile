@@ -131,6 +131,25 @@ export interface Dict {
     companySaveBtnLoading: string;
     companySaving: string;
     companySaved: string;
+    sectionNotifications: string;
+    sectionNotificationsHint: string;
+    notificationsTitle: string;
+    pushTitle: string;
+    pushLabel: string;
+    pushDesc: string;
+    pushPermissionDenied: string;
+    pushNotSupported: string;
+    emailTitle: string;
+    digestLabel: string;
+    digestDesc: string;
+    educationalLabel: string;
+    educationalDesc: string;
+    marketingLabel: string;
+    marketingDesc: string;
+    marketingPayingNote: string;
+    loadFailed: string;
+    saveFailed: string;
+    saved: string;
   };
   oauth: {
     divider: string;
@@ -267,6 +286,25 @@ const cs: Dict = {
     companySaveBtnLoading: "Ukládám…",
     companySaving: "Ukládám…",
     companySaved: "Uloženo",
+    sectionNotifications: "Notifikace",
+    sectionNotificationsHint: "Push, email digest, marketing",
+    notificationsTitle: "Notifikace",
+    pushTitle: "Push notifikace",
+    pushLabel: "Push notifikace v aplikaci",
+    pushDesc: "Upozornění na nové zakázky odpovídající vašim filtrům.",
+    pushPermissionDenied: "Push notifikace jsou zakázané v nastavení iOS. Povolte je v Nastavení → Tendero.",
+    pushNotSupported: "Push notifikace nejsou na simulátoru dostupné.",
+    emailTitle: "Email",
+    digestLabel: "Denní souhrn zakázek",
+    digestDesc: "Každý den vám pošleme všechny nové zakázky, které odpovídají vašim filtrům.",
+    educationalLabel: "Tipy a návody",
+    educationalDesc: "Tipy jak efektivně využívat Tendero a novinky v aplikaci.",
+    marketingLabel: "Novinky a nabídky",
+    marketingDesc: "Občasné novinky o produktech a speciální nabídky.",
+    marketingPayingNote: "U platících účtů jsou marketingové emaily automaticky vypnuté.",
+    loadFailed: "Nepodařilo se načíst nastavení.",
+    saveFailed: "Uložení selhalo.",
+    saved: "Uloženo",
   },
   oauth: {
     divider: "nebo",
@@ -398,6 +436,25 @@ const en: Dict = {
     companySaveBtnLoading: "Saving…",
     companySaving: "Saving…",
     companySaved: "Saved",
+    sectionNotifications: "Notifications",
+    sectionNotificationsHint: "Push, email digest, marketing",
+    notificationsTitle: "Notifications",
+    pushTitle: "Push notifications",
+    pushLabel: "In-app push notifications",
+    pushDesc: "Alerts for new tenders matching your filters.",
+    pushPermissionDenied: "Push notifications are disabled in iOS settings. Enable them in Settings → Tendero.",
+    pushNotSupported: "Push notifications are not available on the simulator.",
+    emailTitle: "Email",
+    digestLabel: "Daily tender digest",
+    digestDesc: "Each day we'll email you all new tenders matching your filters.",
+    educationalLabel: "Tips and tutorials",
+    educationalDesc: "Tips on how to use Tendero effectively and product updates.",
+    marketingLabel: "News and offers",
+    marketingDesc: "Occasional product news and special offers.",
+    marketingPayingNote: "Marketing emails are automatically off for paying accounts.",
+    loadFailed: "Failed to load settings.",
+    saveFailed: "Save failed.",
+    saved: "Saved",
   },
   oauth: {
     divider: "or",
@@ -531,6 +588,25 @@ const de: Dict = {
     companySaveBtnLoading: "Speichere…",
     companySaving: "Speichere…",
     companySaved: "Gespeichert",
+    sectionNotifications: "Benachrichtigungen",
+    sectionNotificationsHint: "Push, E-Mail-Übersicht, Marketing",
+    notificationsTitle: "Benachrichtigungen",
+    pushTitle: "Push-Benachrichtigungen",
+    pushLabel: "Push-Benachrichtigungen in der App",
+    pushDesc: "Hinweise zu neuen Ausschreibungen, die Ihren Filtern entsprechen.",
+    pushPermissionDenied: "Push-Benachrichtigungen sind in den iOS-Einstellungen deaktiviert. Aktivieren Sie sie in Einstellungen → Tendero.",
+    pushNotSupported: "Push-Benachrichtigungen sind im Simulator nicht verfügbar.",
+    emailTitle: "E-Mail",
+    digestLabel: "Tägliche Ausschreibungsübersicht",
+    digestDesc: "Jeden Tag senden wir Ihnen alle neuen Ausschreibungen, die Ihren Filtern entsprechen.",
+    educationalLabel: "Tipps und Anleitungen",
+    educationalDesc: "Tipps zur effektiven Nutzung von Tendero und Produkt-Updates.",
+    marketingLabel: "Neuigkeiten und Angebote",
+    marketingDesc: "Gelegentliche Produktneuigkeiten und Sonderangebote.",
+    marketingPayingNote: "Marketing-E-Mails sind bei zahlenden Konten automatisch deaktiviert.",
+    loadFailed: "Einstellungen konnten nicht geladen werden.",
+    saveFailed: "Speichern fehlgeschlagen.",
+    saved: "Gespeichert",
   },
   oauth: {
     divider: "oder",

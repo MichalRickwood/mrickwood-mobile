@@ -49,6 +49,15 @@ export default function SettingsIndexScreen() {
         <View style={styles.group}>
           <SectionRow
             styles={styles}
+            label={t("settings", "sectionNotifications")}
+            hint={t("settings", "sectionNotificationsHint")}
+            onPress={() => router.push("/(tabs)/settings/notifications")}
+          />
+        </View>
+
+        <View style={styles.group}>
+          <SectionRow
+            styles={styles}
             label={t("settings", "sectionAccount")}
             hint={t("settings", "sectionAccountHint")}
             onPress={() => router.push("/(tabs)/settings/account")}

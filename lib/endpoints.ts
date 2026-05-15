@@ -91,6 +91,13 @@ export interface ProfileUpdate {
   country?: string | null;
 }
 
+export interface NotificationSettings {
+  email: string;
+  digestEnabled: boolean;
+  marketingEnabled: boolean;
+  educationalEnabled: boolean;
+}
+
 export const endpoints = {
   // Auth
   login: (email: string, password: string) =>
@@ -129,4 +136,10 @@ export const endpoints = {
   // Odregistrace push tokenu při odhlášení
   unregisterPushDevice: (token: string) =>
     api.post<{ ok: true }>("/api/mobile/devices/unregister", { token }),
+
+  // Email notifikační preference (digest, marketing, educational)
+  getNotificationSettings: () =>
+    api.get<{ settings: NotificationSettings }>("/api/mobile/notification-settings"),
+  updateNotificationSettings: (input: Partial<Omit<NotificationSettings, "email">>) =>
+    api.patch<{ settings: NotificationSettings }>("/api/mobile/notification-settings", input),
 };

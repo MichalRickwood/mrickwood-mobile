@@ -17,6 +17,7 @@ export default function SettingsLayout() {
     >
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="profile" options={{ title: t("settings", "profileTitle") }} />
+      <Stack.Screen name="notifications" options={{ title: t("settings", "notificationsTitle") }} />
       <Stack.Screen name="account" options={{ title: t("settings", "accountTitle") }} />
     </Stack>
   );
