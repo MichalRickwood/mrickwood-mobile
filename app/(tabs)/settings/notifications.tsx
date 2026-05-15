@@ -100,7 +100,10 @@ export default function NotificationsScreen() {
 
   const pushEnabled = pushStatus?.kind === "active";
   const pushDisabled =
-    pushBusy || pushStatus?.kind === "denied" || pushStatus?.kind === "unsupported";
+    pushBusy ||
+    pushStatus?.kind === "denied" ||
+    pushStatus?.kind === "unsupported" ||
+    pushStatus?.kind === "need-build";
 
   if (loading) {
     return (
@@ -138,6 +141,11 @@ export default function NotificationsScreen() {
           {pushStatus?.kind === "unsupported" && (
             <View style={styles.note}>
               <Text style={styles.noteText}>{t("settings", "pushNotSupported")}</Text>
+            </View>
+          )}
+          {pushStatus?.kind === "need-build" && (
+            <View style={styles.note}>
+              <Text style={styles.noteText}>{t("settings", "pushNeedBuild")}</Text>
             </View>
           )}
         </View>

@@ -58,6 +58,24 @@ export default function SettingsIndexScreen() {
         <View style={styles.group}>
           <SectionRow
             styles={styles}
+            label={t("settings", "sectionSecurity")}
+            hint={t("settings", "sectionSecurityHint")}
+            onPress={() => router.push("/(tabs)/settings/security")}
+          />
+        </View>
+
+        <View style={styles.group}>
+          <SectionRow
+            styles={styles}
+            label={t("settings", "sectionBilling")}
+            hint={t("settings", "sectionBillingHint")}
+            onPress={() => router.push("/(tabs)/settings/billing")}
+          />
+        </View>
+
+        <View style={styles.group}>
+          <SectionRow
+            styles={styles}
             label={t("settings", "sectionAccount")}
             hint={t("settings", "sectionAccountHint")}
             onPress={() => router.push("/(tabs)/settings/account")}

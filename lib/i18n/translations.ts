@@ -133,12 +133,49 @@ export interface Dict {
     companySaved: string;
     sectionNotifications: string;
     sectionNotificationsHint: string;
+    sectionSecurity: string;
+    sectionSecurityHint: string;
+    sectionBilling: string;
+    sectionBillingHint: string;
+    billingTitle: string;
+    billingPlanLabel: string;
+    billingStateLabel: string;
+    billingCycleLabel: string;
+    billingTrialEndsLabel: string;
+    billingPaidUntilLabel: string;
+    billingPlanFree: string;
+    billingPlanPaid: string;
+    billingStateTrial: string;
+    billingStateActive: string;
+    billingStatePastDue: string;
+    billingStateSuspended: string;
+    billingStateCanceled: string;
+    billingCycleMonthly: string;
+    billingCycleYearly: string;
+    billingCancelNotice: string;
+    billingManageOnWeb: string;
+    billingManageOnWebHint: string;
+    billingUpgradeCta: string;
+    billingNotSet: string;
+    securityTitle: string;
+    passwordTitleChange: string;
+    passwordTitleSet: string;
+    passwordSubtitleSet: string;
+    currentPasswordLabel: string;
+    newPasswordLabel: string;
+    newPasswordAgainLabel: string;
+    passwordMinLengthError: string;
+    passwordMismatchError: string;
+    passwordSubmit: string;
+    passwordSubmitting: string;
+    passwordSavedToast: string;
     notificationsTitle: string;
     pushTitle: string;
     pushLabel: string;
     pushDesc: string;
     pushPermissionDenied: string;
     pushNotSupported: string;
+    pushNeedBuild: string;
     emailTitle: string;
     digestLabel: string;
     digestDesc: string;
@@ -288,12 +325,49 @@ const cs: Dict = {
     companySaved: "Uloženo",
     sectionNotifications: "Notifikace",
     sectionNotificationsHint: "Push, email digest, marketing",
+    sectionSecurity: "Bezpečnost",
+    sectionSecurityHint: "Změna hesla",
+    sectionBilling: "Předplatné",
+    sectionBillingHint: "Plán, fakturace, předplatné",
+    billingTitle: "Předplatné",
+    billingPlanLabel: "Plán",
+    billingStateLabel: "Stav",
+    billingCycleLabel: "Cyklus",
+    billingTrialEndsLabel: "Trial končí",
+    billingPaidUntilLabel: "Předplaceno do",
+    billingPlanFree: "Free",
+    billingPlanPaid: "Placený plán",
+    billingStateTrial: "Zkušební období",
+    billingStateActive: "Aktivní",
+    billingStatePastDue: "Po splatnosti",
+    billingStateSuspended: "Pozastaveno",
+    billingStateCanceled: "Zrušeno",
+    billingCycleMonthly: "Měsíčně",
+    billingCycleYearly: "Ročně",
+    billingCancelNotice: "Předplatné bude ukončeno ke konci aktuálního období.",
+    billingManageOnWeb: "Spravovat na webu",
+    billingManageOnWebHint: "Upgrade plánu, změna platby a faktury jsou nyní jen v dashboardu na webu.",
+    billingUpgradeCta: "Upgradovat plán",
+    billingNotSet: "Nenastaveno",
+    securityTitle: "Bezpečnost",
+    passwordTitleChange: "Změnit heslo",
+    passwordTitleSet: "Nastavit heslo",
+    passwordSubtitleSet: "Tento účet zatím nemá heslo (přihlašujete se přes OAuth). Po nastavení hesla se budete moci přihlásit i emailem.",
+    currentPasswordLabel: "Současné heslo",
+    newPasswordLabel: "Nové heslo (min. 8 znaků)",
+    newPasswordAgainLabel: "Nové heslo znovu",
+    passwordMinLengthError: "Heslo musí mít alespoň 8 znaků.",
+    passwordMismatchError: "Hesla se neshodují.",
+    passwordSubmit: "Uložit",
+    passwordSubmitting: "Ukládám…",
+    passwordSavedToast: "Heslo bylo uloženo.",
     notificationsTitle: "Notifikace",
     pushTitle: "Push notifikace",
     pushLabel: "Push notifikace v aplikaci",
     pushDesc: "Upozornění na nové zakázky odpovídající vašim filtrům.",
     pushPermissionDenied: "Push notifikace jsou zakázané v nastavení iOS. Povolte je v Nastavení → Tendero.",
     pushNotSupported: "Push notifikace nejsou na simulátoru dostupné.",
+    pushNeedBuild: "Push notifikace fungují až v plné verzi aplikace (App Store). V Expo Go nejsou dostupné.",
     emailTitle: "Email",
     digestLabel: "Denní souhrn zakázek",
     digestDesc: "Každý den vám pošleme všechny nové zakázky, které odpovídají vašim filtrům.",
@@ -438,12 +512,49 @@ const en: Dict = {
     companySaved: "Saved",
     sectionNotifications: "Notifications",
     sectionNotificationsHint: "Push, email digest, marketing",
+    sectionSecurity: "Security",
+    sectionSecurityHint: "Change password",
+    sectionBilling: "Subscription",
+    sectionBillingHint: "Plan, billing, subscription",
+    billingTitle: "Subscription",
+    billingPlanLabel: "Plan",
+    billingStateLabel: "Status",
+    billingCycleLabel: "Cycle",
+    billingTrialEndsLabel: "Trial ends",
+    billingPaidUntilLabel: "Paid until",
+    billingPlanFree: "Free",
+    billingPlanPaid: "Paid plan",
+    billingStateTrial: "Trial",
+    billingStateActive: "Active",
+    billingStatePastDue: "Past due",
+    billingStateSuspended: "Suspended",
+    billingStateCanceled: "Canceled",
+    billingCycleMonthly: "Monthly",
+    billingCycleYearly: "Yearly",
+    billingCancelNotice: "Subscription will end at the end of the current period.",
+    billingManageOnWeb: "Manage on the web",
+    billingManageOnWebHint: "Plan upgrades, payment changes and invoices are currently only in the web dashboard.",
+    billingUpgradeCta: "Upgrade plan",
+    billingNotSet: "Not set",
+    securityTitle: "Security",
+    passwordTitleChange: "Change password",
+    passwordTitleSet: "Set password",
+    passwordSubtitleSet: "This account has no password yet (you sign in via OAuth). Setting a password lets you also sign in with email.",
+    currentPasswordLabel: "Current password",
+    newPasswordLabel: "New password (min. 8 chars)",
+    newPasswordAgainLabel: "New password again",
+    passwordMinLengthError: "Password must be at least 8 characters.",
+    passwordMismatchError: "Passwords do not match.",
+    passwordSubmit: "Save",
+    passwordSubmitting: "Saving…",
+    passwordSavedToast: "Password saved.",
     notificationsTitle: "Notifications",
     pushTitle: "Push notifications",
     pushLabel: "In-app push notifications",
     pushDesc: "Alerts for new tenders matching your filters.",
     pushPermissionDenied: "Push notifications are disabled in iOS settings. Enable them in Settings → Tendero.",
     pushNotSupported: "Push notifications are not available on the simulator.",
+    pushNeedBuild: "Push notifications only work in the full app version (App Store). Not available in Expo Go.",
     emailTitle: "Email",
     digestLabel: "Daily tender digest",
     digestDesc: "Each day we'll email you all new tenders matching your filters.",
@@ -590,12 +701,49 @@ const de: Dict = {
     companySaved: "Gespeichert",
     sectionNotifications: "Benachrichtigungen",
     sectionNotificationsHint: "Push, E-Mail-Übersicht, Marketing",
+    sectionSecurity: "Sicherheit",
+    sectionSecurityHint: "Passwort ändern",
+    sectionBilling: "Abonnement",
+    sectionBillingHint: "Tarif, Abrechnung, Abonnement",
+    billingTitle: "Abonnement",
+    billingPlanLabel: "Tarif",
+    billingStateLabel: "Status",
+    billingCycleLabel: "Zyklus",
+    billingTrialEndsLabel: "Testphase endet",
+    billingPaidUntilLabel: "Bezahlt bis",
+    billingPlanFree: "Free",
+    billingPlanPaid: "Bezahlter Tarif",
+    billingStateTrial: "Testphase",
+    billingStateActive: "Aktiv",
+    billingStatePastDue: "Überfällig",
+    billingStateSuspended: "Ausgesetzt",
+    billingStateCanceled: "Gekündigt",
+    billingCycleMonthly: "Monatlich",
+    billingCycleYearly: "Jährlich",
+    billingCancelNotice: "Das Abonnement endet zum Ende der aktuellen Periode.",
+    billingManageOnWeb: "Im Web verwalten",
+    billingManageOnWebHint: "Tarif-Upgrades, Zahlungsänderungen und Rechnungen sind derzeit nur im Web-Dashboard verfügbar.",
+    billingUpgradeCta: "Tarif upgraden",
+    billingNotSet: "Nicht festgelegt",
+    securityTitle: "Sicherheit",
+    passwordTitleChange: "Passwort ändern",
+    passwordTitleSet: "Passwort festlegen",
+    passwordSubtitleSet: "Dieses Konto hat noch kein Passwort (Sie melden sich über OAuth an). Mit einem Passwort können Sie sich auch per E-Mail anmelden.",
+    currentPasswordLabel: "Aktuelles Passwort",
+    newPasswordLabel: "Neues Passwort (min. 8 Zeichen)",
+    newPasswordAgainLabel: "Neues Passwort erneut",
+    passwordMinLengthError: "Passwort muss mindestens 8 Zeichen haben.",
+    passwordMismatchError: "Passwörter stimmen nicht überein.",
+    passwordSubmit: "Speichern",
+    passwordSubmitting: "Speichere…",
+    passwordSavedToast: "Passwort gespeichert.",
     notificationsTitle: "Benachrichtigungen",
     pushTitle: "Push-Benachrichtigungen",
     pushLabel: "Push-Benachrichtigungen in der App",
     pushDesc: "Hinweise zu neuen Ausschreibungen, die Ihren Filtern entsprechen.",
     pushPermissionDenied: "Push-Benachrichtigungen sind in den iOS-Einstellungen deaktiviert. Aktivieren Sie sie in Einstellungen → Tendero.",
     pushNotSupported: "Push-Benachrichtigungen sind im Simulator nicht verfügbar.",
+    pushNeedBuild: "Push-Benachrichtigungen funktionieren nur in der vollständigen App-Version (App Store). In Expo Go nicht verfügbar.",
     emailTitle: "E-Mail",
     digestLabel: "Tägliche Ausschreibungsübersicht",
     digestDesc: "Jeden Tag senden wir Ihnen alle neuen Ausschreibungen, die Ihren Filtern entsprechen.",

@@ -142,4 +142,28 @@ export const endpoints = {
     api.get<{ settings: NotificationSettings }>("/api/mobile/notification-settings"),
   updateNotificationSettings: (input: Partial<Omit<NotificationSettings, "email">>) =>
     api.patch<{ settings: NotificationSettings }>("/api/mobile/notification-settings", input),
+
+  // Heslo — GET zda user má heslo (OAuth-only účty mají hasPassword=false)
+  getPasswordStatus: () => api.get<{ hasPassword: boolean }>("/api/mobile/password"),
+  changePassword: (input: { currentPassword?: string; newPassword: string }) =>
+    api.post<{ ok: true }>("/api/mobile/password", input),
+
+  // Billing summary (read-only, mobile)
+  getBilling: () => api.get<BillingSummary>("/api/mobile/billing"),
 };
+
+export type BillingTier = "FREE" | "PAID";
+export type BillingState = "TRIAL" | "ACTIVE" | "PAST_DUE" | "SUSPENDED" | "CANCELED";
+export type BillingCycle = "MONTHLY" | "YEARLY";
+export type BillingMode = "CARD" | "INVOICE";
+
+export interface BillingSummary {
+  service: "LEADS";
+  tier: BillingTier;
+  state: BillingState | null;
+  trialEndsAt: string | null;
+  paidUntil: string | null;
+  cancelAtPeriodEnd: boolean;
+  cycle: BillingCycle | null;
+  paymentMode: BillingMode | null;
+}

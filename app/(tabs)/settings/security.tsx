@@ -1,0 +1,239 @@
+import { useEffect, useMemo, useState } from "react";
+import {
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { ApiError } from "@/lib/api";
+import { endpoints } from "@/lib/endpoints";
+import { useI18n } from "@/lib/i18n";
+import { useTheme } from "@/lib/theme-context";
+import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
+
+export default function SecurityScreen() {
+  const { t } = useI18n();
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
+
+  const [hasPassword, setHasPassword] = useState<boolean | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [current, setCurrent] = useState("");
+  const [next, setNext] = useState("");
+  const [next2, setNext2] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const r = await endpoints.getPasswordStatus();
+        if (!cancelled) setHasPassword(r.hasPassword);
+      } catch (e) {
+        if (!cancelled) setError(e instanceof ApiError ? e.message : t("settings", "loadFailed"));
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [t]);
+
+  async function onSubmit() {
+    if (saving) return;
+    setError(null);
+    setSaved(false);
+    if (next.length < 8) {
+      setError(t("settings", "passwordMinLengthError"));
+      return;
+    }
+    if (next !== next2) {
+      setError(t("settings", "passwordMismatchError"));
+      return;
+    }
+    setSaving(true);
+    try {
+      await endpoints.changePassword({
+        currentPassword: hasPassword ? current : undefined,
+        newPassword: next,
+      });
+      setCurrent("");
+      setNext("");
+      setNext2("");
+      setHasPassword(true);
+      setSaved(true);
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : t("settings", "saveFailed"));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (loading || hasPassword === null) {
+    return (
+      <SafeAreaView style={styles.safe} edges={["bottom"]}>
+        <View style={styles.center}>
+          <ActivityIndicator color={colors.textSubtle} />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  const submitDisabled = saving || !next || !next2 || (hasPassword && !current);
+
+  return (
+    <SafeAreaView style={styles.safe} edges={["bottom"]}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        style={styles.flex}
+      >
+        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+          <Text style={styles.title}>
+            {hasPassword ? t("settings", "passwordTitleChange") : t("settings", "passwordTitleSet")}
+          </Text>
+          {!hasPassword && (
+            <Text style={styles.subtitle}>{t("settings", "passwordSubtitleSet")}</Text>
+          )}
+
+          <View style={styles.form}>
+            {hasPassword && (
+              <>
+                <Text style={styles.label}>{t("settings", "currentPasswordLabel")}</Text>
+                <TextInput
+                  value={current}
+                  onChangeText={setCurrent}
+                  secureTextEntry
+                  autoComplete="current-password"
+                  textContentType="password"
+                  placeholderTextColor={colors.textFaint}
+                  style={styles.input}
+                  returnKeyType="next"
+                />
+              </>
+            )}
+
+            <Text style={[styles.label, hasPassword && styles.mt]}>
+              {t("settings", "newPasswordLabel")}
+            </Text>
+            <TextInput
+              value={next}
+              onChangeText={setNext}
+              secureTextEntry
+              autoComplete="new-password"
+              textContentType="newPassword"
+              placeholderTextColor={colors.textFaint}
+              style={styles.input}
+              returnKeyType="next"
+            />
+
+            <Text style={[styles.label, styles.mt]}>
+              {t("settings", "newPasswordAgainLabel")}
+            </Text>
+            <TextInput
+              value={next2}
+              onChangeText={setNext2}
+              secureTextEntry
+              autoComplete="new-password"
+              textContentType="newPassword"
+              placeholderTextColor={colors.textFaint}
+              style={styles.input}
+              returnKeyType="done"
+              onSubmitEditing={onSubmit}
+            />
+
+            {error && <Text style={styles.error}>{error}</Text>}
+            {saved && <Text style={styles.success}>{t("settings", "passwordSavedToast")}</Text>}
+
+            <Pressable
+              onPress={onSubmit}
+              disabled={submitDisabled}
+              style={({ pressed }) => [
+                styles.button,
+                submitDisabled && styles.buttonDisabled,
+                pressed && styles.buttonPressed,
+              ]}
+            >
+              <Text style={styles.buttonText}>
+                {saving ? t("settings", "passwordSubmitting") : t("settings", "passwordSubmit")}
+              </Text>
+            </Pressable>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
+}
+
+const makeStyles = (colors: Colors) =>
+  StyleSheet.create({
+    safe: { flex: 1, backgroundColor: colors.bg },
+    flex: { flex: 1 },
+    scroll: { padding: spacing.xl },
+    center: { flex: 1, alignItems: "center", justifyContent: "center" },
+    title: { fontSize: fontSize.xl, fontWeight: "700", color: colors.text, letterSpacing: -0.3 },
+    subtitle: {
+      fontSize: fontSize.sm,
+      color: colors.textSubtle,
+      marginTop: spacing.sm,
+      lineHeight: 20,
+    },
+    form: { marginTop: spacing.xl },
+    label: {
+      fontSize: fontSize.xs,
+      fontWeight: "600",
+      color: colors.text,
+      marginBottom: spacing.sm,
+    },
+    mt: { marginTop: spacing.lg },
+    input: {
+      backgroundColor: colors.card,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.md,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.md,
+      fontSize: fontSize.base,
+      color: colors.text,
+    },
+    error: {
+      color: colors.danger,
+      fontSize: fontSize.sm,
+      marginTop: spacing.lg,
+      backgroundColor: colors.dangerBg,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: radius.sm,
+    },
+    success: {
+      color: colors.success,
+      fontSize: fontSize.sm,
+      marginTop: spacing.lg,
+      backgroundColor: colors.successBg,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: radius.sm,
+    },
+    button: {
+      marginTop: spacing.xl,
+      backgroundColor: colors.accent,
+      borderRadius: radius.md,
+      paddingVertical: spacing.md,
+      alignItems: "center",
+    },
+    buttonDisabled: { opacity: 0.4 },
+    buttonPressed: { backgroundColor: colors.accentHover },
+    buttonText: {
+      color: colors.accentForeground,
+      fontSize: fontSize.base,
+      fontWeight: "600",
+    },
+  });

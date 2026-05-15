@@ -1,19 +1,35 @@
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
+import Constants from "expo-constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Platform } from "react-native";
 import { endpoints } from "./endpoints";
 
 const PUSH_TOKEN_STORAGE_KEY = "tendero.pushToken";
 
+/** EAS projectId z app.json extra.eas.projectId nebo env. Bez něj Expo SDK 50+
+ *  nedovolí getExpoPushTokenAsync — vrátíme `need-build`. */
+function getEasProjectId(): string | null {
+  const fromExtra =
+    (Constants.expoConfig?.extra as Record<string, unknown> | undefined)?.eas;
+  const id =
+    process.env.EXPO_PUBLIC_EAS_PROJECT_ID ||
+    (typeof fromExtra === "object" && fromExtra && "projectId" in fromExtra
+      ? String((fromExtra as { projectId?: unknown }).projectId ?? "")
+      : "");
+  return id && id.length > 0 ? id : null;
+}
+
 export type PushStatus =
   | { kind: "active"; token: string }
   | { kind: "off" }
   | { kind: "denied" }
-  | { kind: "unsupported" };
+  | { kind: "unsupported" }
+  | { kind: "need-build" };
 
 export async function getPushStatus(): Promise<PushStatus> {
   if (!Device.isDevice) return { kind: "unsupported" };
+  if (!getEasProjectId()) return { kind: "need-build" };
   const { status } = await Notifications.getPermissionsAsync();
   if (status === "denied") return { kind: "denied" };
   const saved = await AsyncStorage.getItem(PUSH_TOKEN_STORAGE_KEY);
@@ -56,6 +72,13 @@ export async function registerForPushNotifications(): Promise<string | null> {
     return null;
   }
 
+  const projectId = getEasProjectId();
+  if (!projectId) {
+    // Bez EAS projektu push token v Expo Go nelze získat. Caller (UI) by měl
+    // detekovat tento stav přes getPushStatus() a zobrazit hint.
+    return null;
+  }
+
   const { status: existing } = await Notifications.getPermissionsAsync();
   let finalStatus = existing;
   if (existing !== "granted") {
@@ -64,13 +87,7 @@ export async function registerForPushNotifications(): Promise<string | null> {
   }
   if (finalStatus !== "granted") return null;
 
-  const projectId =
-    process.env.EXPO_PUBLIC_EAS_PROJECT_ID ||
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ((((Notifications as any)?.getExpoPushTokenAsync?.length ?? 0) > 0 ? null : null));
-  const tokenResponse = await Notifications.getExpoPushTokenAsync(
-    projectId ? { projectId } : undefined,
-  );
+  const tokenResponse = await Notifications.getExpoPushTokenAsync({ projectId });
   const expoToken = tokenResponse.data;
   if (!expoToken) return null;
 
