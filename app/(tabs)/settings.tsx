@@ -4,6 +4,7 @@ import * as WebBrowser from "expo-web-browser";
 import { useAuth } from "@/lib/auth-context";
 import { API_BASE_URL, APP_NAME } from "@/lib/config";
 import { colors, fontSize, radius, spacing } from "@/constants/theme";
+import ProfileSection from "@/components/ProfileSection";
 
 export default function SettingsScreen() {
   const { user, signOut } = useAuth();
@@ -33,6 +34,8 @@ export default function SettingsScreen() {
             {user.name && <Text style={styles.valueSub}>{user.email}</Text>}
           </View>
         )}
+
+        <ProfileSection />
 
         <SettingsRow label="Otevřít web dashboard" onPress={openWebDashboard} />
 

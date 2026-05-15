@@ -74,10 +74,9 @@ export default function RegisterScreen() {
     setCheckError(null);
     try {
       await signIn(email.trim().toLowerCase(), password);
-      // Explicit navigation — RouterGuard reaguje asynchronně přes useEffect a
-      // často to nestihne před tím než user vidí "nic se nestalo". Profile-complete
-      // screen sám zkontroluje stav a redirectne do (tabs) pokud je hotové.
-      router.replace("/profile-complete");
+      // Explicit navigation — RouterGuard reaguje asynchronně přes useEffect.
+      // Telefon + IČO se doplňují v Settings tabu (dobrovolně, ne blokující).
+      router.replace("/(tabs)");
     } catch (err) {
       if (err instanceof ApiError) {
         if (err.status === 403) setCheckError(t("register", "successNotVerified"));
