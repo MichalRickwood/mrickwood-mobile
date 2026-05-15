@@ -21,7 +21,7 @@ import {
   localDigitsRange,
 } from "@/lib/dial-codes";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
-import Picker, { type PickerItem } from "@/components/Picker";
+import DialCodePicker from "@/components/DialCodePicker";
 
 const SAVE_DEBOUNCE_MS = 700;
 
@@ -134,15 +134,6 @@ export default function ProfileScreen() {
     }
   }
 
-  const dialItems: PickerItem[] = useMemo(
-    () =>
-      DIAL_CODES.map((d) => ({
-        value: d.code,
-        label: `${d.flag} ${d.iso} ${d.code}`,
-      })),
-    [],
-  );
-
   const phoneRange = localDigitsRange(dialCode);
 
   if (loading) {
@@ -179,15 +170,7 @@ export default function ProfileScreen() {
 
             <Text style={[styles.label, styles.spacer]}>{t("profileComplete", "phoneLabel")}</Text>
             <View style={styles.phoneRow}>
-              <View style={styles.dialBtn}>
-                <Picker
-                  items={dialItems}
-                  value={dialCode}
-                  onChange={onDialChange}
-                  placeholder={t("profileComplete", "phoneLabel")}
-                  searchable
-                />
-              </View>
+              <DialCodePicker value={dialCode} onChange={onDialChange} />
               <TextInput
                 value={phoneLocal}
                 onChangeText={onPhoneChange}
@@ -250,8 +233,7 @@ const makeStyles = (colors: Colors) =>
       fontSize: fontSize.base,
       color: colors.text,
     },
-    phoneRow: { flexDirection: "row", gap: spacing.sm },
-    dialBtn: { minWidth: 80 },
+    phoneRow: { flexDirection: "row", gap: spacing.sm, alignItems: "center" },
     phoneInput: { flex: 1 },
     readonlyValue: {
       backgroundColor: colors.bg,

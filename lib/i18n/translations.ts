@@ -112,6 +112,7 @@ export interface Dict {
     deleteNote: string;
     signOut: string;
     back: string;
+    searchPlaceholder: string;
     signOutConfirmTitle: string;
     signOutConfirmBody: string;
     cancel: string;
@@ -388,6 +389,7 @@ const cs: Dict = {
     deleteNote: "Smazání účtu zatím přes web — bude přidáno do appky v další verzi.",
     signOut: "Odhlásit se",
     back: "Zpět",
+    searchPlaceholder: "Hledat…",
     signOutConfirmTitle: "Odhlásit se",
     signOutConfirmBody: "Opravdu se chcete odhlásit?",
     cancel: "Zrušit",
@@ -659,6 +661,7 @@ const en: Dict = {
     deleteNote: "Account deletion is on the web for now — coming to the app in a later version.",
     signOut: "Sign out",
     back: "Back",
+    searchPlaceholder: "Search…",
     signOutConfirmTitle: "Sign out",
     signOutConfirmBody: "Do you really want to sign out?",
     cancel: "Cancel",
@@ -932,6 +935,7 @@ const de: Dict = {
     deleteNote: "Kontolöschung ist derzeit über die Website — kommt in einer späteren App-Version.",
     signOut: "Abmelden",
     back: "Zurück",
+    searchPlaceholder: "Suchen…",
     signOutConfirmTitle: "Abmelden",
     signOutConfirmBody: "Möchten Sie sich wirklich abmelden?",
     cancel: "Abbrechen",
