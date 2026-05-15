@@ -109,6 +109,7 @@ export interface Dict {
     accountName: string;
     deleteNote: string;
     signOut: string;
+    back: string;
     signOutConfirmTitle: string;
     signOutConfirmBody: string;
     cancel: string;
@@ -137,6 +138,39 @@ export interface Dict {
     sectionSecurityHint: string;
     sectionBilling: string;
     sectionBillingHint: string;
+    exportTitle: string;
+    exportSubtitle: string;
+    exportButton: string;
+    exporting: string;
+    exportError: string;
+    deactivateTitle: string;
+    deactivateSubtitle: string;
+    deactivateButton: string;
+    deleteTitle: string;
+    deleteSubtitle: string;
+    deleteButton: string;
+    cancelTitleDeactivate: string;
+    cancelTitleDelete: string;
+    cancelWarnAccessLost: string;
+    cancelWarnSubRunsToEnd: string;
+    cancelWarnNoRefund: string;
+    cancelWarnDataDeleted: string;
+    cancelWarnAccountingKept: string;
+    cancelWarnDataKept: string;
+    cancelIntentDeactivate: string;
+    cancelIntentDelete: string;
+    cancelSendCode: string;
+    cancelSending: string;
+    cancelEmailSent: string;
+    cancelEmailSentBody: string;
+    cancelCodeLabel: string;
+    cancelCodePlaceholder: string;
+    cancelConfirm: string;
+    cancelConfirming: string;
+    cancelResend: string;
+    cancelDoneDeactivate: string;
+    cancelDoneDelete: string;
+    cancelErrorGeneric: string;
     billingTitle: string;
     billingPlanLabel: string;
     billingStateLabel: string;
@@ -296,11 +330,12 @@ const cs: Dict = {
     sectionProfile: "Firemní údaje",
     sectionProfileHint: "Telefon, IČO, fakturace",
     sectionAccount: "Účet",
-    sectionAccountHint: "Odhlásit, smazat účet",
+    sectionAccountHint: "Odhlášení, export dat, smazání účtu",
     accountEmail: "Email",
     accountName: "Jméno",
     deleteNote: "Smazání účtu zatím přes web — bude přidáno do appky v další verzi.",
     signOut: "Odhlásit se",
+    back: "Zpět",
     signOutConfirmTitle: "Odhlásit se",
     signOutConfirmBody: "Opravdu se chcete odhlásit?",
     cancel: "Zrušit",
@@ -329,6 +364,39 @@ const cs: Dict = {
     sectionSecurityHint: "Změna hesla",
     sectionBilling: "Předplatné",
     sectionBillingHint: "Plán, fakturace, předplatné",
+    exportTitle: "Stáhnout moje data",
+    exportSubtitle: "Kompletní JSON snapshot vašeho účtu (GDPR čl. 15/20). Můžete sdílet do Souborů, iCloud nebo emailem.",
+    exportButton: "Stáhnout export",
+    exporting: "Připravuji export…",
+    exportError: "Export se nepodařilo načíst.",
+    deactivateTitle: "Deaktivovat účet",
+    deactivateSubtitle: "Přihlášení bude zablokováno, ale data zůstávají. Reaktivovat můžete přes odkaz v emailu.",
+    deactivateButton: "Deaktivovat účet",
+    deleteTitle: "Smazat účet",
+    deleteSubtitle: "Trvale odstraní osobní údaje. Účetní záznamy (faktury) jsou ze zákona ponechány.",
+    deleteButton: "Smazat účet",
+    cancelTitleDeactivate: "Potvrzení deaktivace",
+    cancelTitleDelete: "Potvrzení smazání",
+    cancelWarnAccessLost: "Ztratíte přístup k aplikaci i webu.",
+    cancelWarnSubRunsToEnd: "Aktivní předplatné doběhne do konce zaplaceného období.",
+    cancelWarnNoRefund: "Refund se nevrací.",
+    cancelWarnDataDeleted: "Osobní údaje budou anonymizovány a smazány.",
+    cancelWarnAccountingKept: "Účetní záznamy (faktury) jsou ze zákona ponechány.",
+    cancelWarnDataKept: "Vaše data zůstanou uložená pro případnou reaktivaci.",
+    cancelIntentDeactivate: "Rozumím a chci účet deaktivovat.",
+    cancelIntentDelete: "Rozumím a chci účet trvale smazat.",
+    cancelSendCode: "Poslat ověřovací kód",
+    cancelSending: "Posílám…",
+    cancelEmailSent: "Email odeslán",
+    cancelEmailSentBody: "Poslali jsme 8-znakový kód na {email}. Platnost 30 minut.",
+    cancelCodeLabel: "Ověřovací kód",
+    cancelCodePlaceholder: "XXXX-XXXX",
+    cancelConfirm: "Potvrdit",
+    cancelConfirming: "Potvrzuji…",
+    cancelResend: "Poslat znovu",
+    cancelDoneDeactivate: "Účet deaktivován. Odhlašujeme vás…",
+    cancelDoneDelete: "Účet smazán. Odhlašujeme vás…",
+    cancelErrorGeneric: "Něco se pokazilo. Zkuste to znovu.",
     billingTitle: "Předplatné",
     billingPlanLabel: "Plán",
     billingStateLabel: "Stav",
@@ -483,11 +551,12 @@ const en: Dict = {
     sectionProfile: "Company details",
     sectionProfileHint: "Phone, tax ID, billing",
     sectionAccount: "Account",
-    sectionAccountHint: "Sign out, delete account",
+    sectionAccountHint: "Sign out, data export, delete account",
     accountEmail: "Email",
     accountName: "Name",
     deleteNote: "Account deletion is on the web for now — coming to the app in a later version.",
     signOut: "Sign out",
+    back: "Back",
     signOutConfirmTitle: "Sign out",
     signOutConfirmBody: "Do you really want to sign out?",
     cancel: "Cancel",
@@ -516,6 +585,39 @@ const en: Dict = {
     sectionSecurityHint: "Change password",
     sectionBilling: "Subscription",
     sectionBillingHint: "Plan, billing, subscription",
+    exportTitle: "Download my data",
+    exportSubtitle: "Complete JSON snapshot of your account (GDPR art. 15/20). You can share to Files, iCloud, or email.",
+    exportButton: "Download export",
+    exporting: "Preparing export…",
+    exportError: "Failed to load export.",
+    deactivateTitle: "Deactivate account",
+    deactivateSubtitle: "Sign-in will be blocked, but your data is kept. You can reactivate via a link in email.",
+    deactivateButton: "Deactivate account",
+    deleteTitle: "Delete account",
+    deleteSubtitle: "Permanently removes personal data. Accounting records (invoices) are kept by law.",
+    deleteButton: "Delete account",
+    cancelTitleDeactivate: "Confirm deactivation",
+    cancelTitleDelete: "Confirm deletion",
+    cancelWarnAccessLost: "You will lose access to the app and the web.",
+    cancelWarnSubRunsToEnd: "Active subscription will run until the end of the paid period.",
+    cancelWarnNoRefund: "No refund.",
+    cancelWarnDataDeleted: "Personal data will be anonymized and deleted.",
+    cancelWarnAccountingKept: "Accounting records (invoices) are kept by law.",
+    cancelWarnDataKept: "Your data is kept in case you reactivate.",
+    cancelIntentDeactivate: "I understand and want to deactivate my account.",
+    cancelIntentDelete: "I understand and want to permanently delete my account.",
+    cancelSendCode: "Send verification code",
+    cancelSending: "Sending…",
+    cancelEmailSent: "Email sent",
+    cancelEmailSentBody: "We sent an 8-character code to {email}. Valid for 30 minutes.",
+    cancelCodeLabel: "Verification code",
+    cancelCodePlaceholder: "XXXX-XXXX",
+    cancelConfirm: "Confirm",
+    cancelConfirming: "Confirming…",
+    cancelResend: "Resend",
+    cancelDoneDeactivate: "Account deactivated. Signing you out…",
+    cancelDoneDelete: "Account deleted. Signing you out…",
+    cancelErrorGeneric: "Something went wrong. Please try again.",
     billingTitle: "Subscription",
     billingPlanLabel: "Plan",
     billingStateLabel: "Status",
@@ -672,11 +774,12 @@ const de: Dict = {
     sectionProfile: "Firmendaten",
     sectionProfileHint: "Telefon, USt-IdNr., Abrechnung",
     sectionAccount: "Konto",
-    sectionAccountHint: "Abmelden, Konto löschen",
+    sectionAccountHint: "Abmelden, Datenexport, Konto löschen",
     accountEmail: "E-Mail",
     accountName: "Name",
     deleteNote: "Kontolöschung ist derzeit über die Website — kommt in einer späteren App-Version.",
     signOut: "Abmelden",
+    back: "Zurück",
     signOutConfirmTitle: "Abmelden",
     signOutConfirmBody: "Möchten Sie sich wirklich abmelden?",
     cancel: "Abbrechen",
@@ -705,6 +808,39 @@ const de: Dict = {
     sectionSecurityHint: "Passwort ändern",
     sectionBilling: "Abonnement",
     sectionBillingHint: "Tarif, Abrechnung, Abonnement",
+    exportTitle: "Meine Daten herunterladen",
+    exportSubtitle: "Vollständiger JSON-Snapshot Ihres Kontos (DSGVO Art. 15/20). Sie können in Dateien, iCloud oder per E-Mail teilen.",
+    exportButton: "Export herunterladen",
+    exporting: "Export wird vorbereitet…",
+    exportError: "Export konnte nicht geladen werden.",
+    deactivateTitle: "Konto deaktivieren",
+    deactivateSubtitle: "Anmeldung wird blockiert, Daten bleiben erhalten. Reaktivierung über Link in der E-Mail möglich.",
+    deactivateButton: "Konto deaktivieren",
+    deleteTitle: "Konto löschen",
+    deleteSubtitle: "Persönliche Daten werden dauerhaft entfernt. Buchhaltungsdaten (Rechnungen) bleiben gesetzlich erhalten.",
+    deleteButton: "Konto löschen",
+    cancelTitleDeactivate: "Deaktivierung bestätigen",
+    cancelTitleDelete: "Löschung bestätigen",
+    cancelWarnAccessLost: "Sie verlieren den Zugang zur App und zum Web.",
+    cancelWarnSubRunsToEnd: "Aktives Abonnement läuft bis zum Ende der bezahlten Periode.",
+    cancelWarnNoRefund: "Keine Erstattung.",
+    cancelWarnDataDeleted: "Persönliche Daten werden anonymisiert und gelöscht.",
+    cancelWarnAccountingKept: "Buchhaltungsdaten (Rechnungen) bleiben gesetzlich erhalten.",
+    cancelWarnDataKept: "Ihre Daten bleiben für eine eventuelle Reaktivierung gespeichert.",
+    cancelIntentDeactivate: "Ich verstehe und möchte mein Konto deaktivieren.",
+    cancelIntentDelete: "Ich verstehe und möchte mein Konto dauerhaft löschen.",
+    cancelSendCode: "Bestätigungscode senden",
+    cancelSending: "Senden…",
+    cancelEmailSent: "E-Mail gesendet",
+    cancelEmailSentBody: "Wir haben einen 8-stelligen Code an {email} gesendet. 30 Minuten gültig.",
+    cancelCodeLabel: "Bestätigungscode",
+    cancelCodePlaceholder: "XXXX-XXXX",
+    cancelConfirm: "Bestätigen",
+    cancelConfirming: "Bestätige…",
+    cancelResend: "Erneut senden",
+    cancelDoneDeactivate: "Konto deaktiviert. Sie werden abgemeldet…",
+    cancelDoneDelete: "Konto gelöscht. Sie werden abgemeldet…",
+    cancelErrorGeneric: "Etwas ist schiefgelaufen. Bitte erneut versuchen.",
     billingTitle: "Abonnement",
     billingPlanLabel: "Tarif",
     billingStateLabel: "Status",

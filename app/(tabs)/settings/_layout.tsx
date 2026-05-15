@@ -12,7 +12,7 @@ export default function SettingsLayout() {
         headerStyle: { backgroundColor: colors.bg },
         headerTintColor: colors.text,
         headerTitleStyle: { fontSize: fontSize.base, fontWeight: "600" },
-        headerBackTitle: t("settings", "cancel"),
+        headerBackTitle: t("settings", "back"),
       }}
     >
       <Stack.Screen name="index" options={{ headerShown: false }} />

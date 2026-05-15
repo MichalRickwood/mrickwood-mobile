@@ -150,6 +150,18 @@ export const endpoints = {
 
   // Billing summary (read-only, mobile)
   getBilling: () => api.get<BillingSummary>("/api/mobile/billing"),
+
+  // Account export (vrací JSON snapshot uživatelských dat)
+  exportAccount: () => api.get<unknown>("/api/mobile/account/export"),
+
+  // Cancel / Delete flow (request → email s 8-char kódem → confirm)
+  requestAccountCancel: (action: "DEACTIVATE" | "DELETE") =>
+    api.post<{ sent: true; action: "DEACTIVATE" | "DELETE"; email: string; expiresAt: string }>(
+      "/api/mobile/account/cancel/request",
+      { action },
+    ),
+  confirmAccountCancel: (input: { code: string; reason?: string }) =>
+    api.post<{ action: "DEACTIVATE" | "DELETE" }>("/api/mobile/account/cancel/confirm", input),
 };
 
 export type BillingTier = "FREE" | "PAID";
