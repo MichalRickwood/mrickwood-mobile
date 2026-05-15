@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text, View, ActivityIndicator } from "react-native";
-import * as AppleAuthentication from "expo-apple-authentication";
+import { FontAwesome } from "@expo/vector-icons";
 import { useAuth } from "@/lib/auth-context";
 import {
   useGoogleAuth,
@@ -15,10 +15,10 @@ import {
 import { colors, fontSize, radius, spacing } from "@/constants/theme";
 
 /**
- * 3 OAuth tlačítka (Google, Apple, GitHub) — zobrazují se jen pokud je
- * provider configured (env var v app.json extra nebo EXPO_PUBLIC_ vars).
- * Apple se zobrazuje vždy na iOS — Apple Review to vyžaduje pokud máme
- * Google nebo GitHub.
+ * 3 OAuth tlačítka (Apple, Google, GitHub) v custom designu — konzistentní
+ * styl + české labely. Apple button je custom (ne `AppleAuthenticationButton`)
+ * aby měl náš český text "Pokračovat přes Apple". Apple HIG to povoluje
+ * pokud zachováme black/white styl + Apple logo + minimum touch size.
  */
 export default function OauthButtons({ onError }: { onError: (msg: string) => void }) {
   const { applyOauthSession } = useAuth();
@@ -27,7 +27,6 @@ export default function OauthButtons({ onError }: { onError: (msg: string) => vo
   const google = isGoogleConfigured() ? useGoogleAuth() : null;
   const github = isGithubConfigured() ? useGithubAuth() : null;
 
-  // Google response handler
   useEffect(() => {
     if (!google?.response || busyProvider !== "google") return;
     (async () => {
@@ -48,7 +47,6 @@ export default function OauthButtons({ onError }: { onError: (msg: string) => vo
     })();
   }, [google?.response, busyProvider, applyOauthSession, onError]);
 
-  // GitHub response handler
   useEffect(() => {
     if (!github?.response || busyProvider !== "github") return;
     (async () => {
@@ -94,7 +92,6 @@ export default function OauthButtons({ onError }: { onError: (msg: string) => vo
       const user = await signInWithApple();
       applyOauthSession(user);
     } catch (e) {
-      // Cancel není error — uživatel se může chtít vrátit.
       const msg = (e as Error).message;
       if (!msg.toLowerCase().includes("cancel")) onError(msg);
     } finally {
@@ -114,51 +111,77 @@ export default function OauthButtons({ onError }: { onError: (msg: string) => vo
       </View>
 
       {isAppleAvailable() && (
-        <AppleAuthentication.AppleAuthenticationButton
-          buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
-          buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
-          cornerRadius={radius.md}
-          style={styles.appleButton}
+        <ProviderButton
+          variant="apple"
+          icon={<FontAwesome name="apple" size={20} color="#fff" />}
+          label="Pokračovat přes Apple"
+          loading={busyProvider === "apple"}
+          disabled={!!busyProvider}
           onPress={tryApple}
         />
       )}
 
       {google && (
-        <Pressable
-          onPress={tryGoogle}
+        <ProviderButton
+          variant="light"
+          icon={<FontAwesome name="google" size={18} color="#EA4335" />}
+          label="Pokračovat přes Google"
+          loading={busyProvider === "google"}
           disabled={!!busyProvider}
-          style={({ pressed }) => [
-            styles.providerButton,
-            pressed && styles.providerButtonPressed,
-            !!busyProvider && styles.providerButtonDisabled,
-          ]}
-        >
-          {busyProvider === "google" ? (
-            <ActivityIndicator color={colors.text} />
-          ) : (
-            <Text style={styles.providerText}>Pokračovat přes Google</Text>
-          )}
-        </Pressable>
+          onPress={tryGoogle}
+        />
       )}
 
       {github && (
-        <Pressable
-          onPress={tryGithub}
+        <ProviderButton
+          variant="light"
+          icon={<FontAwesome name="github" size={20} color={colors.text} />}
+          label="Pokračovat přes GitHub"
+          loading={busyProvider === "github"}
           disabled={!!busyProvider}
-          style={({ pressed }) => [
-            styles.providerButton,
-            pressed && styles.providerButtonPressed,
-            !!busyProvider && styles.providerButtonDisabled,
-          ]}
-        >
-          {busyProvider === "github" ? (
-            <ActivityIndicator color={colors.text} />
-          ) : (
-            <Text style={styles.providerText}>Pokračovat přes GitHub</Text>
-          )}
-        </Pressable>
+          onPress={tryGithub}
+        />
       )}
     </View>
+  );
+}
+
+function ProviderButton({
+  variant,
+  icon,
+  label,
+  loading,
+  disabled,
+  onPress,
+}: {
+  variant: "apple" | "light";
+  icon: React.ReactNode;
+  label: string;
+  loading: boolean;
+  disabled: boolean;
+  onPress: () => void;
+}) {
+  const isApple = variant === "apple";
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={disabled}
+      style={({ pressed }) => [
+        styles.button,
+        isApple ? styles.buttonApple : styles.buttonLight,
+        pressed && (isApple ? styles.buttonApplePressed : styles.buttonLightPressed),
+        disabled && styles.buttonDisabled,
+      ]}
+    >
+      {loading ? (
+        <ActivityIndicator color={isApple ? "#fff" : colors.text} />
+      ) : (
+        <View style={styles.buttonContent}>
+          <View style={styles.iconWrap}>{icon}</View>
+          <Text style={[styles.buttonText, isApple && styles.buttonTextApple]}>{label}</Text>
+        </View>
+      )}
+    </Pressable>
   );
 }
 
@@ -167,18 +190,29 @@ const styles = StyleSheet.create({
   divider: { flexDirection: "row", alignItems: "center", marginBottom: spacing.sm },
   dividerLine: { flex: 1, height: 1, backgroundColor: colors.border },
   dividerText: { marginHorizontal: spacing.md, fontSize: fontSize.xs, color: colors.textSubtle },
-  appleButton: { width: "100%", height: 48 },
-  providerButton: {
+  button: {
+    borderRadius: radius.md,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: 48,
+  },
+  buttonApple: { backgroundColor: "#000" },
+  buttonApplePressed: { backgroundColor: "#1a1a1a" },
+  buttonLight: {
     backgroundColor: colors.card,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: radius.md,
-    paddingVertical: spacing.md,
-    alignItems: "center",
-    minHeight: 48,
-    justifyContent: "center",
   },
-  providerButtonPressed: { borderColor: colors.text },
-  providerButtonDisabled: { opacity: 0.5 },
-  providerText: { color: colors.text, fontSize: fontSize.base, fontWeight: "500" },
+  buttonLightPressed: { borderColor: colors.text },
+  buttonDisabled: { opacity: 0.5 },
+  buttonContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+  },
+  iconWrap: { width: 22, alignItems: "center" },
+  buttonText: { color: colors.text, fontSize: fontSize.base, fontWeight: "500" },
+  buttonTextApple: { color: "#fff", fontWeight: "600" },
 });
