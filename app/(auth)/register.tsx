@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Image,
   KeyboardAvoidingView,
@@ -16,9 +16,11 @@ import { useRouter } from "expo-router";
 import { ApiError } from "@/lib/api";
 import { endpoints } from "@/lib/endpoints";
 import { API_BASE_URL, APP_NAME } from "@/lib/config";
-import { colors, fontSize, radius, spacing } from "@/constants/theme";
+import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
+import { useTheme } from "@/lib/theme-context";
 import OauthButtons from "@/components/OauthButtons";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
+import AppearanceSwitcher from "@/components/AppearanceSwitcher";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth-context";
 
@@ -26,6 +28,8 @@ export default function RegisterScreen() {
   const router = useRouter();
   const { t, locale } = useI18n();
   const { signIn } = useAuth();
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -141,6 +145,8 @@ export default function RegisterScreen() {
     <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
       <View style={styles.topBar}>
         <LocaleSwitcher />
+        <View style={styles.pillGap} />
+        <AppearanceSwitcher />
       </View>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -158,7 +164,7 @@ export default function RegisterScreen() {
             <Text style={styles.brandSub}>{t("register", "title")}</Text>
           </View>
 
-          <Field label={t("register", "nameLabel")}>
+          <Field styles={styles} label={t("register", "nameLabel")}>
             <TextInput
               value={name}
               onChangeText={setName}
@@ -171,7 +177,7 @@ export default function RegisterScreen() {
             />
           </Field>
 
-          <Field label={t("register", "emailLabel")}>
+          <Field styles={styles} label={t("register", "emailLabel")}>
             <TextInput
               value={email}
               onChangeText={(v) => setEmail(v.trim().toLowerCase())}
@@ -187,7 +193,7 @@ export default function RegisterScreen() {
             />
           </Field>
 
-          <Field label={t("register", "passwordLabel")}>
+          <Field styles={styles} label={t("register", "passwordLabel")}>
             <TextInput
               value={password}
               onChangeText={setPassword}
@@ -201,7 +207,7 @@ export default function RegisterScreen() {
           </Field>
 
           <View style={styles.consents}>
-            <Checkbox
+            <Checkbox styles={styles}
               checked={consentVop}
               onToggle={() => setConsentVop((v) => !v)}
               label={t("register", "consentVopPre")}
@@ -209,7 +215,7 @@ export default function RegisterScreen() {
               linkUrl={`${API_BASE_URL}/vop`}
               tail={t("register", "consentVopTail")}
             />
-            <Checkbox
+            <Checkbox styles={styles}
               checked={consentGdpr}
               onToggle={() => setConsentGdpr((v) => !v)}
               label={t("register", "consentGdprPre")}
@@ -249,7 +255,15 @@ export default function RegisterScreen() {
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({
+  styles,
+  label,
+  children,
+}: {
+  styles: ReturnType<typeof makeStyles>;
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <View style={styles.field}>
       <Text style={styles.label}>{label}</Text>
@@ -259,6 +273,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 function Checkbox({
+  styles,
   checked,
   onToggle,
   label,
@@ -266,6 +281,7 @@ function Checkbox({
   linkUrl,
   tail,
 }: {
+  styles: ReturnType<typeof makeStyles>;
   checked: boolean;
   onToggle: () => void;
   label: string;
@@ -295,15 +311,18 @@ function Checkbox({
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Colors) =>
+  StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   flex: { flex: 1 },
   topBar: {
     flexDirection: "row",
     justifyContent: "flex-end",
+    alignItems: "center",
     paddingHorizontal: spacing.xl,
     paddingTop: spacing.sm,
   },
+  pillGap: { width: spacing.sm },
   scroll: { padding: spacing.xl, paddingBottom: spacing.xxl * 2 },
   brand: { alignItems: "center", marginBottom: spacing.xl },
   logoSmall: { width: 72, height: 72, marginBottom: spacing.md, alignSelf: "center" },
@@ -327,7 +346,7 @@ const styles = StyleSheet.create({
     width: 22,
     height: 22,
     borderWidth: 1.5,
-    borderColor: colors.border,
+    borderColor: colors.borderHover,
     borderRadius: 4,
     alignItems: "center",
     justifyContent: "center",
@@ -335,7 +354,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   checkboxChecked: { backgroundColor: colors.accent, borderColor: colors.accent },
-  checkmark: { color: "#fff", fontSize: 14, fontWeight: "700" },
+  checkmark: { color: colors.accentForeground, fontSize: 14, fontWeight: "700" },
   checkboxText: { fontSize: fontSize.xs, color: colors.textMuted, flex: 1, lineHeight: 18 },
   linkText: { color: colors.link, textDecorationLine: "underline" },
   error: {
@@ -356,7 +375,7 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: { opacity: 0.4 },
   buttonPressed: { backgroundColor: colors.accentHover },
-  buttonText: { color: "#fff", fontSize: fontSize.base, fontWeight: "600" },
+  buttonText: { color: colors.accentForeground, fontSize: fontSize.base, fontWeight: "600" },
   help: { textAlign: "center", marginTop: spacing.lg, fontSize: fontSize.xs, color: colors.textSubtle },
   bottomLink: { marginTop: spacing.xl, alignItems: "center" },
   bottomLinkText: { fontSize: fontSize.sm, color: colors.textSubtle },

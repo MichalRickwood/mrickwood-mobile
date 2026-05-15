@@ -1,16 +1,19 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import * as WebBrowser from "expo-web-browser";
 import { endpoints, type LeadMatchRow } from "@/lib/endpoints";
-import { colors, fontSize, radius, spacing } from "@/constants/theme";
+import { useTheme } from "@/lib/theme-context";
+import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 
 export default function MatchDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const qc = useQueryClient();
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
 
   // Detail tahá z cache /matches — jeden zdroj pravdy, žádný extra request.
   // Pokud cache nemá řádek (např. push notif → deeplink bez předchozího list view),
@@ -74,22 +77,22 @@ export default function MatchDetailScreen() {
 
         <View style={styles.metaGrid}>
           {t.deadlineAt && (
-            <MetaCell label="Lhůta podání" value={formatDate(t.deadlineAt)} accent />
+            <MetaCell styles={styles} label="Lhůta podání" value={formatDate(t.deadlineAt)} accent />
           )}
           {t.estimatedValue ? (
-            <MetaCell
+            <MetaCell styles={styles}
               label="Předpokládaná hodnota"
               value={formatMoney(t.estimatedValue, t.currency)}
             />
           ) : null}
           {t.publishedAt && (
-            <MetaCell label="Publikováno" value={formatDate(t.publishedAt)} />
+            <MetaCell styles={styles} label="Publikováno" value={formatDate(t.publishedAt)} />
           )}
           {t.contractingAuthority.region && (
-            <MetaCell label="Region" value={t.contractingAuthority.region} />
+            <MetaCell styles={styles} label="Region" value={t.contractingAuthority.region} />
           )}
-          {t.cpvCode && <MetaCell label="CPV" value={t.cpvCode} />}
-          {t.tenderType && <MetaCell label="Druh řízení" value={t.tenderType} />}
+          {t.cpvCode && <MetaCell styles={styles} label="CPV" value={t.cpvCode} />}
+          {t.tenderType && <MetaCell styles={styles} label="Druh řízení" value={t.tenderType} />}
         </View>
 
         <View style={styles.section}>
@@ -108,7 +111,17 @@ export default function MatchDetailScreen() {
   );
 }
 
-function MetaCell({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
+function MetaCell({
+  styles,
+  label,
+  value,
+  accent,
+}: {
+  styles: ReturnType<typeof makeStyles>;
+  label: string;
+  value: string;
+  accent?: boolean;
+}) {
   return (
     <View style={[styles.metaCell, accent && styles.metaCellAccent]}>
       <Text style={styles.metaLabel}>{label}</Text>
@@ -137,7 +150,8 @@ function formatMoney(value: number, currency: string | null): string {
   }
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Colors) =>
+  StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   scroll: { padding: spacing.xl, paddingBottom: spacing.xxl * 2 },
   title: { fontSize: fontSize.xl, fontWeight: "700", color: colors.text, lineHeight: 30, letterSpacing: -0.3 },
@@ -167,10 +181,10 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.lg,
     alignItems: "center",
   },
-  ctaText: { color: "#fff", fontSize: fontSize.base, fontWeight: "600" },
+  ctaText: { color: colors.accentForeground, fontSize: fontSize.base, fontWeight: "600" },
   notFound: { flex: 1, padding: spacing.xl, justifyContent: "center", alignItems: "center" },
   notFoundTitle: { fontSize: fontSize.lg, fontWeight: "600", color: colors.text, marginBottom: spacing.sm },
   notFoundBody: { fontSize: fontSize.sm, color: colors.textSubtle, textAlign: "center" },
   backBtn: { marginTop: spacing.xl, paddingHorizontal: spacing.xl, paddingVertical: spacing.md, borderRadius: radius.md, backgroundColor: colors.accent },
-  backBtnText: { color: "#fff", fontSize: fontSize.sm, fontWeight: "600" },
+  backBtnText: { color: colors.accentForeground, fontSize: fontSize.sm, fontWeight: "600" },
 });

@@ -364,5 +364,5 @@ const makeStyles = (colors: Colors) =>
   },
   buttonDisabled: { opacity: 0.5 },
   buttonPressed: { backgroundColor: colors.accentHover },
-  buttonText: { color: "#fff", fontSize: fontSize.base, fontWeight: "600" },
+  buttonText: { color: colors.accentForeground, fontSize: fontSize.base, fontWeight: "600" },
 });

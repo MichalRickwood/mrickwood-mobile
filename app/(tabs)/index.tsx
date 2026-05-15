@@ -12,10 +12,17 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
 import { endpoints, type LeadMatchRow } from "@/lib/endpoints";
-import { colors, fontSize, radius, spacing } from "@/constants/theme";
+import { useTheme } from "@/lib/theme-context";
+import { useI18n } from "@/lib/i18n";
+import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
+
+const LOCALE_MAP: Record<string, string> = { cs: "cs-CZ", en: "en-GB", de: "de-DE" };
 
 export default function MatchesScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
+  const { t, locale } = useI18n();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const [activeFilterId, setActiveFilterId] = useState<string | null>(null);
 
   const filtersQuery = useQuery({
@@ -25,7 +32,8 @@ export default function MatchesScreen() {
 
   const matchesQuery = useQuery({
     queryKey: ["matches", activeFilterId],
-    queryFn: () => endpoints.myMatches(activeFilterId ? { filterId: activeFilterId } : undefined),
+    queryFn: () =>
+      endpoints.myMatches(activeFilterId ? { filterId: activeFilterId } : undefined),
   });
 
   const filters = filtersQuery.data?.filters ?? [];
@@ -40,15 +48,18 @@ export default function MatchesScreen() {
   const errored = matchesQuery.isError;
 
   const headerLabel = useMemo(() => {
-    if (!activeFilterId) return `Všechny matche · ${matches.length}`;
+    if (!activeFilterId) {
+      return t("matches", "counterAll", { count: matches.length });
+    }
     const f = filters.find((x) => x.id === activeFilterId);
-    return f ? `${f.name} · ${matches.length}` : `Matches · ${matches.length}`;
-  }, [activeFilterId, filters, matches.length]);
+    const name = f?.name ?? t("matches", "title");
+    return t("matches", "counterFilter", { filter: name, count: matches.length });
+  }, [activeFilterId, filters, matches.length, t]);
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
       <View style={styles.header}>
-        <Text style={styles.title}>Zakázky</Text>
+        <Text style={styles.title}>{t("matches", "title")}</Text>
         <Text style={styles.subtitle}>{headerLabel}</Text>
       </View>
 
@@ -59,13 +70,15 @@ export default function MatchesScreen() {
           contentContainerStyle={styles.chipsRow}
         >
           <FilterChip
-            label="Vše"
+            styles={styles}
+            label={t("matches", "filterAll")}
             active={activeFilterId === null}
             onPress={() => setActiveFilterId(null)}
           />
           {filters.map((f) => (
             <FilterChip
               key={f.id}
+              styles={styles}
               label={f.name}
               active={activeFilterId === f.id}
               onPress={() => setActiveFilterId(f.id)}
@@ -79,8 +92,13 @@ export default function MatchesScreen() {
         keyExtractor={(item) => item.matchId}
         renderItem={({ item }) => (
           <MatchCard
+            styles={styles}
             match={item}
-            onPress={() => router.push({ pathname: "/match/[id]", params: { id: item.matchId } })}
+            locale={locale}
+            deadlineLabel={t("matches", "deadline", { date: "{date}" })}
+            onPress={() =>
+              router.push({ pathname: "/match/[id]", params: { id: item.matchId } })
+            }
           />
         )}
         contentContainerStyle={styles.list}
@@ -95,13 +113,15 @@ export default function MatchesScreen() {
         ListEmptyComponent={
           errored ? (
             <EmptyState
-              title="Nepodařilo se načíst"
-              body={(matchesQuery.error as Error)?.message ?? "Zkuste pull-to-refresh."}
+              styles={styles}
+              title={t("matches", "errorTitle")}
+              body={(matchesQuery.error as Error)?.message ?? t("matches", "errorBody")}
             />
           ) : empty ? (
             <EmptyState
-              title="Žádné nové zakázky"
-              body="Jakmile se objeví nová zakázka odpovídající vašim filtrům, uvidíte ji tady."
+              styles={styles}
+              title={t("matches", "emptyTitle")}
+              body={t("matches", "emptyBody")}
             />
           ) : null
         }
@@ -111,10 +131,12 @@ export default function MatchesScreen() {
 }
 
 function FilterChip({
+  styles,
   label,
   active,
   onPress,
 }: {
+  styles: ReturnType<typeof makeStyles>;
   label: string;
   active: boolean;
   onPress: () => void;
@@ -135,8 +157,20 @@ function FilterChip({
   );
 }
 
-function MatchCard({ match, onPress }: { match: LeadMatchRow; onPress: () => void }) {
-  const t = match.tender;
+function MatchCard({
+  styles,
+  match,
+  locale,
+  deadlineLabel,
+  onPress,
+}: {
+  styles: ReturnType<typeof makeStyles>;
+  match: LeadMatchRow;
+  locale: string;
+  deadlineLabel: string;
+  onPress: () => void;
+}) {
+  const tender = match.tender;
   const isNew = !match.viewedAt;
   return (
     <Pressable
@@ -150,15 +184,15 @@ function MatchCard({ match, onPress }: { match: LeadMatchRow; onPress: () => voi
         {isNew && <View style={styles.newDot} />}
       </View>
       <Text style={styles.cardTitle} numberOfLines={3}>
-        {t.title}
+        {tender.title}
       </Text>
       <View style={styles.cardMeta}>
         <Text style={styles.cardMetaText} numberOfLines={1}>
-          {t.contractingAuthority.name}
+          {tender.contractingAuthority.name}
         </Text>
-        {t.deadlineAt && (
+        {tender.deadlineAt && (
           <Text style={styles.cardMetaSub}>
-            Lhůta {formatDate(t.deadlineAt)}
+            {deadlineLabel.replace("{date}", formatDate(tender.deadlineAt, locale))}
           </Text>
         )}
       </View>
@@ -166,7 +200,15 @@ function MatchCard({ match, onPress }: { match: LeadMatchRow; onPress: () => voi
   );
 }
 
-function EmptyState({ title, body }: { title: string; body: string }) {
+function EmptyState({
+  styles,
+  title,
+  body,
+}: {
+  styles: ReturnType<typeof makeStyles>;
+  title: string;
+  body: string;
+}) {
   return (
     <View style={styles.empty}>
       <Text style={styles.emptyTitle}>{title}</Text>
@@ -175,50 +217,55 @@ function EmptyState({ title, body }: { title: string; body: string }) {
   );
 }
 
-function formatDate(iso: string): string {
+function formatDate(iso: string, locale: string): string {
   const d = new Date(iso);
-  return d.toLocaleDateString("cs-CZ", { day: "2-digit", month: "2-digit", year: "numeric" });
+  return d.toLocaleDateString(LOCALE_MAP[locale] ?? "cs-CZ", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.bg },
-  header: { paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.md },
-  title: { fontSize: fontSize.xxl, fontWeight: "700", color: colors.text, letterSpacing: -0.5 },
-  subtitle: { fontSize: fontSize.sm, color: colors.textSubtle, marginTop: spacing.xs },
-  chipsRow: {
-    paddingHorizontal: spacing.xl,
-    paddingBottom: spacing.md,
-    gap: spacing.sm,
-  },
-  chip: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.full,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.card,
-    maxWidth: 200,
-  },
-  chipActive: { backgroundColor: colors.accent, borderColor: colors.accent },
-  chipText: { fontSize: fontSize.xs, color: colors.textSubtle, fontWeight: "500" },
-  chipTextActive: { color: "#fff" },
-  list: { padding: spacing.xl, paddingTop: spacing.sm, paddingBottom: spacing.xxl, flexGrow: 1 },
-  card: {
-    backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.lg,
-    padding: spacing.lg,
-  },
-  cardPressed: { borderColor: colors.text },
-  cardHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: spacing.sm },
-  cardFilter: { fontSize: fontSize.xs, color: colors.textSubtle, fontWeight: "500", flex: 1 },
-  newDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.link, marginLeft: spacing.sm },
-  cardTitle: { fontSize: fontSize.base, fontWeight: "600", color: colors.text, lineHeight: 22 },
-  cardMeta: { marginTop: spacing.md, gap: spacing.xs },
-  cardMetaText: { fontSize: fontSize.xs, color: colors.textMuted },
-  cardMetaSub: { fontSize: fontSize.xs, color: colors.textSubtle },
-  empty: { alignItems: "center", paddingVertical: spacing.xxl * 2 },
-  emptyTitle: { fontSize: fontSize.base, fontWeight: "600", color: colors.text, marginBottom: spacing.sm },
-  emptyBody: { fontSize: fontSize.sm, color: colors.textSubtle, textAlign: "center", paddingHorizontal: spacing.xl },
-});
+const makeStyles = (colors: Colors) =>
+  StyleSheet.create({
+    safe: { flex: 1, backgroundColor: colors.bg },
+    header: { paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.md },
+    title: { fontSize: fontSize.xxl, fontWeight: "700", color: colors.text, letterSpacing: -0.5 },
+    subtitle: { fontSize: fontSize.sm, color: colors.textSubtle, marginTop: spacing.xs },
+    chipsRow: {
+      paddingHorizontal: spacing.xl,
+      paddingBottom: spacing.md,
+    },
+    chip: {
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: radius.full,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.card,
+      maxWidth: 200,
+      marginRight: spacing.sm,
+    },
+    chipActive: { backgroundColor: colors.accent, borderColor: colors.accent },
+    chipText: { fontSize: fontSize.xs, color: colors.textSubtle, fontWeight: "500" },
+    chipTextActive: { color: colors.accentForeground },
+    list: { padding: spacing.xl, paddingTop: spacing.sm, paddingBottom: 100, flexGrow: 1 },
+    card: {
+      backgroundColor: colors.card,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.lg,
+      padding: spacing.lg,
+    },
+    cardPressed: { borderColor: colors.text },
+    cardHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: spacing.sm },
+    cardFilter: { fontSize: fontSize.xs, color: colors.textSubtle, fontWeight: "500", flex: 1 },
+    newDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.link, marginLeft: spacing.sm },
+    cardTitle: { fontSize: fontSize.base, fontWeight: "600", color: colors.text, lineHeight: 22 },
+    cardMeta: { marginTop: spacing.md },
+    cardMetaText: { fontSize: fontSize.xs, color: colors.textMuted, marginBottom: spacing.xs },
+    cardMetaSub: { fontSize: fontSize.xs, color: colors.textSubtle },
+    empty: { alignItems: "center", paddingVertical: spacing.xxl * 2 },
+    emptyTitle: { fontSize: fontSize.base, fontWeight: "600", color: colors.text, marginBottom: spacing.sm },
+    emptyBody: { fontSize: fontSize.sm, color: colors.textSubtle, textAlign: "center", paddingHorizontal: spacing.xl },
+  });

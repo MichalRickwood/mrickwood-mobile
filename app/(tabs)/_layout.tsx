@@ -1,12 +1,11 @@
 import { Tabs } from "expo-router";
 import { Text } from "react-native";
-import { colors } from "@/constants/theme";
+import { useTheme } from "@/lib/theme-context";
+import { useI18n } from "@/lib/i18n";
 
-/**
- * Bottom tab bar — Zakázky + Nastavení. Ikonky řešíme později (Expo Vector
- * Icons); pro V0 jen text labels, ať se nezasekneme na asset pipeline.
- */
 export default function TabsLayout() {
+  const { colors } = useTheme();
+  const { t } = useI18n();
   return (
     <Tabs
       screenOptions={{
@@ -26,14 +25,14 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Zakázky",
+          title: t("matches", "title"),
           tabBarIcon: ({ color }) => <TabGlyph color={color}>•</TabGlyph>,
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
-          title: "Nastavení",
+          title: t("settings", "title"),
           tabBarIcon: ({ color }) => <TabGlyph color={color}>•</TabGlyph>,
         }}
       />
