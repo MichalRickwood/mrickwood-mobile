@@ -163,7 +163,12 @@ export default function ProfileScreen() {
       >
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           <View style={styles.card}>
-            <Text style={styles.label}>{t("settings", "accountName")}</Text>
+            <Text style={styles.label}>{t("settings", "accountEmail")}</Text>
+            <View style={styles.readonlyValue}>
+              <Text style={styles.readonlyText}>{user?.email ?? ""}</Text>
+            </View>
+
+            <Text style={[styles.label, styles.spacer]}>{t("settings", "accountName")}</Text>
             <TextInput
               value={name}
               onChangeText={onNameChange}
@@ -192,11 +197,6 @@ export default function ProfileScreen() {
                 style={[styles.input, styles.phoneInput]}
                 maxLength={phoneRange.max + 5}
               />
-            </View>
-
-            <Text style={[styles.label, styles.spacer]}>{t("settings", "accountEmail")}</Text>
-            <View style={styles.readonlyValue}>
-              <Text style={styles.readonlyText}>{user?.email ?? ""}</Text>
             </View>
 
             <Text style={[styles.label, styles.spacer]}>{t("settings", "profileBillingEmailLabel")}</Text>
