@@ -7,6 +7,9 @@ import { registerForPushNotifications, unregisterPushNotifications } from "./not
 interface AuthState {
   status: "loading" | "anonymous" | "authenticated";
   user: StoredUser | null;
+  /** null = ještě nevíme (load běží), true/false = známé. */
+  profileComplete: boolean | null;
+  refreshProfile: () => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -16,8 +19,19 @@ const AuthContext = createContext<AuthState | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<AuthState["status"]>("loading");
   const [user, setUser] = useState<StoredUser | null>(null);
+  const [profileComplete, setProfileComplete] = useState<boolean | null>(null);
   // Aktuální Expo push token — drží se pro unregister při signOut.
   const pushTokenRef = useRef<string | null>(null);
+
+  const refreshProfile = useCallback(async () => {
+    try {
+      const p = await endpoints.profile();
+      setProfileComplete(p.isComplete);
+    } catch {
+      // Transient — necháme null, RouterGuard počká.
+      setProfileComplete(null);
+    }
+  }, []);
 
   // On mount: ověříme uložený token přes /api/auth/mobile/me. Pokud server
   // řekne 401 nebo síť selže, padáme na anon — uživatel se přihlásí znovu.
@@ -35,10 +49,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await saveUser(serverUser);
         setUser(serverUser);
         setStatus("authenticated");
-        // Push registrace běží asynchronně — UI neblokuje.
+        // Push registrace + profile completion check běží paralelně — UI neblokuje.
         void registerForPushNotifications().then((t) => {
           pushTokenRef.current = t;
         });
+        void refreshProfile();
       } catch (err) {
         // 401 → api.ts už zavolal clearSession
         const stored = await getUser();
@@ -62,28 +77,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const signIn = useCallback(async (email: string, password: string) => {
-    const { token, user: serverUser } = await endpoints.login(email, password);
-    await saveToken(token);
-    await saveUser(serverUser);
-    setUser(serverUser);
-    setStatus("authenticated");
-    void registerForPushNotifications().then((t) => {
-      pushTokenRef.current = t;
-    });
-  }, []);
+  const signIn = useCallback(
+    async (email: string, password: string) => {
+      const { token, user: serverUser } = await endpoints.login(email, password);
+      await saveToken(token);
+      await saveUser(serverUser);
+      setUser(serverUser);
+      setStatus("authenticated");
+      void registerForPushNotifications().then((t) => {
+        pushTokenRef.current = t;
+      });
+      void refreshProfile();
+    },
+    [refreshProfile],
+  );
 
   const signOut = useCallback(async () => {
-    // Odregistrujeme push token před clearSession (potřebuje validní JWT).
     await unregisterPushNotifications(pushTokenRef.current);
     pushTokenRef.current = null;
     await clearSession();
     setUser(null);
+    setProfileComplete(null);
     setStatus("anonymous");
   }, []);
 
   return (
-    <AuthContext.Provider value={{ status, user, signIn, signOut }}>
+    <AuthContext.Provider value={{ status, user, profileComplete, refreshProfile, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );

@@ -61,19 +61,34 @@ export interface LeadFilterRow {
   maxValue: number | null;
 }
 
-export interface RegisterInput {
+export interface MobileRegisterInput {
   email: string;
   password: string;
   name: string;
-  phone: string;
-  country: string | null;
+  locale: string;
+  consentVop: boolean;
+  consentGdpr: boolean;
+}
+
+export interface ProfileView {
+  name: string | null;
+  phone: string | null;
+  email: string;
   company: string | null;
   ico: string | null;
   dic: string | null;
   address: string | null;
-  locale: string;
-  consentVop: boolean;
-  consentGdpr: boolean;
+  isComplete: boolean;
+}
+
+export interface ProfileUpdate {
+  name?: string | null;
+  phone?: string | null;
+  company?: string | null;
+  ico?: string | null;
+  dic?: string | null;
+  address?: string | null;
+  country?: string | null;
 }
 
 export const endpoints = {
@@ -81,9 +96,17 @@ export const endpoints = {
   login: (email: string, password: string) =>
     api.post<MobileLoginResponse>("/api/auth/mobile/login", { email, password }, { noAuth: true }),
 
-  // Register — vrací { success, userId }. User pak musí potvrdit email z linku.
-  register: (input: RegisterInput) =>
-    api.post<{ success: boolean; userId: string }>("/api/auth/register", input, { noAuth: true }),
+  // Mobile-specific register — minimální (name, email, password, consents).
+  // IČO + phone se doplňují po prvním loginu přes ProfileComplete screen.
+  register: (input: MobileRegisterInput) =>
+    api.post<{ success: boolean; userId: string }>("/api/auth/mobile/register", input, { noAuth: true }),
+
+  // Profile read — používáme po loginu pro detekci jestli je profil kompletní
+  profile: () => api.get<ProfileView>("/api/account/profile"),
+
+  // Profile update — phone + company/ico/dic/address/country
+  updateProfile: (input: ProfileUpdate) =>
+    api.patch<{ ok: true }>("/api/account/profile", input),
 
   // Aktuální user (verifikace JWT na startu)
   me: () => api.get<{ user: MobileLoginResponse["user"] }>("/api/auth/mobile/me"),

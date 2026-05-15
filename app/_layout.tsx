@@ -15,13 +15,15 @@ const queryClient = new QueryClient({
 });
 
 /**
- * Router guard — přesměruje podle auth stavu.
- * - anonymous → vždy do (auth)/login
- * - authenticated → vždy do (tabs)
- * - loading → blokujeme navigaci, zobrazíme splash
+ * Router guard — přesměruje podle auth stavu + completeness profilu.
+ * - anonymous → /(auth)/login
+ * - authenticated + profile NOT complete → /profile-complete
+ * - authenticated + profile complete → /(tabs)
+ * - loading nebo profileComplete=null → necháme aktuální screen renderovat
+ *   (typicky splash nebo currently-mounted screen)
  */
 function RouterGuard() {
-  const { status } = useAuth();
+  const { status, profileComplete } = useAuth();
   const segments = useSegments();
   const router = useRouter();
 
@@ -29,17 +31,30 @@ function RouterGuard() {
     if (status === "loading") return;
     const inAuth = segments[0] === "(auth)";
     const inTabs = segments[0] === "(tabs)";
-    if (status === "anonymous" && !inAuth) {
-      router.replace("/(auth)/login");
-    } else if (status === "authenticated" && !inTabs) {
-      router.replace("/(tabs)");
+    const inProfileComplete = segments[0] === "profile-complete";
+
+    if (status === "anonymous") {
+      if (!inAuth) router.replace("/(auth)/login");
+      return;
     }
-  }, [status, segments, router]);
+    // authenticated
+    if (profileComplete === null) {
+      // Ještě nevíme — necháme stav být. Když user dlouho nečtou profile
+      // request, zůstaneme na předchozí obrazovce (typicky login screen).
+      return;
+    }
+    if (!profileComplete) {
+      if (!inProfileComplete) router.replace("/profile-complete");
+      return;
+    }
+    if (!inTabs) router.replace("/(tabs)");
+  }, [status, profileComplete, segments, router]);
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(auth)" />
       <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="profile-complete" />
     </Stack>
   );
 }
