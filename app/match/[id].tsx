@@ -143,7 +143,7 @@ export default function MatchDetailScreen() {
                 {emailing ? (
                   <ActivityIndicator size="small" color={colors.text} />
                 ) : (
-                  <Text style={styles.headerBtnText}>Email</Text>
+                  <Text style={styles.headerBtnText}>Odeslat emailem</Text>
                 )}
               </Pressable>
               <Pressable
@@ -155,7 +155,7 @@ export default function MatchDetailScreen() {
                   pressed && { opacity: 0.85 },
                 ]}
               >
-                <Text style={styles.headerBtnTextPrimary}>Otevřít</Text>
+                <Text style={styles.headerBtnTextPrimary}>Otevřít portál</Text>
               </Pressable>
             </View>
           ),
