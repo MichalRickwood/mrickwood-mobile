@@ -197,6 +197,7 @@ export interface Dict {
     billingNotSet: string;
     billingProfileSection: string;
     billingProfileCompany: string;
+    billingProfileManualToggle: string;
     billingProfileName: string;
     billingProfileIco: string;
     billingProfileDic: string;
@@ -475,6 +476,7 @@ const cs: Dict = {
     billingNotSet: "Nenastaveno",
     billingProfileSection: "Fakturační údaje",
     billingProfileCompany: "Firma",
+    billingProfileManualToggle: "Vyplnit ručně",
     billingProfileName: "Název firmy",
     billingProfileIco: "IČO",
     billingProfileDic: "DIČ",
@@ -748,6 +750,7 @@ const en: Dict = {
     billingNotSet: "Not set",
     billingProfileSection: "Billing details",
     billingProfileCompany: "Company",
+    billingProfileManualToggle: "Enter manually",
     billingProfileName: "Company name",
     billingProfileIco: "Tax ID",
     billingProfileDic: "VAT ID",
@@ -1023,6 +1026,7 @@ const de: Dict = {
     billingNotSet: "Nicht festgelegt",
     billingProfileSection: "Rechnungsdaten",
     billingProfileCompany: "Firma",
+    billingProfileManualToggle: "Manuell eingeben",
     billingProfileName: "Firmenname",
     billingProfileIco: "Steuernummer",
     billingProfileDic: "USt-IdNr.",

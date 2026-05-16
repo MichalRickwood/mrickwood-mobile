@@ -55,6 +55,7 @@ export default function BillingScreen() {
   >(null);
   const [openingInvoiceId, setOpeningInvoiceId] = useState<string | null>(null);
   const [serviceBusy, setServiceBusy] = useState<ApiServiceId | null>(null);
+  const [manualMode, setManualMode] = useState(false);
   const profileSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const refresh = useCallback(async () => {
@@ -367,29 +368,68 @@ export default function BillingScreen() {
                 }}
               />
             </View>
-            <CompanyLookupField
-              country={profileDraft?.country || "CZ"}
-              value={profileDraft?.ico ?? ""}
-              resolvedName={profileDraft?.name ?? ""}
-              label={t("settings", "billingProfileCompany")}
-              onResolve={({ taxId, name, address, vatNumber }) =>
-                onCompanyResolved(taxId, name, address, vatNumber ?? null)
-              }
-              onClear={clearResolvedCompany}
-            />
-            <ProfileField
-              styles={styles}
-              label={t("settings", "billingProfileDic")}
-              value={profileDraft?.dic ?? ""}
-              onChangeText={(v) => profileDraft && scheduleProfileSave({ ...profileDraft, dic: v })}
-            />
-            <ProfileField
-              styles={styles}
-              label={t("settings", "billingProfileAddress")}
-              value={profileDraft?.address ?? ""}
-              multiline
-              onChangeText={(v) => profileDraft && scheduleProfileSave({ ...profileDraft, address: v })}
-            />
+
+            <Pressable
+              onPress={() => setManualMode((v) => !v)}
+              style={({ pressed }) => [styles.manualToggleRow, pressed && { opacity: 0.7 }]}
+            >
+              <View style={[styles.manualCheckbox, manualMode && styles.manualCheckboxOn]}>
+                {manualMode && <Text style={styles.manualCheckmark}>✓</Text>}
+              </View>
+              <Text style={styles.manualToggleLabel}>
+                {t("settings", "billingProfileManualToggle")}
+              </Text>
+            </Pressable>
+
+            {!manualMode ? (
+              <CompanyLookupField
+                country={profileDraft?.country || "CZ"}
+                value={profileDraft?.ico ?? ""}
+                resolvedName={profileDraft?.name ?? ""}
+                label={t("settings", "billingProfileCompany")}
+                onResolve={({ taxId, name, address, vatNumber }) =>
+                  onCompanyResolved(taxId, name, address, vatNumber ?? null)
+                }
+                onClear={clearResolvedCompany}
+              />
+            ) : (
+              <>
+                <ProfileField
+                  styles={styles}
+                  label={t("settings", "billingProfileName")}
+                  value={profileDraft?.name ?? ""}
+                  onChangeText={(v) =>
+                    profileDraft && scheduleProfileSave({ ...profileDraft, name: v })
+                  }
+                />
+                <ProfileField
+                  styles={styles}
+                  label={t("settings", "billingProfileIco")}
+                  value={profileDraft?.ico ?? ""}
+                  keyboardType="numbers-and-punctuation"
+                  onChangeText={(v) =>
+                    profileDraft && scheduleProfileSave({ ...profileDraft, ico: v })
+                  }
+                />
+                <ProfileField
+                  styles={styles}
+                  label={t("settings", "billingProfileDic")}
+                  value={profileDraft?.dic ?? ""}
+                  onChangeText={(v) =>
+                    profileDraft && scheduleProfileSave({ ...profileDraft, dic: v })
+                  }
+                />
+                <ProfileField
+                  styles={styles}
+                  label={t("settings", "billingProfileAddress")}
+                  value={profileDraft?.address ?? ""}
+                  multiline
+                  onChangeText={(v) =>
+                    profileDraft && scheduleProfileSave({ ...profileDraft, address: v })
+                  }
+                />
+              </>
+            )}
             {savingProfile && (
               <Text style={styles.savingHint}>{t("settings", "billingSavingProfile")}</Text>
             )}
@@ -961,6 +1001,26 @@ const makeStyles = (colors: Colors) =>
     inputMultiline: { minHeight: 60, paddingTop: spacing.sm + 2, textAlignVertical: "top" },
     savingHint: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: spacing.xs },
     savedHint: { fontSize: fontSize.xs, color: colors.success, marginTop: spacing.xs },
+    manualToggleRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingVertical: spacing.sm,
+      marginBottom: spacing.xs,
+    },
+    manualCheckbox: {
+      width: 18,
+      height: 18,
+      borderRadius: 4,
+      borderWidth: 1.5,
+      borderColor: colors.borderHover,
+      backgroundColor: colors.card,
+      marginRight: spacing.sm,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    manualCheckboxOn: { backgroundColor: colors.accent, borderColor: colors.accent },
+    manualCheckmark: { color: colors.accentForeground, fontSize: 12, fontWeight: "700" },
+    manualToggleLabel: { fontSize: fontSize.sm, color: colors.text, fontWeight: "500" },
     lookupRow: { flexDirection: "row", alignItems: "center", gap: spacing.sm, marginTop: -spacing.sm, marginBottom: spacing.md },
     lookupHint: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: -spacing.sm, marginBottom: spacing.md },
     lookupWarn: { fontSize: fontSize.xs, color: colors.warning, marginTop: -spacing.sm, marginBottom: spacing.md },
