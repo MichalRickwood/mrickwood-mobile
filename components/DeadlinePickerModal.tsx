@@ -128,6 +128,7 @@ export default function DeadlinePickerModal({
           <Text style={styles.range}>{rangeText}</Text>
           <Calendar
             current={from ?? to ?? undefined}
+            minDate={new Date().toISOString().slice(0, 10)}
             onDayPress={pick}
             markedDates={markedDates}
             markingType="period"

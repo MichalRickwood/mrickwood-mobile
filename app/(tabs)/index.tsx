@@ -118,11 +118,9 @@ export default function MatchesScreen() {
     () => matchesQuery.data?.pages.flatMap((p) => p.matches) ?? [],
     [matchesQuery.data],
   );
-  // Server totalCount nereflektuje in-memory search/region/value filter. Pokud
-  // jsou aktivní, počítáme local matches; jinak server total.
-  const totalCount = hasNarrowingFilter
-    ? matches.length
-    : (matchesQuery.data?.pages[0]?.totalCount ?? matches.length);
+  // Server now applies all filters SQL-side a vrací accurate totalCount.
+  // Fallback na matches.length jen když server nepošle (offline cache atd.).
+  const totalCount = matchesQuery.data?.pages[0]?.totalCount ?? matches.length;
 
   const onRefresh = useCallback(() => {
     void matchesQuery.refetch();
