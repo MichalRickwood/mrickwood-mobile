@@ -139,9 +139,11 @@ export const endpoints = {
   // Aktuální user (verifikace JWT na startu)
   me: () => api.get<{ user: MobileLoginResponse["user"] }>("/api/auth/mobile/me"),
 
-  // Lead matches — last 30 days, optional filterId
-  myMatches: (params?: { filterId?: string }) =>
-    api.get<{ matches: LeadMatchRow[] }>("/api/mobile/matches", { params }),
+  // Lead matches — last 30 days, optional filterId, cursor pagination
+  myMatches: (params?: { filterId?: string; cursor?: string; limit?: number }) =>
+    api.get<{ matches: LeadMatchRow[]; nextCursor: string | null }>("/api/mobile/matches", {
+      params,
+    }),
 
   // Filtry usera (pro filter chips/dropdown v UI)
   myFilters: () => api.get<{ filters: LeadFilterRow[] }>("/api/mobile/filters"),

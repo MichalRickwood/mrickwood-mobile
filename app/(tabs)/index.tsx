@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import {
+  ActivityIndicator,
   FlatList,
   Pressable,
   RefreshControl,
@@ -9,7 +10,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { endpoints, type LeadMatchRow } from "@/lib/endpoints";
 import FilterPicker from "@/components/FilterPicker";
 import { useTheme } from "@/lib/theme-context";
@@ -30,14 +31,22 @@ export default function MatchesScreen() {
     queryFn: () => endpoints.myFilters(),
   });
 
-  const matchesQuery = useQuery({
+  const matchesQuery = useInfiniteQuery({
     queryKey: ["matches", activeFilterId],
-    queryFn: () =>
-      endpoints.myMatches(activeFilterId ? { filterId: activeFilterId } : undefined),
+    initialPageParam: null as string | null,
+    queryFn: ({ pageParam }) =>
+      endpoints.myMatches({
+        ...(activeFilterId ? { filterId: activeFilterId } : {}),
+        ...(pageParam ? { cursor: pageParam } : {}),
+      }),
+    getNextPageParam: (last) => last.nextCursor ?? undefined,
   });
 
   const filters = filtersQuery.data?.filters ?? [];
-  const matches = matchesQuery.data?.matches ?? [];
+  const matches = useMemo(
+    () => matchesQuery.data?.pages.flatMap((p) => p.matches) ?? [],
+    [matchesQuery.data],
+  );
 
   const onRefresh = useCallback(() => {
     void matchesQuery.refetch();
@@ -90,10 +99,23 @@ export default function MatchesScreen() {
         ItemSeparatorComponent={() => <View style={{ height: spacing.md }} />}
         refreshControl={
           <RefreshControl
-            refreshing={matchesQuery.isRefetching}
+            refreshing={matchesQuery.isRefetching && !matchesQuery.isFetchingNextPage}
             onRefresh={onRefresh}
             tintColor={colors.textSubtle}
           />
+        }
+        onEndReached={() => {
+          if (matchesQuery.hasNextPage && !matchesQuery.isFetchingNextPage) {
+            void matchesQuery.fetchNextPage();
+          }
+        }}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={
+          matchesQuery.isFetchingNextPage ? (
+            <View style={styles.footerLoader}>
+              <ActivityIndicator color={colors.textSubtle} />
+            </View>
+          ) : null
         }
         ListEmptyComponent={
           errored ? (
@@ -192,6 +214,7 @@ const makeStyles = (colors: Colors) =>
     title: { fontSize: fontSize.xxl, fontWeight: "700", color: colors.text, letterSpacing: -0.5, flexShrink: 1 },
     subtitle: { fontSize: fontSize.sm, color: colors.textSubtle, marginTop: spacing.xs },
     list: { padding: spacing.xl, paddingTop: spacing.sm, paddingBottom: 100, flexGrow: 1 },
+    footerLoader: { paddingVertical: spacing.lg, alignItems: "center" },
     card: {
       backgroundColor: colors.card,
       borderWidth: 1,
