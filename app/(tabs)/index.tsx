@@ -138,16 +138,36 @@ export default function MatchesScreen() {
             style={[styles.searchInput, { flex: 1 }]}
             autoCapitalize="none"
             autoCorrect={false}
-            clearButtonMode="while-editing"
           />
-          {(searchInput !== searchDebounced ||
-            (hasNarrowingFilter && matchesQuery.isFetching)) && (
-            <ActivityIndicator
-              size="small"
-              color={colors.textSubtle}
-              style={styles.searchSpinner}
-            />
-          )}
+          {(() => {
+            const showSpinner =
+              searchInput !== searchDebounced ||
+              (hasNarrowingFilter && matchesQuery.isFetching);
+            if (showSpinner) {
+              return (
+                <ActivityIndicator
+                  size="small"
+                  color={colors.textSubtle}
+                  style={styles.searchSpinner}
+                />
+              );
+            }
+            if (searchInput.length > 0) {
+              return (
+                <Pressable
+                  onPress={() => setSearchInput("")}
+                  hitSlop={10}
+                  style={({ pressed }) => [
+                    styles.searchClearBtn,
+                    pressed && { opacity: 0.6 },
+                  ]}
+                >
+                  <Text style={styles.searchClearText}>×</Text>
+                </Pressable>
+              );
+            }
+            return null;
+          })()}
         </View>
       </View>
 
@@ -263,6 +283,21 @@ const makeStyles = (colors: Colors) =>
       gap: spacing.sm,
     },
     searchSpinner: { marginLeft: spacing.xs },
+    searchClearBtn: {
+      width: 26,
+      height: 26,
+      borderRadius: 13,
+      backgroundColor: colors.textSubtle,
+      alignItems: "center",
+      justifyContent: "center",
+      marginLeft: spacing.xs,
+    },
+    searchClearText: {
+      color: colors.bg,
+      fontSize: 18,
+      lineHeight: 20,
+      fontWeight: "700",
+    },
     searchInput: {
       backgroundColor: colors.card,
       borderWidth: 1,
