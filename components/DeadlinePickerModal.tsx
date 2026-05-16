@@ -22,6 +22,26 @@ LocaleConfig.locales["cs"] = {
   dayNamesShort: ["Ne", "Po", "Út", "St", "Čt", "Pá", "So"],
   today: "Dnes",
 };
+LocaleConfig.locales["en"] = {
+  monthNames: [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December",
+  ],
+  monthNamesShort: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+  dayNames: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+  dayNamesShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+  today: "Today",
+};
+LocaleConfig.locales["de"] = {
+  monthNames: [
+    "Januar", "Februar", "März", "April", "Mai", "Juni",
+    "Juli", "August", "September", "Oktober", "November", "Dezember",
+  ],
+  monthNamesShort: ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"],
+  dayNames: ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"],
+  dayNamesShort: ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"],
+  today: "Heute",
+};
 LocaleConfig.defaultLocale = "cs";
 
 interface Props {
@@ -50,7 +70,11 @@ export default function DeadlinePickerModal({
   onClose,
   onApply,
 }: Props) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  // Aktualizuj Calendar lib locale podle current app locale (cs/en/de).
+  if (LocaleConfig.locales[locale]) {
+    LocaleConfig.defaultLocale = locale;
+  }
   const { colors, isDark } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const [from, setFrom] = useState<string | null>(initialFrom);

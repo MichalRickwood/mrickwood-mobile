@@ -35,7 +35,7 @@ function fold(s: string): string {
 }
 
 export default function CpvPickerModal({ visible, initial, onClose, onApply }: Props) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const [selected, setSelected] = useState<string[]>(initial);
@@ -43,8 +43,8 @@ export default function CpvPickerModal({ visible, initial, onClose, onApply }: P
   const [query, setQuery] = useState("");
 
   const catalog = useQuery({
-    queryKey: ["taxonomy", "cpv"],
-    queryFn: () => endpoints.cpvCatalog(),
+    queryKey: ["taxonomy", "cpv", locale],
+    queryFn: () => endpoints.cpvCatalog(locale),
     staleTime: Infinity,
     enabled: visible,
   });

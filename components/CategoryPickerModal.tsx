@@ -23,13 +23,13 @@ interface Props {
 }
 
 export default function CategoryPickerModal({ visible, initial, onClose, onApply }: Props) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const [selected, setSelected] = useState<string[]>(initial);
   const taxonomy = useQuery({
-    queryKey: ["taxonomy", "industry"],
-    queryFn: () => endpoints.industryTaxonomy(),
+    queryKey: ["taxonomy", "industry", locale],
+    queryFn: () => endpoints.industryTaxonomy(locale),
     staleTime: Infinity,
     enabled: visible,
   });

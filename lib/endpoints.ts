@@ -197,22 +197,25 @@ export const endpoints = {
   deactivateLeadsService: () =>
     api.delete<{ ok: true; alreadyInactive?: boolean }>("/api/mobile/services/leads"),
 
-  // Industry taxonomy (areas + tags) pro CategoryPicker
-  industryTaxonomy: () =>
+  // Industry taxonomy — labels v daném locale (cs/en/de).
+  industryTaxonomy: (locale: string) =>
     api.get<{
+      locale: string;
       areas: Array<{ id: string; icon: string; label: string }>;
       tags: Array<{ id: string; area: string; label: string; cpvPrefixes: string[] }>;
-    }>("/api/mobile/taxonomy/industry"),
+    }>("/api/mobile/taxonomy/industry", { params: { locale } }),
 
-  // CPV katalog (~800KB raw, ~100KB gzip). Cache infinity client-side.
-  cpvCatalog: () =>
+  // CPV katalog (~800KB raw, ~100KB gzip). Cache infinity client-side, klíč
+  // per locale.
+  cpvCatalog: (locale: string) =>
     api.get<{
+      locale: string;
       entries: Array<{
         prefix: string;
         label: string;
         level: "oddil" | "skupina" | "trida" | "kategorie" | "podkategorie";
       }>;
-    }>("/api/mobile/taxonomy/cpv"),
+    }>("/api/mobile/taxonomy/cpv", { params: { locale } }),
   createFilter: (input: LeadFilterInput) =>
     api.post<{ filter: LeadFilterRow }>("/api/mobile/filters", input),
   updateFilter: (id: string, input: Partial<LeadFilterInput>) =>

@@ -35,20 +35,36 @@ interface Props {
 }
 
 export default function CountryPicker({ value, onChange }: Props) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
 
-  const current = SUPPORTED_COUNTRIES.find((c) => c.code === value);
+  // Lokalizovaný název země přes Intl.DisplayNames (Hermes/V8 podporuje).
+  // Fallback na fixní cs label ze SUPPORTED_COUNTRIES.
+  const localize = useMemo(() => {
+    try {
+      const dn = new Intl.DisplayNames([locale], { type: "region" });
+      return (code: string, fallback: string) => dn.of(code) ?? fallback;
+    } catch {
+      return (_code: string, fallback: string) => fallback;
+    }
+  }, [locale]);
+
+  const countries = useMemo(
+    () => SUPPORTED_COUNTRIES.map((c) => ({ ...c, label: localize(c.code, c.label) })),
+    [localize],
+  );
+
+  const current = countries.find((c) => c.code === value);
   const filtered = search
-    ? SUPPORTED_COUNTRIES.filter(
+    ? countries.filter(
         (c) =>
           c.code.toLowerCase().includes(search.toLowerCase()) ||
           c.label.toLowerCase().includes(search.toLowerCase()),
       )
-    : SUPPORTED_COUNTRIES;
+    : countries;
 
   return (
     <>
