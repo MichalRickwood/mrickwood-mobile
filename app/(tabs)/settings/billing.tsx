@@ -29,6 +29,7 @@ import { useTheme } from "@/lib/theme-context";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 import CompanyLookupField from "@/components/CompanyLookupField";
 import CountryPicker from "@/components/CountryPicker";
+import { downloadAndShareInvoicePdf } from "@/lib/invoice-pdf";
 
 const LOCALE_MAP: Record<string, string> = { cs: "cs-CZ", en: "en-GB", de: "de-DE" };
 const NUMBER_LOCALE_MAP: Record<string, string> = { cs: "cs-CZ", en: "en-US", de: "de-DE" };
@@ -220,8 +221,10 @@ export default function BillingScreen() {
     setBusy("proforma-create");
     setError(null);
     try {
-      await endpoints.createProforma(data.billingCycle);
+      const r = await endpoints.createProforma(data.billingCycle);
       await refresh();
+      // Po úspěšném vystavení rovnou otevřít PDF v native viewer.
+      void openInvoicePdf(r.invoiceId, r.invoiceNumber);
     } catch (e) {
       setError(e instanceof ApiError ? e.message : t("settings", "billingSaveFailed"));
     } finally {
@@ -243,8 +246,13 @@ export default function BillingScreen() {
             setError(null);
             try {
               await endpoints.deleteProforma();
-              if (data?.billingCycle) await endpoints.createProforma(data.billingCycle);
-              await refresh();
+              if (data?.billingCycle) {
+                const r = await endpoints.createProforma(data.billingCycle);
+                await refresh();
+                void openInvoicePdf(r.invoiceId, r.invoiceNumber);
+              } else {
+                await refresh();
+              }
             } catch (e) {
               setError(e instanceof ApiError ? e.message : t("settings", "billingSaveFailed"));
             } finally {
@@ -299,14 +307,15 @@ export default function BillingScreen() {
     }
   }
 
-  async function openInvoicePdf(invoiceId: string) {
+  async function openInvoicePdf(invoiceId: string, invoiceNumber: string) {
     setOpeningInvoiceId(invoiceId);
     setError(null);
     try {
-      const r = await endpoints.getInvoicePdfUrl(invoiceId);
-      await WebBrowser.openBrowserAsync(r.url);
+      await downloadAndShareInvoicePdf(invoiceId, invoiceNumber);
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : t("settings", "billingSaveFailed"));
+      setError(
+        e instanceof ApiError ? e.message : (e as Error).message ?? t("settings", "billingSaveFailed"),
+      );
     } finally {
       setOpeningInvoiceId(null);
     }
@@ -537,7 +546,7 @@ export default function BillingScreen() {
                   </Text>
                   <View style={styles.proformaActions}>
                     <Pressable
-                      onPress={() => void openInvoicePdf(data.invoice!.id)}
+                      onPress={() => void openInvoicePdf(data.invoice!.id, data.invoice!.number)}
                       disabled={openingInvoiceId === data.invoice!.id || !data.invoice!.pdfPath}
                       style={({ pressed }) => [
                         styles.secondaryBtn,
@@ -631,7 +640,7 @@ export default function BillingScreen() {
                   dateLocale={dateLocale}
                   numberLocale={numberLocale}
                   opening={openingInvoiceId === inv.id}
-                  onOpen={() => void openInvoicePdf(inv.id)}
+                  onOpen={() => void openInvoicePdf(inv.id, inv.number)}
                 />
               ))
             ) : (

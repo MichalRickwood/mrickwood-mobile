@@ -181,13 +181,10 @@ export const endpoints = {
       `/api/mobile/billing/cancel-service?service=${service}`,
     ),
 
-  // Faktury
+  // Faktury — list. PDF download je v lib/invoice-pdf.ts (přes Bearer auth +
+  // expo-file-system + expo-sharing pro iOS native preview).
   getInvoices: () =>
     api.get<{ invoices: InvoiceRow[] }>("/api/mobile/billing/invoices"),
-  getInvoicePdfUrl: (invoiceId: string) =>
-    api.post<{ url: string; expiresIn: number }>(
-      `/api/mobile/billing/invoices/${encodeURIComponent(invoiceId)}/pdf-url`,
-    ),
 
   // Account export — pošle JSON přílohou na email uživatele (mobile-only flow).
   exportAccount: () =>
