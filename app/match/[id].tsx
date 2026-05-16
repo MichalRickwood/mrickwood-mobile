@@ -55,7 +55,7 @@ export default function MatchDetailScreen() {
     if (fallback.isLoading || fallback.isFetching) {
       return (
         <SafeAreaView style={styles.safe}>
-          <Stack.Screen options={{ title: "Zakázka", headerShown: true }} />
+          <Stack.Screen options={{ title: "Zakázka", headerShown: true, headerBackTitle: "Zpět" }} />
           <View style={styles.notFound}>
             <ActivityIndicator color={colors.textSubtle} />
           </View>
@@ -64,7 +64,7 @@ export default function MatchDetailScreen() {
     }
     return (
       <SafeAreaView style={styles.safe}>
-        <Stack.Screen options={{ title: "Zakázka", headerShown: true }} />
+        <Stack.Screen options={{ title: "Zakázka", headerShown: true, headerBackTitle: "Zpět" }} />
         <View style={styles.notFound}>
           <Text style={styles.notFoundTitle}>Zakázka nenalezena</Text>
           <Text style={styles.notFoundBody}>
@@ -85,6 +85,7 @@ export default function MatchDetailScreen() {
         options={{
           title: t.portalType.toUpperCase(),
           headerShown: true,
+          headerBackTitle: "Zpět",
           headerStyle: { backgroundColor: colors.bg },
           headerTintColor: colors.text,
           headerTitleStyle: { fontSize: fontSize.sm, fontWeight: "600" },
@@ -112,11 +113,6 @@ export default function MatchDetailScreen() {
           )}
           {t.cpvCode && <MetaCell styles={styles} label="CPV" value={t.cpvCode} />}
           {t.tenderType && <MetaCell styles={styles} label="Druh řízení" value={t.tenderType} />}
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Filtr</Text>
-          <Text style={styles.sectionValue}>{match.filterName}</Text>
         </View>
 
         {(() => {
