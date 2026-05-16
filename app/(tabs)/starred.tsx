@@ -54,6 +54,7 @@ export default function StarredScreen() {
   );
 
   const matches = useMemo(() => q.data?.pages.flatMap((p) => p.matches) ?? [], [q.data]);
+  const totalCount = q.data?.pages[0]?.totalCount ?? matches.length;
   const empty = !q.isLoading && matches.length === 0;
 
   const onRefresh = useCallback(() => {
@@ -64,7 +65,7 @@ export default function StarredScreen() {
     <SafeAreaView style={styles.safe} edges={["top"]}>
       <View style={styles.header}>
         <Text style={styles.title}>{t("matches", "starredTab")}</Text>
-        <Text style={styles.subtitle}>{t("matches", "starredCounter", { count: matches.length })}</Text>
+        <Text style={styles.subtitle}>{t("matches", "starredCounter", { count: totalCount })}</Text>
       </View>
 
       <FlatList

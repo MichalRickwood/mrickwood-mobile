@@ -51,6 +51,7 @@ export default function MatchesScreen() {
     () => matchesQuery.data?.pages.flatMap((p) => p.matches) ?? [],
     [matchesQuery.data],
   );
+  const totalCount = matchesQuery.data?.pages[0]?.totalCount ?? matches.length;
 
   const onRefresh = useCallback(() => {
     void matchesQuery.refetch();
@@ -62,12 +63,12 @@ export default function MatchesScreen() {
 
   const headerLabel = useMemo(() => {
     if (!activeFilterId) {
-      return t("matches", "counterAll", { count: matches.length });
+      return t("matches", "counterAll", { count: totalCount });
     }
     const f = filters.find((x) => x.id === activeFilterId);
     const name = f?.name ?? t("matches", "title");
-    return t("matches", "counterFilter", { filter: name, count: matches.length });
-  }, [activeFilterId, filters, matches.length, t]);
+    return t("matches", "counterFilter", { filter: name, count: totalCount });
+  }, [activeFilterId, filters, totalCount, t]);
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>

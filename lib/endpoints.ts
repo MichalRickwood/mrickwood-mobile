@@ -148,9 +148,10 @@ export const endpoints = {
     limit?: number;
     view?: "all" | "starred" | "excluded";
   }) =>
-    api.get<{ matches: LeadMatchRow[]; nextCursor: string | null }>("/api/mobile/matches", {
-      params,
-    }),
+    api.get<{ matches: LeadMatchRow[]; nextCursor: string | null; totalCount: number }>(
+      "/api/mobile/matches",
+      { params },
+    ),
 
   // Tender preferences (hvězdička / vyloučit)
   setTenderPreference: (tenderId: number, status: "STARRED" | "EXCLUDED" | "NONE") =>
