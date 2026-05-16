@@ -30,16 +30,22 @@ export default function LeadsPaywall() {
     queryFn: () => endpoints.getLeadsService(),
   });
 
+  async function invalidateAll() {
+    await Promise.all([
+      qc.invalidateQueries({ queryKey: ["service", "leads"] }),
+      qc.invalidateQueries({ queryKey: ["matches"] }),
+      qc.invalidateQueries({ queryKey: ["filters"] }),
+    ]);
+  }
+
   const activate = useMutation({
     mutationFn: () => endpoints.activateLeadsTrial(),
-    onSuccess: async () => {
-      // Invalidate vše co může být blokované 402 — matches, filters, status
-      await Promise.all([
-        qc.invalidateQueries({ queryKey: ["service", "leads"] }),
-        qc.invalidateQueries({ queryKey: ["matches"] }),
-        qc.invalidateQueries({ queryKey: ["filters"] }),
-      ]);
-    },
+    onSuccess: invalidateAll,
+  });
+
+  const reactivate = useMutation({
+    mutationFn: () => endpoints.reactivateLeadsService(),
+    onSuccess: invalidateAll,
   });
 
   if (status.isLoading) {
@@ -70,8 +76,22 @@ export default function LeadsPaywall() {
   // Pokud je vše OK, paywall nemá co zobrazit (caller by neměl vůbec rendrovat)
   if (trialActive || subscriptionActive) return null;
 
+  // Reaktivace: key existuje, isActive=false, ale trial/období ještě běží
+  // (admin nebo user dříve vypnul, ale termín nevypršel).
+  const now = Date.now();
+  const trialStillValid =
+    data.state === "TRIAL" &&
+    !!data.trialEndsAt &&
+    new Date(data.trialEndsAt).getTime() > now;
+  const subscriptionStillValid =
+    data.state === "ACTIVE" &&
+    !!data.paidUntil &&
+    new Date(data.paidUntil).getTime() > now;
+  const canReactivate =
+    data.hasKey && !data.isActive && (trialStillValid || subscriptionStillValid);
+
   return (
-    <ScrollView contentContainerStyle={styles.scroll}>
+    <ScrollView style={styles.flex} contentContainerStyle={styles.scroll}>
       <View style={styles.icon}>
         <Text style={styles.iconText}>🔒</Text>
       </View>
@@ -108,6 +128,36 @@ export default function LeadsPaywall() {
             )}
           </Pressable>
         </>
+      ) : canReactivate ? (
+        <>
+          <Text style={styles.body}>
+            {trialStillValid
+              ? `Trial máš ještě platný do ${formatDate(data.trialEndsAt!)}. Obnov přístup jedním klepnutím.`
+              : `Předplatné je platné do ${formatDate(data.paidUntil!)}. Obnov přístup jedním klepnutím.`}
+          </Text>
+          {reactivate.isError && (
+            <Text style={styles.errorBox}>
+              {reactivate.error instanceof ApiError
+                ? reactivate.error.message
+                : "Reaktivace selhala."}
+            </Text>
+          )}
+          <Pressable
+            onPress={() => reactivate.mutate()}
+            disabled={reactivate.isPending}
+            style={({ pressed }) => [
+              styles.btnPrimary,
+              reactivate.isPending && { opacity: 0.6 },
+              pressed && !reactivate.isPending && { opacity: 0.85 },
+            ]}
+          >
+            {reactivate.isPending ? (
+              <ActivityIndicator color={colors.accentForeground} />
+            ) : (
+              <Text style={styles.btnPrimaryText}>Reaktivovat službu</Text>
+            )}
+          </Pressable>
+        </>
       ) : (
         <>
           <Text style={styles.body}>
@@ -135,8 +185,17 @@ export default function LeadsPaywall() {
   );
 }
 
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString("cs-CZ", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+}
+
 const makeStyles = (colors: Colors) =>
   StyleSheet.create({
+    flex: { flex: 1 },
     scroll: {
       flexGrow: 1,
       padding: spacing.xl,

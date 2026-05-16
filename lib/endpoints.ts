@@ -192,6 +192,8 @@ export const endpoints = {
     api.post<{ ok: true; state: string; trialEndsAt: string | null }>(
       "/api/mobile/services/leads",
     ),
+  reactivateLeadsService: () =>
+    api.patch<{ ok: true; alreadyActive?: boolean }>("/api/mobile/services/leads"),
 
   // Industry taxonomy (areas + tags) pro CategoryPicker
   industryTaxonomy: () =>
