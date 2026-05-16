@@ -111,13 +111,34 @@ export default function BillingScreen() {
     }, SAVE_DEBOUNCE_MS);
   }
 
-  function onCompanyResolved(taxId: string, name: string, address: string) {
+  function onCompanyResolved(
+    taxId: string,
+    name: string,
+    address: string,
+    vatNumber: string | null,
+  ) {
     if (!profileDraft) return;
     const next: BillingProfileShape = {
       ...profileDraft,
       ico: taxId,
       name: name || profileDraft.name,
       address: address || profileDraft.address,
+      // DIČ z VIES/ARES (CZ ARES vrací vatNumber="CZ12345678"). Pokud user už
+      // má jiné DIČ vyplněné ručně, nepřepisujeme.
+      dic: profileDraft.dic || vatNumber || profileDraft.dic,
+    };
+    setProfileDraft(next);
+    void saveProfile(next);
+  }
+
+  function clearResolvedCompany() {
+    if (!profileDraft) return;
+    const next: BillingProfileShape = {
+      ...profileDraft,
+      ico: "",
+      name: "",
+      address: "",
+      dic: "",
     };
     setProfileDraft(next);
     void saveProfile(next);
@@ -349,20 +370,12 @@ export default function BillingScreen() {
             <CompanyLookupField
               country={profileDraft?.country || "CZ"}
               value={profileDraft?.ico ?? ""}
-              label={t("settings", "billingProfileIco")}
-              onResolve={({ taxId, name, address }) => onCompanyResolved(taxId, name, address)}
-              onClear={() => {
-                if (!profileDraft) return;
-                if (profileDraft.ico || profileDraft.name) {
-                  scheduleProfileSave({ ...profileDraft, ico: "" });
-                }
-              }}
-            />
-            <ProfileField
-              styles={styles}
-              label={t("settings", "billingProfileName")}
-              value={profileDraft?.name ?? ""}
-              onChangeText={(v) => profileDraft && scheduleProfileSave({ ...profileDraft, name: v })}
+              resolvedName={profileDraft?.name ?? ""}
+              label={t("settings", "billingProfileCompany")}
+              onResolve={({ taxId, name, address, vatNumber }) =>
+                onCompanyResolved(taxId, name, address, vatNumber ?? null)
+              }
+              onClear={clearResolvedCompany}
             />
             <ProfileField
               styles={styles}

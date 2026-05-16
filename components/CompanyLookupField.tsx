@@ -11,7 +11,6 @@ import {
   FULL_COVERAGE_COUNTRIES,
   lookupCompanyById,
   searchCompaniesByName,
-  type CompanyEntity,
   type CompanySearchResult,
 } from "@/lib/company-lookup";
 import { useI18n } from "@/lib/i18n";
@@ -31,9 +30,11 @@ interface Props {
   country: string;
   /** Aktuální IČO/Tax ID — input se sync z props (např. po async loadu). */
   value: string;
+  /** Pokud je vyplněn IČO i název → zobrazíme "chip" (vyřešeno) místo search inputu. */
+  resolvedName: string;
   onResolve: (data: CompanyLookupResult) => void;
-  /** Volá se při každém edit query (bez selectu) — caller může nullovat name/address. */
-  onClear?: () => void;
+  /** Volá se když user smaže výběr (X v chipu) — caller by měl nullovat ico/name/address/dic. */
+  onClear: () => void;
   label: string;
   placeholder?: string;
 }
@@ -46,6 +47,7 @@ interface Props {
 export default function CompanyLookupField({
   country,
   value,
+  resolvedName,
   onResolve,
   onClear,
   label,
@@ -56,7 +58,7 @@ export default function CompanyLookupField({
   const styles = useMemo(() => makeStyles(colors), [colors]);
 
   const [query, setQuery] = useState(value);
-  const [results, setResults] = useState<CompanySearchResult[]>([]);
+  const [results, setResults] = useState<(CompanySearchResult & { vatNumber?: string | null })[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -87,7 +89,7 @@ export default function CompanyLookupField({
     const clean = q.replace(/\s/g, "");
     const isDigits = /^\d+$/.test(clean) && clean.length > 0;
 
-    const promise =
+    const promise: Promise<(CompanySearchResult & { vatNumber?: string | null })[]> =
       isDigits && clean.length === idDigitLen
         ? lookupCompanyById(country, clean, ctrl.signal).then((r) =>
             r.found
@@ -97,13 +99,14 @@ export default function CompanyLookupField({
                     country: r.country,
                     name: r.name,
                     address: r.address,
-                  } satisfies CompanySearchResult,
+                    vatNumber: r.vatNumber ?? null,
+                  },
                 ]
               : [],
           )
         : isFullCoverage && q.length >= 3 && !isDigits
           ? searchCompaniesByName(country, q, ctrl.signal)
-          : Promise.resolve([] as CompanySearchResult[]);
+          : Promise.resolve([]);
 
     promise
       .then((items) => {
@@ -135,11 +138,51 @@ export default function CompanyLookupField({
     debounceTimer.current = setTimeout(() => trigger(v.trim()), DEBOUNCE_MS);
   }
 
-  function selectResult(r: CompanySearchResult) {
+  function selectResult(r: CompanySearchResult & { vatNumber?: string | null }) {
     setQuery(r.taxId);
     setShowResults(false);
     setResults([]);
-    onResolve({ taxId: r.taxId, name: r.name, address: r.address, vatNumber: null });
+    onResolve({
+      taxId: r.taxId,
+      name: r.name,
+      address: r.address,
+      vatNumber: r.vatNumber ?? null,
+    });
+  }
+
+  function clearResolved() {
+    setQuery("");
+    setResults([]);
+    setShowResults(false);
+    setError(null);
+    onClear();
+  }
+
+  const isResolved = !!value && !!resolvedName;
+
+  if (isResolved) {
+    return (
+      <View style={styles.wrap}>
+        <Text style={styles.label}>{label}</Text>
+        <View style={styles.chip}>
+          <View style={styles.chipText}>
+            <Text style={styles.chipName} numberOfLines={2}>
+              {resolvedName}
+            </Text>
+            <Text style={styles.chipMeta}>
+              {t("settings", "billingProfileIco")} {value}
+            </Text>
+          </View>
+          <Pressable
+            onPress={clearResolved}
+            hitSlop={10}
+            style={({ pressed }) => [styles.chipClose, pressed && { opacity: 0.5 }]}
+          >
+            <Text style={styles.chipCloseText}>✕</Text>
+          </Pressable>
+        </View>
+      </View>
+    );
   }
 
   return (
@@ -219,4 +262,19 @@ const makeStyles = (colors: Colors) =>
     rowName: { fontSize: fontSize.sm, color: colors.text, fontWeight: "500" },
     rowMeta: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: 2 },
     error: { fontSize: fontSize.xs, color: colors.warning, marginTop: spacing.xs },
+    chip: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: colors.bg,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.md,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm + 2,
+    },
+    chipText: { flex: 1, paddingRight: spacing.sm },
+    chipName: { fontSize: fontSize.base, color: colors.text, fontWeight: "500" },
+    chipMeta: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: 2 },
+    chipClose: { width: 28, height: 28, alignItems: "center", justifyContent: "center" },
+    chipCloseText: { fontSize: fontSize.base, color: colors.textSubtle },
   });

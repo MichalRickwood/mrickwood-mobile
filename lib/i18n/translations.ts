@@ -196,6 +196,7 @@ export interface Dict {
     billingUpgradeCta: string;
     billingNotSet: string;
     billingProfileSection: string;
+    billingProfileCompany: string;
     billingProfileName: string;
     billingProfileIco: string;
     billingProfileDic: string;
@@ -473,6 +474,7 @@ const cs: Dict = {
     billingUpgradeCta: "Upgradovat plán",
     billingNotSet: "Nenastaveno",
     billingProfileSection: "Fakturační údaje",
+    billingProfileCompany: "Firma",
     billingProfileName: "Název firmy",
     billingProfileIco: "IČO",
     billingProfileDic: "DIČ",
@@ -745,6 +747,7 @@ const en: Dict = {
     billingUpgradeCta: "Upgrade plan",
     billingNotSet: "Not set",
     billingProfileSection: "Billing details",
+    billingProfileCompany: "Company",
     billingProfileName: "Company name",
     billingProfileIco: "Tax ID",
     billingProfileDic: "VAT ID",
@@ -1019,6 +1022,7 @@ const de: Dict = {
     billingUpgradeCta: "Tarif upgraden",
     billingNotSet: "Nicht festgelegt",
     billingProfileSection: "Rechnungsdaten",
+    billingProfileCompany: "Firma",
     billingProfileName: "Firmenname",
     billingProfileIco: "Steuernummer",
     billingProfileDic: "USt-IdNr.",
