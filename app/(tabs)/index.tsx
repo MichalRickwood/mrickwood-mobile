@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -9,8 +9,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
-import { useScrollToTop } from "@react-navigation/native";
+import { useNavigation, useRouter } from "expo-router";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { endpoints, type LeadMatchRow } from "@/lib/endpoints";
 import FilterPicker from "@/components/FilterPicker";
@@ -28,7 +27,20 @@ export default function MatchesScreen() {
   const [activeFilterId, setActiveFilterId] = useState<string | null>(null);
   const setPreference = useToggleTenderPreference();
   const listRef = useRef<FlatList>(null);
-  useScrollToTop(listRef);
+  const navigation = useNavigation();
+
+  // Tab re-press → scroll list na vrchol. useScrollToTop z react-navigation
+  // nefunguje s expo-router NativeTabs (tabPress event přes jiný bridge).
+  // Posloucháme tabPress + tabLongPress event přímo na navigation objektu.
+  useEffect(() => {
+    const unsub = navigation.addListener("tabPress" as never, () => {
+      // isFocused = bylo už aktivní → user dal re-press
+      if (navigation.isFocused?.()) {
+        listRef.current?.scrollToOffset({ offset: 0, animated: true });
+      }
+    });
+    return unsub;
+  }, [navigation]);
 
   const filtersQuery = useQuery({
     queryKey: ["filters"],
