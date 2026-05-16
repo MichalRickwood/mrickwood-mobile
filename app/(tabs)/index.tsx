@@ -24,7 +24,7 @@ import CategoryPickerModal from "@/components/CategoryPickerModal";
 import CpvPickerModal from "@/components/CpvPickerModal";
 import SaveFilterModal from "@/components/SaveFilterModal";
 import SortPickerModal, { type SortKey } from "@/components/SortPickerModal";
-import { CZ_REGIONS } from "@/lib/nuts-cz";
+import { CZ_REGIONS, regionLabel } from "@/lib/nuts-cz";
 import {
   EMPTY_AD_HOC,
   isAdHocActive,
@@ -50,12 +50,9 @@ function fmtIsoShort(iso: string): string {
   return m ? `${m[3]}.${m[2]}.` : iso;
 }
 
-function regionChipLabel(codes: string[], t: FilterT): string {
+function regionChipLabel(codes: string[], t: FilterT, locale: string): string {
   if (codes.length === 0) return t("filters", "chipRegion");
-  if (codes.length === 1) {
-    const r = CZ_REGIONS.find((x) => x.code === codes[0]);
-    return r?.labels.cs ?? t("filters", "chipRegion");
-  }
+  if (codes.length === 1) return regionLabel(codes[0], locale);
   return t("filters", "chipRegionsN", { count: String(codes.length) });
 }
 
@@ -299,7 +296,7 @@ export default function MatchesScreen() {
                   adHoc.regions.length > 0 && styles.adHocChipTextActive,
                 ]}
               >
-                {regionChipLabel(adHoc.regions, t)}
+                {regionChipLabel(adHoc.regions, t, locale)}
               </Text>
             </Pressable>
             <Pressable

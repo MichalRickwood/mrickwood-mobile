@@ -30,7 +30,7 @@ export default function FilterFormScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const qc = useQueryClient();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { colors, isDark } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const isNew = id === "new";
@@ -238,7 +238,7 @@ export default function FilterFormScreen() {
                     style={[styles.regionChip, active && styles.regionChipActive]}
                   >
                     <Text style={[styles.regionChipText, active && styles.regionChipTextActive]}>
-                      {r.labels.cs}
+                      {regionLabel(r.code, locale)}
                     </Text>
                   </Pressable>
                 );

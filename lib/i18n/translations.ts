@@ -135,6 +135,23 @@ export interface Dict {
     notFoundTitle: string;
     notFoundBody: string;
     back: string;
+    title: string;
+    descLabel: string;
+    documentsLabel: string;
+    btnEmail: string;
+    btnOpenPortal: string;
+    icoLine: string;
+    emailSentTitle: string;
+    emailSentBody: string;
+    errorTitle: string;
+    emailFailed: string;
+    reportInvalidBtn: string;
+    reportInvalidConfirmTitle: string;
+    reportInvalidConfirmBody: string;
+    reportInvalidConfirmYes: string;
+    reportInvalidConfirmNo: string;
+    reportInvalidSent: string;
+    reportInvalidFailed: string;
   };
   settings: {
     title: string;
@@ -544,6 +561,23 @@ const cs: Dict = {
     notFoundTitle: "Zakázka nenalezena",
     notFoundBody: "Otevřete seznam a zkuste to znovu — možná je třeba pull-to-refresh.",
     back: "Zpět",
+    title: "Zakázka",
+    descLabel: "Popis",
+    documentsLabel: "Dokumenty ({count})",
+    btnEmail: "Odeslat emailem",
+    btnOpenPortal: "Otevřít portál",
+    icoLine: "IČO {ico}",
+    emailSentTitle: "Odesláno",
+    emailSentBody: "Shrnutí jsme poslali na {email}.",
+    errorTitle: "Chyba",
+    emailFailed: "Odeslání emailu selhalo.",
+    reportInvalidBtn: "Nahlásit neplatnou zakázku",
+    reportInvalidConfirmTitle: "Nahlásit neplatnou zakázku?",
+    reportInvalidConfirmBody: "Pošleme zpětnou vazbu týmu, aby ji prověřil. Pokud máš další info, můžeš ho napsat na záložce Feedback.",
+    reportInvalidConfirmYes: "Nahlásit",
+    reportInvalidConfirmNo: "Zrušit",
+    reportInvalidSent: "Hlášení odesláno. Díky!",
+    reportInvalidFailed: "Hlášení selhalo. Zkus to později.",
   },
   settings: {
     title: "Nastavení",
@@ -948,6 +982,23 @@ const en: Dict = {
     notFoundTitle: "Tender not found",
     notFoundBody: "Open the list and try again — pull-to-refresh may help.",
     back: "Back",
+    title: "Tender",
+    descLabel: "Description",
+    documentsLabel: "Documents ({count})",
+    btnEmail: "Send by email",
+    btnOpenPortal: "Open portal",
+    icoLine: "Reg. no. {ico}",
+    emailSentTitle: "Sent",
+    emailSentBody: "Summary sent to {email}.",
+    errorTitle: "Error",
+    emailFailed: "Failed to send email.",
+    reportInvalidBtn: "Report invalid tender",
+    reportInvalidConfirmTitle: "Report this tender as invalid?",
+    reportInvalidConfirmBody: "We'll send the feedback to our team to review. If you have more info, you can add it on the Feedback tab.",
+    reportInvalidConfirmYes: "Report",
+    reportInvalidConfirmNo: "Cancel",
+    reportInvalidSent: "Report sent. Thanks!",
+    reportInvalidFailed: "Report failed. Try again later.",
   },
   settings: {
     title: "Settings",
@@ -1354,6 +1405,23 @@ const de: Dict = {
     notFoundBody:
       "Öffnen Sie die Liste und versuchen Sie es erneut — Pull-to-Refresh kann helfen.",
     back: "Zurück",
+    title: "Ausschreibung",
+    descLabel: "Beschreibung",
+    documentsLabel: "Dokumente ({count})",
+    btnEmail: "Per E-Mail senden",
+    btnOpenPortal: "Portal öffnen",
+    icoLine: "USt-IdNr. {ico}",
+    emailSentTitle: "Gesendet",
+    emailSentBody: "Zusammenfassung an {email} gesendet.",
+    errorTitle: "Fehler",
+    emailFailed: "E-Mail konnte nicht gesendet werden.",
+    reportInvalidBtn: "Ungültige Ausschreibung melden",
+    reportInvalidConfirmTitle: "Diese Ausschreibung als ungültig melden?",
+    reportInvalidConfirmBody: "Wir senden Feedback an das Team zur Überprüfung. Weitere Infos können Sie im Feedback-Tab hinzufügen.",
+    reportInvalidConfirmYes: "Melden",
+    reportInvalidConfirmNo: "Abbrechen",
+    reportInvalidSent: "Meldung gesendet. Danke!",
+    reportInvalidFailed: "Meldung fehlgeschlagen. Bitte später erneut versuchen.",
   },
   settings: {
     title: "Einstellungen",

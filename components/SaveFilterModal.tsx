@@ -13,7 +13,7 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { endpoints } from "@/lib/endpoints";
 import { ApiError } from "@/lib/api";
-import { CZ_REGIONS } from "@/lib/nuts-cz";
+import { regionLabel } from "@/lib/nuts-cz";
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme-context";
 import type { AdHocFilter } from "@/lib/ad-hoc-filter";
@@ -34,7 +34,7 @@ function formatMoney(n: number): string {
 }
 
 export default function SaveFilterModal({ visible, adHoc, onClose, onSaved }: Props) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const qc = useQueryClient();
@@ -82,7 +82,7 @@ export default function SaveFilterModal({ visible, adHoc, onClose, onSaved }: Pr
   const regionLabels = useMemo(
     () =>
       adHoc.regions
-        .map((c) => CZ_REGIONS.find((r) => r.code === c)?.labels.cs ?? c)
+        .map((c) => regionLabel(c, locale))
         .join(", "),
     [adHoc.regions],
   );

@@ -13,12 +13,15 @@ import {
   inferDocKind,
   openTenderDocument,
 } from "@/lib/tender-doc-viewer";
+import { useI18n } from "@/lib/i18n";
+import { ApiError } from "@/lib/api";
 
 export default function MatchDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const qc = useQueryClient();
   const { colors } = useTheme();
+  const { t } = useI18n();
   const styles = useMemo(() => makeStyles(colors), [colors]);
 
   // Primárně tahá z cache /matches. Pokud cache nemá řádek (deep link z push
@@ -56,20 +59,62 @@ export default function MatchDetailScreen() {
   });
 
   const [emailing, setEmailing] = useState(false);
+  const [reporting, setReporting] = useState(false);
+
   async function sendSummary() {
     if (!match || emailing) return;
     setEmailing(true);
     try {
       const res = await endpoints.emailTenderSummary(match.tender.id);
-      Alert.alert("Odesláno", `Shrnutí jsme poslali na ${res.email}.`);
+      Alert.alert(
+        t("matchDetail", "emailSentTitle"),
+        t("matchDetail", "emailSentBody", { email: res.email }),
+      );
     } catch (err) {
       Alert.alert(
-        "Chyba",
-        err instanceof Error ? err.message : "Odeslání emailu selhalo.",
+        t("matchDetail", "errorTitle"),
+        err instanceof Error ? err.message : t("matchDetail", "emailFailed"),
       );
     } finally {
       setEmailing(false);
     }
+  }
+
+  function reportInvalid() {
+    if (!match || reporting) return;
+    Alert.alert(
+      t("matchDetail", "reportInvalidConfirmTitle"),
+      t("matchDetail", "reportInvalidConfirmBody"),
+      [
+        { text: t("matchDetail", "reportInvalidConfirmNo"), style: "cancel" },
+        {
+          text: t("matchDetail", "reportInvalidConfirmYes"),
+          style: "destructive",
+          onPress: async () => {
+            setReporting(true);
+            try {
+              await endpoints.submitFeedback({
+                kind: "OTHER",
+                message: `Neplatná zakázka — tender #${match.tender.id}\n${match.tender.title}\n${match.tender.url}`,
+              });
+              Alert.alert(
+                t("matchDetail", "emailSentTitle"),
+                t("matchDetail", "reportInvalidSent"),
+              );
+            } catch (err) {
+              Alert.alert(
+                t("matchDetail", "errorTitle"),
+                err instanceof ApiError
+                  ? err.message
+                  : t("matchDetail", "reportInvalidFailed"),
+              );
+            } finally {
+              setReporting(false);
+            }
+          },
+        },
+      ],
+    );
   }
 
   useEffect(() => {
@@ -94,7 +139,13 @@ export default function MatchDetailScreen() {
     if (fallback.isLoading || fallback.isFetching) {
       return (
         <SafeAreaView style={styles.safe}>
-          <Stack.Screen options={{ title: "Zakázka", headerShown: true, headerBackTitle: "Zpět" }} />
+          <Stack.Screen
+            options={{
+              title: t("matchDetail", "title"),
+              headerShown: true,
+              headerBackTitle: t("matchDetail", "back"),
+            }}
+          />
           <View style={styles.notFound}>
             <ActivityIndicator color={colors.textSubtle} />
           </View>
@@ -103,28 +154,32 @@ export default function MatchDetailScreen() {
     }
     return (
       <SafeAreaView style={styles.safe}>
-        <Stack.Screen options={{ title: "Zakázka", headerShown: true, headerBackTitle: "Zpět" }} />
+        <Stack.Screen
+          options={{
+            title: t("matchDetail", "title"),
+            headerShown: true,
+            headerBackTitle: t("matchDetail", "back"),
+          }}
+        />
         <View style={styles.notFound}>
-          <Text style={styles.notFoundTitle}>Zakázka nenalezena</Text>
-          <Text style={styles.notFoundBody}>
-            Otevřete seznam a zkuste to znovu — možná je třeba pull-to-refresh.
-          </Text>
+          <Text style={styles.notFoundTitle}>{t("matchDetail", "notFoundTitle")}</Text>
+          <Text style={styles.notFoundBody}>{t("matchDetail", "notFoundBody")}</Text>
           <Pressable onPress={() => router.back()} style={styles.backBtn}>
-            <Text style={styles.backBtnText}>Zpět</Text>
+            <Text style={styles.backBtnText}>{t("matchDetail", "back")}</Text>
           </Pressable>
         </View>
       </SafeAreaView>
     );
   }
 
-  const t = match.tender;
+  const tender = match.tender;
   return (
     <SafeAreaView style={styles.safe} edges={["bottom"]}>
       <Stack.Screen
         options={{
           title: "",
           headerShown: true,
-          headerBackTitle: "Zpět",
+          headerBackTitle: t("matchDetail", "back"),
           headerStyle: { backgroundColor: colors.bg },
           headerTintColor: colors.text,
           headerTitleStyle: { fontSize: fontSize.sm, fontWeight: "600" },
@@ -143,7 +198,7 @@ export default function MatchDetailScreen() {
                 {emailing ? (
                   <ActivityIndicator size="small" color={colors.text} />
                 ) : (
-                  <Text style={styles.headerBtnText}>Odeslat emailem</Text>
+                  <Text style={styles.headerBtnText}>{t("matchDetail", "btnEmail")}</Text>
                 )}
               </Pressable>
               <Pressable
@@ -155,78 +210,101 @@ export default function MatchDetailScreen() {
                   pressed && { opacity: 0.85 },
                 ]}
               >
-                <Text style={styles.headerBtnTextPrimary}>Otevřít portál</Text>
+                <Text style={styles.headerBtnTextPrimary}>{t("matchDetail", "btnOpenPortal")}</Text>
               </Pressable>
             </View>
           ),
         }}
       />
       <ScrollView contentContainerStyle={styles.scroll}>
-        <Text style={styles.title}>{t.title}</Text>
-        <Text style={styles.subtitle}>{t.contractingAuthority.name}</Text>
+        <Text style={styles.title}>{tender.title}</Text>
+        {tender.contractingAuthority?.name && (
+          <Text style={styles.subtitle}>{tender.contractingAuthority.name}</Text>
+        )}
         {(() => {
+          const ca = tender.contractingAuthority;
+          if (!ca) return null;
+          const region = [ca.district, ca.region].filter(Boolean).join(", ") || null;
           const parts = [
-            t.contractingAuthority.ico ? `IČO ${t.contractingAuthority.ico}` : null,
-            [t.contractingAuthority.district, t.contractingAuthority.region]
-              .filter(Boolean)
-              .join(", ") || null,
+            ca.ico ? t("matchDetail", "icoLine", { ico: ca.ico }) : null,
+            region,
           ].filter(Boolean);
           if (parts.length === 0) return null;
           return <Text style={styles.subtitleSub}>{parts.join(" · ")}</Text>;
         })()}
 
-        {t.description && t.description.trim().length > 0 && (
+        {tender.description && tender.description.trim().length > 0 && (
           <View style={styles.descSection}>
-            <Text style={styles.sectionLabel}>Popis</Text>
-            <Text style={styles.descText}>{t.description}</Text>
+            <Text style={styles.sectionLabel}>{t("matchDetail", "descLabel")}</Text>
+            <Text style={styles.descText}>{tender.description}</Text>
           </View>
         )}
 
         <View style={styles.metaGrid}>
-          {(t.deadlineAt || t.publishedAt) && (
+          {(tender.deadlineAt || tender.publishedAt) && (
             <View style={styles.metaRow}>
-              {t.deadlineAt && (
+              {tender.deadlineAt && (
                 <View style={{ flex: 1 }}>
                   <MetaCell
                     styles={styles}
-                    label="Lhůta podání"
-                    value={formatDate(t.deadlineAt)}
+                    label={t("matchDetail", "deadlineLabel")}
+                    value={formatDate(tender.deadlineAt)}
                     accent
                   />
                 </View>
               )}
-              {t.publishedAt && (
+              {tender.publishedAt && (
                 <View style={{ flex: 1 }}>
                   <MetaCell
                     styles={styles}
-                    label="Publikováno"
-                    value={formatDate(t.publishedAt)}
+                    label={t("matchDetail", "publishedLabel")}
+                    value={formatDate(tender.publishedAt)}
                   />
                 </View>
               )}
             </View>
           )}
-          {t.estimatedValue ? (
+          {tender.estimatedValue ? (
             <MetaCell
               styles={styles}
-              label="Předpokládaná hodnota"
-              value={formatMoney(t.estimatedValue, t.currency)}
+              label={t("matchDetail", "valueLabel")}
+              value={formatMoney(tender.estimatedValue, tender.currency)}
             />
           ) : null}
         </View>
 
         {(() => {
-          const docs = t.documents ?? [];
+          const docs = tender.documents ?? [];
           if (docs.length === 0) return null;
           return (
             <View style={styles.docsSection}>
-              <Text style={styles.sectionLabel}>Dokumenty ({docs.length})</Text>
+              <Text style={styles.sectionLabel}>
+                {t("matchDetail", "documentsLabel", { count: docs.length })}
+              </Text>
               {docs.map((d, i) => (
                 <DocumentRow key={`${d.url}-${i}`} styles={styles} doc={d} router={router} />
               ))}
             </View>
           );
         })()}
+
+        <Pressable
+          onPress={reportInvalid}
+          disabled={reporting}
+          style={({ pressed }) => [
+            styles.reportInvalidBtn,
+            reporting && { opacity: 0.5 },
+            pressed && !reporting && { opacity: 0.85 },
+          ]}
+        >
+          {reporting ? (
+            <ActivityIndicator color={colors.accentForeground} size="small" />
+          ) : (
+            <Text style={styles.reportInvalidText}>
+              {t("matchDetail", "reportInvalidBtn")}
+            </Text>
+          )}
+        </Pressable>
       </ScrollView>
     </SafeAreaView>
   );
@@ -372,6 +450,19 @@ const makeStyles = (colors: Colors) =>
   docMeta: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: 2 },
   docChevron: { fontSize: 20, color: colors.textFaint, marginLeft: spacing.sm },
   headerActions: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
+  reportInvalidBtn: {
+    marginTop: spacing.xxl,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 6,
+    borderRadius: radius.full,
+    borderWidth: 1,
+    borderColor: colors.accent,
+    backgroundColor: colors.accent,
+    alignItems: "center",
+    justifyContent: "center",
+    alignSelf: "center",
+  },
+  reportInvalidText: { fontSize: fontSize.xs, color: colors.accentForeground, fontWeight: "600" },
   headerBtn: {
     paddingHorizontal: spacing.md,
     paddingVertical: 6,

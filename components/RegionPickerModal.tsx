@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { CZ_REGIONS } from "@/lib/nuts-cz";
+import { CZ_REGIONS, regionLabel } from "@/lib/nuts-cz";
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme-context";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
@@ -21,7 +21,7 @@ interface Props {
 }
 
 export default function RegionPickerModal({ visible, initial, onClose, onApply }: Props) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const [selected, setSelected] = useState<string[]>(initial);
@@ -50,7 +50,7 @@ export default function RegionPickerModal({ visible, initial, onClose, onApply }
                     style={[styles.chip, active && styles.chipActive]}
                   >
                     <Text style={[styles.chipText, active && styles.chipTextActive]}>
-                      {r.labels.cs}
+                      {regionLabel(r.code, locale)}
                     </Text>
                   </Pressable>
                 );
