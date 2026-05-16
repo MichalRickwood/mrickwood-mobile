@@ -1,8 +1,9 @@
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useFocusEffect } from "expo-router";
 import {
   ActivityIndicator,
   FlatList,
+  Pressable,
   RefreshControl,
   StyleSheet,
   Text,
@@ -18,19 +19,22 @@ import { useTheme } from "@/lib/theme-context";
 import { useI18n } from "@/lib/i18n";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 
-/** Sledované — list všech starred zakázek napříč filtry. */
+type View = "starred" | "excluded";
+
+/** Sledované / Odstraněné — list zakázek z UserTenderPreference, switch nahoře. */
 export default function StarredScreen() {
   const router = useRouter();
   const { colors } = useTheme();
   const { t } = useI18n();
   const styles = useMemo(() => makeStyles(colors), [colors]);
+  const [view, setView] = useState<View>("starred");
 
   const q = useInfiniteQuery({
-    queryKey: ["matches", "starred"],
+    queryKey: ["matches", view],
     initialPageParam: null as string | null,
     queryFn: ({ pageParam }) =>
       endpoints.myMatches({
-        view: "starred",
+        view,
         ...(pageParam ? { cursor: pageParam } : {}),
       }),
     getNextPageParam: (last) => last.nextCursor ?? undefined,
@@ -61,8 +65,40 @@ export default function StarredScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
       <View style={styles.header}>
-        <Text style={styles.title}>{t("matches", "starredTab")}</Text>
-        <Text style={styles.subtitle}>{t("matches", "starredCounter", { count: totalCount })}</Text>
+        <Text style={styles.title}>
+          {view === "starred" ? "Sledované" : "Odstraněné"}
+        </Text>
+        <Text style={styles.subtitle}>
+          {view === "starred"
+            ? t("matches", "starredCounter", { count: totalCount })
+            : `Odstraněné · ${totalCount}`}
+        </Text>
+        <View style={styles.segWrap}>
+          <Pressable
+            onPress={() => setView("starred")}
+            style={({ pressed }) => [
+              styles.segBtn,
+              view === "starred" && styles.segBtnActive,
+              pressed && { opacity: 0.7 },
+            ]}
+          >
+            <Text style={[styles.segText, view === "starred" && styles.segTextActive]}>
+              ☆ Sledované
+            </Text>
+          </Pressable>
+          <Pressable
+            onPress={() => setView("excluded")}
+            style={({ pressed }) => [
+              styles.segBtn,
+              view === "excluded" && styles.segBtnActive,
+              pressed && { opacity: 0.7 },
+            ]}
+          >
+            <Text style={[styles.segText, view === "excluded" && styles.segTextActive]}>
+              👎 Odstraněné
+            </Text>
+          </Pressable>
+        </View>
       </View>
 
       <FlatList
@@ -105,8 +141,16 @@ export default function StarredScreen() {
         ListEmptyComponent={
           empty ? (
             <View style={styles.empty}>
-              <Text style={styles.emptyTitle}>{t("matches", "starredEmptyTitle")}</Text>
-              <Text style={styles.emptyBody}>{t("matches", "starredEmptyBody")}</Text>
+              <Text style={styles.emptyTitle}>
+                {view === "starred"
+                  ? t("matches", "starredEmptyTitle")
+                  : "Žádné odstraněné"}
+              </Text>
+              <Text style={styles.emptyBody}>
+                {view === "starred"
+                  ? t("matches", "starredEmptyBody")
+                  : "Zakázky, které odstraníte palcem dolů, se sem ukládají. Můžeš je vrátit zpět."}
+              </Text>
             </View>
           ) : null
         }
@@ -121,6 +165,24 @@ const makeStyles = (colors: Colors) =>
     header: { paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.md },
     title: { fontSize: fontSize.xxl, fontWeight: "700", color: colors.text, letterSpacing: -0.5 },
     subtitle: { fontSize: fontSize.sm, color: colors.textSubtle, marginTop: spacing.xs },
+    segWrap: {
+      flexDirection: "row",
+      marginTop: spacing.md,
+      backgroundColor: colors.card,
+      borderRadius: radius.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: 3,
+    },
+    segBtn: {
+      flex: 1,
+      paddingVertical: spacing.sm,
+      borderRadius: radius.sm,
+      alignItems: "center",
+    },
+    segBtnActive: { backgroundColor: colors.accent },
+    segText: { fontSize: fontSize.sm, color: colors.text, fontWeight: "500" },
+    segTextActive: { color: colors.accentForeground, fontWeight: "600" },
     list: { padding: spacing.xl, paddingTop: spacing.sm, paddingBottom: 100, flexGrow: 1 },
     footerLoader: { paddingVertical: spacing.lg, alignItems: "center" },
     card: {
