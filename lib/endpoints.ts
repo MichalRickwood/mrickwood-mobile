@@ -70,6 +70,18 @@ export interface LeadFilterRow {
   maxValue: number | null;
 }
 
+export interface LeadFilterInput {
+  name: string;
+  regions?: string[];
+  keywords?: string[];
+  categories?: string[];
+  industryTags?: string[];
+  minValue?: number | null;
+  maxValue?: number | null;
+  emailDigest?: boolean;
+  isActive?: boolean;
+}
+
 export interface MobileRegisterInput {
   email: string;
   password: string;
@@ -131,8 +143,14 @@ export const endpoints = {
   myMatches: (params?: { filterId?: string }) =>
     api.get<{ matches: LeadMatchRow[] }>("/api/mobile/matches", { params }),
 
-  // Filtry usera (pro filter chips v UI)
+  // Filtry usera (pro filter chips/dropdown v UI)
   myFilters: () => api.get<{ filters: LeadFilterRow[] }>("/api/mobile/filters"),
+  createFilter: (input: LeadFilterInput) =>
+    api.post<{ filter: LeadFilterRow }>("/api/mobile/filters", input),
+  updateFilter: (id: string, input: Partial<LeadFilterInput>) =>
+    api.patch<{ filter: LeadFilterRow }>(`/api/mobile/filters/${id}`, input),
+  deleteFilter: (id: string) =>
+    api.delete<{ deleted: true }>(`/api/mobile/filters/${id}`),
 
   // Mark match jako viewed
   markViewed: (matchId: string) =>

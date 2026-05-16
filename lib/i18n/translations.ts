@@ -78,6 +78,30 @@ export interface Dict {
     counterAll: string;
     counterFilter: string;
     filterAll: string;
+    filterPickerTitle: string;
+    filterPickerEmpty: string;
+    filterAdd: string;
+    filterFormEditTitle: string;
+    filterFormName: string;
+    filterFormNamePlaceholder: string;
+    filterFormKeywords: string;
+    filterFormKeywordsHelp: string;
+    filterFormKeywordsPlaceholder: string;
+    filterFormRegions: string;
+    filterFormValueRange: string;
+    filterFormMinPlaceholder: string;
+    filterFormMaxPlaceholder: string;
+    filterFormEmailDigest: string;
+    filterFormEmailDigestHelp: string;
+    filterFormSave: string;
+    filterFormSaving: string;
+    filterFormDelete: string;
+    filterFormDeleting: string;
+    filterFormConfirmDeleteTitle: string;
+    filterFormConfirmDeleteBody: string;
+    filterFormErrName: string;
+    filterFormErrSave: string;
+    filterFormNotFound: string;
     deadline: string;
     emptyTitle: string;
     emptyBody: string;
@@ -349,7 +373,31 @@ const cs: Dict = {
     title: "Zakázky",
     counterAll: "Všechny matche · {count}",
     counterFilter: "{filter} · {count}",
-    filterAll: "Vše",
+    filterAll: "Všechny zakázky",
+    filterPickerTitle: "Filtry",
+    filterPickerEmpty: "Zatím žádné filtry. Vytvořte si první.",
+    filterAdd: "Nový filtr",
+    filterFormEditTitle: "Upravit filtr",
+    filterFormName: "Název",
+    filterFormNamePlaceholder: "Můj filtr",
+    filterFormKeywords: "Klíčová slova",
+    filterFormKeywordsHelp: "Hledá v názvu i popisu zakázky. Více slov — match na alespoň jedno.",
+    filterFormKeywordsPlaceholder: "Přidat klíčové slovo…",
+    filterFormRegions: "Kraje",
+    filterFormValueRange: "Předpokládaná hodnota (Kč)",
+    filterFormMinPlaceholder: "Od",
+    filterFormMaxPlaceholder: "Do",
+    filterFormEmailDigest: "Denní email s novými",
+    filterFormEmailDigestHelp: "Jednou denně dostanete email se zakázkami z tohoto filtru.",
+    filterFormSave: "Uložit",
+    filterFormSaving: "Ukládám…",
+    filterFormDelete: "Smazat filtr",
+    filterFormDeleting: "Mažu…",
+    filterFormConfirmDeleteTitle: "Smazat filtr?",
+    filterFormConfirmDeleteBody: "Filtr „{name}\" bude smazán včetně historie matchů.",
+    filterFormErrName: "Vyplňte název filtru.",
+    filterFormErrSave: "Uložení selhalo.",
+    filterFormNotFound: "Filtr nenalezen.",
     deadline: "Lhůta {date}",
     emptyTitle: "Žádné nové zakázky",
     emptyBody:
@@ -618,7 +666,31 @@ const en: Dict = {
     title: "Tenders",
     counterAll: "All matches · {count}",
     counterFilter: "{filter} · {count}",
-    filterAll: "All",
+    filterAll: "All tenders",
+    filterPickerTitle: "Filters",
+    filterPickerEmpty: "No filters yet. Create your first one.",
+    filterAdd: "New filter",
+    filterFormEditTitle: "Edit filter",
+    filterFormName: "Name",
+    filterFormNamePlaceholder: "My filter",
+    filterFormKeywords: "Keywords",
+    filterFormKeywordsHelp: "Searches title and description. Multiple words — matches if any present.",
+    filterFormKeywordsPlaceholder: "Add a keyword…",
+    filterFormRegions: "Regions",
+    filterFormValueRange: "Estimated value (CZK)",
+    filterFormMinPlaceholder: "From",
+    filterFormMaxPlaceholder: "To",
+    filterFormEmailDigest: "Daily email of new matches",
+    filterFormEmailDigestHelp: "Once a day you'll receive an email with tenders from this filter.",
+    filterFormSave: "Save",
+    filterFormSaving: "Saving…",
+    filterFormDelete: "Delete filter",
+    filterFormDeleting: "Deleting…",
+    filterFormConfirmDeleteTitle: "Delete filter?",
+    filterFormConfirmDeleteBody: "Filter \"{name}\" will be deleted including match history.",
+    filterFormErrName: "Enter a filter name.",
+    filterFormErrSave: "Save failed.",
+    filterFormNotFound: "Filter not found.",
     deadline: "Due {date}",
     emptyTitle: "No new tenders",
     emptyBody: "When a new tender matches your filters, you'll see it here.",
@@ -886,7 +958,31 @@ const de: Dict = {
     title: "Ausschreibungen",
     counterAll: "Alle Treffer · {count}",
     counterFilter: "{filter} · {count}",
-    filterAll: "Alle",
+    filterAll: "Alle Ausschreibungen",
+    filterPickerTitle: "Filter",
+    filterPickerEmpty: "Noch keine Filter. Erstellen Sie den ersten.",
+    filterAdd: "Neuer Filter",
+    filterFormEditTitle: "Filter bearbeiten",
+    filterFormName: "Name",
+    filterFormNamePlaceholder: "Mein Filter",
+    filterFormKeywords: "Schlüsselwörter",
+    filterFormKeywordsHelp: "Sucht in Titel und Beschreibung. Mehrere Wörter — Treffer wenn eines vorkommt.",
+    filterFormKeywordsPlaceholder: "Schlüsselwort hinzufügen…",
+    filterFormRegions: "Regionen",
+    filterFormValueRange: "Geschätzter Wert (CZK)",
+    filterFormMinPlaceholder: "Von",
+    filterFormMaxPlaceholder: "Bis",
+    filterFormEmailDigest: "Tägliche E-Mail mit neuen Treffern",
+    filterFormEmailDigestHelp: "Einmal täglich erhalten Sie eine E-Mail mit Ausschreibungen aus diesem Filter.",
+    filterFormSave: "Speichern",
+    filterFormSaving: "Speichere…",
+    filterFormDelete: "Filter löschen",
+    filterFormDeleting: "Lösche…",
+    filterFormConfirmDeleteTitle: "Filter löschen?",
+    filterFormConfirmDeleteBody: "Filter „{name}\" wird einschließlich Treffer-Historie gelöscht.",
+    filterFormErrName: "Filtername eingeben.",
+    filterFormErrSave: "Speichern fehlgeschlagen.",
+    filterFormNotFound: "Filter nicht gefunden.",
     deadline: "Frist {date}",
     emptyTitle: "Keine neuen Ausschreibungen",
     emptyBody:

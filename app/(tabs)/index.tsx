@@ -3,7 +3,6 @@ import {
   FlatList,
   Pressable,
   RefreshControl,
-  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -12,6 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
 import { endpoints, type LeadMatchRow } from "@/lib/endpoints";
+import FilterPicker from "@/components/FilterPicker";
 import { useTheme } from "@/lib/theme-context";
 import { useI18n } from "@/lib/i18n";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
@@ -59,33 +59,18 @@ export default function MatchesScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
       <View style={styles.header}>
-        <Text style={styles.title}>{t("matches", "title")}</Text>
+        <View style={styles.headerTop}>
+          <Text style={styles.title}>{t("matches", "title")}</Text>
+          <FilterPicker
+            filters={filters}
+            activeId={activeFilterId}
+            onPick={setActiveFilterId}
+            onAdd={() => router.push("/filter/new")}
+            onEdit={(fid) => router.push({ pathname: "/filter/[id]", params: { id: fid } })}
+          />
+        </View>
         <Text style={styles.subtitle}>{headerLabel}</Text>
       </View>
-
-      {filters.length > 0 && (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.chipsRow}
-        >
-          <FilterChip
-            styles={styles}
-            label={t("matches", "filterAll")}
-            active={activeFilterId === null}
-            onPress={() => setActiveFilterId(null)}
-          />
-          {filters.map((f) => (
-            <FilterChip
-              key={f.id}
-              styles={styles}
-              label={f.name}
-              active={activeFilterId === f.id}
-              onPress={() => setActiveFilterId(f.id)}
-            />
-          ))}
-        </ScrollView>
-      )}
 
       <FlatList
         data={matches}
@@ -127,33 +112,6 @@ export default function MatchesScreen() {
         }
       />
     </SafeAreaView>
-  );
-}
-
-function FilterChip({
-  styles,
-  label,
-  active,
-  onPress,
-}: {
-  styles: ReturnType<typeof makeStyles>;
-  label: string;
-  active: boolean;
-  onPress: () => void;
-}) {
-  return (
-    <Pressable
-      onPress={onPress}
-      style={({ pressed }) => [
-        styles.chip,
-        active && styles.chipActive,
-        pressed && { opacity: 0.7 },
-      ]}
-    >
-      <Text style={[styles.chipText, active && styles.chipTextActive]} numberOfLines={1}>
-        {label}
-      </Text>
-    </Pressable>
   );
 }
 
@@ -230,25 +188,9 @@ const makeStyles = (colors: Colors) =>
   StyleSheet.create({
     safe: { flex: 1, backgroundColor: colors.bg },
     header: { paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.md },
-    title: { fontSize: fontSize.xxl, fontWeight: "700", color: colors.text, letterSpacing: -0.5 },
+    headerTop: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: spacing.sm },
+    title: { fontSize: fontSize.xxl, fontWeight: "700", color: colors.text, letterSpacing: -0.5, flexShrink: 1 },
     subtitle: { fontSize: fontSize.sm, color: colors.textSubtle, marginTop: spacing.xs },
-    chipsRow: {
-      paddingHorizontal: spacing.xl,
-      paddingBottom: spacing.md,
-    },
-    chip: {
-      paddingHorizontal: spacing.md,
-      paddingVertical: spacing.sm,
-      borderRadius: radius.full,
-      borderWidth: 1,
-      borderColor: colors.border,
-      backgroundColor: colors.card,
-      maxWidth: 200,
-      marginRight: spacing.sm,
-    },
-    chipActive: { backgroundColor: colors.accent, borderColor: colors.accent },
-    chipText: { fontSize: fontSize.xs, color: colors.textSubtle, fontWeight: "500" },
-    chipTextActive: { color: colors.accentForeground },
     list: { padding: spacing.xl, paddingTop: spacing.sm, paddingBottom: 100, flexGrow: 1 },
     card: {
       backgroundColor: colors.card,
