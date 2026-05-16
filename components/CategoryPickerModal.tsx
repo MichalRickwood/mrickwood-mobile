@@ -50,6 +50,19 @@ export default function CategoryPickerModal({ visible, initial, onClose, onApply
     }));
   }, [taxonomy.data]);
 
+  function toggleArea(areaTagIds: string[]) {
+    const allSelected = areaTagIds.every((id) => selected.includes(id));
+    if (allSelected) {
+      setSelected((prev) => prev.filter((x) => !areaTagIds.includes(x)));
+    } else {
+      setSelected((prev) => {
+        const set = new Set(prev);
+        for (const id of areaTagIds) set.add(id);
+        return Array.from(set);
+      });
+    }
+  }
+
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={onClose}>
@@ -61,29 +74,57 @@ export default function CategoryPickerModal({ visible, initial, onClose, onApply
                 <ActivityIndicator color={colors.textSubtle} />
               </View>
             ) : (
-              grouped.map((g) => (
-                <View key={g.area.id} style={styles.areaBlock}>
-                  <Text style={styles.areaHeader}>
-                    {g.area.icon} {g.area.label}
-                  </Text>
-                  <View style={styles.tagGrid}>
-                    {g.tags.map((tag) => {
-                      const active = selected.includes(tag.id);
-                      return (
-                        <Pressable
-                          key={tag.id}
-                          onPress={() => toggle(tag.id)}
-                          style={[styles.tag, active && styles.tagActive]}
-                        >
-                          <Text style={[styles.tagText, active && styles.tagTextActive]}>
-                            {tag.label}
-                          </Text>
-                        </Pressable>
-                      );
-                    })}
+              grouped.map((g) => {
+                const tagIds = g.tags.map((t) => t.id);
+                const selectedInArea = tagIds.filter((id) => selected.includes(id)).length;
+                const allSelected = selectedInArea === tagIds.length && tagIds.length > 0;
+                const someSelected = selectedInArea > 0 && !allSelected;
+                return (
+                  <View key={g.area.id} style={styles.areaBlock}>
+                    <Pressable
+                      onPress={() => toggleArea(tagIds)}
+                      style={({ pressed }) => [
+                        styles.areaCard,
+                        allSelected && styles.areaCardActive,
+                        someSelected && styles.areaCardPartial,
+                        pressed && { opacity: 0.7 },
+                      ]}
+                    >
+                      <Text style={[styles.areaIcon, allSelected && styles.areaIconActive]}>
+                        {g.area.icon}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.areaLabel,
+                          allSelected && styles.areaLabelActive,
+                        ]}
+                      >
+                        {g.area.label}
+                        {selectedInArea > 0 ? ` (${selectedInArea}/${tagIds.length})` : ""}
+                      </Text>
+                      <Text style={[styles.areaCheck, allSelected && styles.areaCheckActive]}>
+                        {allSelected ? "✓" : someSelected ? "−" : ""}
+                      </Text>
+                    </Pressable>
+                    <View style={styles.tagGrid}>
+                      {g.tags.map((tag) => {
+                        const active = selected.includes(tag.id);
+                        return (
+                          <Pressable
+                            key={tag.id}
+                            onPress={() => toggle(tag.id)}
+                            style={[styles.tag, active && styles.tagActive]}
+                          >
+                            <Text style={[styles.tagText, active && styles.tagTextActive]}>
+                              {tag.label}
+                            </Text>
+                          </Pressable>
+                        );
+                      })}
+                    </View>
                   </View>
-                </View>
-              ))
+                );
+              })
             )}
           </ScrollView>
           <View style={styles.actions}>
@@ -141,12 +182,26 @@ const makeStyles = (colors: Colors) =>
     body: { maxHeight: 500 },
     loader: { paddingVertical: spacing.xxl, alignItems: "center" },
     areaBlock: { marginBottom: spacing.lg },
-    areaHeader: {
-      fontSize: fontSize.sm,
-      fontWeight: "600",
-      color: colors.text,
+    areaCard: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: spacing.sm,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm + 2,
+      borderRadius: radius.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.bg,
       marginBottom: spacing.sm,
     },
+    areaCardActive: { backgroundColor: colors.accent, borderColor: colors.accent },
+    areaCardPartial: { borderColor: colors.text },
+    areaIcon: { fontSize: 18 },
+    areaIconActive: { opacity: 1 },
+    areaLabel: { flex: 1, fontSize: fontSize.sm, color: colors.text, fontWeight: "600" },
+    areaLabelActive: { color: colors.accentForeground },
+    areaCheck: { fontSize: 16, color: colors.text, fontWeight: "700" },
+    areaCheckActive: { color: colors.accentForeground },
     tagGrid: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
     tag: {
       paddingHorizontal: spacing.md,
