@@ -67,7 +67,7 @@ export default function CategoryPickerModal({ visible, initial, onClose, onApply
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={onClose}>
         <Pressable style={styles.card} onPress={(e) => e.stopPropagation()}>
-          <Text style={styles.title}>Kategorie</Text>
+          <Text style={styles.title}>{t("filters", "categoryTitle")}</Text>
           <ScrollView style={styles.body} showsVerticalScrollIndicator={false}>
             {taxonomy.isLoading ? (
               <View style={styles.loader}>

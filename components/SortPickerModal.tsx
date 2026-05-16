@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme-context";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 
@@ -19,21 +20,21 @@ interface Props {
   onPick: (sort: SortKey) => void;
 }
 
-const OPTIONS: Array<{ key: SortKey; label: string }> = [
-  { key: "newest", label: "Nejnovější" },
-  { key: "deadline", label: "Nejbližší lhůta" },
-  { key: "value", label: "Nejvyšší cena" },
-];
-
 export default function SortPickerModal({ visible, value, onClose, onPick }: Props) {
   const { colors } = useTheme();
+  const { t } = useI18n();
   const styles = useMemo(() => makeStyles(colors), [colors]);
+  const options: Array<{ key: SortKey; label: string }> = [
+    { key: "newest", label: t("filters", "sortNewest") },
+    { key: "deadline", label: t("filters", "sortDeadline") },
+    { key: "value", label: t("filters", "sortValue") },
+  ];
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={onClose}>
         <Pressable style={styles.card} onPress={(e) => e.stopPropagation()}>
-          <Text style={styles.title}>Řazení</Text>
-          {OPTIONS.map((opt) => {
+          <Text style={styles.title}>{t("filters", "sortTitle")}</Text>
+          {options.map((opt) => {
             const active = opt.key === value;
             return (
               <Pressable

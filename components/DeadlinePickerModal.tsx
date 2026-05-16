@@ -110,21 +110,22 @@ export default function DeadlinePickerModal({
   }, [from, to, colors]);
 
   const rangeText = useMemo(() => {
-    if (!from && !to) return "Vyberte rozsah dnů";
+    if (!from && !to) return t("filters", "deadlineSelectRange");
     const fmt = (iso: string) => {
       const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})$/);
       return m ? `${m[3]}.${m[2]}.${m[1]}` : iso;
     };
-    if (from && to) return `${fmt(from)} – ${fmt(to)}`;
-    if (from) return `Od ${fmt(from)} (zvolte konec)`;
-    return `Do ${fmt(to!)}`;
-  }, [from, to]);
+    if (from && to)
+      return t("filters", "deadlineSelected", { from: fmt(from), to: fmt(to) });
+    if (from) return t("filters", "deadlineSelectEnd", { date: fmt(from) });
+    return t("filters", "deadlineSelectStart", { date: fmt(to!) });
+  }, [from, to, t]);
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={onClose}>
         <Pressable style={styles.card} onPress={(e) => e.stopPropagation()}>
-          <Text style={styles.title}>Lhůta podání</Text>
+          <Text style={styles.title}>{t("filters", "deadlineTitle")}</Text>
           <Text style={styles.range}>{rangeText}</Text>
           <Calendar
             current={from ?? to ?? undefined}

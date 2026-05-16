@@ -12,6 +12,7 @@ import { useRouter } from "expo-router";
 import { endpoints } from "@/lib/endpoints";
 import { ApiError } from "@/lib/api";
 import { useTheme } from "@/lib/theme-context";
+import { useI18n } from "@/lib/i18n";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 
 /**
@@ -22,6 +23,7 @@ import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 export default function LeadsPaywall() {
   const router = useRouter();
   const { colors } = useTheme();
+  const { t } = useI18n();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const qc = useQueryClient();
 
@@ -61,7 +63,7 @@ export default function LeadsPaywall() {
         <Text style={styles.errorText}>
           {status.error instanceof Error
             ? status.error.message
-            : "Nepodařilo se načíst stav služby."}
+            : t("filters", "paywallStatusError")}
         </Text>
       </View>
     );
@@ -95,19 +97,18 @@ export default function LeadsPaywall() {
       <View style={styles.icon}>
         <Text style={styles.iconText}>🔒</Text>
       </View>
-      <Text style={styles.title}>Aktivuj službu Veřejné zakázky</Text>
+      <Text style={styles.title}>{t("filters", "paywallTitle")}</Text>
 
       {data.canActivateTrial ? (
         <>
           <Text style={styles.body}>
-            Spusť si {data.trialDays}denní zkušební období zdarma. Plný přístup
-            ke všem zakázkám, filtrům a notifikacím.
+            {t("filters", "paywallTrialBody", { days: String(data.trialDays) })}
           </Text>
           {activate.isError && (
             <Text style={styles.errorBox}>
               {activate.error instanceof ApiError
                 ? activate.error.message
-                : "Aktivace selhala."}
+                : t("filters", "paywallActivateFailed")}
             </Text>
           )}
           <Pressable
@@ -123,7 +124,7 @@ export default function LeadsPaywall() {
               <ActivityIndicator color={colors.accentForeground} />
             ) : (
               <Text style={styles.btnPrimaryText}>
-                Aktivovat {data.trialDays}denní trial zdarma
+                {t("filters", "paywallTrialBtn", { days: String(data.trialDays) })}
               </Text>
             )}
           </Pressable>
@@ -131,15 +132,15 @@ export default function LeadsPaywall() {
       ) : canReactivate ? (
         <>
           <Text style={styles.body}>
-            {trialStillValid
-              ? `Trial máš ještě platný do ${formatDate(data.trialEndsAt!)}. Obnov přístup jedním klepnutím.`
-              : `Předplatné je platné do ${formatDate(data.paidUntil!)}. Obnov přístup jedním klepnutím.`}
+            {t("filters", "paywallReactivateBody", {
+              date: formatDate(trialStillValid ? data.trialEndsAt! : data.paidUntil!),
+            })}
           </Text>
           {reactivate.isError && (
             <Text style={styles.errorBox}>
               {reactivate.error instanceof ApiError
                 ? reactivate.error.message
-                : "Reaktivace selhala."}
+                : t("filters", "paywallReactivateFailed")}
             </Text>
           )}
           <Pressable
@@ -154,7 +155,7 @@ export default function LeadsPaywall() {
             {reactivate.isPending ? (
               <ActivityIndicator color={colors.accentForeground} />
             ) : (
-              <Text style={styles.btnPrimaryText}>Reaktivovat službu</Text>
+              <Text style={styles.btnPrimaryText}>{t("filters", "paywallReactivateBtn")}</Text>
             )}
           </Pressable>
         </>
@@ -162,25 +163,25 @@ export default function LeadsPaywall() {
         <>
           <Text style={styles.body}>
             {data.state === "TRIAL" && !data.isActive
-              ? "Tvůj trial skončil. Aktivuj plné předplatné a pokračuj v práci se zakázkami."
+              ? t("filters", "paywallExpiredTrial")
               : data.state === "SUSPENDED"
-                ? "Tvé předplatné je pozastaveno. Obnov platbu pro plný přístup."
+                ? t("filters", "paywallSuspended")
                 : data.state === "CANCELED"
-                  ? "Předplatné bylo zrušeno. Aktivuj znovu pro přístup."
-                  : "Pro plný přístup je potřeba aktivovat předplatné."}
+                  ? t("filters", "paywallCanceled")
+                  : t("filters", "paywallNoSubscription")}
           </Text>
           <Pressable
             onPress={() => router.push("/(tabs)/settings/billing")}
             style={({ pressed }) => [styles.btnPrimary, pressed && { opacity: 0.85 }]}
           >
-            <Text style={styles.btnPrimaryText}>Přejít na předplatné</Text>
+            <Text style={styles.btnPrimaryText}>
+              {t("filters", "paywallGoToBillingBtn")}
+            </Text>
           </Pressable>
         </>
       )}
 
-      <Text style={styles.fineprint}>
-        Kdykoli můžeš spravovat předplatné v Nastavení → Předplatné.
-      </Text>
+      <Text style={styles.fineprint}>{t("filters", "paywallFineprint")}</Text>
     </ScrollView>
   );
 }

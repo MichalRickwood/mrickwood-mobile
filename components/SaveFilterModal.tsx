@@ -57,7 +57,7 @@ export default function SaveFilterModal({ visible, adHoc, onClose, onSaved }: Pr
       onClose();
     },
     onError: (err) => {
-      setError(err instanceof ApiError ? err.message : "Uložení selhalo.");
+      setError(err instanceof ApiError ? err.message : t("filters", "saveErrFailed"));
     },
   });
 
@@ -65,7 +65,7 @@ export default function SaveFilterModal({ visible, adHoc, onClose, onSaved }: Pr
     setError(null);
     const trimmed = name.trim();
     if (trimmed.length < 2) {
-      setError("Zadejte název filtru (alespoň 2 znaky).");
+      setError(t("filters", "saveErrName"));
       return;
     }
     create.mutate({
@@ -93,11 +93,11 @@ export default function SaveFilterModal({ visible, adHoc, onClose, onSaved }: Pr
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={onClose}>
         <Pressable style={styles.card} onPress={(e) => e.stopPropagation()}>
-          <Text style={styles.title}>Uložit jako filtr</Text>
+          <Text style={styles.title}>{t("filters", "saveTitle")}</Text>
           <TextInput
             value={name}
             onChangeText={setName}
-            placeholder="Název filtru (např. Stavby Praha)"
+            placeholder={t("filters", "saveNamePlaceholder")}
             placeholderTextColor={colors.textFaint}
             style={styles.input}
             autoFocus
@@ -106,12 +106,16 @@ export default function SaveFilterModal({ visible, adHoc, onClose, onSaved }: Pr
           />
           <ScrollView style={styles.summary} showsVerticalScrollIndicator={false}>
             {adHoc.regions.length > 0 && (
-              <SummaryRow styles={styles} label="Regiony" value={regionLabels} />
+              <SummaryRow
+                styles={styles}
+                label={t("filters", "saveSummaryRegions")}
+                value={regionLabels}
+              />
             )}
             {(adHoc.minValue != null || adHoc.maxValue != null) && (
               <SummaryRow
                 styles={styles}
-                label="Hodnota"
+                label={t("filters", "saveSummaryValue")}
                 value={`${adHoc.minValue ? `od ${formatMoney(adHoc.minValue)}` : ""}${
                   adHoc.minValue && adHoc.maxValue ? " " : ""
                 }${adHoc.maxValue ? `do ${formatMoney(adHoc.maxValue)}` : ""} Kč`}
@@ -120,21 +124,21 @@ export default function SaveFilterModal({ visible, adHoc, onClose, onSaved }: Pr
             {adHoc.industryTags.length > 0 && (
               <SummaryRow
                 styles={styles}
-                label="Kategorie"
+                label={t("filters", "saveSummaryCategory")}
                 value={`${adHoc.industryTags.length} tagů`}
               />
             )}
             {adHoc.cpvPrefixes.length > 0 && (
               <SummaryRow
                 styles={styles}
-                label="CPV"
+                label={t("filters", "saveSummaryCpv")}
                 value={adHoc.cpvPrefixes.join(", ")}
               />
             )}
             {hasDeadline && (
               <View style={styles.warnBox}>
                 <Text style={styles.warnText}>
-                  ⚠ Lhůta podání se neuloží — je jen pro dočasný filtr.
+                  {t("filters", "saveWarnDeadlineLost")}
                 </Text>
               </View>
             )}
@@ -152,7 +156,7 @@ export default function SaveFilterModal({ visible, adHoc, onClose, onSaved }: Pr
               disabled={create.isPending}
               style={styles.cancelBtn}
             >
-              <Text style={styles.cancelBtnText}>Zrušit</Text>
+              <Text style={styles.cancelBtnText}>{t("filters", "saveCancel")}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={submit}
@@ -162,7 +166,7 @@ export default function SaveFilterModal({ visible, adHoc, onClose, onSaved }: Pr
               {create.isPending ? (
                 <ActivityIndicator color={colors.accentForeground} size="small" />
               ) : (
-                <Text style={styles.saveBtnText}>Uložit</Text>
+                <Text style={styles.saveBtnText}>{t("filters", "saveSubmit")}</Text>
               )}
             </TouchableOpacity>
           </View>

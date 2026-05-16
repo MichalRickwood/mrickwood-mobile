@@ -134,12 +134,12 @@ export default function CpvPickerModal({ visible, initial, onClose, onApply }: P
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={onClose}>
         <Pressable style={styles.card} onPress={(e) => e.stopPropagation()}>
-          <Text style={styles.title}>CPV kódy</Text>
+          <Text style={styles.title}>{t("filters", "cpvTitle")}</Text>
 
           <TextInput
             value={query}
             onChangeText={setQuery}
-            placeholder="Hledat (kód nebo název)…"
+            placeholder={t("filters", "cpvSearchPlaceholder")}
             placeholderTextColor={colors.textFaint}
             style={styles.search}
             autoCapitalize="none"
@@ -154,7 +154,7 @@ export default function CpvPickerModal({ visible, initial, onClose, onApply }: P
                 style={({ pressed }) => [styles.pathRow, pressed && { opacity: 0.6 }]}
               >
                 <Text style={styles.pathArrow}>↑</Text>
-                <Text style={styles.pathText}>Vše</Text>
+                <Text style={styles.pathText}>{t("filters", "cpvAll")}</Text>
               </Pressable>
               {parentStack.slice(0, -1).map((p, idx) => {
                 const entry = byPrefix.get(p);
@@ -219,7 +219,7 @@ export default function CpvPickerModal({ visible, initial, onClose, onApply }: P
               </View>
             ) : listEntries.length === 0 ? (
               <Text style={styles.empty}>
-                {query ? "Nic nenalezeno" : "Žádné podkategorie"}
+                {query ? t("filters", "cpvNoResults") : t("filters", "cpvEmpty")}
               </Text>
             ) : (
               listEntries.map((e) => {
@@ -248,7 +248,7 @@ export default function CpvPickerModal({ visible, initial, onClose, onApply }: P
                           {e.label}
                         </Text>
                         <Text style={styles.entryMeta}>
-                          {e.prefix} · {LEVEL_LABEL[e.level]}
+                          {e.prefix} · {levelLabel(e.level, t)}
                         </Text>
                       </View>
                       {hasChildren && <Text style={styles.entryArrow}>›</Text>}
@@ -285,13 +285,16 @@ export default function CpvPickerModal({ visible, initial, onClose, onApply }: P
   );
 }
 
-const LEVEL_LABEL: Record<CpvEntry["level"], string> = {
-  oddil: "Oddíl",
-  skupina: "Skupina",
-  trida: "Třída",
-  kategorie: "Kategorie",
-  podkategorie: "Podkategorie",
-};
+function levelLabel(
+  level: CpvEntry["level"],
+  t: ReturnType<typeof useI18n>["t"],
+): string {
+  if (level === "oddil") return t("filters", "cpvLevelOddil");
+  if (level === "skupina") return t("filters", "cpvLevelSkupina");
+  if (level === "trida") return t("filters", "cpvLevelTrida");
+  if (level === "kategorie") return t("filters", "cpvLevelKategorie");
+  return t("filters", "cpvLevelPodkategorie");
+}
 
 const makeStyles = (colors: Colors) =>
   StyleSheet.create({

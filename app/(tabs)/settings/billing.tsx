@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 import * as Linking from "expo-linking";
+import { useQueryClient } from "@tanstack/react-query";
 import { ApiError } from "@/lib/api";
 import {
   endpoints,
@@ -58,6 +59,7 @@ export default function BillingScreen() {
   >(null);
   const [openingInvoiceId, setOpeningInvoiceId] = useState<string | null>(null);
   const [serviceBusy, setServiceBusy] = useState<ApiServiceId | null>(null);
+  const qc = useQueryClient();
   const [manualMode, setManualMode] = useState(false);
   const profileSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -307,6 +309,38 @@ export default function BillingScreen() {
     } finally {
       setServiceBusy(null);
     }
+  }
+
+  async function deactivateService(svc: BillingServiceRow) {
+    if (svc.service !== "LEADS") return; // zatím jen LEADS má mobile deact endpoint
+    Alert.alert(
+      t("settings", "billingServiceDeactivateConfirmTitle"),
+      t("settings", "billingServiceDeactivateConfirmBody"),
+      [
+        {
+          text: t("settings", "billingServiceDeactivateCancel"),
+          style: "cancel",
+        },
+        {
+          text: t("settings", "billingServiceDeactivateConfirm"),
+          style: "destructive",
+          onPress: async () => {
+            setServiceBusy(svc.service);
+            setError(null);
+            try {
+              await endpoints.deactivateLeadsService();
+              await refresh();
+              await qc.invalidateQueries({ queryKey: ["service", "leads"] });
+              await qc.invalidateQueries({ queryKey: ["matches"] });
+            } catch (e) {
+              setError(e instanceof ApiError ? e.message : t("settings", "billingSaveFailed"));
+            } finally {
+              setServiceBusy(null);
+            }
+          },
+        },
+      ],
+    );
   }
 
   async function openInvoicePdf(invoiceId: string, invoiceNumber: string) {
@@ -629,6 +663,7 @@ export default function BillingScreen() {
                   dateLocale={dateLocale}
                   busy={serviceBusy === svc.service}
                   onToggle={() => void toggleService(svc)}
+                  onDeactivate={() => void deactivateService(svc)}
                 />
               ))
             )}
@@ -813,6 +848,7 @@ function ServiceRow({
   dateLocale,
   busy,
   onToggle,
+  onDeactivate,
 }: {
   styles: ReturnType<typeof makeStyles>;
   service: BillingServiceRow;
@@ -820,7 +856,9 @@ function ServiceRow({
   dateLocale: string;
   busy: boolean;
   onToggle: () => void;
+  onDeactivate: () => void;
 }) {
+  const canDeactivate = service.service === "LEADS" && service.state !== "CANCELED";
   return (
     <View style={styles.serviceRow}>
       <View style={styles.serviceText}>
@@ -833,27 +871,44 @@ function ServiceRow({
               : stateLabel(service.state, t)}
         </Text>
       </View>
-      {service.tier === "PAID" && service.state === "ACTIVE" && (
-        <Pressable
-          onPress={onToggle}
-          disabled={busy}
-          style={({ pressed }) => [
-            service.cancelAtPeriodEnd ? styles.secondaryBtn : styles.warnBtn,
-            pressed && styles.btnPressed,
-            busy && styles.btnDisabled,
-          ]}
-        >
-          <Text
-            style={
-              service.cancelAtPeriodEnd ? styles.secondaryBtnText : styles.warnBtnText
-            }
+      <View style={{ flexDirection: "row", gap: spacing.xs }}>
+        {service.tier === "PAID" && service.state === "ACTIVE" && (
+          <Pressable
+            onPress={onToggle}
+            disabled={busy}
+            style={({ pressed }) => [
+              service.cancelAtPeriodEnd ? styles.secondaryBtn : styles.warnBtn,
+              pressed && styles.btnPressed,
+              busy && styles.btnDisabled,
+            ]}
           >
-            {service.cancelAtPeriodEnd
-              ? t("settings", "billingServiceReactivate")
-              : t("settings", "billingServiceCancel")}
-          </Text>
-        </Pressable>
-      )}
+            <Text
+              style={
+                service.cancelAtPeriodEnd ? styles.secondaryBtnText : styles.warnBtnText
+              }
+            >
+              {service.cancelAtPeriodEnd
+                ? t("settings", "billingServiceReactivate")
+                : t("settings", "billingServiceCancel")}
+            </Text>
+          </Pressable>
+        )}
+        {canDeactivate && (
+          <Pressable
+            onPress={onDeactivate}
+            disabled={busy}
+            style={({ pressed }) => [
+              styles.warnBtn,
+              pressed && styles.btnPressed,
+              busy && styles.btnDisabled,
+            ]}
+          >
+            <Text style={styles.warnBtnText}>
+              {t("settings", "billingServiceDeactivate")}
+            </Text>
+          </Pressable>
+        )}
+      </View>
     </View>
   );
 }

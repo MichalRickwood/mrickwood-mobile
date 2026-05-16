@@ -253,6 +253,11 @@ export interface Dict {
     billingServiceCancel: string;
     billingServiceReactivate: string;
     billingServiceCanceled: string;
+    billingServiceDeactivate: string;
+    billingServiceDeactivateConfirmTitle: string;
+    billingServiceDeactivateConfirmBody: string;
+    billingServiceDeactivateCancel: string;
+    billingServiceDeactivateConfirm: string;
     billingServiceTrialEnds: string;
     billingServicePaidUntil: string;
     billingCheckoutOpening: string;
@@ -329,6 +334,68 @@ export interface Dict {
     thanksAgain: string;
     attachmentsAdd: string;
     attachmentsTooBig: string;
+  };
+  filters: {
+    chipRegion: string;
+    chipRegionsN: string;
+    chipPrice: string;
+    chipPriceFrom: string;
+    chipPriceTo: string;
+    chipDeadline: string;
+    chipDeadlineFrom: string;
+    chipDeadlineTo: string;
+    chipCategory: string;
+    chipCategoryN: string;
+    chipCpv: string;
+    chipCpvN: string;
+    chipSave: string;
+    sortTitle: string;
+    sortNewest: string;
+    sortDeadline: string;
+    sortValue: string;
+    deadlineTitle: string;
+    deadlineFromLabel: string;
+    deadlineToLabel: string;
+    deadlineSelectRange: string;
+    deadlineSelectEnd: string;
+    deadlineSelectStart: string;
+    deadlineSelected: string;
+    categoryTitle: string;
+    cpvTitle: string;
+    cpvSearchPlaceholder: string;
+    cpvAll: string;
+    cpvLevelOddil: string;
+    cpvLevelSkupina: string;
+    cpvLevelTrida: string;
+    cpvLevelKategorie: string;
+    cpvLevelPodkategorie: string;
+    cpvNoResults: string;
+    cpvEmpty: string;
+    saveTitle: string;
+    saveNamePlaceholder: string;
+    saveSummaryRegions: string;
+    saveSummaryValue: string;
+    saveSummaryCategory: string;
+    saveSummaryCpv: string;
+    saveWarnDeadlineLost: string;
+    saveErrName: string;
+    saveErrFailed: string;
+    saveCancel: string;
+    saveSubmit: string;
+    paywallTitle: string;
+    paywallTrialBody: string;
+    paywallTrialBtn: string;
+    paywallReactivateBody: string;
+    paywallReactivateBtn: string;
+    paywallExpiredTrial: string;
+    paywallSuspended: string;
+    paywallCanceled: string;
+    paywallNoSubscription: string;
+    paywallGoToBillingBtn: string;
+    paywallActivateFailed: string;
+    paywallReactivateFailed: string;
+    paywallFineprint: string;
+    paywallStatusError: string;
   };
   oauth: {
     divider: string;
@@ -587,6 +654,11 @@ const cs: Dict = {
     billingServiceCancel: "Ukončit automatickou obnovu",
     billingServiceReactivate: "Obnovit automatickou obnovu",
     billingServiceCanceled: "Auto-obnova vypnuta",
+    billingServiceDeactivate: "Deaktivovat",
+    billingServiceDeactivateConfirmTitle: "Deaktivovat službu?",
+    billingServiceDeactivateConfirmBody: "Okamžitě ztratíš přístup k zakázkám a notifikacím. Pokud trial nebo období ještě běží, můžeš ji kdykoli reaktivovat.",
+    billingServiceDeactivateCancel: "Zrušit",
+    billingServiceDeactivateConfirm: "Deaktivovat",
     billingServiceTrialEnds: "Trial do {date}",
     billingServicePaidUntil: "Předplaceno do {date}",
     billingCheckoutOpening: "Otevírám zabezpečenou platbu Stripe…",
@@ -663,6 +735,68 @@ const cs: Dict = {
     thanksAgain: "Poslat další",
     attachmentsAdd: "+ Přidat screenshot ({current}/{max})",
     attachmentsTooBig: "Příloha přesahuje 5 MB.",
+  },
+  filters: {
+    chipRegion: "Region",
+    chipRegionsN: "Regiony ({count})",
+    chipPrice: "Cena",
+    chipPriceFrom: "od {value}",
+    chipPriceTo: "do {value}",
+    chipDeadline: "Lhůta",
+    chipDeadlineFrom: "od {date}",
+    chipDeadlineTo: "do {date}",
+    chipCategory: "Kategorie",
+    chipCategoryN: "Kategorie ({count})",
+    chipCpv: "CPV",
+    chipCpvN: "CPV ({count})",
+    chipSave: "＋ Uložit",
+    sortTitle: "Řazení",
+    sortNewest: "Nejnovější",
+    sortDeadline: "Nejbližší lhůta",
+    sortValue: "Nejvyšší cena",
+    deadlineTitle: "Lhůta podání",
+    deadlineFromLabel: "Od",
+    deadlineToLabel: "Do",
+    deadlineSelectRange: "Vyberte rozsah dnů",
+    deadlineSelectEnd: "Od {date} (zvolte konec)",
+    deadlineSelectStart: "Do {date}",
+    deadlineSelected: "{from} – {to}",
+    categoryTitle: "Kategorie",
+    cpvTitle: "CPV kódy",
+    cpvSearchPlaceholder: "Hledat (kód nebo název)…",
+    cpvAll: "Vše",
+    cpvLevelOddil: "Oddíl",
+    cpvLevelSkupina: "Skupina",
+    cpvLevelTrida: "Třída",
+    cpvLevelKategorie: "Kategorie",
+    cpvLevelPodkategorie: "Podkategorie",
+    cpvNoResults: "Nic nenalezeno",
+    cpvEmpty: "Žádné podkategorie",
+    saveTitle: "Uložit jako filtr",
+    saveNamePlaceholder: "Název filtru (např. Stavby Praha)",
+    saveSummaryRegions: "Regiony",
+    saveSummaryValue: "Hodnota",
+    saveSummaryCategory: "Kategorie",
+    saveSummaryCpv: "CPV",
+    saveWarnDeadlineLost: "⚠ Lhůta podání se neuloží — je jen pro dočasný filtr.",
+    saveErrName: "Zadejte název filtru (alespoň 2 znaky).",
+    saveErrFailed: "Uložení selhalo.",
+    saveCancel: "Zrušit",
+    saveSubmit: "Uložit",
+    paywallTitle: "Aktivuj službu Veřejné zakázky",
+    paywallTrialBody: "Spusť si {days}denní zkušební období zdarma. Plný přístup ke všem zakázkám, filtrům a notifikacím.",
+    paywallTrialBtn: "Aktivovat {days}denní trial zdarma",
+    paywallReactivateBody: "Trial máš ještě platný do {date}. Obnov přístup jedním klepnutím.",
+    paywallReactivateBtn: "Reaktivovat službu",
+    paywallExpiredTrial: "Tvůj trial skončil. Aktivuj plné předplatné a pokračuj v práci se zakázkami.",
+    paywallSuspended: "Tvé předplatné je pozastaveno. Obnov platbu pro plný přístup.",
+    paywallCanceled: "Předplatné bylo zrušeno. Aktivuj znovu pro přístup.",
+    paywallNoSubscription: "Pro plný přístup je potřeba aktivovat předplatné.",
+    paywallGoToBillingBtn: "Přejít na předplatné",
+    paywallActivateFailed: "Aktivace selhala.",
+    paywallReactivateFailed: "Reaktivace selhala.",
+    paywallFineprint: "Kdykoli můžeš spravovat předplatné v Nastavení → Předplatné.",
+    paywallStatusError: "Nepodařilo se načíst stav služby.",
   },
   oauth: {
     divider: "nebo",
@@ -916,6 +1050,11 @@ const en: Dict = {
     billingServiceCancel: "Cancel auto-renewal",
     billingServiceReactivate: "Resume auto-renewal",
     billingServiceCanceled: "Auto-renewal off",
+    billingServiceDeactivate: "Deactivate",
+    billingServiceDeactivateConfirmTitle: "Deactivate service?",
+    billingServiceDeactivateConfirmBody: "You will immediately lose access to tenders and notifications. If your trial or paid period is still running, you can reactivate any time.",
+    billingServiceDeactivateCancel: "Cancel",
+    billingServiceDeactivateConfirm: "Deactivate",
     billingServiceTrialEnds: "Trial until {date}",
     billingServicePaidUntil: "Paid until {date}",
     billingCheckoutOpening: "Opening Stripe secure checkout…",
@@ -992,6 +1131,68 @@ const en: Dict = {
     thanksAgain: "Send another",
     attachmentsAdd: "+ Add screenshot ({current}/{max})",
     attachmentsTooBig: "Attachment exceeds 5 MB.",
+  },
+  filters: {
+    chipRegion: "Region",
+    chipRegionsN: "Regions ({count})",
+    chipPrice: "Price",
+    chipPriceFrom: "from {value}",
+    chipPriceTo: "up to {value}",
+    chipDeadline: "Deadline",
+    chipDeadlineFrom: "from {date}",
+    chipDeadlineTo: "until {date}",
+    chipCategory: "Category",
+    chipCategoryN: "Categories ({count})",
+    chipCpv: "CPV",
+    chipCpvN: "CPV ({count})",
+    chipSave: "＋ Save",
+    sortTitle: "Sort by",
+    sortNewest: "Newest",
+    sortDeadline: "Earliest deadline",
+    sortValue: "Highest value",
+    deadlineTitle: "Submission deadline",
+    deadlineFromLabel: "From",
+    deadlineToLabel: "To",
+    deadlineSelectRange: "Select a date range",
+    deadlineSelectEnd: "From {date} (pick end)",
+    deadlineSelectStart: "Until {date}",
+    deadlineSelected: "{from} – {to}",
+    categoryTitle: "Categories",
+    cpvTitle: "CPV codes",
+    cpvSearchPlaceholder: "Search (code or name)…",
+    cpvAll: "All",
+    cpvLevelOddil: "Division",
+    cpvLevelSkupina: "Group",
+    cpvLevelTrida: "Class",
+    cpvLevelKategorie: "Category",
+    cpvLevelPodkategorie: "Subcategory",
+    cpvNoResults: "Nothing found",
+    cpvEmpty: "No subcategories",
+    saveTitle: "Save as filter",
+    saveNamePlaceholder: "Filter name (e.g. Construction Prague)",
+    saveSummaryRegions: "Regions",
+    saveSummaryValue: "Value",
+    saveSummaryCategory: "Categories",
+    saveSummaryCpv: "CPV",
+    saveWarnDeadlineLost: "⚠ Deadline range won't be saved — it's only for temporary filters.",
+    saveErrName: "Enter a filter name (at least 2 characters).",
+    saveErrFailed: "Save failed.",
+    saveCancel: "Cancel",
+    saveSubmit: "Save",
+    paywallTitle: "Activate the Public Tenders service",
+    paywallTrialBody: "Start a {days}-day free trial. Full access to all tenders, filters and notifications.",
+    paywallTrialBtn: "Start {days}-day free trial",
+    paywallReactivateBody: "Your trial is valid until {date}. Restore access with one tap.",
+    paywallReactivateBtn: "Reactivate service",
+    paywallExpiredTrial: "Your trial has ended. Activate a paid subscription to keep working with tenders.",
+    paywallSuspended: "Your subscription is suspended. Renew payment for full access.",
+    paywallCanceled: "Subscription was canceled. Activate again for access.",
+    paywallNoSubscription: "Active subscription required for full access.",
+    paywallGoToBillingBtn: "Go to subscription",
+    paywallActivateFailed: "Activation failed.",
+    paywallReactivateFailed: "Reactivation failed.",
+    paywallFineprint: "You can always manage your subscription in Settings → Subscription.",
+    paywallStatusError: "Failed to load service status.",
   },
   oauth: {
     divider: "or",
@@ -1247,6 +1448,11 @@ const de: Dict = {
     billingServiceCancel: "Automatische Verlängerung beenden",
     billingServiceReactivate: "Automatische Verlängerung fortsetzen",
     billingServiceCanceled: "Auto-Verlängerung aus",
+    billingServiceDeactivate: "Deaktivieren",
+    billingServiceDeactivateConfirmTitle: "Dienst deaktivieren?",
+    billingServiceDeactivateConfirmBody: "Sie verlieren sofort den Zugriff auf Ausschreibungen und Benachrichtigungen. Wenn Ihre Testphase oder bezahlte Periode noch läuft, können Sie jederzeit reaktivieren.",
+    billingServiceDeactivateCancel: "Abbrechen",
+    billingServiceDeactivateConfirm: "Deaktivieren",
     billingServiceTrialEnds: "Testphase bis {date}",
     billingServicePaidUntil: "Bezahlt bis {date}",
     billingCheckoutOpening: "Sicherer Stripe-Checkout wird geöffnet…",
@@ -1323,6 +1529,68 @@ const de: Dict = {
     thanksAgain: "Weitere senden",
     attachmentsAdd: "+ Screenshot hinzufügen ({current}/{max})",
     attachmentsTooBig: "Anhang überschreitet 5 MB.",
+  },
+  filters: {
+    chipRegion: "Region",
+    chipRegionsN: "Regionen ({count})",
+    chipPrice: "Preis",
+    chipPriceFrom: "ab {value}",
+    chipPriceTo: "bis {value}",
+    chipDeadline: "Frist",
+    chipDeadlineFrom: "ab {date}",
+    chipDeadlineTo: "bis {date}",
+    chipCategory: "Kategorie",
+    chipCategoryN: "Kategorien ({count})",
+    chipCpv: "CPV",
+    chipCpvN: "CPV ({count})",
+    chipSave: "＋ Speichern",
+    sortTitle: "Sortierung",
+    sortNewest: "Neueste",
+    sortDeadline: "Nächste Frist",
+    sortValue: "Höchster Wert",
+    deadlineTitle: "Abgabefrist",
+    deadlineFromLabel: "Von",
+    deadlineToLabel: "Bis",
+    deadlineSelectRange: "Datumsbereich wählen",
+    deadlineSelectEnd: "Von {date} (Ende wählen)",
+    deadlineSelectStart: "Bis {date}",
+    deadlineSelected: "{from} – {to}",
+    categoryTitle: "Kategorien",
+    cpvTitle: "CPV-Codes",
+    cpvSearchPlaceholder: "Suchen (Code oder Name)…",
+    cpvAll: "Alle",
+    cpvLevelOddil: "Abteilung",
+    cpvLevelSkupina: "Gruppe",
+    cpvLevelTrida: "Klasse",
+    cpvLevelKategorie: "Kategorie",
+    cpvLevelPodkategorie: "Unterkategorie",
+    cpvNoResults: "Nichts gefunden",
+    cpvEmpty: "Keine Unterkategorien",
+    saveTitle: "Als Filter speichern",
+    saveNamePlaceholder: "Filtername (z. B. Bauten Prag)",
+    saveSummaryRegions: "Regionen",
+    saveSummaryValue: "Wert",
+    saveSummaryCategory: "Kategorien",
+    saveSummaryCpv: "CPV",
+    saveWarnDeadlineLost: "⚠ Abgabefrist wird nicht gespeichert — nur für temporäre Filter.",
+    saveErrName: "Filtername eingeben (mindestens 2 Zeichen).",
+    saveErrFailed: "Speichern fehlgeschlagen.",
+    saveCancel: "Abbrechen",
+    saveSubmit: "Speichern",
+    paywallTitle: "Dienst Öffentliche Ausschreibungen aktivieren",
+    paywallTrialBody: "Starten Sie eine {days}-tägige kostenlose Testphase. Voller Zugriff auf alle Ausschreibungen, Filter und Benachrichtigungen.",
+    paywallTrialBtn: "{days}-Tage Testphase kostenlos starten",
+    paywallReactivateBody: "Ihre Testphase ist gültig bis {date}. Mit einem Tipp wiederherstellen.",
+    paywallReactivateBtn: "Dienst reaktivieren",
+    paywallExpiredTrial: "Ihre Testphase ist beendet. Aktivieren Sie ein bezahltes Abonnement.",
+    paywallSuspended: "Ihr Abonnement ist ausgesetzt. Zahlung erneuern für vollen Zugriff.",
+    paywallCanceled: "Abonnement wurde gekündigt. Erneut aktivieren für Zugriff.",
+    paywallNoSubscription: "Aktives Abonnement erforderlich für vollen Zugriff.",
+    paywallGoToBillingBtn: "Zum Abonnement",
+    paywallActivateFailed: "Aktivierung fehlgeschlagen.",
+    paywallReactivateFailed: "Reaktivierung fehlgeschlagen.",
+    paywallFineprint: "Sie können Ihr Abonnement jederzeit in Einstellungen → Abonnement verwalten.",
+    paywallStatusError: "Dienststatus konnte nicht geladen werden.",
   },
   oauth: {
     divider: "oder",

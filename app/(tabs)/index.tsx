@@ -35,37 +35,42 @@ import { useTheme } from "@/lib/theme-context";
 import { useI18n } from "@/lib/i18n";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 
-function regionChipLabel(codes: string[]): string {
-  if (codes.length === 0) return "Region";
+type FilterT = ReturnType<typeof useI18n>["t"];
+
+function fmtMoney(n: number): string {
+  return n >= 1_000_000
+    ? `${(n / 1_000_000).toFixed(n % 1_000_000 === 0 ? 0 : 1)}M`
+    : n >= 1_000
+      ? `${Math.round(n / 1_000)}k`
+      : String(n);
+}
+
+function fmtIsoShort(iso: string): string {
+  const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  return m ? `${m[3]}.${m[2]}.` : iso;
+}
+
+function regionChipLabel(codes: string[], t: FilterT): string {
+  if (codes.length === 0) return t("filters", "chipRegion");
   if (codes.length === 1) {
     const r = CZ_REGIONS.find((x) => x.code === codes[0]);
-    return r?.labels.cs ?? "Region";
+    return r?.labels.cs ?? t("filters", "chipRegion");
   }
-  return `Regiony (${codes.length})`;
+  return t("filters", "chipRegionsN", { count: String(codes.length) });
 }
 
-function deadlineChipLabel(from: string | null, to: string | null): string {
-  if (!from && !to) return "Lhůta";
-  const fmt = (iso: string) => {
-    const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-    return m ? `${m[3]}.${m[2]}.` : iso;
-  };
-  if (from && to) return `${fmt(from)} – ${fmt(to)}`;
-  if (from) return `od ${fmt(from)}`;
-  return `do ${fmt(to!)}`;
+function deadlineChipLabel(from: string | null, to: string | null, t: FilterT): string {
+  if (!from && !to) return t("filters", "chipDeadline");
+  if (from && to) return `${fmtIsoShort(from)} – ${fmtIsoShort(to)}`;
+  if (from) return t("filters", "chipDeadlineFrom", { date: fmtIsoShort(from) });
+  return t("filters", "chipDeadlineTo", { date: fmtIsoShort(to!) });
 }
 
-function valueChipLabel(min: number | null, max: number | null): string {
-  if (min == null && max == null) return "Cena";
-  const fmt = (n: number) =>
-    n >= 1_000_000
-      ? `${(n / 1_000_000).toFixed(n % 1_000_000 === 0 ? 0 : 1)}M`
-      : n >= 1_000
-        ? `${Math.round(n / 1_000)}k`
-        : String(n);
-  if (min != null && max != null) return `${fmt(min)} – ${fmt(max)}`;
-  if (min != null) return `od ${fmt(min)}`;
-  return `do ${fmt(max!)}`;
+function valueChipLabel(min: number | null, max: number | null, t: FilterT): string {
+  if (min == null && max == null) return t("filters", "chipPrice");
+  if (min != null && max != null) return `${fmtMoney(min)} – ${fmtMoney(max)}`;
+  if (min != null) return t("filters", "chipPriceFrom", { value: fmtMoney(min) });
+  return t("filters", "chipPriceTo", { value: fmtMoney(max!) });
 }
 
 export default function MatchesScreen() {
@@ -294,7 +299,7 @@ export default function MatchesScreen() {
                   adHoc.regions.length > 0 && styles.adHocChipTextActive,
                 ]}
               >
-                {regionChipLabel(adHoc.regions)}
+                {regionChipLabel(adHoc.regions, t)}
               </Text>
             </Pressable>
             <Pressable
@@ -312,7 +317,7 @@ export default function MatchesScreen() {
                     styles.adHocChipTextActive,
                 ]}
               >
-                {valueChipLabel(adHoc.minValue, adHoc.maxValue)}
+                {valueChipLabel(adHoc.minValue, adHoc.maxValue, t)}
               </Text>
             </Pressable>
             <Pressable
@@ -329,7 +334,7 @@ export default function MatchesScreen() {
                   (adHoc.deadlineFrom || adHoc.deadlineTo) && styles.adHocChipTextActive,
                 ]}
               >
-                {deadlineChipLabel(adHoc.deadlineFrom, adHoc.deadlineTo)}
+                {deadlineChipLabel(adHoc.deadlineFrom, adHoc.deadlineTo, t)}
               </Text>
             </Pressable>
             <Pressable
@@ -347,8 +352,8 @@ export default function MatchesScreen() {
                 ]}
               >
                 {adHoc.industryTags.length > 0
-                  ? `Kategorie (${adHoc.industryTags.length})`
-                  : "Kategorie"}
+                  ? t("filters", "chipCategoryN", { count: String(adHoc.industryTags.length) })
+                  : t("filters", "chipCategory")}
               </Text>
             </Pressable>
             <Pressable
@@ -366,8 +371,8 @@ export default function MatchesScreen() {
                 ]}
               >
                 {adHoc.cpvPrefixes.length > 0
-                  ? `CPV (${adHoc.cpvPrefixes.length})`
-                  : "CPV"}
+                  ? t("filters", "chipCpvN", { count: String(adHoc.cpvPrefixes.length) })
+                  : t("filters", "chipCpv")}
               </Text>
             </Pressable>
             {isAdHocActive(adHoc) && (
@@ -386,7 +391,7 @@ export default function MatchesScreen() {
                     pressed && { opacity: 0.7 },
                   ]}
                 >
-                  <Text style={styles.adHocSaveChipText}>＋ Uložit</Text>
+                  <Text style={styles.adHocSaveChipText}>{t("filters", "chipSave")}</Text>
                 </Pressable>
               </>
             )}

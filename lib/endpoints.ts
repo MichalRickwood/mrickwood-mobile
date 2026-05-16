@@ -194,6 +194,8 @@ export const endpoints = {
     ),
   reactivateLeadsService: () =>
     api.patch<{ ok: true; alreadyActive?: boolean }>("/api/mobile/services/leads"),
+  deactivateLeadsService: () =>
+    api.delete<{ ok: true; alreadyInactive?: boolean }>("/api/mobile/services/leads"),
 
   // Industry taxonomy (areas + tags) pro CategoryPicker
   industryTaxonomy: () =>
