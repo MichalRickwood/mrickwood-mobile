@@ -4,41 +4,43 @@ import {
   Pressable,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import { Calendar, LocaleConfig, type DateData } from "react-native-calendars";
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme-context";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 
+LocaleConfig.locales["cs"] = {
+  monthNames: [
+    "Leden", "Únor", "Březen", "Duben", "Květen", "Červen",
+    "Červenec", "Srpen", "Září", "Říjen", "Listopad", "Prosinec",
+  ],
+  monthNamesShort: ["Led", "Úno", "Bře", "Dub", "Kvě", "Čvn", "Čvc", "Srp", "Zář", "Říj", "Lis", "Pro"],
+  dayNames: ["Neděle", "Pondělí", "Úterý", "Středa", "Čtvrtek", "Pátek", "Sobota"],
+  dayNamesShort: ["Ne", "Po", "Út", "St", "Čt", "Pá", "So"],
+  today: "Dnes",
+};
+LocaleConfig.defaultLocale = "cs";
+
 interface Props {
   visible: boolean;
-  initialFrom: string | null; // ISO YYYY-MM-DD
+  initialFrom: string | null;
   initialTo: string | null;
   onClose: () => void;
   onApply: (from: string | null, to: string | null) => void;
 }
 
-/** Konvertuje DD.MM.YYYY → ISO YYYY-MM-DD, nebo null pokud invalid/empty. */
-function parseCzechDate(s: string): string | null {
-  const trimmed = s.trim();
-  if (!trimmed) return null;
-  const m = trimmed.match(/^(\d{1,2})\.\s*(\d{1,2})\.\s*(\d{4})$/);
-  if (!m) return null;
-  const [, d, mo, y] = m;
-  const dd = d.padStart(2, "0");
-  const mm = mo.padStart(2, "0");
-  const dt = new Date(`${y}-${mm}-${dd}T00:00:00Z`);
-  if (isNaN(dt.getTime())) return null;
-  return `${y}-${mm}-${dd}`;
-}
-
-function isoToCzech(iso: string | null): string {
-  if (!iso) return "";
-  const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if (!m) return "";
-  return `${m[3]}.${m[2]}.${m[1]}`;
+/** Vrátí všechny dny mezi from a to (včetně) jako YYYY-MM-DD pole. */
+function daysBetween(from: string, to: string): string[] {
+  const start = new Date(from + "T00:00:00Z");
+  const end = new Date(to + "T00:00:00Z");
+  const out: string[] = [];
+  for (let d = new Date(start); d <= end; d.setUTCDate(d.getUTCDate() + 1)) {
+    out.push(d.toISOString().slice(0, 10));
+  }
+  return out;
 }
 
 export default function DeadlinePickerModal({
@@ -49,71 +51,111 @@ export default function DeadlinePickerModal({
   onApply,
 }: Props) {
   const { t } = useI18n();
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
-  const [fromStr, setFromStr] = useState(isoToCzech(initialFrom));
-  const [toStr, setToStr] = useState(isoToCzech(initialTo));
-  const [error, setError] = useState<string | null>(null);
+  const [from, setFrom] = useState<string | null>(initialFrom);
+  const [to, setTo] = useState<string | null>(initialTo);
 
   useEffect(() => {
     if (visible) {
-      setFromStr(isoToCzech(initialFrom));
-      setToStr(isoToCzech(initialTo));
-      setError(null);
+      setFrom(initialFrom);
+      setTo(initialTo);
     }
   }, [visible, initialFrom, initialTo]);
 
-  function apply() {
-    setError(null);
-    const from = parseCzechDate(fromStr);
-    const to = parseCzechDate(toStr);
-    if (fromStr.trim() && !from) {
-      setError("Neplatný formát data 'od' (DD.MM.YYYY)");
+  function pick(day: DateData) {
+    const d = day.dateString; // YYYY-MM-DD
+    // State machine:
+    // - žádný start → set from
+    // - start, žádný end → if d < from, set from. Else set to.
+    // - both set → reset, set as new from
+    if (!from || (from && to)) {
+      setFrom(d);
+      setTo(null);
       return;
     }
-    if (toStr.trim() && !to) {
-      setError("Neplatný formát data 'do' (DD.MM.YYYY)");
+    if (d < from) {
+      setFrom(d);
       return;
     }
-    onApply(from, to);
-    onClose();
+    if (d === from) {
+      setTo(d);
+      return;
+    }
+    setTo(d);
   }
+
+  const markedDates = useMemo(() => {
+    const m: Record<string, {
+      startingDay?: boolean;
+      endingDay?: boolean;
+      color?: string;
+      textColor?: string;
+      selected?: boolean;
+    }> = {};
+    if (from && !to) {
+      m[from] = { startingDay: true, endingDay: true, color: colors.accent, textColor: colors.accentForeground };
+    } else if (from && to) {
+      const days = daysBetween(from, to);
+      days.forEach((d, idx) => {
+        m[d] = {
+          color: colors.accent,
+          textColor: colors.accentForeground,
+          startingDay: idx === 0,
+          endingDay: idx === days.length - 1,
+        };
+      });
+    }
+    return m;
+  }, [from, to, colors]);
+
+  const rangeText = useMemo(() => {
+    if (!from && !to) return "Vyberte rozsah dnů";
+    const fmt = (iso: string) => {
+      const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      return m ? `${m[3]}.${m[2]}.${m[1]}` : iso;
+    };
+    if (from && to) return `${fmt(from)} – ${fmt(to)}`;
+    if (from) return `Od ${fmt(from)} (zvolte konec)`;
+    return `Do ${fmt(to!)}`;
+  }, [from, to]);
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={onClose}>
         <Pressable style={styles.card} onPress={(e) => e.stopPropagation()}>
           <Text style={styles.title}>Lhůta podání</Text>
-          <View style={styles.row}>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.label}>Od</Text>
-              <TextInput
-                value={fromStr}
-                onChangeText={setFromStr}
-                placeholder="DD.MM.YYYY"
-                placeholderTextColor={colors.textFaint}
-                keyboardType="numbers-and-punctuation"
-                style={styles.input}
-                maxLength={10}
-              />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.label}>Do</Text>
-              <TextInput
-                value={toStr}
-                onChangeText={setToStr}
-                placeholder="DD.MM.YYYY"
-                placeholderTextColor={colors.textFaint}
-                keyboardType="numbers-and-punctuation"
-                style={styles.input}
-                maxLength={10}
-              />
-            </View>
-          </View>
-          {error && <Text style={styles.error}>{error}</Text>}
+          <Text style={styles.range}>{rangeText}</Text>
+          <Calendar
+            current={from ?? to ?? undefined}
+            onDayPress={pick}
+            markedDates={markedDates}
+            markingType="period"
+            firstDay={1}
+            enableSwipeMonths
+            theme={{
+              backgroundColor: colors.card,
+              calendarBackground: colors.card,
+              textSectionTitleColor: colors.textSubtle,
+              dayTextColor: colors.text,
+              monthTextColor: colors.text,
+              arrowColor: colors.text,
+              textDisabledColor: colors.textFaint,
+              todayTextColor: colors.link,
+              selectedDayBackgroundColor: colors.accent,
+              selectedDayTextColor: colors.accentForeground,
+              textDayFontSize: 14,
+              textMonthFontSize: 15,
+              textDayHeaderFontSize: 12,
+              textMonthFontWeight: "600",
+            }}
+            key={isDark ? "dark" : "light"}
+          />
           <View style={styles.actions}>
             <TouchableOpacity
               onPress={() => {
+                setFrom(null);
+                setTo(null);
                 onApply(null, null);
                 onClose();
               }}
@@ -121,7 +163,13 @@ export default function DeadlinePickerModal({
             >
               <Text style={styles.clearBtnText}>{t("matches", "adHocClear")}</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={apply} style={styles.applyBtn}>
+            <TouchableOpacity
+              onPress={() => {
+                onApply(from, to);
+                onClose();
+              }}
+              style={styles.applyBtn}
+            >
               <Text style={styles.applyBtnText}>{t("matches", "adHocApply")}</Text>
             </TouchableOpacity>
           </View>
@@ -138,14 +186,14 @@ const makeStyles = (colors: Colors) =>
       backgroundColor: "rgba(0,0,0,0.5)",
       justifyContent: "center",
       alignItems: "center",
-      padding: spacing.xl,
+      padding: spacing.lg,
     },
     card: {
       width: "100%",
-      maxWidth: 360,
+      maxWidth: 400,
       backgroundColor: colors.card,
       borderRadius: radius.lg,
-      padding: spacing.lg,
+      padding: spacing.md,
       borderWidth: 1,
       borderColor: colors.border,
     },
@@ -153,28 +201,16 @@ const makeStyles = (colors: Colors) =>
       fontSize: fontSize.lg,
       fontWeight: "600",
       color: colors.text,
-      marginBottom: spacing.md,
+      marginBottom: spacing.xs,
       textAlign: "center",
     },
-    row: { flexDirection: "row", gap: spacing.sm },
-    label: {
-      fontSize: fontSize.xs,
+    range: {
+      fontSize: fontSize.sm,
       color: colors.textSubtle,
-      fontWeight: "500",
-      marginBottom: spacing.xs,
+      textAlign: "center",
+      marginBottom: spacing.md,
     },
-    input: {
-      backgroundColor: colors.bg,
-      borderWidth: 1,
-      borderColor: colors.border,
-      borderRadius: radius.md,
-      paddingHorizontal: spacing.md,
-      paddingVertical: spacing.sm + 2,
-      fontSize: fontSize.base,
-      color: colors.text,
-    },
-    error: { fontSize: fontSize.xs, color: colors.danger, marginTop: spacing.sm },
-    actions: { flexDirection: "row", gap: spacing.sm, marginTop: spacing.lg },
+    actions: { flexDirection: "row", gap: spacing.sm, marginTop: spacing.md },
     clearBtn: {
       flex: 1,
       paddingVertical: spacing.md,
