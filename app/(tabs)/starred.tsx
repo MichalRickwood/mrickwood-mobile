@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { useFocusEffect } from "expo-router";
 import {
   ActivityIndicator,
@@ -40,13 +40,14 @@ export default function StarredScreen() {
 
   // Auto-refresh při focusu tabu — když user dá star v Zakázkách a přepne sem,
   // optimistic update nemůže přidat nový řádek (jen modifikovat existující),
-  // takže refetchneme. Skip pokud probíhá refetch nebo aktivní mutation.
+  // takže refetchneme. Ref pattern aby useCallback měl prázdné deps — jinak
+  // by se efekt re-firoval na každém renderu kvůli unstable react-query objektu.
+  const refetchRef = useRef(q.refetch);
+  refetchRef.current = q.refetch;
   useFocusEffect(
     useCallback(() => {
-      if (!q.isRefetching && !setPreference.isPending) {
-        void q.refetch();
-      }
-    }, [q, setPreference.isPending]),
+      void refetchRef.current();
+    }, []),
   );
 
   const matches = useMemo(() => q.data?.pages.flatMap((p) => p.matches) ?? [], [q.data]);
