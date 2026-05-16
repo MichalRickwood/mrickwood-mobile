@@ -2,7 +2,6 @@ import { useCallback, useMemo } from "react";
 import {
   ActivityIndicator,
   FlatList,
-  Pressable,
   RefreshControl,
   StyleSheet,
   Text,
@@ -10,19 +9,19 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { endpoints, type LeadMatchRow } from "@/lib/endpoints";
+import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { endpoints } from "@/lib/endpoints";
+import MatchCard from "@/components/MatchCard";
 import { useTheme } from "@/lib/theme-context";
 import { useI18n } from "@/lib/i18n";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 
-const LOCALE_MAP: Record<string, string> = { cs: "cs-CZ", en: "en-GB", de: "de-DE" };
-
 /** Sledované — list všech starred zakázek napříč filtry. */
 export default function StarredScreen() {
   const router = useRouter();
+  const qc = useQueryClient();
   const { colors } = useTheme();
-  const { t, locale } = useI18n();
+  const { t } = useI18n();
   const styles = useMemo(() => makeStyles(colors), [colors]);
 
   const q = useInfiniteQuery({
@@ -34,6 +33,14 @@ export default function StarredScreen() {
         ...(pageParam ? { cursor: pageParam } : {}),
       }),
     getNextPageParam: (last) => last.nextCursor ?? undefined,
+  });
+
+  const setPreference = useMutation({
+    mutationFn: ({ tenderId, status }: { tenderId: number; status: "STARRED" | "EXCLUDED" | "NONE" }) =>
+      endpoints.setTenderPreference(tenderId, status),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["matches"] });
+    },
   });
 
   const matches = useMemo(() => q.data?.pages.flatMap((p) => p.matches) ?? [], [q.data]);
@@ -55,12 +62,15 @@ export default function StarredScreen() {
         keyExtractor={(item) => item.matchId}
         renderItem={({ item }) => (
           <MatchCard
-            styles={styles}
             match={item}
-            locale={locale}
-            deadlineLabel={t("matches", "deadline", { date: "{date}" })}
             onPress={() =>
               router.push({ pathname: "/match/[id]", params: { id: item.matchId } })
+            }
+            onToggleStar={(tenderId, next) =>
+              setPreference.mutate({ tenderId, status: next ? "STARRED" : "NONE" })
+            }
+            onExclude={(tenderId) =>
+              setPreference.mutate({ tenderId, status: "EXCLUDED" })
             }
           />
         )}
@@ -95,74 +105,6 @@ export default function StarredScreen() {
       />
     </SafeAreaView>
   );
-}
-
-function MatchCard({
-  styles,
-  match,
-  locale,
-  deadlineLabel,
-  onPress,
-}: {
-  styles: ReturnType<typeof makeStyles>;
-  match: LeadMatchRow;
-  locale: string;
-  deadlineLabel: string;
-  onPress: () => void;
-}) {
-  const tender = match.tender;
-  return (
-    <Pressable
-      onPress={onPress}
-      style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
-    >
-      <View style={styles.cardHeader}>
-        <View style={{ flex: 1 }} />
-        <Text style={styles.starIcon}>★</Text>
-      </View>
-      <Text style={styles.cardTitle} numberOfLines={3}>
-        {tender.title}
-      </Text>
-      <View style={styles.cardMeta}>
-        <Text style={styles.cardMetaText} numberOfLines={1}>
-          {tender.contractingAuthority.name}
-        </Text>
-        {tender.deadlineAt && (
-          <Text style={styles.cardMetaSub}>
-            {deadlineLabel.replace("{date}", formatDate(tender.deadlineAt, locale))}
-          </Text>
-        )}
-        {tender.estimatedValue ? (
-          <Text style={styles.cardMetaSub}>
-            {formatMoney(tender.estimatedValue, tender.currency, locale)}
-          </Text>
-        ) : null}
-      </View>
-    </Pressable>
-  );
-}
-
-const NUMBER_LOCALE_MAP: Record<string, string> = { cs: "cs-CZ", en: "en-US", de: "de-DE" };
-
-function formatMoney(value: number, currency: string | null, locale: string): string {
-  try {
-    return new Intl.NumberFormat(NUMBER_LOCALE_MAP[locale] ?? "cs-CZ", {
-      style: "currency",
-      currency: currency ?? "CZK",
-      maximumFractionDigits: 0,
-    }).format(value);
-  } catch {
-    return `${value.toLocaleString(NUMBER_LOCALE_MAP[locale] ?? "cs-CZ")} ${currency ?? "CZK"}`;
-  }
-}
-
-function formatDate(iso: string, locale: string): string {
-  const d = new Date(iso);
-  return d.toLocaleDateString(LOCALE_MAP[locale] ?? "cs-CZ", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
 }
 
 const makeStyles = (colors: Colors) =>

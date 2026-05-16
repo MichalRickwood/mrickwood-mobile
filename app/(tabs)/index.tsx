@@ -13,11 +13,10 @@ import { useRouter } from "expo-router";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { endpoints, type LeadMatchRow } from "@/lib/endpoints";
 import FilterPicker from "@/components/FilterPicker";
+import MatchCard from "@/components/MatchCard";
 import { useTheme } from "@/lib/theme-context";
 import { useI18n } from "@/lib/i18n";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
-
-const LOCALE_MAP: Record<string, string> = { cs: "cs-CZ", en: "en-GB", de: "de-DE" };
 
 export default function MatchesScreen() {
   const router = useRouter();
@@ -95,10 +94,7 @@ export default function MatchesScreen() {
         keyExtractor={(item) => item.matchId}
         renderItem={({ item }) => (
           <MatchCard
-            styles={styles}
             match={item}
-            locale={locale}
-            deadlineLabel={t("matches", "deadline", { date: "{date}" })}
             onPress={() =>
               router.push({ pathname: "/match/[id]", params: { id: item.matchId } })
             }
@@ -152,83 +148,6 @@ export default function MatchesScreen() {
   );
 }
 
-function MatchCard({
-  styles,
-  match,
-  locale,
-  deadlineLabel,
-  onPress,
-  onToggleStar,
-  onExclude,
-}: {
-  styles: ReturnType<typeof makeStyles>;
-  match: LeadMatchRow;
-  locale: string;
-  deadlineLabel: string;
-  onPress: () => void;
-  onToggleStar: (tenderId: number, next: boolean) => void;
-  onExclude: (tenderId: number) => void;
-}) {
-  const tender = match.tender;
-  const isNew = !match.viewedAt;
-  const starred = tender.starred === true;
-  return (
-    <Pressable
-      onPress={onPress}
-      style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
-    >
-      {isNew && (
-        <View style={styles.cardHeader}>
-          <View style={{ flex: 1 }} />
-          <View style={styles.newDot} />
-        </View>
-      )}
-      <Text style={styles.cardTitle} numberOfLines={3}>
-        {tender.title}
-      </Text>
-      <View style={styles.cardMeta}>
-        <Text style={styles.cardMetaText} numberOfLines={1}>
-          {tender.contractingAuthority.name}
-        </Text>
-        {tender.deadlineAt && (
-          <Text style={styles.cardMetaSub}>
-            {deadlineLabel.replace("{date}", formatDate(tender.deadlineAt, locale))}
-          </Text>
-        )}
-        {tender.estimatedValue ? (
-          <Text style={styles.cardMetaSub}>
-            {formatMoney(tender.estimatedValue, tender.currency, locale)}
-          </Text>
-        ) : null}
-      </View>
-      <View style={styles.cardActions}>
-        <Pressable
-          onPress={(e) => {
-            e.stopPropagation();
-            onToggleStar(tender.id, !starred);
-          }}
-          hitSlop={8}
-          style={({ pressed }) => [styles.actionBtn, pressed && { opacity: 0.5 }]}
-        >
-          <Text style={[styles.actionIcon, starred && styles.actionIconStarred]}>
-            {starred ? "★" : "☆"}
-          </Text>
-        </Pressable>
-        <Pressable
-          onPress={(e) => {
-            e.stopPropagation();
-            onExclude(tender.id);
-          }}
-          hitSlop={8}
-          style={({ pressed }) => [styles.actionBtn, pressed && { opacity: 0.5 }]}
-        >
-          <Text style={styles.actionIcon}>👎</Text>
-        </Pressable>
-      </View>
-    </Pressable>
-  );
-}
-
 function EmptyState({
   styles,
   title,
@@ -246,28 +165,6 @@ function EmptyState({
   );
 }
 
-const NUMBER_LOCALE_MAP: Record<string, string> = { cs: "cs-CZ", en: "en-US", de: "de-DE" };
-
-function formatMoney(value: number, currency: string | null, locale: string): string {
-  try {
-    return new Intl.NumberFormat(NUMBER_LOCALE_MAP[locale] ?? "cs-CZ", {
-      style: "currency",
-      currency: currency ?? "CZK",
-      maximumFractionDigits: 0,
-    }).format(value);
-  } catch {
-    return `${value.toLocaleString(NUMBER_LOCALE_MAP[locale] ?? "cs-CZ")} ${currency ?? "CZK"}`;
-  }
-}
-
-function formatDate(iso: string, locale: string): string {
-  const d = new Date(iso);
-  return d.toLocaleDateString(LOCALE_MAP[locale] ?? "cs-CZ", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-}
 
 const makeStyles = (colors: Colors) =>
   StyleSheet.create({
@@ -288,8 +185,11 @@ const makeStyles = (colors: Colors) =>
     cardPressed: { borderColor: colors.text },
     cardHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: spacing.sm },
     cardFilter: { fontSize: fontSize.xs, color: colors.textSubtle, fontWeight: "500", flex: 1 },
-    newDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.link, marginLeft: spacing.sm },
-    cardTitle: { fontSize: fontSize.base, fontWeight: "600", color: colors.text, lineHeight: 22 },
+    titleRow: { flexDirection: "row", alignItems: "flex-start", gap: spacing.sm },
+    priceTag: { flexDirection: "row", alignItems: "center", gap: spacing.xs, paddingTop: 2 },
+    priceText: { fontSize: fontSize.sm, color: colors.text, fontWeight: "600" },
+    newDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.link },
+    cardTitle: { fontSize: fontSize.base, fontWeight: "600", color: colors.text, lineHeight: 22, flex: 1 },
     cardActions: {
       flexDirection: "row",
       justifyContent: "flex-end",
