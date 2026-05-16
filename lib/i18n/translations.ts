@@ -101,15 +101,12 @@ export interface Dict {
   settings: {
     title: string;
     signedInAs: string;
-    sectionProfile: string;
-    sectionProfileHint: string;
     sectionAccount: string;
     sectionAccountHint: string;
     accountEmail: string;
     accountName: string;
     profileBillingEmailLabel: string;
     profileBillingEmailHint: string;
-    deleteNote: string;
     signOut: string;
     back: string;
     searchPlaceholder: string;
@@ -123,18 +120,9 @@ export interface Dict {
     appearancePillLight: string;
     appearancePillDark: string;
     appearanceTitle: string;
-    appearanceMessage: string;
     appearanceSystem: string;
     appearanceLight: string;
     appearanceDark: string;
-    appearanceComingSoon: string;
-    appearanceComingSoonBody: string;
-    companyTitle: string;
-    companySubtitle: string;
-    companySaveBtn: string;
-    companySaveBtnLoading: string;
-    companySaving: string;
-    companySaved: string;
     sectionNotifications: string;
     sectionNotificationsHint: string;
     sectionSecurity: string;
@@ -386,15 +374,12 @@ const cs: Dict = {
   settings: {
     title: "Nastavení",
     signedInAs: "Přihlášen jako",
-    sectionProfile: "Firemní údaje",
-    sectionProfileHint: "Telefon, IČO, fakturace",
     sectionAccount: "Účet",
     sectionAccountHint: "Odhlášení, export dat, smazání účtu",
     accountEmail: "Email",
     accountName: "Jméno",
     profileBillingEmailLabel: "Fakturační email",
     profileBillingEmailHint: "Pokud se liší od přihlašovacího emailu, doklady posíláme na oba.",
-    deleteNote: "Smazání účtu zatím přes web — bude přidáno do appky v další verzi.",
     signOut: "Odhlásit se",
     back: "Zpět",
     searchPlaceholder: "Hledat…",
@@ -408,18 +393,9 @@ const cs: Dict = {
     appearancePillLight: "SVĚTLÝ",
     appearancePillDark: "TMAVÝ",
     appearanceTitle: "Vzhled",
-    appearanceMessage: "Tmavý režim přijde v další verzi appky.",
     appearanceSystem: "Podle systému",
     appearanceLight: "Světlý",
     appearanceDark: "Tmavý",
-    appearanceComingSoon: "Vzhled",
-    appearanceComingSoonBody: "Tmavý/světlý režim přidáme brzy — pro teď je vše světlé.",
-    companyTitle: "Firemní údaje",
-    companySubtitle: "Dobrovolné. IČO + telefon umožní plnou aktivaci služeb a fakturaci.",
-    companySaveBtn: "Uložit",
-    companySaveBtnLoading: "Ukládám…",
-    companySaving: "Ukládám…",
-    companySaved: "Uloženo",
     sectionNotifications: "Notifikace",
     sectionNotificationsHint: "Push, email digest, marketing",
     sectionSecurity: "Bezpečnost",
@@ -666,15 +642,12 @@ const en: Dict = {
   settings: {
     title: "Settings",
     signedInAs: "Signed in as",
-    sectionProfile: "Company details",
-    sectionProfileHint: "Phone, tax ID, billing",
     sectionAccount: "Account",
     sectionAccountHint: "Sign out, data export, delete account",
     accountEmail: "Email",
     accountName: "Name",
     profileBillingEmailLabel: "Billing email",
     profileBillingEmailHint: "If different from the sign-in email, invoices go to both.",
-    deleteNote: "Account deletion is on the web for now — coming to the app in a later version.",
     signOut: "Sign out",
     back: "Back",
     searchPlaceholder: "Search…",
@@ -688,18 +661,9 @@ const en: Dict = {
     appearancePillLight: "LIGHT",
     appearancePillDark: "DARK",
     appearanceTitle: "Appearance",
-    appearanceMessage: "Dark mode is coming in a later version.",
     appearanceSystem: "System",
     appearanceLight: "Light",
     appearanceDark: "Dark",
-    appearanceComingSoon: "Appearance",
-    appearanceComingSoonBody: "Dark/light mode coming soon — everything is light for now.",
-    companyTitle: "Company details",
-    companySubtitle: "Optional. Tax ID + phone enable full service activation and billing.",
-    companySaveBtn: "Save",
-    companySaveBtnLoading: "Saving…",
-    companySaving: "Saving…",
-    companySaved: "Saved",
     sectionNotifications: "Notifications",
     sectionNotificationsHint: "Push, email digest, marketing",
     sectionSecurity: "Security",
@@ -948,15 +912,12 @@ const de: Dict = {
   settings: {
     title: "Einstellungen",
     signedInAs: "Angemeldet als",
-    sectionProfile: "Firmendaten",
-    sectionProfileHint: "Telefon, USt-IdNr., Abrechnung",
     sectionAccount: "Konto",
     sectionAccountHint: "Abmelden, Datenexport, Konto löschen",
     accountEmail: "E-Mail",
     accountName: "Name",
     profileBillingEmailLabel: "Rechnungs-E-Mail",
     profileBillingEmailHint: "Wenn sie sich von der Anmelde-E-Mail unterscheidet, senden wir Belege an beide.",
-    deleteNote: "Kontolöschung ist derzeit über die Website — kommt in einer späteren App-Version.",
     signOut: "Abmelden",
     back: "Zurück",
     searchPlaceholder: "Suchen…",
@@ -970,18 +931,9 @@ const de: Dict = {
     appearancePillLight: "HELL",
     appearancePillDark: "DUNKEL",
     appearanceTitle: "Aussehen",
-    appearanceMessage: "Dunkelmodus kommt in einer späteren Version.",
     appearanceSystem: "System",
     appearanceLight: "Hell",
     appearanceDark: "Dunkel",
-    appearanceComingSoon: "Aussehen",
-    appearanceComingSoonBody: "Hell/Dunkel-Modus kommt bald — vorerst ist alles hell.",
-    companyTitle: "Firmendaten",
-    companySubtitle: "Optional. USt-IdNr. + Telefon ermöglichen volle Serviceaktivierung und Abrechnung.",
-    companySaveBtn: "Speichern",
-    companySaveBtnLoading: "Speichere…",
-    companySaving: "Speichere…",
-    companySaved: "Gespeichert",
     sectionNotifications: "Benachrichtigungen",
     sectionNotificationsHint: "Push, E-Mail-Übersicht, Marketing",
     sectionSecurity: "Sicherheit",

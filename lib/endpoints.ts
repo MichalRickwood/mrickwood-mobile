@@ -104,7 +104,7 @@ export const endpoints = {
     api.post<MobileLoginResponse>("/api/auth/mobile/login", { email, password }, { noAuth: true }),
 
   // Mobile-specific register — minimální (name, email, password, consents).
-  // IČO + phone se doplňují po prvním loginu přes ProfileComplete screen.
+  // Firemní údaje + telefon se doplňují v Settings → Profil / Předplatné.
   register: (input: MobileRegisterInput) =>
     api.post<{ success: boolean; userId: string }>("/api/auth/mobile/register", input, { noAuth: true }),
 

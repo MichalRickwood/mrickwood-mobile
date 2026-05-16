@@ -5,6 +5,7 @@ import { useRouter } from "expo-router";
 import { useAuth } from "@/lib/auth-context";
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme-context";
+import Constants from "expo-constants";
 import { APP_NAME } from "@/lib/config";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
@@ -79,7 +80,9 @@ export default function SettingsIndexScreen() {
           />
         </View>
 
-        <Text style={styles.version}>{APP_NAME} v0.1.0</Text>
+        <Text style={styles.version}>
+          {APP_NAME} v{Constants.expoConfig?.version ?? "?"}
+        </Text>
       </ScrollView>
     </SafeAreaView>
   );
