@@ -1,8 +1,8 @@
 import { useEffect, useMemo } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as WebBrowser from "expo-web-browser";
 import { endpoints, type LeadMatchRow, type TenderDocument } from "@/lib/endpoints";
 import { useTheme } from "@/lib/theme-context";
@@ -15,13 +15,22 @@ export default function MatchDetailScreen() {
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
 
-  // Detail tahá z cache /matches — jeden zdroj pravdy, žádný extra request.
-  // Pokud cache nemá řádek (např. push notif → deeplink bez předchozího list view),
-  // zafallbackuje na .find = undefined a zobrazí "Nenalezeno".
-  const allMatches = qc
+  // Primárně tahá z cache /matches. Pokud cache nemá řádek (deep link z push
+  // notif, nebo cache vypadla), fallback fetchne celý list a najde.
+  const allCached = qc
     .getQueriesData<{ matches: LeadMatchRow[] }>({ queryKey: ["matches"] })
     .flatMap(([, data]) => data?.matches ?? []);
-  const match = allMatches.find((m) => m.matchId === id) ?? null;
+  const cached = allCached.find((m) => m.matchId === id) ?? null;
+
+  const fallback = useQuery({
+    queryKey: ["matches", "fallback-for-detail"],
+    queryFn: () => endpoints.myMatches(),
+    enabled: !cached && !!id,
+    staleTime: 0,
+  });
+
+  const match =
+    cached ?? fallback.data?.matches.find((m) => m.matchId === id) ?? null;
 
   const markViewed = useMutation({
     mutationFn: (matchId: string) => endpoints.markViewed(matchId),
@@ -43,6 +52,16 @@ export default function MatchDetailScreen() {
   }
 
   if (!match) {
+    if (fallback.isLoading || fallback.isFetching) {
+      return (
+        <SafeAreaView style={styles.safe}>
+          <Stack.Screen options={{ title: "Zakázka", headerShown: true }} />
+          <View style={styles.notFound}>
+            <ActivityIndicator color={colors.textSubtle} />
+          </View>
+        </SafeAreaView>
+      );
+    }
     return (
       <SafeAreaView style={styles.safe}>
         <Stack.Screen options={{ title: "Zakázka", headerShown: true }} />
