@@ -177,12 +177,12 @@ function MatchCard({
       onPress={onPress}
       style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
     >
-      <View style={styles.cardHeader}>
-        <Text style={styles.cardFilter} numberOfLines={1}>
-          {match.filterName}
-        </Text>
-        {isNew && <View style={styles.newDot} />}
-      </View>
+      {isNew && (
+        <View style={styles.cardHeader}>
+          <View style={{ flex: 1 }} />
+          <View style={styles.newDot} />
+        </View>
+      )}
       <Text style={styles.cardTitle} numberOfLines={3}>
         {tender.title}
       </Text>

@@ -117,9 +117,7 @@ function MatchCard({
       style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
     >
       <View style={styles.cardHeader}>
-        <Text style={styles.cardFilter} numberOfLines={1}>
-          {match.filterName}
-        </Text>
+        <View style={{ flex: 1 }} />
         <Text style={styles.starIcon}>★</Text>
       </View>
       <Text style={styles.cardTitle} numberOfLines={3}>
