@@ -69,7 +69,7 @@ export default function StarredScreen() {
     return (
       <SafeAreaView style={styles.safe} edges={["top"]}>
         <View style={styles.header}>
-          <Text style={styles.title}>Sledované</Text>
+          <Text style={styles.title}>{t("matches", "starredTab")}</Text>
         </View>
         <LeadsPaywall />
       </SafeAreaView>
@@ -80,12 +80,12 @@ export default function StarredScreen() {
     <SafeAreaView style={styles.safe} edges={["top"]}>
       <View style={styles.header}>
         <Text style={styles.title}>
-          {view === "starred" ? "Sledované" : "Odstraněné"}
+          {view === "starred" ? t("matches", "starredTab") : t("matches", "excludedTab")}
         </Text>
         <Text style={styles.subtitle}>
           {view === "starred"
             ? t("matches", "starredCounter", { count: totalCount })
-            : `Odstraněné · ${totalCount}`}
+            : t("matches", "excludedCounter", { count: totalCount })}
         </Text>
         <View style={styles.segWrap}>
           <Pressable
@@ -97,7 +97,7 @@ export default function StarredScreen() {
             ]}
           >
             <Text style={[styles.segText, view === "starred" && styles.segTextActive]}>
-              ☆ Sledované
+              {t("matches", "viewSwitchStarred")}
             </Text>
           </Pressable>
           <Pressable
@@ -109,7 +109,7 @@ export default function StarredScreen() {
             ]}
           >
             <Text style={[styles.segText, view === "excluded" && styles.segTextActive]}>
-              👎 Odstraněné
+              {t("matches", "viewSwitchExcluded")}
             </Text>
           </Pressable>
         </View>
@@ -158,12 +158,12 @@ export default function StarredScreen() {
               <Text style={styles.emptyTitle}>
                 {view === "starred"
                   ? t("matches", "starredEmptyTitle")
-                  : "Žádné odstraněné"}
+                  : t("matches", "excludedEmptyTitle")}
               </Text>
               <Text style={styles.emptyBody}>
                 {view === "starred"
                   ? t("matches", "starredEmptyBody")
-                  : "Zakázky, které odstraníte palcem dolů, se sem ukládají. Můžeš je vrátit zpět."}
+                  : t("matches", "excludedEmptyBody")}
               </Text>
             </View>
           ) : null

@@ -79,6 +79,12 @@ export interface Dict {
     starredCounter: string;
     starredEmptyTitle: string;
     starredEmptyBody: string;
+    excludedTab: string;
+    excludedCounter: string;
+    excludedEmptyTitle: string;
+    excludedEmptyBody: string;
+    viewSwitchStarred: string;
+    viewSwitchExcluded: string;
     counterAll: string;
     counterFilter: string;
     filterAll: string;
@@ -481,6 +487,12 @@ const cs: Dict = {
     starredCounter: "Sledované · {count}",
     starredEmptyTitle: "Žádné sledované zakázky",
     starredEmptyBody: "Klikni na hvězdičku u zakázky v listu Zakázek.",
+    excludedTab: "Odstraněné",
+    excludedCounter: "Odstraněné · {count}",
+    excludedEmptyTitle: "Žádné odstraněné",
+    excludedEmptyBody: "Zakázky, které odstraníš palcem dolů, se sem uloží. Můžeš je vrátit zpět.",
+    viewSwitchStarred: "☆ Sledované",
+    viewSwitchExcluded: "👎 Odstraněné",
     counterAll: "Všechny matche · {count}",
     counterFilter: "{filter} · {count}",
     filterAll: "Všechny zakázky",
@@ -880,6 +892,12 @@ const en: Dict = {
     starredCounter: "Starred · {count}",
     starredEmptyTitle: "No starred tenders",
     starredEmptyBody: "Tap the star icon on a tender in the Tenders list.",
+    excludedTab: "Excluded",
+    excludedCounter: "Excluded · {count}",
+    excludedEmptyTitle: "No excluded tenders",
+    excludedEmptyBody: "Tenders you swipe down on are saved here. You can restore them anytime.",
+    viewSwitchStarred: "☆ Starred",
+    viewSwitchExcluded: "👎 Excluded",
     counterAll: "All matches · {count}",
     counterFilter: "{filter} · {count}",
     filterAll: "All tenders",
@@ -1278,6 +1296,12 @@ const de: Dict = {
     starredCounter: "Favoriten · {count}",
     starredEmptyTitle: "Keine Favoriten",
     starredEmptyBody: "Tippen Sie auf den Stern bei einer Ausschreibung in der Liste.",
+    excludedTab: "Ausgeblendet",
+    excludedCounter: "Ausgeblendet · {count}",
+    excludedEmptyTitle: "Nichts ausgeblendet",
+    excludedEmptyBody: "Ausschreibungen, die Sie ausblenden, landen hier. Sie können sie jederzeit wiederherstellen.",
+    viewSwitchStarred: "☆ Favoriten",
+    viewSwitchExcluded: "👎 Ausgeblendet",
     counterAll: "Alle Treffer · {count}",
     counterFilter: "{filter} · {count}",
     filterAll: "Alle Ausschreibungen",
