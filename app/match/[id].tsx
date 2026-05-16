@@ -111,9 +111,21 @@ export default function MatchDetailScreen() {
           {t.contractingAuthority.region && (
             <MetaCell styles={styles} label="Region" value={t.contractingAuthority.region} />
           )}
+          {t.contractingAuthority.district && (
+            <MetaCell styles={styles} label="Okres" value={t.contractingAuthority.district} />
+          )}
           {t.cpvCode && <MetaCell styles={styles} label="CPV" value={t.cpvCode} />}
           {t.tenderType && <MetaCell styles={styles} label="Druh řízení" value={t.tenderType} />}
+          <MetaCell styles={styles} label="IČO zadavatele" value={t.contractingAuthority.ico} />
+          <MetaCell styles={styles} label="Portál" value={t.portalType.toUpperCase()} />
         </View>
+
+        {t.description && t.description.trim().length > 0 && (
+          <View style={styles.descSection}>
+            <Text style={styles.sectionLabel}>Popis</Text>
+            <Text style={styles.descText}>{t.description}</Text>
+          </View>
+        )}
 
         {(() => {
           const docs = t.documents ?? [];
@@ -238,6 +250,15 @@ const makeStyles = (colors: Colors) =>
   section: { marginTop: spacing.xl, padding: spacing.lg, backgroundColor: colors.card, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border },
   sectionLabel: { fontSize: fontSize.xs, color: colors.textSubtle, fontWeight: "500", textTransform: "uppercase", letterSpacing: 0.5 },
   sectionValue: { fontSize: fontSize.base, color: colors.text, marginTop: spacing.xs },
+  descSection: {
+    marginTop: spacing.xl,
+    padding: spacing.lg,
+    backgroundColor: colors.card,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  descText: { fontSize: fontSize.sm, color: colors.text, marginTop: spacing.sm, lineHeight: 20 },
   docsSection: { marginTop: spacing.xl },
   docRow: {
     flexDirection: "row",

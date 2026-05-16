@@ -32,6 +32,7 @@ export interface TenderDocument {
 export interface PublicTender {
   id: number;
   title: string;
+  description?: string | null;
   portalType: string;
   url: string;
   status: string;
