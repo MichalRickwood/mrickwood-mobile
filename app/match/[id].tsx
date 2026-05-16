@@ -100,14 +100,18 @@ export default function MatchDetailScreen() {
           <Text style={styles.sectionValue}>{match.filterName}</Text>
         </View>
 
-        {t.documents.length > 0 && (
-          <View style={styles.docsSection}>
-            <Text style={styles.sectionLabel}>Dokumenty ({t.documents.length})</Text>
-            {t.documents.map((d, i) => (
-              <DocumentRow key={`${d.url}-${i}`} styles={styles} doc={d} />
-            ))}
-          </View>
-        )}
+        {(() => {
+          const docs = t.documents ?? [];
+          if (docs.length === 0) return null;
+          return (
+            <View style={styles.docsSection}>
+              <Text style={styles.sectionLabel}>Dokumenty ({docs.length})</Text>
+              {docs.map((d, i) => (
+                <DocumentRow key={`${d.url}-${i}`} styles={styles} doc={d} />
+              ))}
+            </View>
+          );
+        })()}
 
         <Pressable
           onPress={openInBrowser}

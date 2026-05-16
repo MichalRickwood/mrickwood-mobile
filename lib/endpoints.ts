@@ -43,7 +43,7 @@ export interface PublicTender {
   cpvCode: string | null;
   tenderType: string | null;
   contractingAuthority: ContractingAuthority;
-  documents: TenderDocument[];
+  documents?: TenderDocument[];
 }
 
 export interface LeadMatchRow {
