@@ -165,7 +165,26 @@ export default function MatchesScreen() {
               onEdit={(fid) => router.push({ pathname: "/filter/[id]", params: { id: fid } })}
             />
             <Pressable
-              onPress={() => setAdHocOpen((v) => !v)}
+              onPress={() => {
+                const willOpen = !adHocOpen;
+                // Když otevíráme a máme aktivní filter + prázdný adhoc, načteme
+                // hodnoty filtru do chipů (user vidí current state, může editovat).
+                if (willOpen && activeFilterId && !isAdHocActive(adHoc)) {
+                  const f = filters.find((x) => x.id === activeFilterId);
+                  if (f) {
+                    setAdHoc({
+                      regions: f.regions ?? [],
+                      minValue: f.minValue,
+                      maxValue: f.maxValue,
+                      deadlineFrom: null,
+                      deadlineTo: null,
+                      cpvPrefixes: f.categories ?? [],
+                      industryTags: f.industryTags ?? [],
+                    });
+                  }
+                }
+                setAdHocOpen(willOpen);
+              }}
               hitSlop={6}
               style={({ pressed }) => [
                 styles.adHocBtn,
