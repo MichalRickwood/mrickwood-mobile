@@ -27,13 +27,14 @@ function RouterGuard() {
   useEffect(() => {
     if (status === "loading") return;
     const inAuth = segments[0] === "(auth)";
-    const inTabs = segments[0] === "(tabs)";
 
     if (status === "anonymous") {
       if (!inAuth) router.replace("/(auth)/login");
       return;
     }
-    if (!inTabs) router.replace("/(tabs)");
+    // Authenticated — vyhoď jen z auth screenů. Ostatní routy (tabs i ne-tab
+    // stack screens jako /match/[id]) nech projít.
+    if (inAuth) router.replace("/(tabs)");
   }, [status, segments, router]);
 
   return (
