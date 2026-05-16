@@ -48,6 +48,9 @@ export default function MatchesScreen() {
     queryFn: () => endpoints.myFilters(),
   });
 
+  // Při aktivním search / ad-hoc rozšiřujeme page size — in-memory filter
+  // by jinak vrátil málo výsledků z 50-item page (i když celkově match je více).
+  const hasNarrowingFilter = !!searchDebounced || isAdHocActive(adHoc);
   const matchesQuery = useInfiniteQuery({
     queryKey: ["matches", activeFilterId, searchDebounced, adHoc],
     initialPageParam: null as string | null,
@@ -59,6 +62,7 @@ export default function MatchesScreen() {
         ...(adHoc.regions.length > 0 ? { regions: adHoc.regions.join(",") } : {}),
         ...(adHoc.minValue != null ? { minValue: adHoc.minValue } : {}),
         ...(adHoc.maxValue != null ? { maxValue: adHoc.maxValue } : {}),
+        ...(hasNarrowingFilter ? { limit: 200 } : {}),
       }),
     getNextPageParam: (last) => last.nextCursor ?? undefined,
   });
@@ -68,7 +72,11 @@ export default function MatchesScreen() {
     () => matchesQuery.data?.pages.flatMap((p) => p.matches) ?? [],
     [matchesQuery.data],
   );
-  const totalCount = matchesQuery.data?.pages[0]?.totalCount ?? matches.length;
+  // Server totalCount nereflektuje in-memory search/region/value filter. Pokud
+  // jsou aktivní, počítáme local matches; jinak server total.
+  const totalCount = hasNarrowingFilter
+    ? matches.length
+    : (matchesQuery.data?.pages[0]?.totalCount ?? matches.length);
 
   const onRefresh = useCallback(() => {
     void matchesQuery.refetch();
