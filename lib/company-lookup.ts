@@ -61,3 +61,28 @@ export async function lookupCompanyById(
   if (!res.ok) throw new Error(`lookup failed: ${res.status}`);
   return res.json();
 }
+
+export interface CompanySearchResult {
+  taxId: string;
+  country: string;
+  name: string;
+  address: string;
+}
+
+/** Country s full-coverage search (ARES, RPO, SIRENE). EU VIES země podporují
+ * jen byId, ne fulltext. */
+export const FULL_COVERAGE_COUNTRIES = ["CZ", "SK", "FR"] as const;
+
+export async function searchCompaniesByName(
+  country: string,
+  query: string,
+  signal?: AbortSignal,
+): Promise<CompanySearchResult[]> {
+  const res = await fetch(
+    `${API_BASE_URL}/api/public/company-lookup?country=${encodeURIComponent(country)}&q=${encodeURIComponent(query)}`,
+    { signal },
+  );
+  if (!res.ok) return [];
+  const data = await res.json();
+  return Array.isArray(data?.results) ? data.results : [];
+}
