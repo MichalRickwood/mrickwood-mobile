@@ -80,21 +80,17 @@ export default function CategoryPickerModal({ visible, initial, onClose, onApply
                 const allSelected = selectedInArea === tagIds.length && tagIds.length > 0;
                 const someSelected = selectedInArea > 0 && !allSelected;
                 return (
-                  <View
+                  <Pressable
                     key={g.area.id}
-                    style={[
+                    onPress={() => toggleArea(tagIds)}
+                    style={({ pressed }) => [
                       styles.areaContainer,
                       allSelected && styles.areaContainerActive,
                       someSelected && styles.areaContainerPartial,
+                      pressed && { opacity: 0.85 },
                     ]}
                   >
-                    <Pressable
-                      onPress={() => toggleArea(tagIds)}
-                      style={({ pressed }) => [
-                        styles.areaHeader,
-                        pressed && { opacity: 0.7 },
-                      ]}
-                    >
+                    <View style={styles.areaHeader}>
                       <Text style={styles.areaIcon}>{g.area.icon}</Text>
                       <Text style={styles.areaLabel}>
                         {g.area.label}
@@ -103,7 +99,7 @@ export default function CategoryPickerModal({ visible, initial, onClose, onApply
                       <Text style={styles.areaCheck}>
                         {allSelected ? "✓" : someSelected ? "−" : ""}
                       </Text>
-                    </Pressable>
+                    </View>
                     <View style={styles.tagGrid}>
                       {g.tags.map((tag) => {
                         const active = selected.includes(tag.id);
@@ -120,7 +116,7 @@ export default function CategoryPickerModal({ visible, initial, onClose, onApply
                         );
                       })}
                     </View>
-                  </View>
+                  </Pressable>
                 );
               })
             )}
