@@ -180,6 +180,16 @@ export const endpoints = {
       areas: Array<{ id: string; icon: string; label: string }>;
       tags: Array<{ id: string; area: string; label: string; cpvPrefixes: string[] }>;
     }>("/api/mobile/taxonomy/industry"),
+
+  // CPV katalog (~800KB raw, ~100KB gzip). Cache infinity client-side.
+  cpvCatalog: () =>
+    api.get<{
+      entries: Array<{
+        prefix: string;
+        label: string;
+        level: "oddil" | "skupina" | "trida" | "kategorie" | "podkategorie";
+      }>;
+    }>("/api/mobile/taxonomy/cpv"),
   createFilter: (input: LeadFilterInput) =>
     api.post<{ filter: LeadFilterRow }>("/api/mobile/filters", input),
   updateFilter: (id: string, input: Partial<LeadFilterInput>) =>

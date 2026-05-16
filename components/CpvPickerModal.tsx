@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import {
+  ActivityIndicator,
   Modal,
   Pressable,
   ScrollView,
@@ -9,6 +10,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useQuery } from "@tanstack/react-query";
+import { endpoints } from "@/lib/endpoints";
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme-context";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
@@ -20,55 +23,111 @@ interface Props {
   onApply: (cpvPrefixes: string[]) => void;
 }
 
-// Pár běžných CZ divizí (2-digit) pro rychlý výběr
-const COMMON_DIVISIONS: Array<{ code: string; label: string }> = [
-  { code: "30", label: "30 — Kancelářské stroje" },
-  { code: "33", label: "33 — Zdravotnické zařízení" },
-  { code: "34", label: "34 — Doprava a vozidla" },
-  { code: "39", label: "39 — Nábytek a vybavení" },
-  { code: "44", label: "44 — Stavební materiál" },
-  { code: "45", label: "45 — Stavební práce" },
-  { code: "48", label: "48 — Software" },
-  { code: "50", label: "50 — Údržba a opravy" },
-  { code: "60", label: "60 — Doprava (služby)" },
-  { code: "71", label: "71 — Architekt./inženýrské služby" },
-  { code: "72", label: "72 — IT služby" },
-  { code: "79", label: "79 — Podnikové služby" },
-  { code: "90", label: "90 — Odpadové hospodářství" },
-];
+interface CpvEntry {
+  prefix: string;
+  label: string;
+  level: "oddil" | "skupina" | "trida" | "kategorie" | "podkategorie";
+}
+
+const STRIP_RX = /[\u0300-\u036f]/g;
+function fold(s: string): string {
+  return s.normalize("NFD").replace(STRIP_RX, "").toLowerCase();
+}
 
 export default function CpvPickerModal({ visible, initial, onClose, onApply }: Props) {
   const { t } = useI18n();
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
-  const [prefixes, setPrefixes] = useState<string[]>(initial);
-  const [input, setInput] = useState("");
+  const [selected, setSelected] = useState<string[]>(initial);
+  const [parentStack, setParentStack] = useState<string[]>([]); // prefix chain ["", "44", "445"]
+  const [query, setQuery] = useState("");
+
+  const catalog = useQuery({
+    queryKey: ["taxonomy", "cpv"],
+    queryFn: () => endpoints.cpvCatalog(),
+    staleTime: Infinity,
+    enabled: visible,
+  });
 
   useEffect(() => {
     if (visible) {
-      setPrefixes(initial);
-      setInput("");
+      setSelected(initial);
+      setParentStack([]);
+      setQuery("");
     }
   }, [visible, initial]);
 
-  function addPrefix(p: string) {
-    const clean = p.replace(/[^0-9]/g, "").slice(0, 8);
-    if (!clean || clean.length < 2) return;
-    if (prefixes.includes(clean)) return;
-    setPrefixes((prev) => [...prev, clean]);
-    setInput("");
-  }
-
-  function remove(p: string) {
-    setPrefixes((prev) => prev.filter((x) => x !== p));
-  }
-
-  function toggleDivision(code: string) {
-    if (prefixes.includes(code)) {
-      remove(code);
-    } else {
-      setPrefixes((prev) => [...prev, code]);
+  // Build children index once
+  const byPrefix = useMemo(() => {
+    const m = new Map<string, CpvEntry>();
+    if (catalog.data) {
+      for (const e of catalog.data.entries) m.set(e.prefix, e);
     }
+    return m;
+  }, [catalog.data]);
+
+  const childrenOf = useMemo(() => {
+    const m = new Map<string, CpvEntry[]>();
+    if (catalog.data) {
+      for (const e of catalog.data.entries) {
+        if (e.level === "oddil") continue;
+        const parent = e.prefix.slice(0, -1);
+        const arr = m.get(parent);
+        if (arr) arr.push(e);
+        else m.set(parent, [e]);
+      }
+      for (const arr of m.values()) arr.sort((a, b) => a.prefix.localeCompare(b.prefix));
+    }
+    return m;
+  }, [catalog.data]);
+
+  const topLevel = useMemo(
+    () => (catalog.data?.entries.filter((e) => e.level === "oddil") ?? []).sort((a, b) => a.prefix.localeCompare(b.prefix)),
+    [catalog.data],
+  );
+
+  // List zobrazujeme: pokud query, search výsledky; jinak děti aktuálního parent (nebo top-level)
+  const currentParent = parentStack[parentStack.length - 1] ?? "";
+  const listEntries: CpvEntry[] = useMemo(() => {
+    if (!catalog.data) return [];
+    const q = query.trim();
+    if (q) {
+      const digits = q.replace(/[^0-9]/g, "");
+      const folded = fold(q);
+      const out: CpvEntry[] = [];
+      for (const e of catalog.data.entries) {
+        const codeMatch = digits && e.prefix.startsWith(digits);
+        const labelMatch = folded && fold(e.label).includes(folded);
+        if (codeMatch || labelMatch) {
+          out.push(e);
+          if (out.length >= 80) break;
+        }
+      }
+      return out;
+    }
+    return currentParent ? (childrenOf.get(currentParent) ?? []) : topLevel;
+  }, [catalog.data, query, currentParent, childrenOf, topLevel]);
+
+  function toggle(prefix: string) {
+    setSelected((prev) => (prev.includes(prefix) ? prev.filter((x) => x !== prefix) : [...prev, prefix]));
+  }
+
+  function isSelectedOrCovered(prefix: string): "selected" | "covered" | null {
+    if (selected.includes(prefix)) return "selected";
+    // Covered if any selected prefix is a parent
+    if (selected.some((s) => s.length < prefix.length && prefix.startsWith(s))) return "covered";
+    return null;
+  }
+
+  function drillInto(prefix: string) {
+    if (childrenOf.has(prefix)) {
+      setParentStack((prev) => [...prev, prefix]);
+      setQuery("");
+    }
+  }
+
+  function popBreadcrumb(level: number) {
+    setParentStack((prev) => prev.slice(0, level));
   }
 
   return (
@@ -76,68 +135,109 @@ export default function CpvPickerModal({ visible, initial, onClose, onApply }: P
       <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={onClose}>
         <Pressable style={styles.card} onPress={(e) => e.stopPropagation()}>
           <Text style={styles.title}>CPV kódy</Text>
-          <Text style={styles.help}>
-            Zadejte prefix CPV kódu (např. 4520 pro pozemní stavby) nebo vyberte
-            z divizí níže.
-          </Text>
 
-          <View style={styles.inputRow}>
-            <TextInput
-              value={input}
-              onChangeText={setInput}
-              placeholder="44, 4520, 71200…"
-              placeholderTextColor={colors.textFaint}
-              keyboardType="number-pad"
-              maxLength={8}
-              style={styles.input}
-              onSubmitEditing={() => addPrefix(input)}
-              returnKeyType="done"
-            />
-            <Pressable
-              onPress={() => addPrefix(input)}
-              disabled={input.length < 2}
-              style={({ pressed }) => [
-                styles.addBtn,
-                input.length < 2 && { opacity: 0.4 },
-                pressed && { opacity: 0.7 },
-              ]}
+          <TextInput
+            value={query}
+            onChangeText={setQuery}
+            placeholder="Hledat (kód nebo název)…"
+            placeholderTextColor={colors.textFaint}
+            style={styles.search}
+            autoCapitalize="none"
+            autoCorrect={false}
+            clearButtonMode="while-editing"
+          />
+
+          {!query && parentStack.length > 0 && (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.breadcrumbWrap}
+              contentContainerStyle={styles.breadcrumbContent}
             >
-              <Text style={styles.addBtnText}>Přidat</Text>
-            </Pressable>
-          </View>
+              <Pressable onPress={() => popBreadcrumb(0)} style={styles.crumb}>
+                <Text style={styles.crumbText}>Vše</Text>
+              </Pressable>
+              {parentStack.map((p, idx) => {
+                const entry = byPrefix.get(p);
+                const isLast = idx === parentStack.length - 1;
+                return (
+                  <View key={p} style={styles.crumbRow}>
+                    <Text style={styles.crumbSep}>›</Text>
+                    <Pressable
+                      onPress={() => popBreadcrumb(idx + 1)}
+                      disabled={isLast}
+                      style={styles.crumb}
+                    >
+                      <Text style={[styles.crumbText, isLast && styles.crumbCurrent]}>
+                        {p} · {entry?.label ?? "?"}
+                      </Text>
+                    </Pressable>
+                  </View>
+                );
+              })}
+            </ScrollView>
+          )}
 
-          {prefixes.length > 0 && (
-            <View style={styles.selectedRow}>
-              {prefixes.map((p) => (
-                <Pressable
-                  key={p}
-                  onPress={() => remove(p)}
-                  style={styles.selectedChip}
-                >
+          {selected.length > 0 && (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.selectedWrap}
+              contentContainerStyle={styles.selectedRow}
+            >
+              {selected.map((p) => (
+                <Pressable key={p} onPress={() => toggle(p)} style={styles.selectedChip}>
                   <Text style={styles.selectedChipText}>{p} ×</Text>
                 </Pressable>
               ))}
-            </View>
+            </ScrollView>
           )}
 
-          <Text style={styles.divisionsLabel}>Běžné divize</Text>
-          <ScrollView style={styles.divisions} showsVerticalScrollIndicator={false}>
-            <View style={styles.divisionsGrid}>
-              {COMMON_DIVISIONS.map((d) => {
-                const active = prefixes.includes(d.code);
+          <ScrollView style={styles.body} showsVerticalScrollIndicator={false}>
+            {catalog.isLoading ? (
+              <View style={styles.loader}>
+                <ActivityIndicator color={colors.textSubtle} />
+              </View>
+            ) : listEntries.length === 0 ? (
+              <Text style={styles.empty}>
+                {query ? "Nic nenalezeno" : "Žádné podkategorie"}
+              </Text>
+            ) : (
+              listEntries.map((e) => {
+                const state = isSelectedOrCovered(e.prefix);
+                const hasChildren = childrenOf.has(e.prefix);
                 return (
-                  <Pressable
-                    key={d.code}
-                    onPress={() => toggleDivision(d.code)}
-                    style={[styles.division, active && styles.divisionActive]}
-                  >
-                    <Text style={[styles.divisionText, active && styles.divisionTextActive]}>
-                      {d.label}
-                    </Text>
-                  </Pressable>
+                  <View key={e.prefix} style={styles.row}>
+                    <Pressable
+                      onPress={() => toggle(e.prefix)}
+                      style={({ pressed }) => [
+                        styles.checkBtn,
+                        state === "selected" && styles.checkBtnActive,
+                        state === "covered" && styles.checkBtnCovered,
+                        pressed && { opacity: 0.7 },
+                      ]}
+                    >
+                      {state === "selected" && <Text style={styles.checkMark}>✓</Text>}
+                      {state === "covered" && <Text style={styles.checkMark}>·</Text>}
+                    </Pressable>
+                    <Pressable
+                      onPress={() => (hasChildren ? drillInto(e.prefix) : toggle(e.prefix))}
+                      style={({ pressed }) => [styles.entryBtn, pressed && { opacity: 0.7 }]}
+                    >
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.entryLabel} numberOfLines={2}>
+                          {e.label}
+                        </Text>
+                        <Text style={styles.entryMeta}>
+                          {e.prefix} · {LEVEL_LABEL[e.level]}
+                        </Text>
+                      </View>
+                      {hasChildren && <Text style={styles.entryArrow}>›</Text>}
+                    </Pressable>
+                  </View>
                 );
-              })}
-            </View>
+              })
+            )}
           </ScrollView>
 
           <View style={styles.actions}>
@@ -152,7 +252,7 @@ export default function CpvPickerModal({ visible, initial, onClose, onApply }: P
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
-                onApply(prefixes);
+                onApply(selected);
                 onClose();
               }}
               style={styles.applyBtn}
@@ -166,6 +266,14 @@ export default function CpvPickerModal({ visible, initial, onClose, onApply }: P
   );
 }
 
+const LEVEL_LABEL: Record<CpvEntry["level"], string> = {
+  oddil: "Oddíl",
+  skupina: "Skupina",
+  trida: "Třída",
+  kategorie: "Kategorie",
+  podkategorie: "Podkategorie",
+};
+
 const makeStyles = (colors: Colors) =>
   StyleSheet.create({
     overlay: {
@@ -177,8 +285,8 @@ const makeStyles = (colors: Colors) =>
     },
     card: {
       width: "100%",
-      maxWidth: 420,
-      maxHeight: "85%",
+      maxWidth: 480,
+      maxHeight: "90%",
       backgroundColor: colors.card,
       borderRadius: radius.lg,
       padding: spacing.lg,
@@ -189,72 +297,75 @@ const makeStyles = (colors: Colors) =>
       fontSize: fontSize.lg,
       fontWeight: "600",
       color: colors.text,
-      marginBottom: spacing.xs,
-      textAlign: "center",
-    },
-    help: {
-      fontSize: fontSize.xs,
-      color: colors.textSubtle,
-      textAlign: "center",
       marginBottom: spacing.md,
-      lineHeight: 16,
+      textAlign: "center",
     },
-    inputRow: { flexDirection: "row", gap: spacing.sm },
-    input: {
-      flex: 1,
+    search: {
       backgroundColor: colors.bg,
       borderWidth: 1,
       borderColor: colors.border,
       borderRadius: radius.md,
       paddingHorizontal: spacing.md,
       paddingVertical: spacing.sm + 2,
-      fontSize: fontSize.base,
+      fontSize: fontSize.sm,
       color: colors.text,
     },
-    addBtn: {
-      paddingHorizontal: spacing.lg,
-      paddingVertical: spacing.sm + 2,
-      borderRadius: radius.md,
-      backgroundColor: colors.accent,
-      justifyContent: "center",
-    },
-    addBtnText: { color: colors.accentForeground, fontSize: fontSize.sm, fontWeight: "600" },
-    selectedRow: {
-      flexDirection: "row",
-      flexWrap: "wrap",
-      gap: spacing.xs,
-      marginTop: spacing.md,
-    },
+    breadcrumbWrap: { marginTop: spacing.sm, maxHeight: 32 },
+    breadcrumbContent: { alignItems: "center", paddingVertical: 2 },
+    crumbRow: { flexDirection: "row", alignItems: "center" },
+    crumb: { paddingHorizontal: spacing.xs },
+    crumbText: { fontSize: fontSize.xs, color: colors.link },
+    crumbCurrent: { color: colors.text, fontWeight: "600" },
+    crumbSep: { color: colors.textSubtle, fontSize: fontSize.sm, marginHorizontal: 2 },
+    selectedWrap: { marginTop: spacing.sm, maxHeight: 32 },
+    selectedRow: { flexDirection: "row", gap: spacing.xs },
     selectedChip: {
-      paddingHorizontal: spacing.md,
+      paddingHorizontal: spacing.sm + 2,
       paddingVertical: spacing.xs + 2,
       borderRadius: radius.full,
       backgroundColor: colors.accent,
     },
     selectedChipText: { color: colors.accentForeground, fontSize: fontSize.xs, fontWeight: "600" },
-    divisionsLabel: {
-      fontSize: fontSize.xs,
+    body: { marginTop: spacing.sm, maxHeight: 420 },
+    loader: { paddingVertical: spacing.xxl, alignItems: "center" },
+    empty: {
+      paddingVertical: spacing.xl,
+      textAlign: "center",
       color: colors.textSubtle,
-      fontWeight: "500",
-      textTransform: "uppercase",
-      letterSpacing: 0.5,
-      marginTop: spacing.lg,
-      marginBottom: spacing.sm,
+      fontSize: fontSize.sm,
     },
-    divisions: { maxHeight: 240 },
-    divisionsGrid: { gap: spacing.xs },
-    division: {
-      paddingHorizontal: spacing.md,
-      paddingVertical: spacing.sm,
-      borderRadius: radius.md,
+    row: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: spacing.sm,
+      paddingVertical: spacing.xs,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    checkBtn: {
+      width: 26,
+      height: 26,
+      borderRadius: 6,
       borderWidth: 1,
       borderColor: colors.border,
       backgroundColor: colors.bg,
+      alignItems: "center",
+      justifyContent: "center",
     },
-    divisionActive: { backgroundColor: colors.accent, borderColor: colors.accent },
-    divisionText: { fontSize: fontSize.xs, color: colors.text },
-    divisionTextActive: { color: colors.accentForeground, fontWeight: "600" },
-    actions: { flexDirection: "row", gap: spacing.sm, marginTop: spacing.lg },
+    checkBtnActive: { backgroundColor: colors.accent, borderColor: colors.accent },
+    checkBtnCovered: { backgroundColor: colors.bg, borderColor: colors.textSubtle },
+    checkMark: { color: colors.accentForeground, fontSize: 14, fontWeight: "700" },
+    entryBtn: {
+      flex: 1,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: spacing.sm,
+      paddingVertical: spacing.sm,
+    },
+    entryLabel: { fontSize: fontSize.sm, color: colors.text, lineHeight: 18 },
+    entryMeta: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: 2 },
+    entryArrow: { fontSize: 20, color: colors.textFaint },
+    actions: { flexDirection: "row", gap: spacing.sm, marginTop: spacing.md },
     clearBtn: {
       flex: 1,
       paddingVertical: spacing.md,
