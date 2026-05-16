@@ -132,9 +132,28 @@ function MatchCard({
             {deadlineLabel.replace("{date}", formatDate(tender.deadlineAt, locale))}
           </Text>
         )}
+        {tender.estimatedValue ? (
+          <Text style={styles.cardMetaSub}>
+            {formatMoney(tender.estimatedValue, tender.currency, locale)}
+          </Text>
+        ) : null}
       </View>
     </Pressable>
   );
+}
+
+const NUMBER_LOCALE_MAP: Record<string, string> = { cs: "cs-CZ", en: "en-US", de: "de-DE" };
+
+function formatMoney(value: number, currency: string | null, locale: string): string {
+  try {
+    return new Intl.NumberFormat(NUMBER_LOCALE_MAP[locale] ?? "cs-CZ", {
+      style: "currency",
+      currency: currency ?? "CZK",
+      maximumFractionDigits: 0,
+    }).format(value);
+  } catch {
+    return `${value.toLocaleString(NUMBER_LOCALE_MAP[locale] ?? "cs-CZ")} ${currency ?? "CZK"}`;
+  }
 }
 
 function formatDate(iso: string, locale: string): string {
