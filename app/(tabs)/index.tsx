@@ -15,15 +15,40 @@ import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { endpoints, type LeadMatchRow } from "@/lib/endpoints";
 import FilterPicker from "@/components/FilterPicker";
 import MatchCard from "@/components/MatchCard";
-import AdHocFilterModal, {
+import RegionPickerModal from "@/components/RegionPickerModal";
+import ValueRangePickerModal from "@/components/ValueRangePickerModal";
+import { CZ_REGIONS } from "@/lib/nuts-cz";
+import {
   EMPTY_AD_HOC,
   isAdHocActive,
   type AdHocFilter,
-} from "@/components/AdHocFilterModal";
+} from "@/lib/ad-hoc-filter";
 import { useToggleTenderPreference } from "@/lib/use-tender-preference";
 import { useTheme } from "@/lib/theme-context";
 import { useI18n } from "@/lib/i18n";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
+
+function regionChipLabel(codes: string[]): string {
+  if (codes.length === 0) return "Region";
+  if (codes.length === 1) {
+    const r = CZ_REGIONS.find((x) => x.code === codes[0]);
+    return r?.labels.cs ?? "Region";
+  }
+  return `Regiony (${codes.length})`;
+}
+
+function valueChipLabel(min: number | null, max: number | null): string {
+  if (min == null && max == null) return "Cena";
+  const fmt = (n: number) =>
+    n >= 1_000_000
+      ? `${(n / 1_000_000).toFixed(n % 1_000_000 === 0 ? 0 : 1)}M`
+      : n >= 1_000
+        ? `${Math.round(n / 1_000)}k`
+        : String(n);
+  if (min != null && max != null) return `${fmt(min)} – ${fmt(max)}`;
+  if (min != null) return `od ${fmt(min)}`;
+  return `do ${fmt(max!)}`;
+}
 
 export default function MatchesScreen() {
   const router = useRouter();
@@ -35,6 +60,8 @@ export default function MatchesScreen() {
   const [searchDebounced, setSearchDebounced] = useState("");
   const [adHoc, setAdHoc] = useState<AdHocFilter>(EMPTY_AD_HOC);
   const [adHocOpen, setAdHocOpen] = useState(false);
+  const [regionPickerOpen, setRegionPickerOpen] = useState(false);
+  const [valuePickerOpen, setValuePickerOpen] = useState(false);
   const setPreference = useToggleTenderPreference();
 
   // Debounce search input → odložený query refetch.
@@ -109,18 +136,18 @@ export default function MatchesScreen() {
               onEdit={(fid) => router.push({ pathname: "/filter/[id]", params: { id: fid } })}
             />
             <Pressable
-              onPress={() => setAdHocOpen(true)}
+              onPress={() => setAdHocOpen((v) => !v)}
               hitSlop={6}
               style={({ pressed }) => [
                 styles.adHocBtn,
-                isAdHocActive(adHoc) && styles.adHocBtnActive,
+                (adHocOpen || isAdHocActive(adHoc)) && styles.adHocBtnActive,
                 pressed && { opacity: 0.7 },
               ]}
             >
               <Text
                 style={[
                   styles.adHocIcon,
-                  isAdHocActive(adHoc) && styles.adHocIconActive,
+                  (adHocOpen || isAdHocActive(adHoc)) && styles.adHocIconActive,
                 ]}
               >
                 ☰
@@ -169,13 +196,67 @@ export default function MatchesScreen() {
             return null;
           })()}
         </View>
+        {adHocOpen && (
+          <View style={styles.adHocPanel}>
+            <Pressable
+              onPress={() => setRegionPickerOpen(true)}
+              style={({ pressed }) => [
+                styles.adHocChip,
+                adHoc.regions.length > 0 && styles.adHocChipActive,
+                pressed && { opacity: 0.7 },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.adHocChipText,
+                  adHoc.regions.length > 0 && styles.adHocChipTextActive,
+                ]}
+              >
+                {regionChipLabel(adHoc.regions)}
+              </Text>
+            </Pressable>
+            <Pressable
+              onPress={() => setValuePickerOpen(true)}
+              style={({ pressed }) => [
+                styles.adHocChip,
+                (adHoc.minValue != null || adHoc.maxValue != null) && styles.adHocChipActive,
+                pressed && { opacity: 0.7 },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.adHocChipText,
+                  (adHoc.minValue != null || adHoc.maxValue != null) &&
+                    styles.adHocChipTextActive,
+                ]}
+              >
+                {valueChipLabel(adHoc.minValue, adHoc.maxValue)}
+              </Text>
+            </Pressable>
+            {isAdHocActive(adHoc) && (
+              <Pressable
+                onPress={() => setAdHoc(EMPTY_AD_HOC)}
+                style={({ pressed }) => [styles.adHocClearChip, pressed && { opacity: 0.7 }]}
+              >
+                <Text style={styles.adHocClearChipText}>{t("matches", "adHocClear")}</Text>
+              </Pressable>
+            )}
+          </View>
+        )}
       </View>
 
-      <AdHocFilterModal
-        visible={adHocOpen}
-        initial={adHoc}
-        onClose={() => setAdHocOpen(false)}
-        onApply={setAdHoc}
+      <RegionPickerModal
+        visible={regionPickerOpen}
+        initial={adHoc.regions}
+        onClose={() => setRegionPickerOpen(false)}
+        onApply={(regions) => setAdHoc((prev) => ({ ...prev, regions }))}
+      />
+      <ValueRangePickerModal
+        visible={valuePickerOpen}
+        initialMin={adHoc.minValue}
+        initialMax={adHoc.maxValue}
+        onClose={() => setValuePickerOpen(false)}
+        onApply={(min, max) => setAdHoc((prev) => ({ ...prev, minValue: min, maxValue: max }))}
       />
 
       <FlatList
@@ -298,6 +379,32 @@ const makeStyles = (colors: Colors) =>
       lineHeight: 20,
       fontWeight: "700",
     },
+    adHocPanel: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: spacing.sm,
+      marginTop: spacing.md,
+    },
+    adHocChip: {
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: radius.full,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.card,
+    },
+    adHocChipActive: { backgroundColor: colors.accent, borderColor: colors.accent },
+    adHocChipText: { fontSize: fontSize.xs, color: colors.text, fontWeight: "500" },
+    adHocChipTextActive: { color: colors.accentForeground, fontWeight: "600" },
+    adHocClearChip: {
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: radius.full,
+      borderWidth: 1,
+      borderStyle: "dashed",
+      borderColor: colors.border,
+    },
+    adHocClearChipText: { fontSize: fontSize.xs, color: colors.textSubtle, fontWeight: "500" },
     searchInput: {
       backgroundColor: colors.card,
       borderWidth: 1,
