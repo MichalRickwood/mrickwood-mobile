@@ -256,6 +256,12 @@ export interface Dict {
     passwordSubmit: string;
     passwordSubmitting: string;
     passwordSavedToast: string;
+    revokeAllTitle: string;
+    revokeAllSubtitle: string;
+    revokeAllBtn: string;
+    revokeAllConfirmTitle: string;
+    revokeAllConfirmBody: string;
+    revokeAllSuccess: string;
     notificationsTitle: string;
     pushTitle: string;
     pushLabel: string;
@@ -535,6 +541,12 @@ const cs: Dict = {
     passwordSubmit: "Uložit",
     passwordSubmitting: "Ukládám…",
     passwordSavedToast: "Heslo bylo uloženo.",
+    revokeAllTitle: "Odhlásit ze všech zařízení",
+    revokeAllSubtitle: "Ihned ukončí všechny aktivní mobilní přihlášení (i toto). Budete se muset přihlásit znovu na každém zařízení.",
+    revokeAllBtn: "Odhlásit ze všech zařízení",
+    revokeAllConfirmTitle: "Odhlásit ze všech zařízení?",
+    revokeAllConfirmBody: "Toto zařízení i všechna ostatní přihlášení budou ukončena. Pokračovat?",
+    revokeAllSuccess: "Všechny session ukončeny.",
     notificationsTitle: "Notifikace",
     pushTitle: "Push notifikace",
     pushLabel: "Push notifikace v aplikaci",
@@ -809,6 +821,12 @@ const en: Dict = {
     passwordSubmit: "Save",
     passwordSubmitting: "Saving…",
     passwordSavedToast: "Password saved.",
+    revokeAllTitle: "Sign out everywhere",
+    revokeAllSubtitle: "Immediately end all active mobile sessions (including this one). You'll need to sign in again on each device.",
+    revokeAllBtn: "Sign out from all devices",
+    revokeAllConfirmTitle: "Sign out everywhere?",
+    revokeAllConfirmBody: "This device and all other sessions will be signed out. Continue?",
+    revokeAllSuccess: "All sessions ended.",
     notificationsTitle: "Notifications",
     pushTitle: "Push notifications",
     pushLabel: "In-app push notifications",
@@ -1085,6 +1103,12 @@ const de: Dict = {
     passwordSubmit: "Speichern",
     passwordSubmitting: "Speichere…",
     passwordSavedToast: "Passwort gespeichert.",
+    revokeAllTitle: "Überall abmelden",
+    revokeAllSubtitle: "Beendet sofort alle aktiven mobilen Sitzungen (auch diese). Sie müssen sich auf jedem Gerät neu anmelden.",
+    revokeAllBtn: "Von allen Geräten abmelden",
+    revokeAllConfirmTitle: "Überall abmelden?",
+    revokeAllConfirmBody: "Dieses Gerät und alle anderen Sitzungen werden abgemeldet. Fortfahren?",
+    revokeAllSuccess: "Alle Sitzungen beendet.",
     notificationsTitle: "Benachrichtigungen",
     pushTitle: "Push-Benachrichtigungen",
     pushLabel: "Push-Benachrichtigungen in der App",

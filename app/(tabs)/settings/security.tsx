@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -12,6 +13,8 @@ import {
 } from "react-native";
 import { ApiError } from "@/lib/api";
 import { endpoints } from "@/lib/endpoints";
+import { saveToken } from "@/lib/auth-storage";
+import { useAuth } from "@/lib/auth-context";
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme-context";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
@@ -19,6 +22,7 @@ import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 export default function SecurityScreen() {
   const { t } = useI18n();
   const { colors } = useTheme();
+  const { signOut } = useAuth();
   const styles = useMemo(() => makeStyles(colors), [colors]);
 
   const [hasPassword, setHasPassword] = useState<boolean | null>(null);
@@ -29,6 +33,38 @@ export default function SecurityScreen() {
   const [next2, setNext2] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [revoking, setRevoking] = useState(false);
+
+  function confirmRevokeAll() {
+    Alert.alert(
+      t("settings", "revokeAllConfirmTitle"),
+      t("settings", "revokeAllConfirmBody"),
+      [
+        { text: t("settings", "cancel"), style: "cancel" },
+        {
+          text: t("settings", "revokeAllBtn"),
+          style: "destructive",
+          onPress: () => void doRevokeAll(),
+        },
+      ],
+    );
+  }
+
+  async function doRevokeAll() {
+    if (revoking) return;
+    setRevoking(true);
+    setError(null);
+    try {
+      await endpoints.revokeAllSessions();
+      // Server inkrementoval mobileTokenVersion → tento JWT už je neplatný.
+      // Lokální signOut() smaže SecureStore + push token a router přesměruje
+      // na login screen.
+      await signOut();
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : t("settings", "saveFailed"));
+      setRevoking(false);
+    }
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -61,10 +97,14 @@ export default function SecurityScreen() {
     }
     setSaving(true);
     try {
-      await endpoints.changePassword({
+      const r = await endpoints.changePassword({
         currentPassword: hasPassword ? current : undefined,
         newPassword: next,
       });
+      // Server inkrementoval mobileTokenVersion → starý JWT už neplatí.
+      // Uložíme nový vrácený token, jinak by další volání skončilo 401 a
+      // klient by se odhlásil.
+      await saveToken(r.token);
       setCurrent("");
       setNext("");
       setNext2("");
@@ -166,6 +206,22 @@ export default function SecurityScreen() {
               </Text>
             </Pressable>
           </View>
+
+          <View style={styles.revokeBox}>
+            <Text style={styles.revokeTitle}>{t("settings", "revokeAllTitle")}</Text>
+            <Text style={styles.revokeSubtitle}>{t("settings", "revokeAllSubtitle")}</Text>
+            <Pressable
+              onPress={confirmRevokeAll}
+              disabled={revoking}
+              style={({ pressed }) => [
+                styles.revokeBtn,
+                revoking && styles.buttonDisabled,
+                pressed && styles.buttonPressed,
+              ]}
+            >
+              <Text style={styles.revokeBtnText}>{t("settings", "revokeAllBtn")}</Text>
+            </Pressable>
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
@@ -235,4 +291,28 @@ const makeStyles = (colors: Colors) =>
       fontSize: fontSize.base,
       fontWeight: "600",
     },
+    revokeBox: {
+      marginTop: spacing.xxl,
+      backgroundColor: colors.card,
+      borderRadius: radius.lg,
+      borderWidth: 1,
+      borderColor: colors.danger,
+      padding: spacing.lg,
+    },
+    revokeTitle: { fontSize: fontSize.base, fontWeight: "600", color: colors.danger },
+    revokeSubtitle: {
+      fontSize: fontSize.sm,
+      color: colors.textSubtle,
+      marginTop: spacing.xs,
+      marginBottom: spacing.md,
+      lineHeight: 18,
+    },
+    revokeBtn: {
+      backgroundColor: colors.danger,
+      borderRadius: radius.md,
+      paddingVertical: spacing.sm + 2,
+      paddingHorizontal: spacing.lg,
+      alignSelf: "flex-start",
+    },
+    revokeBtnText: { color: colors.accentForeground, fontSize: fontSize.sm, fontWeight: "600" },
   });

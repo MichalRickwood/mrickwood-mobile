@@ -145,8 +145,13 @@ export const endpoints = {
 
   // Heslo — GET zda user má heslo (OAuth-only účty mají hasPassword=false)
   getPasswordStatus: () => api.get<{ hasPassword: boolean }>("/api/mobile/password"),
+  // POST vrací nový JWT (token-version se inkrementuje při změně hesla, takže
+  // starý token by skončil 401). Klient nahradí token v SecureStore.
   changePassword: (input: { currentPassword?: string; newPassword: string }) =>
-    api.post<{ ok: true }>("/api/mobile/password", input),
+    api.post<{ ok: true; token: string }>("/api/mobile/password", input),
+
+  // Odhlásit ze všech zařízení (inkrement mobileTokenVersion).
+  revokeAllSessions: () => api.post<{ ok: true }>("/api/mobile/sessions/revoke"),
 
   // Billing — full self-service state (profile, mode, cycle, services, card, invoice)
   getBilling: () => api.get<BillingFullState>("/api/mobile/billing"),
