@@ -394,16 +394,8 @@ export default function BillingScreen() {
         style={styles.flex}
       >
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-          {/* Plan summary */}
-          {primaryService && (
-            <PlanSummary
-              styles={styles}
-              service={primaryService}
-              cycle={cycle}
-              t={t}
-              dateLocale={dateLocale}
-            />
-          )}
+          {/* PlanSummary skryt — info už je v "Aktivní služby" sekci níž a
+              redundantní summary plan/state/cycle zbytečně zabíralo místo. */}
 
           {/* Fakturační údaje */}
           <Section styles={styles} title={t("settings", "billingProfileSection")}>
@@ -661,6 +653,8 @@ export default function BillingScreen() {
                   service={svc}
                   t={t}
                   dateLocale={dateLocale}
+                  numberLocale={numberLocale}
+                  cycle={cycle}
                   busy={serviceBusy === svc.service}
                   onToggle={() => void toggleService(svc)}
                   onDeactivate={() => void deactivateService(svc)}
@@ -846,6 +840,8 @@ function ServiceRow({
   service,
   t,
   dateLocale,
+  numberLocale,
+  cycle,
   busy,
   onToggle,
   onDeactivate,
@@ -854,11 +850,27 @@ function ServiceRow({
   service: BillingServiceRow;
   t: TFn;
   dateLocale: string;
+  numberLocale: string;
+  cycle: BillingCycle | null;
   busy: boolean;
   onToggle: () => void;
   onDeactivate: () => void;
 }) {
   const canDeactivate = service.service === "LEADS" && service.state !== "CANCELED";
+  const effCycle: BillingCycle = cycle ?? "MONTHLY";
+  const priceVal =
+    effCycle === "YEARLY" ? service.priceYearly : service.priceMonthly;
+  const priceText =
+    priceVal != null
+      ? t(
+          "settings",
+          effCycle === "YEARLY"
+            ? "billingServicePriceYearly"
+            : "billingServicePriceMonthly",
+          { price: formatMoney(priceVal, numberLocale) },
+        )
+      : null;
+
   return (
     <View style={styles.serviceRow}>
       <View style={styles.serviceText}>
@@ -870,6 +882,7 @@ function ServiceRow({
               ? t("settings", "billingServicePaidUntil", { date: formatDate(service.paidUntil, dateLocale) })
               : stateLabel(service.state, t)}
         </Text>
+        {priceText && <Text style={styles.servicePrice}>{priceText}</Text>}
       </View>
       <View style={{ flexDirection: "row", gap: spacing.xs }}>
         {service.tier === "PAID" && service.state === "ACTIVE" && (
@@ -1162,6 +1175,7 @@ const makeStyles = (colors: Colors) =>
     serviceText: { flex: 1, paddingRight: spacing.md },
     serviceName: { fontSize: fontSize.base, fontWeight: "600", color: colors.text },
     serviceMeta: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: 2 },
+    servicePrice: { fontSize: fontSize.xs, color: colors.text, fontWeight: "600", marginTop: 2 },
 
     invoiceRow: {
       flexDirection: "row",

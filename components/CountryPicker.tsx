@@ -34,6 +34,36 @@ interface Props {
   onChange: (countryCode: string) => void;
 }
 
+const COUNTRY_LABELS: Record<string, Record<string, string>> = {
+  cs: {
+    CZ: "Česká republika", SK: "Slovensko", DE: "Německo", AT: "Rakousko",
+    PL: "Polsko", FR: "Francie", GB: "Velká Británie", HU: "Maďarsko",
+    IT: "Itálie", ES: "Španělsko", NL: "Nizozemsko", BE: "Belgie",
+    DK: "Dánsko", FI: "Finsko", SE: "Švédsko", IE: "Irsko",
+    PT: "Portugalsko", RO: "Rumunsko", BG: "Bulharsko", HR: "Chorvatsko",
+    SI: "Slovinsko", EE: "Estonsko", LV: "Lotyšsko", LT: "Litva",
+    GR: "Řecko", CY: "Kypr", MT: "Malta", LU: "Lucembursko",
+  },
+  en: {
+    CZ: "Czechia", SK: "Slovakia", DE: "Germany", AT: "Austria",
+    PL: "Poland", FR: "France", GB: "United Kingdom", HU: "Hungary",
+    IT: "Italy", ES: "Spain", NL: "Netherlands", BE: "Belgium",
+    DK: "Denmark", FI: "Finland", SE: "Sweden", IE: "Ireland",
+    PT: "Portugal", RO: "Romania", BG: "Bulgaria", HR: "Croatia",
+    SI: "Slovenia", EE: "Estonia", LV: "Latvia", LT: "Lithuania",
+    GR: "Greece", CY: "Cyprus", MT: "Malta", LU: "Luxembourg",
+  },
+  de: {
+    CZ: "Tschechien", SK: "Slowakei", DE: "Deutschland", AT: "Österreich",
+    PL: "Polen", FR: "Frankreich", GB: "Vereinigtes Königreich", HU: "Ungarn",
+    IT: "Italien", ES: "Spanien", NL: "Niederlande", BE: "Belgien",
+    DK: "Dänemark", FI: "Finnland", SE: "Schweden", IE: "Irland",
+    PT: "Portugal", RO: "Rumänien", BG: "Bulgarien", HR: "Kroatien",
+    SI: "Slowenien", EE: "Estland", LV: "Lettland", LT: "Litauen",
+    GR: "Griechenland", CY: "Zypern", MT: "Malta", LU: "Luxemburg",
+  },
+};
+
 export default function CountryPicker({ value, onChange }: Props) {
   const { t, locale } = useI18n();
   const { colors } = useTheme();
@@ -41,20 +71,16 @@ export default function CountryPicker({ value, onChange }: Props) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
 
-  // Lokalizovaný název země přes Intl.DisplayNames (Hermes/V8 podporuje).
-  // Fallback na fixní cs label ze SUPPORTED_COUNTRIES.
-  const localize = useMemo(() => {
-    try {
-      const dn = new Intl.DisplayNames([locale], { type: "region" });
-      return (code: string, fallback: string) => dn.of(code) ?? fallback;
-    } catch {
-      return (_code: string, fallback: string) => fallback;
-    }
-  }, [locale]);
-
+  // Lokalizované názvy zemí. Hermes engine v RN nedodává Intl.DisplayNames
+  // bez polyfilu, takže držíme static maps pro 3 podporované locales.
+  // Pro zbytek (jiné jazyky aplikace) fallback na cs labels ze SUPPORTED_COUNTRIES.
   const countries = useMemo(
-    () => SUPPORTED_COUNTRIES.map((c) => ({ ...c, label: localize(c.code, c.label) })),
-    [localize],
+    () =>
+      SUPPORTED_COUNTRIES.map((c) => ({
+        ...c,
+        label: COUNTRY_LABELS[locale]?.[c.code] ?? c.label,
+      })),
+    [locale],
   );
 
   const current = countries.find((c) => c.code === value);

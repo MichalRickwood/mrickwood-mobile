@@ -253,6 +253,8 @@ export interface Dict {
     billingServiceCancel: string;
     billingServiceReactivate: string;
     billingServiceCanceled: string;
+    billingServicePriceMonthly: string;
+    billingServicePriceYearly: string;
     billingServiceDeactivate: string;
     billingServiceDeactivateConfirmTitle: string;
     billingServiceDeactivateConfirmBody: string;
@@ -654,6 +656,8 @@ const cs: Dict = {
     billingServiceCancel: "Ukončit automatickou obnovu",
     billingServiceReactivate: "Obnovit automatickou obnovu",
     billingServiceCanceled: "Auto-obnova vypnuta",
+    billingServicePriceMonthly: "{price} / měsíc",
+    billingServicePriceYearly: "{price} / rok",
     billingServiceDeactivate: "Deaktivovat",
     billingServiceDeactivateConfirmTitle: "Deaktivovat službu?",
     billingServiceDeactivateConfirmBody: "Okamžitě ztratíš přístup k zakázkám a notifikacím. Pokud trial nebo období ještě běží, můžeš ji kdykoli reaktivovat.",
@@ -1050,6 +1054,8 @@ const en: Dict = {
     billingServiceCancel: "Cancel auto-renewal",
     billingServiceReactivate: "Resume auto-renewal",
     billingServiceCanceled: "Auto-renewal off",
+    billingServicePriceMonthly: "{price} / month",
+    billingServicePriceYearly: "{price} / year",
     billingServiceDeactivate: "Deactivate",
     billingServiceDeactivateConfirmTitle: "Deactivate service?",
     billingServiceDeactivateConfirmBody: "You will immediately lose access to tenders and notifications. If your trial or paid period is still running, you can reactivate any time.",
@@ -1448,6 +1454,8 @@ const de: Dict = {
     billingServiceCancel: "Automatische Verlängerung beenden",
     billingServiceReactivate: "Automatische Verlängerung fortsetzen",
     billingServiceCanceled: "Auto-Verlängerung aus",
+    billingServicePriceMonthly: "{price} / Monat",
+    billingServicePriceYearly: "{price} / Jahr",
     billingServiceDeactivate: "Deaktivieren",
     billingServiceDeactivateConfirmTitle: "Dienst deaktivieren?",
     billingServiceDeactivateConfirmBody: "Sie verlieren sofort den Zugriff auf Ausschreibungen und Benachrichtigungen. Wenn Ihre Testphase oder bezahlte Periode noch läuft, können Sie jederzeit reaktivieren.",

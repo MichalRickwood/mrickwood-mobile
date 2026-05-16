@@ -380,6 +380,8 @@ export interface BillingServiceRow {
   trialEndsAt: string | null;
   paidUntil: string | null;
   cancelAtPeriodEnd: boolean;
+  priceMonthly: number | null;
+  priceYearly: number | null;
 }
 
 export interface BillingFullState {
