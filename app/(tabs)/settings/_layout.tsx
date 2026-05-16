@@ -20,6 +20,7 @@ export default function SettingsLayout() {
       <Stack.Screen name="notifications" options={{ title: t("settings", "notificationsTitle") }} />
       <Stack.Screen name="security" options={{ title: t("settings", "securityTitle") }} />
       <Stack.Screen name="billing" options={{ title: t("settings", "billingTitle") }} />
+      <Stack.Screen name="invoice-pdf" options={{ title: t("settings", "billingInvoicesSection") }} />
       <Stack.Screen name="account" options={{ title: t("settings", "accountTitle") }} />
     </Stack>
   );

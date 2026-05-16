@@ -29,7 +29,8 @@ import { useTheme } from "@/lib/theme-context";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 import CompanyLookupField from "@/components/CompanyLookupField";
 import CountryPicker from "@/components/CountryPicker";
-import { downloadAndShareInvoicePdf } from "@/lib/invoice-pdf";
+import { downloadInvoicePdf } from "@/lib/invoice-pdf";
+import { useRouter } from "expo-router";
 
 const LOCALE_MAP: Record<string, string> = { cs: "cs-CZ", en: "en-GB", de: "de-DE" };
 const NUMBER_LOCALE_MAP: Record<string, string> = { cs: "cs-CZ", en: "en-US", de: "de-DE" };
@@ -38,6 +39,7 @@ const SAVE_DEBOUNCE_MS = 700;
 type TFn = ReturnType<typeof useI18n>["t"];
 
 export default function BillingScreen() {
+  const router = useRouter();
   const { t, locale } = useI18n();
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
@@ -311,7 +313,11 @@ export default function BillingScreen() {
     setOpeningInvoiceId(invoiceId);
     setError(null);
     try {
-      await downloadAndShareInvoicePdf(invoiceId, invoiceNumber);
+      const uri = await downloadInvoicePdf(invoiceId, invoiceNumber);
+      router.push({
+        pathname: "/(tabs)/settings/invoice-pdf",
+        params: { uri, title: invoiceNumber },
+      });
     } catch (e) {
       setError(
         e instanceof ApiError ? e.message : (e as Error).message ?? t("settings", "billingSaveFailed"),

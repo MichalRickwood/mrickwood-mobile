@@ -1,19 +1,17 @@
-// SDK 54+ má nový File-based API, ale pro authenticated download s headers
-// je legacy API přímější. Migrace na new API počká až bude stable.
 import * as FileSystem from "expo-file-system/legacy";
-import * as Sharing from "expo-sharing";
 import { API_BASE_URL } from "./config";
 import { getToken } from "./auth-storage";
 
 /**
- * Stáhne PDF faktury přes mobile JWT Bearer auth, uloží do cache, otevře
- * v nativním iOS share/preview (Soubory, iBooks, Mail…). Žádné signed URL
- * v query stringu — Bearer header se nedá nasdílet jako odkaz.
+ * Stáhne PDF faktury přes mobile JWT Bearer auth, uloží do cache, vrátí
+ * file:// URI. UI pak otevře v in-app WebView (PDF preview screen) — žádný
+ * iOS share-sheet jako default. Sharing zůstává jako akce v headeru toho
+ * screenu.
  */
-export async function downloadAndShareInvoicePdf(
+export async function downloadInvoicePdf(
   invoiceId: string,
   invoiceNumber: string,
-): Promise<void> {
+): Promise<string> {
   const token = await getToken();
   if (!token) throw new Error("Not signed in.");
 
@@ -25,7 +23,6 @@ export async function downloadAndShareInvoicePdf(
     headers: { Authorization: `Bearer ${token}` },
   });
   if (download.status !== 200) {
-    // Smaž neúspěšný download (může to být JSON error body)
     try {
       await FileSystem.deleteAsync(download.uri, { idempotent: true });
     } catch {
@@ -33,14 +30,5 @@ export async function downloadAndShareInvoicePdf(
     }
     throw new Error(`Download failed: HTTP ${download.status}`);
   }
-
-  const canShare = await Sharing.isAvailableAsync();
-  if (!canShare) {
-    throw new Error("Sharing not available on this device.");
-  }
-  await Sharing.shareAsync(download.uri, {
-    mimeType: "application/pdf",
-    UTI: "com.adobe.pdf",
-    dialogTitle: filename,
-  });
+  return download.uri;
 }
