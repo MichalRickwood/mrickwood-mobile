@@ -54,15 +54,23 @@ export default function SecurityScreen() {
     if (revoking) return;
     setRevoking(true);
     setError(null);
+    // Pošli revoke server-side, ale i kdyby selhal (síť, deploy lag), pořád
+    // lokálně odhlas — pak je to aspoň ekvivalent regulárního Sign Out.
+    let apiOk = true;
     try {
       await endpoints.revokeAllSessions();
-      // Server inkrementoval mobileTokenVersion → tento JWT už je neplatný.
-      // Lokální signOut() smaže SecureStore + push token a router přesměruje
-      // na login screen.
+    } catch (e) {
+      apiOk = false;
+      console.warn("[revokeAllSessions] API failed:", (e as Error).message);
+    }
+    try {
       await signOut();
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : t("settings", "saveFailed"));
-      setRevoking(false);
+      console.warn("[signOut] failed:", (e as Error).message);
+    }
+    if (!apiOk) {
+      // signOut už nastavil status=anonymous → screen se unmountne, error se
+      // stejně neukáže. Loguj jen pro dev.
     }
   }
 
