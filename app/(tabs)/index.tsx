@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
+import { useScrollToTop } from "@react-navigation/native";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { endpoints, type LeadMatchRow } from "@/lib/endpoints";
 import FilterPicker from "@/components/FilterPicker";
@@ -26,6 +27,8 @@ export default function MatchesScreen() {
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const [activeFilterId, setActiveFilterId] = useState<string | null>(null);
   const setPreference = useToggleTenderPreference();
+  const listRef = useRef<FlatList>(null);
+  useScrollToTop(listRef);
 
   const filtersQuery = useQuery({
     queryKey: ["filters"],
@@ -83,6 +86,7 @@ export default function MatchesScreen() {
       </View>
 
       <FlatList
+        ref={listRef}
         data={matches}
         keyExtractor={(item) => item.matchId}
         renderItem={({ item }) => (

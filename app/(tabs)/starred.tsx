@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useRef } from "react";
 import { useFocusEffect } from "expo-router";
+import { useScrollToTop } from "@react-navigation/native";
 import {
   ActivityIndicator,
   FlatList,
@@ -37,6 +38,8 @@ export default function StarredScreen() {
   });
 
   const setPreference = useToggleTenderPreference();
+  const listRef = useRef<FlatList>(null);
+  useScrollToTop(listRef);
 
   // Auto-refresh při focusu tabu — když user dá star v Zakázkách a přepne sem,
   // optimistic update nemůže přidat nový řádek (jen modifikovat existující),
@@ -65,6 +68,7 @@ export default function StarredScreen() {
       </View>
 
       <FlatList
+        ref={listRef}
         data={matches}
         keyExtractor={(item) => item.matchId}
         renderItem={({ item }) => (
