@@ -148,10 +148,15 @@ export const endpoints = {
     cursor?: string;
     limit?: number;
     view?: "all" | "starred" | "excluded";
+    sort?: "newest" | "deadline" | "value";
     q?: string;
     regions?: string;
     minValue?: number;
     maxValue?: number;
+    /** YYYY-MM-DD */
+    deadlineFrom?: string;
+    /** YYYY-MM-DD */
+    deadlineTo?: string;
   }) =>
     api.get<{ matches: LeadMatchRow[]; nextCursor: string | null; totalCount: number }>(
       "/api/mobile/matches",

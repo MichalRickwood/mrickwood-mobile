@@ -17,6 +17,8 @@ import FilterPicker from "@/components/FilterPicker";
 import MatchCard from "@/components/MatchCard";
 import RegionPickerModal from "@/components/RegionPickerModal";
 import ValueRangePickerModal from "@/components/ValueRangePickerModal";
+import DeadlinePickerModal from "@/components/DeadlinePickerModal";
+import SortPickerModal, { type SortKey } from "@/components/SortPickerModal";
 import { CZ_REGIONS } from "@/lib/nuts-cz";
 import {
   EMPTY_AD_HOC,
@@ -35,6 +37,17 @@ function regionChipLabel(codes: string[]): string {
     return r?.labels.cs ?? "Region";
   }
   return `Regiony (${codes.length})`;
+}
+
+function deadlineChipLabel(from: string | null, to: string | null): string {
+  if (!from && !to) return "Lhůta";
+  const fmt = (iso: string) => {
+    const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    return m ? `${m[3]}.${m[2]}.` : iso;
+  };
+  if (from && to) return `${fmt(from)} – ${fmt(to)}`;
+  if (from) return `od ${fmt(from)}`;
+  return `do ${fmt(to!)}`;
 }
 
 function valueChipLabel(min: number | null, max: number | null): string {
@@ -62,6 +75,9 @@ export default function MatchesScreen() {
   const [adHocOpen, setAdHocOpen] = useState(false);
   const [regionPickerOpen, setRegionPickerOpen] = useState(false);
   const [valuePickerOpen, setValuePickerOpen] = useState(false);
+  const [deadlinePickerOpen, setDeadlinePickerOpen] = useState(false);
+  const [sort, setSort] = useState<SortKey>("newest");
+  const [sortPickerOpen, setSortPickerOpen] = useState(false);
   const setPreference = useToggleTenderPreference();
 
   // Debounce search input → odložený query refetch.
@@ -79,7 +95,7 @@ export default function MatchesScreen() {
   // by jinak vrátil málo výsledků z 50-item page (i když celkově match je více).
   const hasNarrowingFilter = !!searchDebounced || isAdHocActive(adHoc);
   const matchesQuery = useInfiniteQuery({
-    queryKey: ["matches", activeFilterId, searchDebounced, adHoc],
+    queryKey: ["matches", activeFilterId, searchDebounced, adHoc, sort],
     initialPageParam: null as string | null,
     queryFn: ({ pageParam }) =>
       endpoints.myMatches({
@@ -89,6 +105,9 @@ export default function MatchesScreen() {
         ...(adHoc.regions.length > 0 ? { regions: adHoc.regions.join(",") } : {}),
         ...(adHoc.minValue != null ? { minValue: adHoc.minValue } : {}),
         ...(adHoc.maxValue != null ? { maxValue: adHoc.maxValue } : {}),
+        ...(adHoc.deadlineFrom ? { deadlineFrom: adHoc.deadlineFrom } : {}),
+        ...(adHoc.deadlineTo ? { deadlineTo: adHoc.deadlineTo } : {}),
+        ...(sort !== "newest" ? { sort } : {}),
         ...(hasNarrowingFilter ? { limit: 200 } : {}),
       }),
     getNextPageParam: (last) => last.nextCursor ?? undefined,
@@ -151,6 +170,24 @@ export default function MatchesScreen() {
                 ]}
               >
                 ☰
+              </Text>
+            </Pressable>
+            <Pressable
+              onPress={() => setSortPickerOpen(true)}
+              hitSlop={6}
+              style={({ pressed }) => [
+                styles.adHocBtn,
+                sort !== "newest" && styles.adHocBtnActive,
+                pressed && { opacity: 0.7 },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.adHocIcon,
+                  sort !== "newest" && styles.adHocIconActive,
+                ]}
+              >
+                ⇅
               </Text>
             </Pressable>
           </View>
@@ -233,6 +270,23 @@ export default function MatchesScreen() {
                 {valueChipLabel(adHoc.minValue, adHoc.maxValue)}
               </Text>
             </Pressable>
+            <Pressable
+              onPress={() => setDeadlinePickerOpen(true)}
+              style={({ pressed }) => [
+                styles.adHocChip,
+                (adHoc.deadlineFrom || adHoc.deadlineTo) && styles.adHocChipActive,
+                pressed && { opacity: 0.7 },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.adHocChipText,
+                  (adHoc.deadlineFrom || adHoc.deadlineTo) && styles.adHocChipTextActive,
+                ]}
+              >
+                {deadlineChipLabel(adHoc.deadlineFrom, adHoc.deadlineTo)}
+              </Text>
+            </Pressable>
             {isAdHocActive(adHoc) && (
               <Pressable
                 onPress={() => setAdHoc(EMPTY_AD_HOC)}
@@ -257,6 +311,21 @@ export default function MatchesScreen() {
         initialMax={adHoc.maxValue}
         onClose={() => setValuePickerOpen(false)}
         onApply={(min, max) => setAdHoc((prev) => ({ ...prev, minValue: min, maxValue: max }))}
+      />
+      <DeadlinePickerModal
+        visible={deadlinePickerOpen}
+        initialFrom={adHoc.deadlineFrom}
+        initialTo={adHoc.deadlineTo}
+        onClose={() => setDeadlinePickerOpen(false)}
+        onApply={(from, to) =>
+          setAdHoc((prev) => ({ ...prev, deadlineFrom: from, deadlineTo: to }))
+        }
+      />
+      <SortPickerModal
+        visible={sortPickerOpen}
+        value={sort}
+        onClose={() => setSortPickerOpen(false)}
+        onPick={setSort}
       />
 
       <FlatList
