@@ -105,12 +105,17 @@ export default function MatchDetailScreen() {
     <SafeAreaView style={styles.safe} edges={["bottom"]}>
       <Stack.Screen
         options={{
-          title: t.portalType.toUpperCase(),
+          title: "",
           headerShown: true,
           headerBackTitle: "Zpět",
           headerStyle: { backgroundColor: colors.bg },
           headerTintColor: colors.text,
           headerTitleStyle: { fontSize: fontSize.sm, fontWeight: "600" },
+          headerRight: () => (
+            <Pressable onPress={openInBrowser} hitSlop={8}>
+              <Text style={styles.headerCta}>Otevřít na portálu →</Text>
+            </Pressable>
+          ),
         }}
       />
       <ScrollView contentContainerStyle={styles.scroll}>
@@ -161,13 +166,6 @@ export default function MatchDetailScreen() {
             </View>
           );
         })()}
-
-        <Pressable
-          onPress={openInBrowser}
-          style={({ pressed }) => [styles.cta, pressed && { backgroundColor: colors.accentHover }]}
-        >
-          <Text style={styles.ctaText}>Otevřít na portálu →</Text>
-        </Pressable>
       </ScrollView>
     </SafeAreaView>
   );
@@ -310,14 +308,7 @@ const makeStyles = (colors: Colors) =>
   docName: { fontSize: fontSize.sm, color: colors.text, fontWeight: "500" },
   docMeta: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: 2 },
   docChevron: { fontSize: 20, color: colors.textFaint, marginLeft: spacing.sm },
-  cta: {
-    marginTop: spacing.xxl,
-    backgroundColor: colors.accent,
-    borderRadius: radius.md,
-    paddingVertical: spacing.lg,
-    alignItems: "center",
-  },
-  ctaText: { color: colors.accentForeground, fontSize: fontSize.base, fontWeight: "600" },
+  headerCta: { color: colors.link, fontSize: fontSize.sm, fontWeight: "600" },
   notFound: { flex: 1, padding: spacing.xl, justifyContent: "center", alignItems: "center" },
   notFoundTitle: { fontSize: fontSize.lg, fontWeight: "600", color: colors.text, marginBottom: spacing.sm },
   notFoundBody: { fontSize: fontSize.sm, color: colors.textSubtle, textAlign: "center" },

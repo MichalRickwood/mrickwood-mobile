@@ -77,12 +77,12 @@ export async function openTenderDocument(
     });
     return;
   }
-  // DOCX server-side konvertujeme přes mammoth → HTML (cached na Spaces).
-  // Starý DOC (binary) zatím neumíme, fallback na Safari.
-  if (ext === "docx") {
+  // DOCX přes docx-preview, XLSX/XLS/XLSM přes SheetJS — vše server-side
+  // render do HTML stránky, cached na Spaces.
+  if (ext === "docx" || ext === "xlsx" || ext === "xls" || ext === "xlsm") {
     router.push({
       pathname: "/doc-html",
-      params: { url: doc.url, name: doc.name, kind: "docx" },
+      params: { url: doc.url, name: doc.name, kind: ext },
     });
     return;
   }
