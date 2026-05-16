@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from "react";
+import { useFocusEffect } from "expo-router";
 import {
   ActivityIndicator,
   FlatList,
@@ -36,6 +37,17 @@ export default function StarredScreen() {
   });
 
   const setPreference = useToggleTenderPreference();
+
+  // Auto-refresh při focusu tabu — když user dá star v Zakázkách a přepne sem,
+  // optimistic update nemůže přidat nový řádek (jen modifikovat existující),
+  // takže refetchneme. Skip pokud probíhá refetch nebo aktivní mutation.
+  useFocusEffect(
+    useCallback(() => {
+      if (!q.isRefetching && !setPreference.isPending) {
+        void q.refetch();
+      }
+    }, [q, setPreference.isPending]),
+  );
 
   const matches = useMemo(() => q.data?.pages.flatMap((p) => p.matches) ?? [], [q.data]);
   const empty = !q.isLoading && matches.length === 0;
