@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import {
   ActivityIndicator,
   Pressable,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -72,28 +73,32 @@ export default function LeadsPaywall() {
   const data = status.data;
   if (!data) return null;
 
-  const trialActive = data.state === "TRIAL" && data.isActive;
-  const subscriptionActive = data.state === "ACTIVE" && data.isActive;
+  const trialActive = data.state === "TRIAL";
+  const subscriptionActive = data.state === "ACTIVE";
 
   // Pokud je vše OK, paywall nemá co zobrazit (caller by neměl vůbec rendrovat)
   if (trialActive || subscriptionActive) return null;
 
-  // Reaktivace: key existuje, isActive=false, ale trial/období ještě běží
-  // (admin nebo user dříve vypnul, ale termín nevypršel).
   const now = Date.now();
   const trialStillValid =
-    data.state === "TRIAL" &&
-    !!data.trialEndsAt &&
-    new Date(data.trialEndsAt).getTime() > now;
-  const subscriptionStillValid =
-    data.state === "ACTIVE" &&
-    !!data.paidUntil &&
-    new Date(data.paidUntil).getTime() > now;
-  const canReactivate =
-    data.hasKey && !data.isActive && (trialStillValid || subscriptionStillValid);
+    !!data.trialEndsAt && new Date(data.trialEndsAt).getTime() > now;
+  const canReactivate = data.canReactivate;
 
   return (
-    <ScrollView style={styles.flex} contentContainerStyle={styles.scroll}>
+    <ScrollView
+      style={styles.flex}
+      contentContainerStyle={styles.scroll}
+      refreshControl={
+        <RefreshControl
+          refreshing={status.isFetching}
+          onRefresh={() => {
+            void status.refetch();
+            void qc.invalidateQueries({ queryKey: ["matches"] });
+          }}
+          tintColor={colors.textSubtle}
+        />
+      }
+    >
       <View style={styles.icon}>
         <Text style={styles.iconText}>🔒</Text>
       </View>
@@ -162,12 +167,12 @@ export default function LeadsPaywall() {
       ) : (
         <>
           <Text style={styles.body}>
-            {data.state === "TRIAL" && !data.isActive
-              ? t("filters", "paywallExpiredTrial")
-              : data.state === "SUSPENDED"
-                ? t("filters", "paywallSuspended")
-                : data.state === "CANCELED"
-                  ? t("filters", "paywallCanceled")
+            {data.state === "SUSPENDED"
+              ? t("filters", "paywallSuspended")
+              : data.state === "CANCELED"
+                ? t("filters", "paywallCanceled")
+                : data.state === "PAST_DUE"
+                  ? t("filters", "paywallSuspended")
                   : t("filters", "paywallNoSubscription")}
           </Text>
           <Pressable

@@ -179,13 +179,13 @@ export const endpoints = {
     api.get<{
       service: "LEADS";
       hasKey: boolean;
-      state: "TRIAL" | "ACTIVE" | "PAST_DUE" | "SUSPENDED" | "CANCELED" | null;
+      state: "TRIAL" | "ACTIVE" | "PAUSED" | "PAST_DUE" | "SUSPENDED" | "CANCELED" | null;
       tier: "FREE" | "PAID" | null;
-      isActive: boolean;
       trialEndsAt: string | null;
       paidUntil: string | null;
       cancelAtPeriodEnd: boolean;
       canActivateTrial: boolean;
+      canReactivate: boolean;
       trialDays: number;
     }>("/api/mobile/services/leads"),
   activateLeadsTrial: () =>
