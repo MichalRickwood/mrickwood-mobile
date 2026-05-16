@@ -80,29 +80,27 @@ export default function CategoryPickerModal({ visible, initial, onClose, onApply
                 const allSelected = selectedInArea === tagIds.length && tagIds.length > 0;
                 const someSelected = selectedInArea > 0 && !allSelected;
                 return (
-                  <View key={g.area.id} style={styles.areaBlock}>
+                  <View
+                    key={g.area.id}
+                    style={[
+                      styles.areaContainer,
+                      allSelected && styles.areaContainerActive,
+                      someSelected && styles.areaContainerPartial,
+                    ]}
+                  >
                     <Pressable
                       onPress={() => toggleArea(tagIds)}
                       style={({ pressed }) => [
-                        styles.areaCard,
-                        allSelected && styles.areaCardActive,
-                        someSelected && styles.areaCardPartial,
+                        styles.areaHeader,
                         pressed && { opacity: 0.7 },
                       ]}
                     >
-                      <Text style={[styles.areaIcon, allSelected && styles.areaIconActive]}>
-                        {g.area.icon}
-                      </Text>
-                      <Text
-                        style={[
-                          styles.areaLabel,
-                          allSelected && styles.areaLabelActive,
-                        ]}
-                      >
+                      <Text style={styles.areaIcon}>{g.area.icon}</Text>
+                      <Text style={styles.areaLabel}>
                         {g.area.label}
                         {selectedInArea > 0 ? ` (${selectedInArea}/${tagIds.length})` : ""}
                       </Text>
-                      <Text style={[styles.areaCheck, allSelected && styles.areaCheckActive]}>
+                      <Text style={styles.areaCheck}>
                         {allSelected ? "✓" : someSelected ? "−" : ""}
                       </Text>
                     </Pressable>
@@ -181,27 +179,25 @@ const makeStyles = (colors: Colors) =>
     },
     body: { maxHeight: 500 },
     loader: { paddingVertical: spacing.xxl, alignItems: "center" },
-    areaBlock: { marginBottom: spacing.lg },
-    areaCard: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: spacing.sm,
-      paddingHorizontal: spacing.md,
-      paddingVertical: spacing.sm + 2,
+    areaContainer: {
+      marginBottom: spacing.md,
       borderRadius: radius.md,
       borderWidth: 1,
       borderColor: colors.border,
       backgroundColor: colors.bg,
+      padding: spacing.md,
+    },
+    areaContainerActive: { borderColor: colors.accent, backgroundColor: colors.card },
+    areaContainerPartial: { borderColor: colors.text },
+    areaHeader: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: spacing.sm,
       marginBottom: spacing.sm,
     },
-    areaCardActive: { backgroundColor: colors.accent, borderColor: colors.accent },
-    areaCardPartial: { borderColor: colors.text },
     areaIcon: { fontSize: 18 },
-    areaIconActive: { opacity: 1 },
     areaLabel: { flex: 1, fontSize: fontSize.sm, color: colors.text, fontWeight: "600" },
-    areaLabelActive: { color: colors.accentForeground },
     areaCheck: { fontSize: 16, color: colors.text, fontWeight: "700" },
-    areaCheckActive: { color: colors.accentForeground },
     tagGrid: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
     tag: {
       paddingHorizontal: spacing.md,
