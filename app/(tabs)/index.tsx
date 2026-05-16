@@ -20,6 +20,7 @@ import ValueRangePickerModal from "@/components/ValueRangePickerModal";
 import DeadlinePickerModal from "@/components/DeadlinePickerModal";
 import CategoryPickerModal from "@/components/CategoryPickerModal";
 import CpvPickerModal from "@/components/CpvPickerModal";
+import SaveFilterModal from "@/components/SaveFilterModal";
 import SortPickerModal, { type SortKey } from "@/components/SortPickerModal";
 import { CZ_REGIONS } from "@/lib/nuts-cz";
 import {
@@ -80,6 +81,7 @@ export default function MatchesScreen() {
   const [deadlinePickerOpen, setDeadlinePickerOpen] = useState(false);
   const [categoryPickerOpen, setCategoryPickerOpen] = useState(false);
   const [cpvPickerOpen, setCpvPickerOpen] = useState(false);
+  const [saveFilterOpen, setSaveFilterOpen] = useState(false);
   const [sort, setSort] = useState<SortKey>("newest");
   const [sortPickerOpen, setSortPickerOpen] = useState(false);
   const setPreference = useToggleTenderPreference();
@@ -334,12 +336,24 @@ export default function MatchesScreen() {
               </Text>
             </Pressable>
             {isAdHocActive(adHoc) && (
-              <Pressable
-                onPress={() => setAdHoc(EMPTY_AD_HOC)}
-                style={({ pressed }) => [styles.adHocClearChip, pressed && { opacity: 0.7 }]}
-              >
-                <Text style={styles.adHocClearChipText}>{t("matches", "adHocClear")}</Text>
-              </Pressable>
+              <>
+                <Pressable
+                  onPress={() => setAdHoc(EMPTY_AD_HOC)}
+                  style={({ pressed }) => [styles.adHocClearChip, pressed && { opacity: 0.7 }]}
+                >
+                  <Text style={styles.adHocClearChipText}>{t("matches", "adHocClear")}</Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => setSaveFilterOpen(true)}
+                  style={({ pressed }) => [
+                    styles.adHocChip,
+                    styles.adHocSaveChip,
+                    pressed && { opacity: 0.7 },
+                  ]}
+                >
+                  <Text style={styles.adHocSaveChipText}>＋ Uložit</Text>
+                </Pressable>
+              </>
             )}
           </View>
         )}
@@ -384,6 +398,16 @@ export default function MatchesScreen() {
         value={sort}
         onClose={() => setSortPickerOpen(false)}
         onPick={setSort}
+      />
+      <SaveFilterModal
+        visible={saveFilterOpen}
+        adHoc={adHoc}
+        onClose={() => setSaveFilterOpen(false)}
+        onSaved={(newId) => {
+          setActiveFilterId(newId);
+          setAdHoc(EMPTY_AD_HOC);
+          setAdHocOpen(false);
+        }}
       />
 
       <FlatList
@@ -532,6 +556,8 @@ const makeStyles = (colors: Colors) =>
       borderColor: colors.border,
     },
     adHocClearChipText: { fontSize: fontSize.xs, color: colors.textSubtle, fontWeight: "500" },
+    adHocSaveChip: { backgroundColor: colors.success, borderColor: colors.success },
+    adHocSaveChipText: { fontSize: fontSize.xs, color: colors.accentForeground, fontWeight: "600" },
     searchInput: {
       backgroundColor: colors.card,
       borderWidth: 1,
