@@ -157,6 +157,10 @@ export const endpoints = {
     deadlineFrom?: string;
     /** YYYY-MM-DD */
     deadlineTo?: string;
+    /** Comma-separated CPV prefixes (např. "44,452"). */
+    cpvPrefixes?: string;
+    /** Comma-separated industry tag IDs (např. "con_buildings,it_development"). */
+    industryTags?: string;
   }) =>
     api.get<{ matches: LeadMatchRow[]; nextCursor: string | null; totalCount: number }>(
       "/api/mobile/matches",
@@ -169,6 +173,13 @@ export const endpoints = {
 
   // Filtry usera (pro filter chips/dropdown v UI)
   myFilters: () => api.get<{ filters: LeadFilterRow[] }>("/api/mobile/filters"),
+
+  // Industry taxonomy (areas + tags) pro CategoryPicker
+  industryTaxonomy: () =>
+    api.get<{
+      areas: Array<{ id: string; icon: string; label: string }>;
+      tags: Array<{ id: string; area: string; label: string; cpvPrefixes: string[] }>;
+    }>("/api/mobile/taxonomy/industry"),
   createFilter: (input: LeadFilterInput) =>
     api.post<{ filter: LeadFilterRow }>("/api/mobile/filters", input),
   updateFilter: (id: string, input: Partial<LeadFilterInput>) =>

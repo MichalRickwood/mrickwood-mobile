@@ -11,6 +11,10 @@ export interface AdHocFilter {
   deadlineFrom: string | null;
   /** ISO YYYY-MM-DD nebo null. Server filtruje deadlineAt <= deadlineTo. */
   deadlineTo: string | null;
+  /** CPV prefixy (např. "44", "452"). LIKE cpvCode = "<prefix>%". */
+  cpvPrefixes: string[];
+  /** ID tagů z industry-taxonomy. */
+  industryTags: string[];
 }
 
 export const EMPTY_AD_HOC: AdHocFilter = {
@@ -19,6 +23,8 @@ export const EMPTY_AD_HOC: AdHocFilter = {
   maxValue: null,
   deadlineFrom: null,
   deadlineTo: null,
+  cpvPrefixes: [],
+  industryTags: [],
 };
 
 export function isAdHocActive(f: AdHocFilter): boolean {
@@ -27,6 +33,8 @@ export function isAdHocActive(f: AdHocFilter): boolean {
     f.minValue != null ||
     f.maxValue != null ||
     f.deadlineFrom != null ||
-    f.deadlineTo != null
+    f.deadlineTo != null ||
+    f.cpvPrefixes.length > 0 ||
+    f.industryTags.length > 0
   );
 }

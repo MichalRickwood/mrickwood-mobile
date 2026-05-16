@@ -18,6 +18,8 @@ import MatchCard from "@/components/MatchCard";
 import RegionPickerModal from "@/components/RegionPickerModal";
 import ValueRangePickerModal from "@/components/ValueRangePickerModal";
 import DeadlinePickerModal from "@/components/DeadlinePickerModal";
+import CategoryPickerModal from "@/components/CategoryPickerModal";
+import CpvPickerModal from "@/components/CpvPickerModal";
 import SortPickerModal, { type SortKey } from "@/components/SortPickerModal";
 import { CZ_REGIONS } from "@/lib/nuts-cz";
 import {
@@ -76,6 +78,8 @@ export default function MatchesScreen() {
   const [regionPickerOpen, setRegionPickerOpen] = useState(false);
   const [valuePickerOpen, setValuePickerOpen] = useState(false);
   const [deadlinePickerOpen, setDeadlinePickerOpen] = useState(false);
+  const [categoryPickerOpen, setCategoryPickerOpen] = useState(false);
+  const [cpvPickerOpen, setCpvPickerOpen] = useState(false);
   const [sort, setSort] = useState<SortKey>("newest");
   const [sortPickerOpen, setSortPickerOpen] = useState(false);
   const setPreference = useToggleTenderPreference();
@@ -107,6 +111,12 @@ export default function MatchesScreen() {
         ...(adHoc.maxValue != null ? { maxValue: adHoc.maxValue } : {}),
         ...(adHoc.deadlineFrom ? { deadlineFrom: adHoc.deadlineFrom } : {}),
         ...(adHoc.deadlineTo ? { deadlineTo: adHoc.deadlineTo } : {}),
+        ...(adHoc.cpvPrefixes.length > 0
+          ? { cpvPrefixes: adHoc.cpvPrefixes.join(",") }
+          : {}),
+        ...(adHoc.industryTags.length > 0
+          ? { industryTags: adHoc.industryTags.join(",") }
+          : {}),
         ...(sort !== "newest" ? { sort } : {}),
         ...(hasNarrowingFilter ? { limit: 200 } : {}),
       }),
@@ -285,6 +295,44 @@ export default function MatchesScreen() {
                 {deadlineChipLabel(adHoc.deadlineFrom, adHoc.deadlineTo)}
               </Text>
             </Pressable>
+            <Pressable
+              onPress={() => setCategoryPickerOpen(true)}
+              style={({ pressed }) => [
+                styles.adHocChip,
+                adHoc.industryTags.length > 0 && styles.adHocChipActive,
+                pressed && { opacity: 0.7 },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.adHocChipText,
+                  adHoc.industryTags.length > 0 && styles.adHocChipTextActive,
+                ]}
+              >
+                {adHoc.industryTags.length > 0
+                  ? `Kategorie (${adHoc.industryTags.length})`
+                  : "Kategorie"}
+              </Text>
+            </Pressable>
+            <Pressable
+              onPress={() => setCpvPickerOpen(true)}
+              style={({ pressed }) => [
+                styles.adHocChip,
+                adHoc.cpvPrefixes.length > 0 && styles.adHocChipActive,
+                pressed && { opacity: 0.7 },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.adHocChipText,
+                  adHoc.cpvPrefixes.length > 0 && styles.adHocChipTextActive,
+                ]}
+              >
+                {adHoc.cpvPrefixes.length > 0
+                  ? `CPV (${adHoc.cpvPrefixes.length})`
+                  : "CPV"}
+              </Text>
+            </Pressable>
             {isAdHocActive(adHoc) && (
               <Pressable
                 onPress={() => setAdHoc(EMPTY_AD_HOC)}
@@ -318,6 +366,18 @@ export default function MatchesScreen() {
         onApply={(from, to) =>
           setAdHoc((prev) => ({ ...prev, deadlineFrom: from, deadlineTo: to }))
         }
+      />
+      <CategoryPickerModal
+        visible={categoryPickerOpen}
+        initial={adHoc.industryTags}
+        onClose={() => setCategoryPickerOpen(false)}
+        onApply={(tagIds) => setAdHoc((prev) => ({ ...prev, industryTags: tagIds }))}
+      />
+      <CpvPickerModal
+        visible={cpvPickerOpen}
+        initial={adHoc.cpvPrefixes}
+        onClose={() => setCpvPickerOpen(false)}
+        onApply={(p) => setAdHoc((prev) => ({ ...prev, cpvPrefixes: p }))}
       />
       <SortPickerModal
         visible={sortPickerOpen}
