@@ -121,31 +121,16 @@ export default function MatchDetailScreen() {
       <ScrollView contentContainerStyle={styles.scroll}>
         <Text style={styles.title}>{t.title}</Text>
         <Text style={styles.subtitle}>{t.contractingAuthority.name}</Text>
-
-        <View style={styles.metaGrid}>
-          {t.deadlineAt && (
-            <MetaCell styles={styles} label="Lhůta podání" value={formatDate(t.deadlineAt)} accent />
-          )}
-          {t.estimatedValue ? (
-            <MetaCell styles={styles}
-              label="Předpokládaná hodnota"
-              value={formatMoney(t.estimatedValue, t.currency)}
-            />
-          ) : null}
-          {t.publishedAt && (
-            <MetaCell styles={styles} label="Publikováno" value={formatDate(t.publishedAt)} />
-          )}
-          {t.contractingAuthority.region && (
-            <MetaCell styles={styles} label="Region" value={t.contractingAuthority.region} />
-          )}
-          {t.contractingAuthority.district && (
-            <MetaCell styles={styles} label="Okres" value={t.contractingAuthority.district} />
-          )}
-          {t.cpvCode && <MetaCell styles={styles} label="CPV" value={t.cpvCode} />}
-          {t.tenderType && <MetaCell styles={styles} label="Druh řízení" value={t.tenderType} />}
-          <MetaCell styles={styles} label="IČO zadavatele" value={t.contractingAuthority.ico} />
-          <MetaCell styles={styles} label="Portál" value={t.portalType.toUpperCase()} />
-        </View>
+        {(() => {
+          const parts = [
+            t.contractingAuthority.ico ? `IČO ${t.contractingAuthority.ico}` : null,
+            [t.contractingAuthority.district, t.contractingAuthority.region]
+              .filter(Boolean)
+              .join(", ") || null,
+          ].filter(Boolean);
+          if (parts.length === 0) return null;
+          return <Text style={styles.subtitleSub}>{parts.join(" · ")}</Text>;
+        })()}
 
         {t.description && t.description.trim().length > 0 && (
           <View style={styles.descSection}>
@@ -153,6 +138,39 @@ export default function MatchDetailScreen() {
             <Text style={styles.descText}>{t.description}</Text>
           </View>
         )}
+
+        <View style={styles.metaGrid}>
+          {(t.deadlineAt || t.publishedAt) && (
+            <View style={styles.metaRow}>
+              {t.deadlineAt && (
+                <View style={{ flex: 1 }}>
+                  <MetaCell
+                    styles={styles}
+                    label="Lhůta podání"
+                    value={formatDate(t.deadlineAt)}
+                    accent
+                  />
+                </View>
+              )}
+              {t.publishedAt && (
+                <View style={{ flex: 1 }}>
+                  <MetaCell
+                    styles={styles}
+                    label="Publikováno"
+                    value={formatDate(t.publishedAt)}
+                  />
+                </View>
+              )}
+            </View>
+          )}
+          {t.estimatedValue ? (
+            <MetaCell
+              styles={styles}
+              label="Předpokládaná hodnota"
+              value={formatMoney(t.estimatedValue, t.currency)}
+            />
+          ) : null}
+        </View>
 
         {(() => {
           const docs = t.documents ?? [];
@@ -256,10 +274,12 @@ const makeStyles = (colors: Colors) =>
   scroll: { padding: spacing.xl, paddingBottom: spacing.xxl * 2 },
   title: { fontSize: fontSize.xl, fontWeight: "700", color: colors.text, lineHeight: 30, letterSpacing: -0.3 },
   subtitle: { fontSize: fontSize.sm, color: colors.textMuted, marginTop: spacing.sm, fontWeight: "500" },
+  subtitleSub: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: spacing.xs },
   metaGrid: {
     marginTop: spacing.xl,
     gap: spacing.md,
   },
+  metaRow: { flexDirection: "row", gap: spacing.md },
   metaCell: {
     backgroundColor: colors.card,
     borderWidth: 1,
