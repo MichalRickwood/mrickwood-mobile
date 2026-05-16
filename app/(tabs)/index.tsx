@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { endpoints, type LeadMatchRow } from "@/lib/endpoints";
 import FilterPicker from "@/components/FilterPicker";
 import { useTheme } from "@/lib/theme-context";
@@ -21,10 +21,19 @@ const LOCALE_MAP: Record<string, string> = { cs: "cs-CZ", en: "en-GB", de: "de-D
 
 export default function MatchesScreen() {
   const router = useRouter();
+  const qc = useQueryClient();
   const { colors } = useTheme();
   const { t, locale } = useI18n();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const [activeFilterId, setActiveFilterId] = useState<string | null>(null);
+
+  const setPreference = useMutation({
+    mutationFn: ({ tenderId, status }: { tenderId: number; status: "STARRED" | "EXCLUDED" | "NONE" }) =>
+      endpoints.setTenderPreference(tenderId, status),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["matches"] });
+    },
+  });
 
   const filtersQuery = useQuery({
     queryKey: ["filters"],
@@ -93,6 +102,12 @@ export default function MatchesScreen() {
             onPress={() =>
               router.push({ pathname: "/match/[id]", params: { id: item.matchId } })
             }
+            onToggleStar={(tenderId, next) =>
+              setPreference.mutate({ tenderId, status: next ? "STARRED" : "NONE" })
+            }
+            onExclude={(tenderId) =>
+              setPreference.mutate({ tenderId, status: "EXCLUDED" })
+            }
           />
         )}
         contentContainerStyle={styles.list}
@@ -143,15 +158,20 @@ function MatchCard({
   locale,
   deadlineLabel,
   onPress,
+  onToggleStar,
+  onExclude,
 }: {
   styles: ReturnType<typeof makeStyles>;
   match: LeadMatchRow;
   locale: string;
   deadlineLabel: string;
   onPress: () => void;
+  onToggleStar: (tenderId: number, next: boolean) => void;
+  onExclude: (tenderId: number) => void;
 }) {
   const tender = match.tender;
   const isNew = !match.viewedAt;
+  const starred = tender.starred === true;
   return (
     <Pressable
       onPress={onPress}
@@ -175,6 +195,30 @@ function MatchCard({
             {deadlineLabel.replace("{date}", formatDate(tender.deadlineAt, locale))}
           </Text>
         )}
+      </View>
+      <View style={styles.cardActions}>
+        <Pressable
+          onPress={(e) => {
+            e.stopPropagation();
+            onToggleStar(tender.id, !starred);
+          }}
+          hitSlop={8}
+          style={({ pressed }) => [styles.actionBtn, pressed && { opacity: 0.5 }]}
+        >
+          <Text style={[styles.actionIcon, starred && styles.actionIconStarred]}>
+            {starred ? "★" : "☆"}
+          </Text>
+        </Pressable>
+        <Pressable
+          onPress={(e) => {
+            e.stopPropagation();
+            onExclude(tender.id);
+          }}
+          hitSlop={8}
+          style={({ pressed }) => [styles.actionBtn, pressed && { opacity: 0.5 }]}
+        >
+          <Text style={styles.actionIcon}>👎</Text>
+        </Pressable>
       </View>
     </Pressable>
   );
@@ -227,6 +271,18 @@ const makeStyles = (colors: Colors) =>
     cardFilter: { fontSize: fontSize.xs, color: colors.textSubtle, fontWeight: "500", flex: 1 },
     newDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.link, marginLeft: spacing.sm },
     cardTitle: { fontSize: fontSize.base, fontWeight: "600", color: colors.text, lineHeight: 22 },
+    cardActions: {
+      flexDirection: "row",
+      justifyContent: "flex-end",
+      gap: spacing.lg,
+      marginTop: spacing.md,
+      paddingTop: spacing.sm,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+    },
+    actionBtn: { paddingHorizontal: spacing.sm, paddingVertical: spacing.xs },
+    actionIcon: { fontSize: 22, color: colors.textSubtle },
+    actionIconStarred: { color: "#F59E0B" },
     cardMeta: { marginTop: spacing.md },
     cardMetaText: { fontSize: fontSize.xs, color: colors.textMuted, marginBottom: spacing.xs },
     cardMetaSub: { fontSize: fontSize.xs, color: colors.textSubtle },

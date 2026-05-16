@@ -22,6 +22,10 @@ export default function TabsLayout() {
   if (supportsNativeTabs()) {
     return (
       <NativeTabs>
+        <NativeTabs.Trigger name="starred">
+          <Icon sf="star.fill" />
+          <Label>{t("matches", "starredTab")}</Label>
+        </NativeTabs.Trigger>
         <NativeTabs.Trigger name="index">
           <Icon sf="doc.text.magnifyingglass" />
           <Label>{t("matches", "title")}</Label>
@@ -50,6 +54,13 @@ export default function TabsLayout() {
         },
       }}
     >
+      <Tabs.Screen
+        name="starred"
+        options={{
+          title: t("matches", "starredTab"),
+          tabBarIcon: ({ color }) => <TabGlyph color={color}>★</TabGlyph>,
+        }}
+      />
       <Tabs.Screen
         name="index"
         options={{

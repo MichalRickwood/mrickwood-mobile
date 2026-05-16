@@ -75,6 +75,10 @@ export interface Dict {
   };
   matches: {
     title: string;
+    starredTab: string;
+    starredCounter: string;
+    starredEmptyTitle: string;
+    starredEmptyBody: string;
     counterAll: string;
     counterFilter: string;
     filterAll: string;
@@ -371,6 +375,10 @@ const cs: Dict = {
   },
   matches: {
     title: "Zakázky",
+    starredTab: "Sledované",
+    starredCounter: "Sledované · {count}",
+    starredEmptyTitle: "Žádné sledované zakázky",
+    starredEmptyBody: "Klikni na hvězdičku u zakázky v listu Zakázek.",
     counterAll: "Všechny matche · {count}",
     counterFilter: "{filter} · {count}",
     filterAll: "Všechny zakázky",
@@ -664,6 +672,10 @@ const en: Dict = {
   },
   matches: {
     title: "Tenders",
+    starredTab: "Starred",
+    starredCounter: "Starred · {count}",
+    starredEmptyTitle: "No starred tenders",
+    starredEmptyBody: "Tap the star icon on a tender in the Tenders list.",
     counterAll: "All matches · {count}",
     counterFilter: "{filter} · {count}",
     filterAll: "All tenders",
@@ -956,6 +968,10 @@ const de: Dict = {
   },
   matches: {
     title: "Ausschreibungen",
+    starredTab: "Favoriten",
+    starredCounter: "Favoriten · {count}",
+    starredEmptyTitle: "Keine Favoriten",
+    starredEmptyBody: "Tippen Sie auf den Stern bei einer Ausschreibung in der Liste.",
     counterAll: "Alle Treffer · {count}",
     counterFilter: "{filter} · {count}",
     filterAll: "Alle Ausschreibungen",

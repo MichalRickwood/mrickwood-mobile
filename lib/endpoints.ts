@@ -45,6 +45,8 @@ export interface PublicTender {
   tenderType: string | null;
   contractingAuthority: ContractingAuthority;
   documents?: TenderDocument[];
+  starred?: boolean;
+  excluded?: boolean;
 }
 
 export interface LeadMatchRow {
@@ -139,11 +141,20 @@ export const endpoints = {
   // Aktuální user (verifikace JWT na startu)
   me: () => api.get<{ user: MobileLoginResponse["user"] }>("/api/auth/mobile/me"),
 
-  // Lead matches — last 30 days, optional filterId, cursor pagination
-  myMatches: (params?: { filterId?: string; cursor?: string; limit?: number }) =>
+  // Lead matches — last 30 days, optional filterId, cursor pagination, view filter
+  myMatches: (params?: {
+    filterId?: string;
+    cursor?: string;
+    limit?: number;
+    view?: "all" | "starred" | "excluded";
+  }) =>
     api.get<{ matches: LeadMatchRow[]; nextCursor: string | null }>("/api/mobile/matches", {
       params,
     }),
+
+  // Tender preferences (hvězdička / vyloučit)
+  setTenderPreference: (tenderId: number, status: "STARRED" | "EXCLUDED" | "NONE") =>
+    api.put<{ ok: true }>("/api/mobile/tender-preferences", { tenderId, status }),
 
   // Filtry usera (pro filter chips/dropdown v UI)
   myFilters: () => api.get<{ filters: LeadFilterRow[] }>("/api/mobile/filters"),
