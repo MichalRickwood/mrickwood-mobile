@@ -4,7 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import * as WebBrowser from "expo-web-browser";
-import { endpoints, type LeadMatchRow } from "@/lib/endpoints";
+import { endpoints, type LeadMatchRow, type TenderDocument } from "@/lib/endpoints";
 import { useTheme } from "@/lib/theme-context";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 
@@ -100,6 +100,15 @@ export default function MatchDetailScreen() {
           <Text style={styles.sectionValue}>{match.filterName}</Text>
         </View>
 
+        {t.documents.length > 0 && (
+          <View style={styles.docsSection}>
+            <Text style={styles.sectionLabel}>Dokumenty ({t.documents.length})</Text>
+            {t.documents.map((d, i) => (
+              <DocumentRow key={`${d.url}-${i}`} styles={styles} doc={d} />
+            ))}
+          </View>
+        )}
+
         <Pressable
           onPress={openInBrowser}
           style={({ pressed }) => [styles.cta, pressed && { backgroundColor: colors.accentHover }]}
@@ -109,6 +118,42 @@ export default function MatchDetailScreen() {
       </ScrollView>
     </SafeAreaView>
   );
+}
+
+function DocumentRow({
+  styles,
+  doc,
+}: {
+  styles: ReturnType<typeof makeStyles>;
+  doc: TenderDocument;
+}) {
+  const meta = [doc.fileType?.toUpperCase(), formatFileSize(doc.fileSizeBytes)]
+    .filter(Boolean)
+    .join(" · ");
+  return (
+    <Pressable
+      onPress={() => void WebBrowser.openBrowserAsync(doc.url)}
+      style={({ pressed }) => [styles.docRow, pressed && { opacity: 0.6 }]}
+    >
+      <View style={styles.docIcon}>
+        <Text style={styles.docIconText}>📄</Text>
+      </View>
+      <View style={styles.docText}>
+        <Text style={styles.docName} numberOfLines={2}>
+          {doc.name}
+        </Text>
+        {meta && <Text style={styles.docMeta}>{meta}</Text>}
+      </View>
+      <Text style={styles.docChevron}>›</Text>
+    </Pressable>
+  );
+}
+
+function formatFileSize(bytes: number | null): string | null {
+  if (!bytes) return null;
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} kB`;
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }
 
 function MetaCell({
@@ -174,6 +219,31 @@ const makeStyles = (colors: Colors) =>
   section: { marginTop: spacing.xl, padding: spacing.lg, backgroundColor: colors.card, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border },
   sectionLabel: { fontSize: fontSize.xs, color: colors.textSubtle, fontWeight: "500", textTransform: "uppercase", letterSpacing: 0.5 },
   sectionValue: { fontSize: fontSize.base, color: colors.text, marginTop: spacing.xs },
+  docsSection: { marginTop: spacing.xl },
+  docRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginTop: spacing.sm,
+  },
+  docIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: radius.sm,
+    backgroundColor: colors.bg,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: spacing.md,
+  },
+  docIconText: { fontSize: 18 },
+  docText: { flex: 1 },
+  docName: { fontSize: fontSize.sm, color: colors.text, fontWeight: "500" },
+  docMeta: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: 2 },
+  docChevron: { fontSize: 20, color: colors.textFaint, marginLeft: spacing.sm },
   cta: {
     marginTop: spacing.xxl,
     backgroundColor: colors.accent,

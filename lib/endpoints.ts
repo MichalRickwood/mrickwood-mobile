@@ -22,6 +22,13 @@ export interface ContractingAuthority {
   district: string | null;
 }
 
+export interface TenderDocument {
+  name: string;
+  url: string;
+  fileType: string | null;
+  fileSizeBytes: number | null;
+}
+
 export interface PublicTender {
   id: number;
   title: string;
@@ -36,6 +43,7 @@ export interface PublicTender {
   cpvCode: string | null;
   tenderType: string | null;
   contractingAuthority: ContractingAuthority;
+  documents: TenderDocument[];
 }
 
 export interface LeadMatchRow {
