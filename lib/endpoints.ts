@@ -141,12 +141,17 @@ export const endpoints = {
   // Aktuální user (verifikace JWT na startu)
   me: () => api.get<{ user: MobileLoginResponse["user"] }>("/api/auth/mobile/me"),
 
-  // Lead matches — last 30 days, optional filterId, cursor pagination, view filter
+  // Lead matches — last 30 days, optional filterId, cursor pagination, view filter,
+  // ad-hoc search + region/value filtering (q, regions=CZ010,CZ020, minValue, maxValue).
   myMatches: (params?: {
     filterId?: string;
     cursor?: string;
     limit?: number;
     view?: "all" | "starred" | "excluded";
+    q?: string;
+    regions?: string;
+    minValue?: number;
+    maxValue?: number;
   }) =>
     api.get<{ matches: LeadMatchRow[]; nextCursor: string | null; totalCount: number }>(
       "/api/mobile/matches",

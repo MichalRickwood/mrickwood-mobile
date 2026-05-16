@@ -85,6 +85,10 @@ export interface Dict {
     filterPickerTitle: string;
     filterPickerEmpty: string;
     filterAdd: string;
+    matchesSearchPlaceholder: string;
+    adHocTitle: string;
+    adHocClear: string;
+    adHocApply: string;
     filterFormEditTitle: string;
     filterFormName: string;
     filterFormNamePlaceholder: string;
@@ -385,6 +389,10 @@ const cs: Dict = {
     filterPickerTitle: "Filtry",
     filterPickerEmpty: "Zatím žádné filtry. Vytvořte si první.",
     filterAdd: "Nový filtr",
+    matchesSearchPlaceholder: "Hledat v zakázkách…",
+    adHocTitle: "Jednorázový filtr",
+    adHocClear: "Vyčistit",
+    adHocApply: "Použít",
     filterFormEditTitle: "Upravit filtr",
     filterFormName: "Název",
     filterFormNamePlaceholder: "Můj filtr",
@@ -682,6 +690,10 @@ const en: Dict = {
     filterPickerTitle: "Filters",
     filterPickerEmpty: "No filters yet. Create your first one.",
     filterAdd: "New filter",
+    matchesSearchPlaceholder: "Search tenders…",
+    adHocTitle: "One-time filter",
+    adHocClear: "Clear",
+    adHocApply: "Apply",
     filterFormEditTitle: "Edit filter",
     filterFormName: "Name",
     filterFormNamePlaceholder: "My filter",
@@ -978,6 +990,10 @@ const de: Dict = {
     filterPickerTitle: "Filter",
     filterPickerEmpty: "Noch keine Filter. Erstellen Sie den ersten.",
     filterAdd: "Neuer Filter",
+    matchesSearchPlaceholder: "Ausschreibungen suchen…",
+    adHocTitle: "Einmal-Filter",
+    adHocClear: "Löschen",
+    adHocApply: "Anwenden",
     filterFormEditTitle: "Filter bearbeiten",
     filterFormName: "Name",
     filterFormNamePlaceholder: "Mein Filter",

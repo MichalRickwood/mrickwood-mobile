@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -6,6 +6,7 @@ import {
   RefreshControl,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -14,6 +15,11 @@ import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { endpoints, type LeadMatchRow } from "@/lib/endpoints";
 import FilterPicker from "@/components/FilterPicker";
 import MatchCard from "@/components/MatchCard";
+import AdHocFilterModal, {
+  EMPTY_AD_HOC,
+  isAdHocActive,
+  type AdHocFilter,
+} from "@/components/AdHocFilterModal";
 import { useToggleTenderPreference } from "@/lib/use-tender-preference";
 import { useTheme } from "@/lib/theme-context";
 import { useI18n } from "@/lib/i18n";
@@ -25,7 +31,17 @@ export default function MatchesScreen() {
   const { t, locale } = useI18n();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const [activeFilterId, setActiveFilterId] = useState<string | null>(null);
+  const [searchInput, setSearchInput] = useState("");
+  const [searchDebounced, setSearchDebounced] = useState("");
+  const [adHoc, setAdHoc] = useState<AdHocFilter>(EMPTY_AD_HOC);
+  const [adHocOpen, setAdHocOpen] = useState(false);
   const setPreference = useToggleTenderPreference();
+
+  // Debounce search input → odložený query refetch.
+  useEffect(() => {
+    const id = setTimeout(() => setSearchDebounced(searchInput.trim()), 300);
+    return () => clearTimeout(id);
+  }, [searchInput]);
 
   const filtersQuery = useQuery({
     queryKey: ["filters"],
@@ -33,12 +49,16 @@ export default function MatchesScreen() {
   });
 
   const matchesQuery = useInfiniteQuery({
-    queryKey: ["matches", activeFilterId],
+    queryKey: ["matches", activeFilterId, searchDebounced, adHoc],
     initialPageParam: null as string | null,
     queryFn: ({ pageParam }) =>
       endpoints.myMatches({
         ...(activeFilterId ? { filterId: activeFilterId } : {}),
         ...(pageParam ? { cursor: pageParam } : {}),
+        ...(searchDebounced ? { q: searchDebounced } : {}),
+        ...(adHoc.regions.length > 0 ? { regions: adHoc.regions.join(",") } : {}),
+        ...(adHoc.minValue != null ? { minValue: adHoc.minValue } : {}),
+        ...(adHoc.maxValue != null ? { maxValue: adHoc.maxValue } : {}),
       }),
     getNextPageParam: (last) => last.nextCursor ?? undefined,
   });
@@ -72,16 +92,53 @@ export default function MatchesScreen() {
       <View style={styles.header}>
         <View style={styles.headerTop}>
           <Text style={styles.title}>{t("matches", "title")}</Text>
-          <FilterPicker
-            filters={filters}
-            activeId={activeFilterId}
-            onPick={setActiveFilterId}
-            onAdd={() => router.push("/filter/new")}
-            onEdit={(fid) => router.push({ pathname: "/filter/[id]", params: { id: fid } })}
-          />
+          <View style={styles.headerControls}>
+            <FilterPicker
+              filters={filters}
+              activeId={activeFilterId}
+              onPick={setActiveFilterId}
+              onAdd={() => router.push("/filter/new")}
+              onEdit={(fid) => router.push({ pathname: "/filter/[id]", params: { id: fid } })}
+            />
+            <Pressable
+              onPress={() => setAdHocOpen(true)}
+              hitSlop={6}
+              style={({ pressed }) => [
+                styles.adHocBtn,
+                isAdHocActive(adHoc) && styles.adHocBtnActive,
+                pressed && { opacity: 0.7 },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.adHocIcon,
+                  isAdHocActive(adHoc) && styles.adHocIconActive,
+                ]}
+              >
+                ☰
+              </Text>
+            </Pressable>
+          </View>
         </View>
         <Text style={styles.subtitle}>{headerLabel}</Text>
+        <TextInput
+          value={searchInput}
+          onChangeText={setSearchInput}
+          placeholder={t("matches", "matchesSearchPlaceholder")}
+          placeholderTextColor={colors.textFaint}
+          style={styles.searchInput}
+          autoCapitalize="none"
+          autoCorrect={false}
+          clearButtonMode="while-editing"
+        />
       </View>
+
+      <AdHocFilterModal
+        visible={adHocOpen}
+        initial={adHoc}
+        onClose={() => setAdHocOpen(false)}
+        onApply={setAdHoc}
+      />
 
       <FlatList
         data={matches}
@@ -165,8 +222,33 @@ const makeStyles = (colors: Colors) =>
     safe: { flex: 1, backgroundColor: colors.bg },
     header: { paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.md },
     headerTop: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: spacing.sm },
+    headerControls: { flexDirection: "row", alignItems: "center", gap: spacing.xs },
+    adHocBtn: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.card,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    adHocBtnActive: { backgroundColor: colors.accent, borderColor: colors.accent },
+    adHocIcon: { fontSize: 18, color: colors.text, fontWeight: "700", lineHeight: 18 },
+    adHocIconActive: { color: colors.accentForeground },
     title: { fontSize: fontSize.xxl, fontWeight: "700", color: colors.text, letterSpacing: -0.5, flexShrink: 1 },
     subtitle: { fontSize: fontSize.sm, color: colors.textSubtle, marginTop: spacing.xs },
+    searchInput: {
+      marginTop: spacing.md,
+      backgroundColor: colors.card,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.md,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      fontSize: fontSize.sm,
+      color: colors.text,
+    },
     list: { padding: spacing.xl, paddingTop: spacing.sm, paddingBottom: 100, flexGrow: 1 },
     footerLoader: { paddingVertical: spacing.lg, alignItems: "center" },
     card: {
