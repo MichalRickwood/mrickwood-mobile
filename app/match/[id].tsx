@@ -1,5 +1,5 @@
-import { useEffect, useMemo } from "react";
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useEffect, useMemo, useState } from "react";
+import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, useLocalSearchParams, useRouter, type Router } from "expo-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -54,6 +54,23 @@ export default function MatchDetailScreen() {
       qc.invalidateQueries({ queryKey: ["matches"] });
     },
   });
+
+  const [emailing, setEmailing] = useState(false);
+  async function sendSummary() {
+    if (!match || emailing) return;
+    setEmailing(true);
+    try {
+      const res = await endpoints.emailTenderSummary(match.tender.id);
+      Alert.alert("Odesláno", `Shrnutí jsme poslali na ${res.email}.`);
+    } catch (err) {
+      Alert.alert(
+        "Chyba",
+        err instanceof Error ? err.message : "Odeslání emailu selhalo.",
+      );
+    } finally {
+      setEmailing(false);
+    }
+  }
 
   useEffect(() => {
     // Auto-mark viewed při otevření detailu (jen poprvé). Synthetic IDs
@@ -112,9 +129,35 @@ export default function MatchDetailScreen() {
           headerTintColor: colors.text,
           headerTitleStyle: { fontSize: fontSize.sm, fontWeight: "600" },
           headerRight: () => (
-            <Pressable onPress={openInBrowser} hitSlop={8}>
-              <Text style={styles.headerCta}>Otevřít na portálu →</Text>
-            </Pressable>
+            <View style={styles.headerActions}>
+              <Pressable
+                onPress={sendSummary}
+                hitSlop={6}
+                disabled={emailing}
+                style={({ pressed }) => [
+                  styles.headerBtn,
+                  emailing && { opacity: 0.5 },
+                  pressed && !emailing && { opacity: 0.7 },
+                ]}
+              >
+                {emailing ? (
+                  <ActivityIndicator size="small" color={colors.text} />
+                ) : (
+                  <Text style={styles.headerBtnText}>Email</Text>
+                )}
+              </Pressable>
+              <Pressable
+                onPress={openInBrowser}
+                hitSlop={6}
+                style={({ pressed }) => [
+                  styles.headerBtn,
+                  styles.headerBtnPrimary,
+                  pressed && { opacity: 0.85 },
+                ]}
+              >
+                <Text style={styles.headerBtnTextPrimary}>Otevřít</Text>
+              </Pressable>
+            </View>
           ),
         }}
       />
@@ -328,7 +371,21 @@ const makeStyles = (colors: Colors) =>
   docName: { fontSize: fontSize.sm, color: colors.text, fontWeight: "500" },
   docMeta: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: 2 },
   docChevron: { fontSize: 20, color: colors.textFaint, marginLeft: spacing.sm },
-  headerCta: { color: colors.link, fontSize: fontSize.sm, fontWeight: "600" },
+  headerActions: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
+  headerBtn: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: 6,
+    borderRadius: radius.full,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.card,
+    minWidth: 56,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  headerBtnPrimary: { backgroundColor: colors.accent, borderColor: colors.accent },
+  headerBtnText: { color: colors.text, fontSize: fontSize.xs, fontWeight: "600" },
+  headerBtnTextPrimary: { color: colors.accentForeground, fontSize: fontSize.xs, fontWeight: "600" },
   notFound: { flex: 1, padding: spacing.xl, justifyContent: "center", alignItems: "center" },
   notFoundTitle: { fontSize: fontSize.lg, fontWeight: "600", color: colors.text, marginBottom: spacing.sm },
   notFoundBody: { fontSize: fontSize.sm, color: colors.textSubtle, textAlign: "center" },

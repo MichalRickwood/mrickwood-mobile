@@ -175,6 +175,12 @@ export const endpoints = {
   markViewed: (matchId: string) =>
     api.post<{ ok: true }>(`/api/mobile/matches/${matchId}/view`),
 
+  // Pošle shrnutí zakázky na email uživatele
+  emailTenderSummary: (tenderId: number) =>
+    api.post<{ sent: true; email: string }>(
+      `/api/mobile/tenders/${tenderId}/email-summary`,
+    ),
+
   // Registrace push tokenu z Expo (po user povolí notifikace)
   registerPushDevice: (token: string, platform: "ios" | "android") =>
     api.post<{ ok: true }>("/api/mobile/devices/register", { token, platform }),
