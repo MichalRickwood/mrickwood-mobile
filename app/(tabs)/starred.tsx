@@ -9,9 +9,10 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { endpoints } from "@/lib/endpoints";
 import MatchCard from "@/components/MatchCard";
+import { useToggleTenderPreference } from "@/lib/use-tender-preference";
 import { useTheme } from "@/lib/theme-context";
 import { useI18n } from "@/lib/i18n";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
@@ -19,7 +20,6 @@ import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 /** Sledované — list všech starred zakázek napříč filtry. */
 export default function StarredScreen() {
   const router = useRouter();
-  const qc = useQueryClient();
   const { colors } = useTheme();
   const { t } = useI18n();
   const styles = useMemo(() => makeStyles(colors), [colors]);
@@ -35,13 +35,7 @@ export default function StarredScreen() {
     getNextPageParam: (last) => last.nextCursor ?? undefined,
   });
 
-  const setPreference = useMutation({
-    mutationFn: ({ tenderId, status }: { tenderId: number; status: "STARRED" | "EXCLUDED" | "NONE" }) =>
-      endpoints.setTenderPreference(tenderId, status),
-    onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ["matches"] });
-    },
-  });
+  const setPreference = useToggleTenderPreference();
 
   const matches = useMemo(() => q.data?.pages.flatMap((p) => p.matches) ?? [], [q.data]);
   const empty = !q.isLoading && matches.length === 0;

@@ -10,29 +10,22 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { endpoints, type LeadMatchRow } from "@/lib/endpoints";
 import FilterPicker from "@/components/FilterPicker";
 import MatchCard from "@/components/MatchCard";
+import { useToggleTenderPreference } from "@/lib/use-tender-preference";
 import { useTheme } from "@/lib/theme-context";
 import { useI18n } from "@/lib/i18n";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 
 export default function MatchesScreen() {
   const router = useRouter();
-  const qc = useQueryClient();
   const { colors } = useTheme();
   const { t, locale } = useI18n();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const [activeFilterId, setActiveFilterId] = useState<string | null>(null);
-
-  const setPreference = useMutation({
-    mutationFn: ({ tenderId, status }: { tenderId: number; status: "STARRED" | "EXCLUDED" | "NONE" }) =>
-      endpoints.setTenderPreference(tenderId, status),
-    onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ["matches"] });
-    },
-  });
+  const setPreference = useToggleTenderPreference();
 
   const filtersQuery = useQuery({
     queryKey: ["filters"],
