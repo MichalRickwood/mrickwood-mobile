@@ -148,34 +148,53 @@ export default function CpvPickerModal({ visible, initial, onClose, onApply }: P
           />
 
           {!query && parentStack.length > 0 && (
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              style={styles.breadcrumbWrap}
-              contentContainerStyle={styles.breadcrumbContent}
-            >
-              <Pressable onPress={() => popBreadcrumb(0)} style={styles.crumb}>
-                <Text style={styles.crumbText}>Vše</Text>
+            <View style={styles.pathStack}>
+              <Pressable
+                onPress={() => popBreadcrumb(0)}
+                style={({ pressed }) => [styles.pathRow, pressed && { opacity: 0.6 }]}
+              >
+                <Text style={styles.pathArrow}>↑</Text>
+                <Text style={styles.pathText}>Vše</Text>
               </Pressable>
-              {parentStack.map((p, idx) => {
+              {parentStack.slice(0, -1).map((p, idx) => {
                 const entry = byPrefix.get(p);
-                const isLast = idx === parentStack.length - 1;
                 return (
-                  <View key={p} style={styles.crumbRow}>
-                    <Text style={styles.crumbSep}>›</Text>
-                    <Pressable
-                      onPress={() => popBreadcrumb(idx + 1)}
-                      disabled={isLast}
-                      style={styles.crumb}
-                    >
-                      <Text style={[styles.crumbText, isLast && styles.crumbCurrent]}>
-                        {p} · {entry?.label ?? "?"}
-                      </Text>
-                    </Pressable>
-                  </View>
+                  <Pressable
+                    key={p}
+                    onPress={() => popBreadcrumb(idx + 1)}
+                    style={({ pressed }) => [
+                      styles.pathRow,
+                      { paddingLeft: spacing.md + (idx + 1) * 12 },
+                      pressed && { opacity: 0.6 },
+                    ]}
+                  >
+                    <Text style={styles.pathArrow}>↑</Text>
+                    <Text style={styles.pathText} numberOfLines={1}>
+                      {p} · {entry?.label ?? "?"}
+                    </Text>
+                  </Pressable>
                 );
               })}
-            </ScrollView>
+              {/* Current level (non-clickable) */}
+              {(() => {
+                const cur = parentStack[parentStack.length - 1];
+                const entry = byPrefix.get(cur);
+                return (
+                  <View
+                    style={[
+                      styles.pathRow,
+                      styles.pathRowCurrent,
+                      { paddingLeft: spacing.md + parentStack.length * 12 },
+                    ]}
+                  >
+                    <Text style={styles.pathBullet}>●</Text>
+                    <Text style={[styles.pathText, styles.pathCurrent]} numberOfLines={2}>
+                      {cur} · {entry?.label ?? "?"}
+                    </Text>
+                  </View>
+                );
+              })()}
+            </View>
           )}
 
           {selected.length > 0 && (
@@ -310,13 +329,26 @@ const makeStyles = (colors: Colors) =>
       fontSize: fontSize.sm,
       color: colors.text,
     },
-    breadcrumbWrap: { marginTop: spacing.sm, maxHeight: 32 },
-    breadcrumbContent: { alignItems: "center", paddingVertical: 2 },
-    crumbRow: { flexDirection: "row", alignItems: "center" },
-    crumb: { paddingHorizontal: spacing.xs },
-    crumbText: { fontSize: fontSize.xs, color: colors.link },
-    crumbCurrent: { color: colors.text, fontWeight: "600" },
-    crumbSep: { color: colors.textSubtle, fontSize: fontSize.sm, marginHorizontal: 2 },
+    pathStack: {
+      marginTop: spacing.sm,
+      borderRadius: radius.md,
+      backgroundColor: colors.bg,
+      borderWidth: 1,
+      borderColor: colors.border,
+      paddingVertical: spacing.xs,
+    },
+    pathRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: spacing.sm,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xs + 1,
+    },
+    pathRowCurrent: { backgroundColor: colors.card },
+    pathArrow: { color: colors.link, fontSize: fontSize.sm, fontWeight: "700", width: 14 },
+    pathBullet: { color: colors.text, fontSize: 10, width: 14 },
+    pathText: { flex: 1, fontSize: fontSize.xs, color: colors.link },
+    pathCurrent: { color: colors.text, fontWeight: "600" },
     selectedWrap: { marginTop: spacing.sm, maxHeight: 32 },
     selectedRow: { flexDirection: "row", gap: spacing.xs },
     selectedChip: {
