@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
-import { useFocusEffect, useNavigation } from "expo-router";
+import { useCallback, useMemo, useRef } from "react";
+import { useFocusEffect } from "expo-router";
 import {
   ActivityIndicator,
   FlatList,
@@ -37,16 +37,6 @@ export default function StarredScreen() {
   });
 
   const setPreference = useToggleTenderPreference();
-  const listRef = useRef<FlatList>(null);
-  const navigation = useNavigation();
-  useEffect(() => {
-    const unsub = navigation.addListener("tabPress" as never, () => {
-      if (navigation.isFocused?.()) {
-        listRef.current?.scrollToOffset({ offset: 0, animated: true });
-      }
-    });
-    return unsub;
-  }, [navigation]);
 
   // Auto-refresh při focusu tabu — když user dá star v Zakázkách a přepne sem,
   // optimistic update nemůže přidat nový řádek (jen modifikovat existující),
@@ -76,7 +66,6 @@ export default function StarredScreen() {
       </View>
 
       <FlatList
-        ref={listRef}
         data={matches}
         keyExtractor={(item) => item.matchId}
         renderItem={({ item }) => (
