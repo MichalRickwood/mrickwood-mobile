@@ -13,6 +13,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { endpoints, type LeadMatchRow } from "@/lib/endpoints";
+import { ApiError } from "@/lib/api";
+import LeadsPaywall from "@/components/LeadsPaywall";
 import FilterPicker from "@/components/FilterPicker";
 import MatchCard from "@/components/MatchCard";
 import RegionPickerModal from "@/components/RegionPickerModal";
@@ -141,6 +143,9 @@ export default function MatchesScreen() {
 
   const empty = !matchesQuery.isLoading && matches.length === 0;
   const errored = matchesQuery.isError;
+  // 402 = LEADS service není aktivní → paywall UI místo listu
+  const paymentRequired =
+    matchesQuery.error instanceof ApiError && matchesQuery.error.status === 402;
 
   const headerLabel = useMemo(() => {
     if (!activeFilterId) {
@@ -150,6 +155,17 @@ export default function MatchesScreen() {
     const name = f?.name ?? t("matches", "title");
     return t("matches", "counterFilter", { filter: name, count: totalCount });
   }, [activeFilterId, filters, totalCount, t]);
+
+  if (paymentRequired) {
+    return (
+      <SafeAreaView style={styles.safe} edges={["top"]}>
+        <View style={styles.header}>
+          <Text style={styles.title}>{t("matches", "title")}</Text>
+        </View>
+        <LeadsPaywall />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>

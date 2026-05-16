@@ -13,13 +13,15 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { endpoints } from "@/lib/endpoints";
+import { ApiError } from "@/lib/api";
+import LeadsPaywall from "@/components/LeadsPaywall";
 import MatchCard from "@/components/MatchCard";
 import { useToggleTenderPreference } from "@/lib/use-tender-preference";
 import { useTheme } from "@/lib/theme-context";
 import { useI18n } from "@/lib/i18n";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 
-type View = "starred" | "excluded";
+type ListView = "starred" | "excluded";
 
 /** Sledované / Odstraněné — list zakázek z UserTenderPreference, switch nahoře. */
 export default function StarredScreen() {
@@ -27,7 +29,7 @@ export default function StarredScreen() {
   const { colors } = useTheme();
   const { t } = useI18n();
   const styles = useMemo(() => makeStyles(colors), [colors]);
-  const [view, setView] = useState<View>("starred");
+  const [view, setView] = useState<ListView>("starred");
 
   const q = useInfiniteQuery({
     queryKey: ["matches", view],
@@ -57,10 +59,22 @@ export default function StarredScreen() {
   const matches = useMemo(() => q.data?.pages.flatMap((p) => p.matches) ?? [], [q.data]);
   const totalCount = q.data?.pages[0]?.totalCount ?? matches.length;
   const empty = !q.isLoading && matches.length === 0;
+  const paymentRequired = q.error instanceof ApiError && q.error.status === 402;
 
   const onRefresh = useCallback(() => {
     void q.refetch();
   }, [q]);
+
+  if (paymentRequired) {
+    return (
+      <SafeAreaView style={styles.safe} edges={["top"]}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Sledované</Text>
+        </View>
+        <LeadsPaywall />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>

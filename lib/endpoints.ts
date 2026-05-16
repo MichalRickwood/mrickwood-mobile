@@ -174,6 +174,25 @@ export const endpoints = {
   // Filtry usera (pro filter chips/dropdown v UI)
   myFilters: () => api.get<{ filters: LeadFilterRow[] }>("/api/mobile/filters"),
 
+  // LEADS service stav + aktivace trialu (mobile gating fallback)
+  getLeadsService: () =>
+    api.get<{
+      service: "LEADS";
+      hasKey: boolean;
+      state: "TRIAL" | "ACTIVE" | "PAST_DUE" | "SUSPENDED" | "CANCELED" | null;
+      tier: "FREE" | "PAID" | null;
+      isActive: boolean;
+      trialEndsAt: string | null;
+      paidUntil: string | null;
+      cancelAtPeriodEnd: boolean;
+      canActivateTrial: boolean;
+      trialDays: number;
+    }>("/api/mobile/services/leads"),
+  activateLeadsTrial: () =>
+    api.post<{ ok: true; state: string; trialEndsAt: string | null }>(
+      "/api/mobile/services/leads",
+    ),
+
   // Industry taxonomy (areas + tags) pro CategoryPicker
   industryTaxonomy: () =>
     api.get<{
