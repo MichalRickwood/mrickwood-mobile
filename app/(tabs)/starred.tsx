@@ -82,11 +82,6 @@ export default function StarredScreen() {
         <Text style={styles.title}>
           {view === "starred" ? t("matches", "starredTab") : t("matches", "excludedTab")}
         </Text>
-        <Text style={styles.subtitle}>
-          {view === "starred"
-            ? t("matches", "starredCounter", { count: totalCount })
-            : t("matches", "excludedCounter", { count: totalCount })}
-        </Text>
         <View style={styles.segWrap}>
           <Pressable
             onPress={() => setView("starred")}
