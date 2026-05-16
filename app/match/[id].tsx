@@ -1,12 +1,18 @@
 import { useEffect, useMemo } from "react";
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter, type Router } from "expo-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as WebBrowser from "expo-web-browser";
 import { endpoints, type LeadMatchRow, type TenderDocument } from "@/lib/endpoints";
 import { useTheme } from "@/lib/theme-context";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
+import {
+  iconForKind,
+  inferDocExt,
+  inferDocKind,
+  openTenderDocument,
+} from "@/lib/tender-doc-viewer";
 
 export default function MatchDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -17,9 +23,19 @@ export default function MatchDetailScreen() {
 
   // Primárně tahá z cache /matches. Pokud cache nemá řádek (deep link z push
   // notif, nebo cache vypadla), fallback fetchne celý list a najde.
+  // Cache tvar: useInfiniteQuery má { pages: [{matches,...}] }; useQuery má
+  // { matches: [...] }. Akceptujeme oba.
+  type CachedShape =
+    | { pages: Array<{ matches: LeadMatchRow[] }>; pageParams: unknown[] }
+    | { matches: LeadMatchRow[] };
   const allCached = qc
-    .getQueriesData<{ matches: LeadMatchRow[] }>({ queryKey: ["matches"] })
-    .flatMap(([, data]) => data?.matches ?? []);
+    .getQueriesData<CachedShape>({ queryKey: ["matches"] })
+    .flatMap(([, data]) => {
+      if (!data) return [] as LeadMatchRow[];
+      if ("pages" in data) return data.pages.flatMap((p) => p.matches);
+      if ("matches" in data) return data.matches;
+      return [] as LeadMatchRow[];
+    });
   const cached = allCached.find((m) => m.matchId === id) ?? null;
 
   const fallback = useQuery({
@@ -40,8 +56,14 @@ export default function MatchDetailScreen() {
   });
 
   useEffect(() => {
-    // Auto-mark viewed při otevření detailu (jen poprvé).
-    if (match && !match.viewedAt && !markViewed.isPending) {
+    // Auto-mark viewed při otevření detailu (jen poprvé). Synthetic IDs
+    // (live-{tenderId}) z live searche nemají leadMatch řádek — skip.
+    if (
+      match &&
+      !match.viewedAt &&
+      !markViewed.isPending &&
+      !match.matchId.startsWith("live-")
+    ) {
       markViewed.mutate(match.matchId);
     }
   }, [match, markViewed]);
@@ -134,7 +156,7 @@ export default function MatchDetailScreen() {
             <View style={styles.docsSection}>
               <Text style={styles.sectionLabel}>Dokumenty ({docs.length})</Text>
               {docs.map((d, i) => (
-                <DocumentRow key={`${d.url}-${i}`} styles={styles} doc={d} />
+                <DocumentRow key={`${d.url}-${i}`} styles={styles} doc={d} router={router} />
               ))}
             </View>
           );
@@ -154,20 +176,24 @@ export default function MatchDetailScreen() {
 function DocumentRow({
   styles,
   doc,
+  router,
 }: {
   styles: ReturnType<typeof makeStyles>;
   doc: TenderDocument;
+  router: Router;
 }) {
-  const meta = [doc.fileType?.toUpperCase(), formatFileSize(doc.fileSizeBytes)]
+  const kind = inferDocKind(doc);
+  const ext = inferDocExt(doc);
+  const meta = [ext?.toUpperCase(), formatFileSize(doc.fileSizeBytes)]
     .filter(Boolean)
     .join(" · ");
   return (
     <Pressable
-      onPress={() => void WebBrowser.openBrowserAsync(doc.url)}
+      onPress={() => void openTenderDocument(doc, router)}
       style={({ pressed }) => [styles.docRow, pressed && { opacity: 0.6 }]}
     >
       <View style={styles.docIcon}>
-        <Text style={styles.docIconText}>📄</Text>
+        <Text style={styles.docIconText}>{iconForKind(kind)}</Text>
       </View>
       <View style={styles.docText}>
         <Text style={styles.docName} numberOfLines={2}>

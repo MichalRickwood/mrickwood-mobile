@@ -161,6 +161,8 @@ export interface Dict {
     sectionSecurityHint: string;
     sectionBilling: string;
     sectionBillingHint: string;
+    sectionFeedback: string;
+    sectionFeedbackHint: string;
     exportTitle: string;
     exportSubtitle: string;
     exportButton: string;
@@ -300,6 +302,33 @@ export interface Dict {
     loadFailed: string;
     saveFailed: string;
     saved: string;
+  };
+  feedback: {
+    title: string;
+    subtitle: string;
+    typeLabel: string;
+    kindBug: string;
+    kindImprovement: string;
+    kindOther: string;
+    kindMissingTender: string;
+    missingTenderReward: string;
+    descriptionLabel: string;
+    placeholderBug: string;
+    placeholderImprovement: string;
+    placeholderMissingTender: string;
+    placeholderOther: string;
+    counter: string;
+    submit: string;
+    submitting: string;
+    minLengthError: string;
+    monthlyCapError: string;
+    networkError: string;
+    defaultError: string;
+    thanksTitle: string;
+    thanksBody: string;
+    thanksAgain: string;
+    attachmentsAdd: string;
+    attachmentsTooBig: string;
   };
   oauth: {
     divider: string;
@@ -466,6 +495,8 @@ const cs: Dict = {
     sectionSecurityHint: "Změna hesla",
     sectionBilling: "Předplatné",
     sectionBillingHint: "Plán, fakturace, předplatné",
+    sectionFeedback: "Zpětná vazba",
+    sectionFeedbackHint: "Nahlásit chybu, návrh vylepšení, chybějící zakázka",
     exportTitle: "Poslat moje data emailem",
     exportSubtitle: "Pošleme JSON snapshot vašeho účtu (GDPR čl. 15/20) jako přílohu na váš email.",
     exportButton: "Odeslat email s daty",
@@ -605,6 +636,33 @@ const cs: Dict = {
     loadFailed: "Nepodařilo se načíst nastavení.",
     saveFailed: "Uložení selhalo.",
     saved: "Uloženo",
+  },
+  feedback: {
+    title: "Zpětná vazba",
+    subtitle: "Napište nám, co vás trápí nebo co chybí.",
+    typeLabel: "Typ",
+    kindBug: "Nahlásit chybu",
+    kindImprovement: "Návrh vylepšení",
+    kindOther: "Jiné",
+    kindMissingTender: "Chybí zakázka",
+    missingTenderReward: "Nahlaste nám zakázku, kterou v aplikaci nemáme. Pokud ji ověříme, připíšeme vám měsíc předplatného zdarma.",
+    descriptionLabel: "Popis",
+    placeholderBug: "Popište prosím chybu, kterou jste našli. Co jste dělali, co se stalo a co jste očekávali?",
+    placeholderImprovement: "Co byste v aplikaci chtěli vylepšit? Co vám chybí nebo co by se mohlo dělat jinak?",
+    placeholderMissingTender: "Vložte URL zakázky nebo název zadavatele a kde jste ji našli. Po ověření vám připíšeme měsíc zdarma.",
+    placeholderOther: "Vaše zpráva…",
+    counter: "{current}/5000",
+    submit: "Odeslat",
+    submitting: "Odesílám…",
+    minLengthError: "Zpráva je příliš krátká.",
+    monthlyCapError: "V tomto měsíci jste už 1 chybějící zakázku nahlásili. Zkuste to znovu od 1. dne dalšího měsíce.",
+    networkError: "Chyba sítě. Zkuste to znovu.",
+    defaultError: "Odeslání selhalo. Zkuste to znovu.",
+    thanksTitle: "Děkujeme!",
+    thanksBody: "Vaše zpráva dorazila. Brzy se na ni podíváme.",
+    thanksAgain: "Poslat další",
+    attachmentsAdd: "+ Přidat screenshot ({current}/{max})",
+    attachmentsTooBig: "Příloha přesahuje 5 MB.",
   },
   oauth: {
     divider: "nebo",
@@ -766,6 +824,8 @@ const en: Dict = {
     sectionSecurityHint: "Change password",
     sectionBilling: "Subscription",
     sectionBillingHint: "Plan, billing, subscription",
+    sectionFeedback: "Feedback",
+    sectionFeedbackHint: "Report a bug, suggest improvement, missing tender",
     exportTitle: "Email my data",
     exportSubtitle: "We'll send a JSON snapshot of your account (GDPR art. 15/20) as an attachment to your email.",
     exportButton: "Send data email",
@@ -905,6 +965,33 @@ const en: Dict = {
     loadFailed: "Failed to load settings.",
     saveFailed: "Save failed.",
     saved: "Saved",
+  },
+  feedback: {
+    title: "Feedback",
+    subtitle: "Tell us what's broken or what you're missing.",
+    typeLabel: "Type",
+    kindBug: "Report a bug",
+    kindImprovement: "Suggest improvement",
+    kindOther: "Other",
+    kindMissingTender: "Missing tender",
+    missingTenderReward: "Report a tender we don't yet have. If verified, we'll credit you one month of subscription for free.",
+    descriptionLabel: "Description",
+    placeholderBug: "Please describe the bug. What were you doing, what happened, and what did you expect?",
+    placeholderImprovement: "What would you like to see improved? What's missing or could work differently?",
+    placeholderMissingTender: "Paste the tender URL or contracting authority name and where you found it. We'll credit a free month after verification.",
+    placeholderOther: "Your message…",
+    counter: "{current}/5000",
+    submit: "Send",
+    submitting: "Sending…",
+    minLengthError: "Message is too short.",
+    monthlyCapError: "You've already reported 1 missing tender this month. Try again from the 1st of next month.",
+    networkError: "Network error. Please try again.",
+    defaultError: "Sending failed. Please try again.",
+    thanksTitle: "Thank you!",
+    thanksBody: "Your message has arrived. We'll review it soon.",
+    thanksAgain: "Send another",
+    attachmentsAdd: "+ Add screenshot ({current}/{max})",
+    attachmentsTooBig: "Attachment exceeds 5 MB.",
   },
   oauth: {
     divider: "or",
@@ -1068,6 +1155,8 @@ const de: Dict = {
     sectionSecurityHint: "Passwort ändern",
     sectionBilling: "Abonnement",
     sectionBillingHint: "Tarif, Abrechnung, Abonnement",
+    sectionFeedback: "Feedback",
+    sectionFeedbackHint: "Fehler melden, Verbesserungsvorschlag, fehlende Ausschreibung",
     exportTitle: "Meine Daten per E-Mail senden",
     exportSubtitle: "Wir senden einen JSON-Snapshot Ihres Kontos (DSGVO Art. 15/20) als Anhang an Ihre E-Mail.",
     exportButton: "Daten-E-Mail senden",
@@ -1207,6 +1296,33 @@ const de: Dict = {
     loadFailed: "Einstellungen konnten nicht geladen werden.",
     saveFailed: "Speichern fehlgeschlagen.",
     saved: "Gespeichert",
+  },
+  feedback: {
+    title: "Feedback",
+    subtitle: "Sagen Sie uns, was nicht funktioniert oder was Ihnen fehlt.",
+    typeLabel: "Typ",
+    kindBug: "Fehler melden",
+    kindImprovement: "Verbesserungsvorschlag",
+    kindOther: "Sonstiges",
+    kindMissingTender: "Fehlende Ausschreibung",
+    missingTenderReward: "Melden Sie uns eine Ausschreibung, die wir noch nicht haben. Nach Überprüfung schreiben wir Ihnen einen Monat Abo gratis gut.",
+    descriptionLabel: "Beschreibung",
+    placeholderBug: "Beschreiben Sie bitte den Fehler. Was haben Sie getan, was ist passiert und was haben Sie erwartet?",
+    placeholderImprovement: "Was möchten Sie in der App verbessert sehen? Was fehlt oder könnte anders funktionieren?",
+    placeholderMissingTender: "Fügen Sie die URL der Ausschreibung oder den Namen des Auftraggebers ein und wo Sie sie gefunden haben. Nach Überprüfung schreiben wir einen Monat gratis gut.",
+    placeholderOther: "Ihre Nachricht…",
+    counter: "{current}/5000",
+    submit: "Senden",
+    submitting: "Sende…",
+    minLengthError: "Nachricht ist zu kurz.",
+    monthlyCapError: "Sie haben diesen Monat bereits 1 fehlende Ausschreibung gemeldet. Versuchen Sie es ab dem 1. des nächsten Monats erneut.",
+    networkError: "Netzwerkfehler. Bitte erneut versuchen.",
+    defaultError: "Senden fehlgeschlagen. Bitte erneut versuchen.",
+    thanksTitle: "Danke!",
+    thanksBody: "Ihre Nachricht ist angekommen. Wir schauen uns das bald an.",
+    thanksAgain: "Weitere senden",
+    attachmentsAdd: "+ Screenshot hinzufügen ({current}/{max})",
+    attachmentsTooBig: "Anhang überschreitet 5 MB.",
   },
   oauth: {
     divider: "oder",

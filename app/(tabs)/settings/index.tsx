@@ -30,19 +30,19 @@ export default function SettingsIndexScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll}>
-        {user && (
-          <Pressable
-            onPress={() => router.push("/(tabs)/settings/profile")}
-            style={({ pressed }) => [styles.userCard, pressed && styles.rowPressed]}
-          >
-            <View style={{ flex: 1 }}>
-              <Text style={styles.userLabel}>{t("settings", "signedInAs")}</Text>
-              <Text style={styles.userValue}>{user.name || user.email}</Text>
-              {user.name && <Text style={styles.userSub}>{user.email}</Text>}
-            </View>
-            <Text style={styles.rowChevron}>›</Text>
-          </Pressable>
-        )}
+        <Pressable
+          onPress={() => router.push("/(tabs)/settings/profile")}
+          style={({ pressed }) => [styles.userCard, pressed && styles.rowPressed]}
+        >
+          <View style={{ flex: 1 }}>
+            <Text style={styles.userLabel}>{t("settings", "signedInAs")}</Text>
+            <Text style={styles.userValue}>
+              {user ? user.name || user.email : " "}
+            </Text>
+            <Text style={styles.userSub}>{user?.name ? user.email : " "}</Text>
+          </View>
+          <Text style={styles.rowChevron}>›</Text>
+        </Pressable>
 
         <View style={styles.group}>
           <SectionRow
@@ -68,6 +68,15 @@ export default function SettingsIndexScreen() {
             label={t("settings", "sectionBilling")}
             hint={t("settings", "sectionBillingHint")}
             onPress={() => router.push("/(tabs)/settings/billing")}
+          />
+        </View>
+
+        <View style={styles.group}>
+          <SectionRow
+            styles={styles}
+            label={t("settings", "sectionFeedback")}
+            hint={t("settings", "sectionFeedbackHint")}
+            onPress={() => router.push("/(tabs)/settings/feedback")}
           />
         </View>
 

@@ -21,6 +21,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const pushTokenRef = useRef<string | null>(null);
 
   // On mount: ověříme uložený token přes /api/auth/mobile/me. 401 → anon.
+  // Cached user nastavíme optimisticky z storage *před* network call, ať UI
+  // (settings karta, headery atd.) nečeká na endpoints.me() a nepoblikává.
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -28,6 +30,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!token) {
         if (!cancelled) setStatus("anonymous");
         return;
+      }
+      const stored = await getUser();
+      if (stored && !cancelled) {
+        setUser(stored);
+        setStatus("authenticated");
       }
       try {
         const { user: serverUser } = await endpoints.me();

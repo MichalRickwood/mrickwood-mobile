@@ -37,10 +37,14 @@ async function request<T>(path: string, opts: RequestOptions = {}): Promise<T> {
     }
   }
 
+  const isFormData =
+    typeof FormData !== "undefined" && opts.body instanceof FormData;
+
   const headers: Record<string, string> = {
     Accept: "application/json",
   };
-  if (opts.body !== undefined) {
+  // U FormData necháme fetch nastavit Content-Type vč. boundary.
+  if (opts.body !== undefined && !isFormData) {
     headers["Content-Type"] = "application/json";
   }
   if (!opts.noAuth) {
@@ -51,7 +55,12 @@ async function request<T>(path: string, opts: RequestOptions = {}): Promise<T> {
   const res = await fetch(url.toString(), {
     method: opts.method ?? "GET",
     headers,
-    body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
+    body:
+      opts.body === undefined
+        ? undefined
+        : isFormData
+          ? (opts.body as FormData)
+          : JSON.stringify(opts.body),
     signal: opts.signal,
   });
 

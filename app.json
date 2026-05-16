@@ -31,7 +31,13 @@
           "color": "#1C1917"
         }
       ],
-      "expo-localization"
+      "expo-localization",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Aplikace potřebuje přístup k fotkám pro přiložení screenshotu k feedbacku."
+        }
+      ]
     ],
     "extra": {
       "router": {},

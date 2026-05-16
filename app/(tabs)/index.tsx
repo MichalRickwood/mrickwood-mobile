@@ -129,16 +129,26 @@ export default function MatchesScreen() {
           </View>
         </View>
         <Text style={styles.subtitle}>{headerLabel}</Text>
-        <TextInput
-          value={searchInput}
-          onChangeText={setSearchInput}
-          placeholder={t("matches", "matchesSearchPlaceholder")}
-          placeholderTextColor={colors.textFaint}
-          style={styles.searchInput}
-          autoCapitalize="none"
-          autoCorrect={false}
-          clearButtonMode="while-editing"
-        />
+        <View style={styles.searchRow}>
+          <TextInput
+            value={searchInput}
+            onChangeText={setSearchInput}
+            placeholder={t("matches", "matchesSearchPlaceholder")}
+            placeholderTextColor={colors.textFaint}
+            style={[styles.searchInput, { flex: 1 }]}
+            autoCapitalize="none"
+            autoCorrect={false}
+            clearButtonMode="while-editing"
+          />
+          {(searchInput !== searchDebounced ||
+            (hasNarrowingFilter && matchesQuery.isFetching)) && (
+            <ActivityIndicator
+              size="small"
+              color={colors.textSubtle}
+              style={styles.searchSpinner}
+            />
+          )}
+        </View>
       </View>
 
       <AdHocFilterModal
@@ -246,8 +256,14 @@ const makeStyles = (colors: Colors) =>
     adHocIconActive: { color: colors.accentForeground },
     title: { fontSize: fontSize.xxl, fontWeight: "700", color: colors.text, letterSpacing: -0.5, flexShrink: 1 },
     subtitle: { fontSize: fontSize.sm, color: colors.textSubtle, marginTop: spacing.xs },
-    searchInput: {
+    searchRow: {
+      flexDirection: "row",
+      alignItems: "center",
       marginTop: spacing.md,
+      gap: spacing.sm,
+    },
+    searchSpinner: { marginLeft: spacing.xs },
+    searchInput: {
       backgroundColor: colors.card,
       borderWidth: 1,
       borderColor: colors.border,

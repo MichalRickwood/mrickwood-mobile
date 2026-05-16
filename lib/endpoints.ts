@@ -249,7 +249,40 @@ export const endpoints = {
     ),
   confirmAccountCancel: (input: { code: string; reason?: string }) =>
     api.post<{ action: "DEACTIVATE" | "DELETE" }>("/api/mobile/account/cancel/confirm", input),
+
+  // Feedback — submit (BUG / IMPROVEMENT / OTHER / MISSING_TENDER).
+  // MISSING_TENDER má monthly cap 1/měsíc — server vrací 429 s code=MONTHLY_CAP_REACHED.
+  // Když jsou attachments, posíláme multipart; jinak JSON (jednodušší pro server).
+  submitFeedback: (input: {
+    kind: FeedbackKind;
+    message: string;
+    attachments?: { uri: string; name: string; mimeType: string }[];
+  }) => {
+    if (input.attachments && input.attachments.length > 0) {
+      const fd = new FormData();
+      fd.append("kind", input.kind);
+      fd.append("message", input.message);
+      for (const a of input.attachments) {
+        // RN FormData přijímá { uri, name, type } objekt jako file part.
+        fd.append("attachments", {
+          uri: a.uri,
+          name: a.name,
+          type: a.mimeType,
+        } as unknown as Blob);
+      }
+      return api.post<{ id: string; createdAt: string }>(
+        "/api/mobile/feedback",
+        fd,
+      );
+    }
+    return api.post<{ id: string; createdAt: string }>("/api/mobile/feedback", {
+      kind: input.kind,
+      message: input.message,
+    });
+  },
 };
+
+export type FeedbackKind = "BUG" | "IMPROVEMENT" | "OTHER" | "MISSING_TENDER";
 
 export type BillingTier = "FREE" | "PAID";
 export type BillingState = "TRIAL" | "ACTIVE" | "PAST_DUE" | "SUSPENDED" | "CANCELED";
