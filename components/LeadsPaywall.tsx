@@ -46,11 +46,6 @@ export default function LeadsPaywall() {
     onSuccess: invalidateAll,
   });
 
-  const reactivate = useMutation({
-    mutationFn: () => endpoints.reactivateLeadsService(),
-    onSuccess: invalidateAll,
-  });
-
   if (status.isLoading) {
     return (
       <View style={styles.center}>
@@ -78,11 +73,6 @@ export default function LeadsPaywall() {
 
   // Pokud je vše OK, paywall nemá co zobrazit (caller by neměl vůbec rendrovat)
   if (trialActive || subscriptionActive) return null;
-
-  const now = Date.now();
-  const trialStillValid =
-    !!data.trialEndsAt && new Date(data.trialEndsAt).getTime() > now;
-  const canReactivate = data.canReactivate;
 
   return (
     <ScrollView
@@ -134,36 +124,6 @@ export default function LeadsPaywall() {
             )}
           </Pressable>
         </>
-      ) : canReactivate ? (
-        <>
-          <Text style={styles.body}>
-            {t("filters", "paywallReactivateBody", {
-              date: formatDate(trialStillValid ? data.trialEndsAt! : data.paidUntil!),
-            })}
-          </Text>
-          {reactivate.isError && (
-            <Text style={styles.errorBox}>
-              {reactivate.error instanceof ApiError
-                ? reactivate.error.message
-                : t("filters", "paywallReactivateFailed")}
-            </Text>
-          )}
-          <Pressable
-            onPress={() => reactivate.mutate()}
-            disabled={reactivate.isPending}
-            style={({ pressed }) => [
-              styles.btnPrimary,
-              reactivate.isPending && { opacity: 0.6 },
-              pressed && !reactivate.isPending && { opacity: 0.85 },
-            ]}
-          >
-            {reactivate.isPending ? (
-              <ActivityIndicator color={colors.accentForeground} />
-            ) : (
-              <Text style={styles.btnPrimaryText}>{t("filters", "paywallReactivateBtn")}</Text>
-            )}
-          </Pressable>
-        </>
       ) : (
         <>
           <Text style={styles.body}>
@@ -189,14 +149,6 @@ export default function LeadsPaywall() {
       <Text style={styles.fineprint}>{t("filters", "paywallFineprint")}</Text>
     </ScrollView>
   );
-}
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("cs-CZ", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
 }
 
 const makeStyles = (colors: Colors) =>

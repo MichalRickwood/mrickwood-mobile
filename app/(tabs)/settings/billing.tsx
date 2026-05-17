@@ -313,6 +313,25 @@ export default function BillingScreen() {
 
   async function deactivateService(svc: BillingServiceRow) {
     if (svc.service !== "LEADS") return; // zatím jen LEADS má mobile deact endpoint
+
+    // Reaktivace: pokud cancelAtPeriodEnd=true, klik na tlačítko clearuje flag.
+    // Bez potvrzovacího dialogu (akce je nedestruktivní).
+    if (svc.cancelAtPeriodEnd) {
+      setServiceBusy(svc.service);
+      setError(null);
+      try {
+        await endpoints.reactivateLeadsService();
+        await refresh();
+        await qc.invalidateQueries({ queryKey: ["service", "leads"] });
+        await qc.invalidateQueries({ queryKey: ["matches"] });
+      } catch (e) {
+        setError(e instanceof ApiError ? e.message : t("settings", "billingSaveFailed"));
+      } finally {
+        setServiceBusy(null);
+      }
+      return;
+    }
+
     Alert.alert(
       t("settings", "billingServiceDeactivateConfirmTitle"),
       t("settings", "billingServiceDeactivateConfirmBody"),
@@ -911,13 +930,19 @@ function ServiceRow({
             onPress={onDeactivate}
             disabled={busy}
             style={({ pressed }) => [
-              styles.warnBtn,
+              service.cancelAtPeriodEnd ? styles.secondaryBtn : styles.warnBtn,
               pressed && styles.btnPressed,
               busy && styles.btnDisabled,
             ]}
           >
-            <Text style={styles.warnBtnText}>
-              {t("settings", "billingServiceDeactivate")}
+            <Text
+              style={
+                service.cancelAtPeriodEnd ? styles.secondaryBtnText : styles.warnBtnText
+              }
+            >
+              {service.cancelAtPeriodEnd
+                ? t("settings", "billingServiceReactivate")
+                : t("settings", "billingServiceDeactivate")}
             </Text>
           </Pressable>
         )}
