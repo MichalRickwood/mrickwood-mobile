@@ -121,6 +121,16 @@ export interface NotificationSettings {
   educationalEnabled: boolean;
 }
 
+/**
+ * v2 vrací Filter s `active`. Mobile UI dnes čte `isActive` — adaptujeme.
+ */
+type V2Filter = Omit<LeadFilterRow, "isActive"> & { active: boolean };
+
+function legacyFilterShape(f: V2Filter): LeadFilterRow {
+  const { active, ...rest } = f;
+  return { ...rest, isActive: active };
+}
+
 export const endpoints = {
   // Auth
   login: (email: string, password: string) =>
@@ -141,9 +151,9 @@ export const endpoints = {
   // Aktuální user (verifikace JWT na startu)
   me: () => api.get<{ user: MobileLoginResponse["user"] }>("/api/auth/mobile/me"),
 
-  // Lead matches — last 30 days, optional filterId, cursor pagination, view filter,
-  // ad-hoc search + region/value filtering (q, regions=CZ010,CZ020, minValue, maxValue).
-  myMatches: (params?: {
+  // Lead matches — v2 envelope { data, pagination }. Wrapper sjednocuje na původní
+  // tvar (matches, nextCursor, totalCount) ať se UI nemusí měnit.
+  myMatches: async (params?: {
     filterId?: string;
     cursor?: string;
     limit?: number;
@@ -161,18 +171,49 @@ export const endpoints = {
     cpvPrefixes?: string;
     /** Comma-separated industry tag IDs (např. "con_buildings,it_development"). */
     industryTags?: string;
-  }) =>
-    api.get<{ matches: LeadMatchRow[]; nextCursor: string | null; totalCount: number }>(
-      "/api/mobile/matches",
-      { params },
-    ),
+  }) => {
+    // v2 paramy: ?qText (ne ?q), ?view jen "starred"|"excluded" (ne "all")
+    const v2Params: Record<string, string | number | boolean | null | undefined> = {};
+    if (params?.filterId) v2Params.filterId = params.filterId;
+    if (params?.cursor) v2Params.cursor = params.cursor;
+    if (params?.limit) v2Params.limit = params.limit;
+    if (params?.sort) v2Params.sort = params.sort;
+    if (params?.q) v2Params.qText = params.q;
+    if (params?.regions) v2Params.regions = params.regions;
+    if (params?.minValue != null) v2Params.minValue = params.minValue;
+    if (params?.maxValue != null) v2Params.maxValue = params.maxValue;
+    if (params?.deadlineFrom) v2Params.deadlineFrom = params.deadlineFrom;
+    if (params?.deadlineTo) v2Params.deadlineTo = params.deadlineTo;
+    if (params?.cpvPrefixes) v2Params.cpvPrefixes = params.cpvPrefixes;
+    if (params?.industryTags) v2Params.industryTags = params.industryTags;
+    if (params?.view === "starred" || params?.view === "excluded") v2Params.view = params.view;
 
-  // Tender preferences (hvězdička / vyloučit)
-  setTenderPreference: (tenderId: number, status: "STARRED" | "EXCLUDED" | "NONE") =>
-    api.put<{ ok: true }>("/api/mobile/tender-preferences", { tenderId, status }),
+    const r = await api.get<{
+      data: LeadMatchRow[];
+      pagination: { nextCursor: string | null; totalCount: number };
+    }>("/api/v2/leads/matches", { params: v2Params });
+    return { matches: r.data, nextCursor: r.pagination.nextCursor, totalCount: r.pagination.totalCount };
+  },
 
-  // Filtry usera (pro filter chips/dropdown v UI)
-  myFilters: () => api.get<{ filters: LeadFilterRow[] }>("/api/mobile/filters"),
+  // Tender preferences (hvězdička / vyloučit) — v2 split na /star + /exclude per match.
+  setTenderPreference: async (tenderId: number, status: "STARRED" | "EXCLUDED" | "NONE") => {
+    const matchId = `live-${tenderId}`;
+    if (status === "STARRED") {
+      await api.post(`/api/v2/leads/matches/${matchId}/star`, { starred: true });
+    } else if (status === "EXCLUDED") {
+      await api.post(`/api/v2/leads/matches/${matchId}/exclude`, { excluded: true });
+    } else {
+      // NONE — vyčistí jakýkoliv status (lib funkce DELETE-uje row)
+      await api.post(`/api/v2/leads/matches/${matchId}/star`, { starred: false });
+    }
+    return { ok: true as const };
+  },
+
+  // Filtry usera — v2 envelope { data } → adaptér na { filters }.
+  myFilters: async () => {
+    const r = await api.get<{ data: V2Filter[] }>("/api/v2/leads/filters");
+    return { filters: r.data.map(legacyFilterShape) };
+  },
 
   // LEADS service stav + aktivace trialu (mobile gating fallback)
   getLeadsService: () =>
@@ -215,16 +256,25 @@ export const endpoints = {
         level: "oddil" | "skupina" | "trida" | "kategorie" | "podkategorie";
       }>;
     }>("/api/mobile/taxonomy/cpv", { params: { locale } }),
-  createFilter: (input: LeadFilterInput) =>
-    api.post<{ filter: LeadFilterRow }>("/api/mobile/filters", input),
-  updateFilter: (id: string, input: Partial<LeadFilterInput>) =>
-    api.patch<{ filter: LeadFilterRow }>(`/api/mobile/filters/${id}`, input),
-  deleteFilter: (id: string) =>
-    api.delete<{ deleted: true }>(`/api/mobile/filters/${id}`),
+  createFilter: async (input: LeadFilterInput) => {
+    // v2 endpoint akceptuje jak `isActive` (legacy) tak `active` (v2)
+    const r = await api.post<{ data: V2Filter }>("/api/v2/leads/filters", input);
+    return { filter: legacyFilterShape(r.data) };
+  },
+  updateFilter: async (id: string, input: Partial<LeadFilterInput>) => {
+    const r = await api.patch<{ data: V2Filter }>(`/api/v2/leads/filters/${id}`, input);
+    return { filter: legacyFilterShape(r.data) };
+  },
+  deleteFilter: async (id: string) => {
+    await api.delete(`/api/v2/leads/filters/${id}`);
+    return { deleted: true as const };
+  },
 
-  // Mark match jako viewed
-  markViewed: (matchId: string) =>
-    api.post<{ ok: true }>(`/api/mobile/matches/${matchId}/view`),
+  // Mark match jako viewed — v2 vrátí 204, mobile chce { ok: true }
+  markViewed: async (matchId: string) => {
+    await api.post(`/api/v2/leads/matches/${matchId}/view`);
+    return { ok: true as const };
+  },
 
   // Pošle shrnutí zakázky na email uživatele
   emailTenderSummary: (tenderId: number) =>
