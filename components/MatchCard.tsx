@@ -12,10 +12,12 @@ interface Props {
   onPress: () => void;
   onToggleStar: (tenderId: number, next: boolean) => void;
   onExclude: (tenderId: number) => void;
+  /** Default "browse" — palec dolu (exclude). "excluded" — restore (clear preference). */
+  mode?: "browse" | "excluded";
 }
 
 /** Sdílená karta zakázky pro Zakázky + Sledované taby. */
-export default function MatchCard({ match, onPress, onToggleStar, onExclude }: Props) {
+export default function MatchCard({ match, onPress, onToggleStar, onExclude, mode = "browse" }: Props) {
   const { t, locale } = useI18n();
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
@@ -72,7 +74,7 @@ export default function MatchCard({ match, onPress, onToggleStar, onExclude }: P
           hitSlop={8}
           style={({ pressed }) => [styles.actionBtn, pressed && { opacity: 0.5 }]}
         >
-          <Text style={styles.actionIcon}>👎</Text>
+          <Text style={styles.actionIcon}>{mode === "excluded" ? "↺" : "👎"}</Text>
         </Pressable>
       </View>
     </Pressable>

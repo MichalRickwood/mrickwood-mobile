@@ -518,7 +518,7 @@ export default function BillingScreen() {
             </View>
           </Section>
 
-          {/* Cycle toggle */}
+          {/* Cycle toggle + (pro INVOICE) možnost přegenerovat proformu po změně */}
           <Section styles={styles} title={t("settings", "billingCycleSection")}>
             <View style={styles.segments}>
               <Segment
@@ -536,6 +536,26 @@ export default function BillingScreen() {
                 onPress={() => void setCycle("YEARLY")}
               />
             </View>
+            {showProforma && (
+              <Pressable
+                onPress={data.invoice ? regenerateProforma : generateProforma}
+                disabled={busy === "proforma-create"}
+                style={({ pressed }) => [
+                  styles.secondaryBtn,
+                  { marginTop: spacing.sm },
+                  pressed && styles.btnPressed,
+                  busy === "proforma-create" && styles.btnDisabled,
+                ]}
+              >
+                <Text style={styles.secondaryBtnText}>
+                  {data.invoice
+                    ? t("settings", "billingProformaRegenerate")
+                    : busy === "proforma-create"
+                      ? t("settings", "billingProformaGenerating")
+                      : t("settings", "billingProformaGenerate")}
+                </Text>
+              </Pressable>
+            )}
           </Section>
 
           {/* Card / Proforma */}
@@ -579,81 +599,6 @@ export default function BillingScreen() {
                     {busy === "checkout"
                       ? t("settings", "billingCardConnecting")
                       : t("settings", "billingCardConnect")}
-                  </Text>
-                </Pressable>
-              )}
-            </Section>
-          )}
-
-          {showProforma && (
-            <Section styles={styles} title={t("settings", "billingProformaSection")}>
-              {data.invoice ? (
-                <>
-                  <Text style={styles.proformaText}>
-                    {t("settings", "billingProformaActive", {
-                      number: data.invoice.number,
-                      amount: formatMoney(data.invoice.totalAmount, numberLocale),
-                    })}
-                  </Text>
-                  <View style={styles.proformaActions}>
-                    <Pressable
-                      onPress={() => void openInvoicePdf(data.invoice!.id, data.invoice!.number)}
-                      disabled={openingInvoiceId === data.invoice!.id || !data.invoice!.pdfPath}
-                      style={({ pressed }) => [
-                        styles.secondaryBtn,
-                        pressed && styles.btnPressed,
-                        (openingInvoiceId === data.invoice!.id || !data.invoice!.pdfPath) &&
-                          styles.btnDisabled,
-                      ]}
-                    >
-                      <Text style={styles.secondaryBtnText}>
-                        {openingInvoiceId === data.invoice!.id
-                          ? t("settings", "billingInvoicesOpening")
-                          : t("settings", "billingInvoicesOpenPdf")}
-                      </Text>
-                    </Pressable>
-                    <Pressable
-                      onPress={regenerateProforma}
-                      disabled={busy === "proforma-create"}
-                      style={({ pressed }) => [
-                        styles.secondaryBtn,
-                        pressed && styles.btnPressed,
-                        busy === "proforma-create" && styles.btnDisabled,
-                      ]}
-                    >
-                      <Text style={styles.secondaryBtnText}>
-                        {t("settings", "billingProformaRegenerate")}
-                      </Text>
-                    </Pressable>
-                    <Pressable
-                      onPress={deleteProforma}
-                      disabled={busy === "proforma-delete"}
-                      style={({ pressed }) => [
-                        styles.dangerBtn,
-                        pressed && styles.btnPressed,
-                        busy === "proforma-delete" && styles.btnDisabled,
-                      ]}
-                    >
-                      <Text style={styles.dangerBtnText}>
-                        {t("settings", "billingProformaDelete")}
-                      </Text>
-                    </Pressable>
-                  </View>
-                </>
-              ) : (
-                <Pressable
-                  onPress={generateProforma}
-                  disabled={busy === "proforma-create"}
-                  style={({ pressed }) => [
-                    styles.primaryBtn,
-                    pressed && styles.btnPressed,
-                    busy === "proforma-create" && styles.btnDisabled,
-                  ]}
-                >
-                  <Text style={styles.primaryBtnText}>
-                    {busy === "proforma-create"
-                      ? t("settings", "billingProformaGenerating")
-                      : t("settings", "billingProformaGenerate")}
                   </Text>
                 </Pressable>
               )}

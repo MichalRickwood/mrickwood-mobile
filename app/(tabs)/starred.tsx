@@ -116,6 +116,7 @@ export default function StarredScreen() {
         renderItem={({ item }) => (
           <MatchCard
             match={item}
+            mode={view === "excluded" ? "excluded" : "browse"}
             onPress={() =>
               router.push({ pathname: "/match/[id]", params: { id: item.matchId } })
             }
@@ -123,7 +124,12 @@ export default function StarredScreen() {
               setPreference.mutate({ tenderId, status: next ? "STARRED" : "NONE" })
             }
             onExclude={(tenderId) =>
-              setPreference.mutate({ tenderId, status: "EXCLUDED" })
+              setPreference.mutate({
+                tenderId,
+                // V excluded view: tlačítko "obnovit" → vymaže preference (NONE).
+                // V starred view: zachová původní význam (přidat do excluded).
+                status: view === "excluded" ? "NONE" : "EXCLUDED",
+              })
             }
           />
         )}

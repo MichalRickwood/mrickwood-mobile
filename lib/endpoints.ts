@@ -352,10 +352,26 @@ export const endpoints = {
     return { ok: true as const, token: r.data.token };
   },
 
-  // Billing — full self-service state. v2 envelope { data: BillingState }.
+  // Billing — full self-service state. v2 vrací `subscriptions`, UI čte `services`.
   getBilling: async () => {
-    const r = await api.get<{ data: BillingFullState }>("/api/v2/account/billing");
-    return r.data;
+    const r = await api.get<{
+      data: {
+        billingMode: BillingMode | null;
+        billingCycle: BillingCycle | null;
+        billingProfile: BillingProfileShape | null;
+        card: BillingCardInfo | null;
+        invoice: BillingInvoiceLite | null;
+        subscriptions: BillingServiceRow[];
+      };
+    }>("/api/v2/account/billing");
+    return {
+      billingMode: r.data.billingMode,
+      billingCycle: r.data.billingCycle,
+      billingProfile: r.data.billingProfile ?? ({} as BillingProfileShape),
+      card: r.data.card,
+      invoice: r.data.invoice,
+      services: r.data.subscriptions ?? [],
+    } satisfies BillingFullState;
   },
   updateBilling: async (input: BillingUpdateInput) => {
     await api.patch("/api/v2/account/billing", input);
