@@ -215,47 +215,76 @@ export const endpoints = {
     return { filters: r.data.map(legacyFilterShape) };
   },
 
-  // LEADS service stav + aktivace trialu (mobile gating fallback)
-  getLeadsService: () =>
-    api.get<{
-      service: "LEADS";
-      hasKey: boolean;
-      state: "TRIAL" | "ACTIVE" | "PAST_DUE" | "SUSPENDED" | "CANCELED" | null;
-      tier: "FREE" | "PAID" | null;
-      trialEndsAt: string | null;
-      paidUntil: string | null;
-      cancelAtPeriodEnd: boolean;
-      canActivateTrial: boolean;
-      trialDays: number;
-    }>("/api/mobile/services/leads"),
-  activateLeadsTrial: () =>
-    api.post<{ ok: true; state: string; trialEndsAt: string | null }>(
-      "/api/mobile/services/leads",
-    ),
-  reactivateLeadsService: () =>
-    api.patch<{ ok: true; alreadyActive?: boolean }>("/api/mobile/services/leads"),
-  deactivateLeadsService: () =>
-    api.delete<{ ok: true; alreadyInactive?: boolean }>("/api/mobile/services/leads"),
+  // LEADS service stav — v2: GET /account/subscriptions vrátí list, mobile filtruje na LEADS.
+  // Pro mobile UX behavior zachováváme: shape compatible se starým /api/mobile/services/leads.
+  getLeadsService: async () => {
+    const r = await api.get<{
+      data: Array<{
+        service: string;
+        scope: string | null;
+        state: "TRIAL" | "ACTIVE" | "PAST_DUE" | "SUSPENDED" | "CANCELED";
+        tier: "FREE" | "PAID";
+        trialEndsAt: string | null;
+        paidUntil: string | null;
+        cancelAtPeriodEnd: boolean;
+        priceMonthly: number | null;
+        priceYearly: number | null;
+      }>;
+    }>("/api/v2/account/subscriptions");
+    const leads = r.data.find((s) => s.service === "LEADS");
+    return {
+      service: "LEADS" as const,
+      hasKey: !!leads,
+      state: leads?.state ?? null,
+      tier: leads?.tier ?? null,
+      trialEndsAt: leads?.trialEndsAt ?? null,
+      paidUntil: leads?.paidUntil ?? null,
+      cancelAtPeriodEnd: leads?.cancelAtPeriodEnd ?? false,
+      canActivateTrial: !leads,
+      trialDays: 14, // backend default; není teď exposed v listu — UI ho zná z translations
+    };
+  },
+  activateLeadsTrial: async () => {
+    const r = await api.post<{
+      data: { state: string; trialEndsAt: string | null };
+    }>("/api/v2/account/subscriptions", { service: "LEADS", mode: "trial" });
+    return { ok: true as const, state: r.data.state, trialEndsAt: r.data.trialEndsAt };
+  },
+  reactivateLeadsService: async () => {
+    await api.patch("/api/v2/account/subscriptions/LEADS", { cancelAtPeriodEnd: false });
+    return { ok: true as const };
+  },
+  deactivateLeadsService: async () => {
+    await api.patch("/api/v2/account/subscriptions/LEADS", { cancelAtPeriodEnd: true });
+    return { ok: true as const };
+  },
 
   // Industry taxonomy — labels v daném locale (cs/en/de).
-  industryTaxonomy: (locale: string) =>
-    api.get<{
-      locale: string;
-      areas: Array<{ id: string; icon: string; label: string }>;
-      tags: Array<{ id: string; area: string; label: string; cpvPrefixes: string[] }>;
-    }>("/api/mobile/taxonomy/industry", { params: { locale } }),
+  industryTaxonomy: async (locale: string) => {
+    const r = await api.get<{
+      data: {
+        locale: string;
+        areas: Array<{ id: string; icon: string; label: string }>;
+        tags: Array<{ id: string; area: string; label: string; cpvPrefixes: string[] }>;
+      };
+    }>("/api/v2/leads/taxonomy/industry", { params: { locale } });
+    return r.data;
+  },
 
-  // CPV katalog (~800KB raw, ~100KB gzip). Cache infinity client-side, klíč
-  // per locale.
-  cpvCatalog: (locale: string) =>
-    api.get<{
-      locale: string;
-      entries: Array<{
-        prefix: string;
-        label: string;
-        level: "oddil" | "skupina" | "trida" | "kategorie" | "podkategorie";
-      }>;
-    }>("/api/mobile/taxonomy/cpv", { params: { locale } }),
+  // CPV katalog (~800KB raw, ~100KB gzip). Cache infinity client-side, klíč per locale.
+  cpvCatalog: async (locale: string) => {
+    const r = await api.get<{
+      data: {
+        locale: string;
+        entries: Array<{
+          prefix: string;
+          label: string;
+          level: "oddil" | "skupina" | "trida" | "kategorie" | "podkategorie";
+        }>;
+      };
+    }>("/api/v2/leads/taxonomy/cpv", { params: { locale } });
+    return r.data;
+  },
   createFilter: async (input: LeadFilterInput) => {
     // v2 endpoint akceptuje jak `isActive` (legacy) tak `active` (v2)
     const r = await api.post<{ data: V2Filter }>("/api/v2/leads/filters", input);
@@ -277,46 +306,73 @@ export const endpoints = {
   },
 
   // Pošle shrnutí zakázky na email uživatele
-  emailTenderSummary: (tenderId: number) =>
-    api.post<{ sent: true; email: string }>(
-      `/api/mobile/tenders/${tenderId}/email-summary`,
-    ),
+  emailTenderSummary: async (tenderId: number) => {
+    const r = await api.post<{
+      data: { sent: true; email: string };
+    }>(`/api/v2/leads/tenders/${tenderId}/email`);
+    return r.data;
+  },
 
   // Registrace push tokenu z Expo (po user povolí notifikace)
-  registerPushDevice: (token: string, platform: "ios" | "android") =>
-    api.post<{ ok: true }>("/api/mobile/devices/register", { token, platform }),
+  registerPushDevice: async (token: string, platform: "ios" | "android") => {
+    await api.post("/api/v2/account/devices", { token, platform });
+    return { ok: true as const };
+  },
 
-  // Odregistrace push tokenu při odhlášení
-  unregisterPushDevice: (token: string) =>
-    api.post<{ ok: true }>("/api/mobile/devices/unregister", { token }),
+  // Odregistrace push tokenu při odhlášení (token v query, ne v body — api.delete nemá body support)
+  unregisterPushDevice: async (token: string) => {
+    await api.delete(`/api/v2/account/devices?token=${encodeURIComponent(token)}`);
+    return { ok: true as const };
+  },
 
   // Email notifikační preference (digest, marketing, educational)
-  getNotificationSettings: () =>
-    api.get<{ settings: NotificationSettings }>("/api/mobile/notification-settings"),
-  updateNotificationSettings: (input: Partial<Omit<NotificationSettings, "email">>) =>
-    api.patch<{ settings: NotificationSettings }>("/api/mobile/notification-settings", input),
+  getNotificationSettings: async () => {
+    const r = await api.get<{ data: NotificationSettings }>("/api/v2/account/notifications");
+    return { settings: r.data };
+  },
+  updateNotificationSettings: async (input: Partial<Omit<NotificationSettings, "email">>) => {
+    const r = await api.patch<{ data: NotificationSettings }>("/api/v2/account/notifications", input);
+    return { settings: r.data };
+  },
 
   // Heslo — GET zda user má heslo (OAuth-only účty mají hasPassword=false)
-  getPasswordStatus: () => api.get<{ hasPassword: boolean }>("/api/mobile/password"),
-  // POST vrací nový JWT (token-version se inkrementuje při změně hesla, takže
-  // starý token by skončil 401). Klient nahradí token v SecureStore.
-  changePassword: (input: { currentPassword?: string; newPassword: string }) =>
-    api.post<{ ok: true; token: string }>("/api/mobile/password", input),
+  getPasswordStatus: async () => {
+    const r = await api.get<{ data: { hasPassword: boolean } }>("/api/v2/account/password");
+    return r.data;
+  },
+  // POST vrací nový JWT (token-version se inkrementuje při změně hesla)
+  changePassword: async (input: { currentPassword?: string; newPassword: string }) => {
+    const r = await api.post<{ data: { token: string | null } }>("/api/v2/account/password", input);
+    return { ok: true as const, token: r.data.token ?? "" };
+  },
 
   // Odhlásit ze všech zařízení (inkrement mobileTokenVersion).
-  revokeAllSessions: () => api.post<{ ok: true }>("/api/mobile/sessions/revoke"),
+  revokeAllSessions: async () => {
+    const r = await api.post<{ data: { token: string | null } }>("/api/v2/account/sessions/revoke");
+    return { ok: true as const, token: r.data.token };
+  },
 
-  // Billing — full self-service state (profile, mode, cycle, services, card, invoice)
-  getBilling: () => api.get<BillingFullState>("/api/mobile/billing"),
-  updateBilling: (input: BillingUpdateInput) =>
-    api.patch<{ ok: true }>("/api/mobile/billing", input),
+  // Billing — full self-service state. v2 envelope { data: BillingState }.
+  getBilling: async () => {
+    const r = await api.get<{ data: BillingFullState }>("/api/v2/account/billing");
+    return r.data;
+  },
+  updateBilling: async (input: BillingUpdateInput) => {
+    await api.patch("/api/v2/account/billing", input);
+    return { ok: true as const };
+  },
 
-  // Stripe Checkout (mobile deep links). Mobile otevře `url` ve WebBrowser.
-  createBillingCheckout: () =>
-    api.post<{ url: string }>("/api/mobile/billing/checkout"),
-  disconnectCard: () => api.delete<{ ok: true }>("/api/mobile/billing/checkout"),
+  // Stripe Checkout (mobile deep links). v2 endpoint detekuje audience="mobile" + používá tendero:// scheme.
+  createBillingCheckout: async () => {
+    const r = await api.post<{ data: { url: string } }>("/api/v2/account/billing/checkout");
+    return r.data;
+  },
+  disconnectCard: async () => {
+    await api.delete("/api/v2/account/billing/checkout");
+    return { ok: true as const };
+  },
 
-  // Proforma faktura (pro INVOICE režim)
+  // Proforma faktura (pro INVOICE režim) — zatím na /api/mobile/* (v2 endpoint TBD)
   createProforma: (cycle: BillingCycle) =>
     api.post<{
       ok: true;
@@ -328,34 +384,42 @@ export const endpoints = {
     }>("/api/mobile/billing/proforma", { cycle }),
   deleteProforma: () => api.delete<{ ok: true }>("/api/mobile/billing/proforma"),
 
-  // Cancel / reactivate service auto-renewal
-  cancelService: (service: ApiServiceId) =>
-    api.post<{ ok: true; alreadyScheduled?: boolean }>(
-      "/api/mobile/billing/cancel-service",
-      { service },
-    ),
-  reactivateService: (service: ApiServiceId) =>
-    api.delete<{ ok: true; alreadyActive?: boolean }>(
-      `/api/mobile/billing/cancel-service?service=${service}`,
-    ),
+  // Cancel / reactivate service auto-renewal — v2 cesta přes /subscriptions/[id] PATCH
+  cancelService: async (service: ApiServiceId) => {
+    await api.patch(`/api/v2/account/subscriptions/${service}`, { cancelAtPeriodEnd: true });
+    return { ok: true as const };
+  },
+  reactivateService: async (service: ApiServiceId) => {
+    await api.patch(`/api/v2/account/subscriptions/${service}`, { cancelAtPeriodEnd: false });
+    return { ok: true as const };
+  },
 
-  // Faktury — list. PDF download je v lib/invoice-pdf.ts (přes Bearer auth +
-  // expo-file-system + expo-sharing pro iOS native preview).
-  getInvoices: () =>
-    api.get<{ invoices: InvoiceRow[] }>("/api/mobile/billing/invoices"),
+  // Faktury — list. v2 envelope { data }.
+  getInvoices: async () => {
+    const r = await api.get<{ data: InvoiceRow[] }>("/api/v2/account/billing/invoices");
+    return { invoices: r.data };
+  },
 
-  // Account export — pošle JSON přílohou na email uživatele (mobile-only flow).
-  exportAccount: () =>
-    api.post<{ sent: true; email: string }>("/api/mobile/account/export"),
+  // Account export — pošle JSON přílohou na email uživatele (POST = email flow).
+  exportAccount: async () => {
+    const r = await api.post<{ data: { sent: true; email: string } }>("/api/v2/account/export");
+    return r.data;
+  },
 
   // Cancel / Delete flow (request → email s 8-char kódem → confirm)
-  requestAccountCancel: (action: "DEACTIVATE" | "DELETE") =>
-    api.post<{ sent: true; action: "DEACTIVATE" | "DELETE"; email: string; expiresAt: string }>(
-      "/api/mobile/account/cancel/request",
-      { action },
-    ),
-  confirmAccountCancel: (input: { code: string; reason?: string }) =>
-    api.post<{ action: "DEACTIVATE" | "DELETE" }>("/api/mobile/account/cancel/confirm", input),
+  requestAccountCancel: async (action: "DEACTIVATE" | "DELETE") => {
+    const r = await api.post<{
+      data: { sent: true; action: "DEACTIVATE" | "DELETE"; email: string; expiresAt: string };
+    }>("/api/v2/account/cancel/request", { action });
+    return r.data;
+  },
+  confirmAccountCancel: async (input: { code: string; reason?: string }) => {
+    const r = await api.post<{ data: { action: "DEACTIVATE" | "DELETE" } }>(
+      "/api/v2/account/cancel/confirm",
+      input,
+    );
+    return r.data;
+  },
 
   // Feedback — submit (BUG / IMPROVEMENT / OTHER / MISSING_TENDER).
   // MISSING_TENDER má monthly cap 1/měsíc — server vrací 429 s code=MONTHLY_CAP_REACHED.
