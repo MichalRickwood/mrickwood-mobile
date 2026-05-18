@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Pressable, StyleSheet, Text, View, ActivityIndicator } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { useAuth } from "@/lib/auth-context";
@@ -28,12 +28,18 @@ export default function OauthButtons({ onError }: { onError: (msg: string) => vo
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const [busyProvider, setBusyProvider] = useState<"google" | "apple" | "github" | null>(null);
+  // Guardy proti double-fire useEffect: OAuth code je single-use, druhý
+  // exchange GitHubu vrátí "bad_verification_code".
+  const processedGoogleRef = useRef<unknown>(null);
+  const processedGithubRef = useRef<unknown>(null);
 
   const google = isGoogleConfigured() ? useGoogleAuth() : null;
   const github = isGithubConfigured() ? useGithubAuth() : null;
 
   useEffect(() => {
     if (!google?.response || busyProvider !== "google") return;
+    if (processedGoogleRef.current === google.response) return;
+    processedGoogleRef.current = google.response;
     (async () => {
       try {
         if (google.response?.type === "success") {
@@ -54,6 +60,8 @@ export default function OauthButtons({ onError }: { onError: (msg: string) => vo
 
   useEffect(() => {
     if (!github?.response || busyProvider !== "github") return;
+    if (processedGithubRef.current === github.response) return;
+    processedGithubRef.current = github.response;
     (async () => {
       try {
         if (github.response?.type === "success") {
