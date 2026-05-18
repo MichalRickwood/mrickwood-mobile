@@ -388,17 +388,23 @@ export const endpoints = {
     return { ok: true as const };
   },
 
-  // Proforma faktura (pro INVOICE režim) — zatím na /api/mobile/* (v2 endpoint TBD)
-  createProforma: (cycle: BillingCycle) =>
-    api.post<{
-      ok: true;
-      invoiceId: string;
-      invoiceNumber: string;
-      totalAmount: number;
-      dueDate: string;
-      cycle: BillingCycle;
-    }>("/api/mobile/billing/proforma", { cycle }),
-  deleteProforma: () => api.delete<{ ok: true }>("/api/mobile/billing/proforma"),
+  // Proforma faktura (pro INVOICE režim) — v2
+  createProforma: async (cycle: BillingCycle) => {
+    const r = await api.post<{
+      data: {
+        invoiceId: string;
+        invoiceNumber: string;
+        totalAmount: number;
+        dueDate: string;
+        cycle: BillingCycle;
+      };
+    }>("/api/v2/account/billing/proforma", { cycle });
+    return { ok: true as const, ...r.data };
+  },
+  deleteProforma: async () => {
+    await api.delete("/api/v2/account/billing/proforma");
+    return { ok: true as const };
+  },
 
   // Cancel / reactivate service auto-renewal — v2 cesta přes /subscriptions/[id] PATCH
   cancelService: async (service: ApiServiceId) => {
@@ -440,7 +446,7 @@ export const endpoints = {
   // Feedback — submit (BUG / IMPROVEMENT / OTHER / MISSING_TENDER).
   // MISSING_TENDER má monthly cap 1/měsíc — server vrací 429 s code=MONTHLY_CAP_REACHED.
   // Když jsou attachments, posíláme multipart; jinak JSON (jednodušší pro server).
-  submitFeedback: (input: {
+  submitFeedback: async (input: {
     kind: FeedbackKind;
     message: string;
     attachments?: { uri: string; name: string; mimeType: string }[];
@@ -457,15 +463,17 @@ export const endpoints = {
           type: a.mimeType,
         } as unknown as Blob);
       }
-      return api.post<{ id: string; createdAt: string }>(
-        "/api/mobile/feedback",
+      const r = await api.post<{ data: { id: string; createdAt: string } }>(
+        "/api/v2/feedback",
         fd,
       );
+      return r.data;
     }
-    return api.post<{ id: string; createdAt: string }>("/api/mobile/feedback", {
-      kind: input.kind,
-      message: input.message,
-    });
+    const r = await api.post<{ data: { id: string; createdAt: string } }>(
+      "/api/v2/feedback",
+      { kind: input.kind, message: input.message },
+    );
+    return r.data;
   },
 };
 
