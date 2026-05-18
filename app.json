@@ -7,7 +7,7 @@
     "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
@@ -17,7 +17,14 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "cz.mrickwood.tendero",
-      "usesAppleSignIn": true
+      "buildNumber": "1",
+      "usesAppleSignIn": true,
+      "config": {
+        "usesNonExemptEncryption": false
+      },
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "plugins": [
       "expo-router",
@@ -37,13 +44,25 @@
         {
           "photosPermission": "Aplikace potřebuje přístup k fotkám pro přiložení screenshotu k feedbacku."
         }
-      ]
+      ],
+      "expo-font"
     ],
     "extra": {
       "router": {},
       "eas": {
-        "projectId": ""
+        "projectId": "edf4c097-b67f-42a5-b16c-5721bbd674b6"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/edf4c097-b67f-42a5-b16c-5721bbd674b6"
+    },
+    "android": {
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     }
   }
 }

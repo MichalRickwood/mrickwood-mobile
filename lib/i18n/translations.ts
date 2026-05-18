@@ -98,11 +98,22 @@ export interface Dict {
     filterFormEditTitle: string;
     filterFormName: string;
     filterFormNamePlaceholder: string;
+    filterFormStep1: string;
+    filterFormStep2: string;
+    filterFormStep3: string;
+    filterFormStep4: string;
+    filterFormModeKeywords: string;
+    filterFormModeIndustry: string;
+    filterFormModeCpv: string;
+    filterFormPickEmpty: string;
+    filterFormPickCount: string;
     filterFormKeywords: string;
     filterFormKeywordsHelp: string;
     filterFormKeywordsPlaceholder: string;
     filterFormRegions: string;
+    filterFormAllRegions: string;
     filterFormValueRange: string;
+    filterFormValueAny: string;
     filterFormMinPlaceholder: string;
     filterFormMaxPlaceholder: string;
     filterFormEmailDigest: string;
@@ -359,6 +370,10 @@ export interface Dict {
     thanksAgain: string;
     attachmentsAdd: string;
     attachmentsTooBig: string;
+    docPreviewTitle: string;
+    docPreviewImageFailed: string;
+    docPreviewMissingUrl: string;
+    docPreviewErrorTitle: string;
   };
   filters: {
     chipRegion: string;
@@ -523,11 +538,22 @@ const cs: Dict = {
     filterFormEditTitle: "Upravit filtr",
     filterFormName: "Název",
     filterFormNamePlaceholder: "Můj filtr",
+    filterFormStep1: "Pojmenuj filtr",
+    filterFormStep2: "Co hledáme?",
+    filterFormStep3: "Hodnota zakázky",
+    filterFormStep4: "Kraje",
+    filterFormModeKeywords: "Slova",
+    filterFormModeIndustry: "Kategorie",
+    filterFormModeCpv: "CPV",
+    filterFormPickEmpty: "Žádné — klepni pro výběr",
+    filterFormPickCount: "{count} vybráno — klepni pro úpravu",
     filterFormKeywords: "Klíčová slova",
     filterFormKeywordsHelp: "Hledá v názvu i popisu zakázky. Více slov — match na alespoň jedno.",
     filterFormKeywordsPlaceholder: "Přidat klíčové slovo…",
     filterFormRegions: "Kraje",
+    filterFormAllRegions: "Všechny kraje",
     filterFormValueRange: "Předpokládaná hodnota (Kč)",
+    filterFormValueAny: "Bez omezení",
     filterFormMinPlaceholder: "Od",
     filterFormMaxPlaceholder: "Do",
     filterFormEmailDigest: "Denní email s novými",
@@ -785,6 +811,10 @@ const cs: Dict = {
     thanksAgain: "Poslat další",
     attachmentsAdd: "+ Přidat screenshot ({current}/{max})",
     attachmentsTooBig: "Příloha přesahuje 5 MB.",
+    docPreviewTitle: "Příloha",
+    docPreviewImageFailed: "Obrázek se nepodařilo načíst.",
+    docPreviewMissingUrl: "Chybí URL dokumentu.",
+    docPreviewErrorTitle: "Nepodařilo se zobrazit",
   },
   filters: {
     chipRegion: "Region",
@@ -945,11 +975,22 @@ const en: Dict = {
     filterFormEditTitle: "Edit filter",
     filterFormName: "Name",
     filterFormNamePlaceholder: "My filter",
+    filterFormStep1: "Name your filter",
+    filterFormStep2: "What to match?",
+    filterFormStep3: "Tender value",
+    filterFormStep4: "Regions",
+    filterFormModeKeywords: "Words",
+    filterFormModeIndustry: "Categories",
+    filterFormModeCpv: "CPV",
+    filterFormPickEmpty: "None — tap to pick",
+    filterFormPickCount: "{count} selected — tap to edit",
     filterFormKeywords: "Keywords",
     filterFormKeywordsHelp: "Searches title and description. Multiple words — matches if any present.",
     filterFormKeywordsPlaceholder: "Add a keyword…",
     filterFormRegions: "Regions",
+    filterFormAllRegions: "All regions",
     filterFormValueRange: "Estimated value (CZK)",
+    filterFormValueAny: "Any",
     filterFormMinPlaceholder: "From",
     filterFormMaxPlaceholder: "To",
     filterFormEmailDigest: "Daily email of new matches",
@@ -1206,6 +1247,10 @@ const en: Dict = {
     thanksAgain: "Send another",
     attachmentsAdd: "+ Add screenshot ({current}/{max})",
     attachmentsTooBig: "Attachment exceeds 5 MB.",
+    docPreviewTitle: "Attachment",
+    docPreviewImageFailed: "Failed to load image.",
+    docPreviewMissingUrl: "Missing document URL.",
+    docPreviewErrorTitle: "Failed to display",
   },
   filters: {
     chipRegion: "Region",
@@ -1366,11 +1411,22 @@ const de: Dict = {
     filterFormEditTitle: "Filter bearbeiten",
     filterFormName: "Name",
     filterFormNamePlaceholder: "Mein Filter",
+    filterFormStep1: "Filter benennen",
+    filterFormStep2: "Wonach suchen wir?",
+    filterFormStep3: "Auftragswert",
+    filterFormStep4: "Regionen",
+    filterFormModeKeywords: "Wörter",
+    filterFormModeIndustry: "Kategorien",
+    filterFormModeCpv: "CPV",
+    filterFormPickEmpty: "Keine — tippen zum Auswählen",
+    filterFormPickCount: "{count} ausgewählt — tippen zum Bearbeiten",
     filterFormKeywords: "Schlüsselwörter",
     filterFormKeywordsHelp: "Sucht in Titel und Beschreibung. Mehrere Wörter — Treffer wenn eines vorkommt.",
     filterFormKeywordsPlaceholder: "Schlüsselwort hinzufügen…",
     filterFormRegions: "Regionen",
+    filterFormAllRegions: "Alle Regionen",
     filterFormValueRange: "Geschätzter Wert (CZK)",
+    filterFormValueAny: "Beliebig",
     filterFormMinPlaceholder: "Von",
     filterFormMaxPlaceholder: "Bis",
     filterFormEmailDigest: "Tägliche E-Mail mit neuen Treffern",
@@ -1629,6 +1685,10 @@ const de: Dict = {
     thanksAgain: "Weitere senden",
     attachmentsAdd: "+ Screenshot hinzufügen ({current}/{max})",
     attachmentsTooBig: "Anhang überschreitet 5 MB.",
+    docPreviewTitle: "Anhang",
+    docPreviewImageFailed: "Bild konnte nicht geladen werden.",
+    docPreviewMissingUrl: "Dokument-URL fehlt.",
+    docPreviewErrorTitle: "Anzeige fehlgeschlagen",
   },
   filters: {
     chipRegion: "Region",

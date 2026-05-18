@@ -79,10 +79,18 @@ async function request<T>(path: string, opts: RequestOptions = {}): Promise<T> {
       // Token vypršel nebo nevalid — vyčistíme session.
       await clearSession();
     }
-    const msg =
-      (parsed && typeof parsed === "object" && "error" in parsed
-        ? String((parsed as { error: unknown }).error)
-        : null) ?? `HTTP ${res.status}`;
+    // v2 envelope: { error: { code, message, details? } }
+    // v1 legacy:  { error: "string message" }
+    let msg = `HTTP ${res.status}`;
+    if (parsed && typeof parsed === "object" && "error" in parsed) {
+      const errVal = (parsed as { error: unknown }).error;
+      if (typeof errVal === "string") {
+        msg = errVal;
+      } else if (errVal && typeof errVal === "object" && "message" in errVal) {
+        const m = (errVal as { message: unknown }).message;
+        if (typeof m === "string") msg = m;
+      }
+    }
     throw new ApiError(res.status, msg, parsed);
   }
 

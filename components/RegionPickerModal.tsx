@@ -34,12 +34,33 @@ export default function RegionPickerModal({ visible, initial, onClose, onApply }
     setSelected((prev) => (prev.includes(code) ? prev.filter((x) => x !== code) : [...prev, code]));
   }
 
+  const allSelected = selected.length === CZ_REGIONS.length;
+  function toggleAll() {
+    if (allSelected) setSelected([]);
+    else setSelected(CZ_REGIONS.map((r) => r.code));
+  }
+
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={onClose}>
         <Pressable style={styles.card} onPress={(e) => e.stopPropagation()}>
           <Text style={styles.title}>{t("matches", "filterFormRegions")}</Text>
           <ScrollView style={styles.body} showsVerticalScrollIndicator={false}>
+            <Pressable
+              onPress={toggleAll}
+              style={({ pressed }) => [
+                styles.allRow,
+                allSelected && styles.allRowActive,
+                pressed && { opacity: 0.85 },
+              ]}
+            >
+              <Text style={[styles.allRowText, allSelected && styles.allRowTextActive]}>
+                {t("matches", "filterFormAllRegions")}
+              </Text>
+              <Text style={[styles.allRowCheck, allSelected && styles.allRowTextActive]}>
+                {allSelected ? "✓" : ""}
+              </Text>
+            </Pressable>
             <View style={styles.grid}>
               {CZ_REGIONS.map((r) => {
                 const active = selected.includes(r.code);
@@ -104,6 +125,21 @@ const makeStyles = (colors: Colors) =>
     },
     title: { fontSize: fontSize.lg, fontWeight: "600", color: colors.text, marginBottom: spacing.md, textAlign: "center" },
     body: { maxHeight: 400 },
+    allRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.md,
+      borderRadius: radius.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.bg,
+      marginBottom: spacing.md,
+    },
+    allRowActive: { backgroundColor: colors.accent, borderColor: colors.accent },
+    allRowText: { flex: 1, fontSize: fontSize.sm, color: colors.text, fontWeight: "600" },
+    allRowTextActive: { color: colors.accentForeground },
+    allRowCheck: { fontSize: fontSize.base, fontWeight: "700", color: colors.accent },
     grid: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
     chip: {
       paddingHorizontal: spacing.md,

@@ -22,9 +22,6 @@ import LocaleSwitcher from "@/components/LocaleSwitcher";
 import AppearanceSwitcher from "@/components/AppearanceSwitcher";
 import { useI18n } from "@/lib/i18n";
 
-const DEV_EMAIL = __DEV__ ? process.env.EXPO_PUBLIC_DEV_EMAIL ?? "" : "";
-const DEV_PASSWORD = __DEV__ ? process.env.EXPO_PUBLIC_DEV_PASSWORD ?? "" : "";
-
 export default function LoginScreen() {
   const router = useRouter();
   const { signIn } = useAuth();
@@ -34,8 +31,8 @@ export default function LoginScreen() {
   const logoSrc = isDark
     ? require("@/assets/logo-dark.png")
     : require("@/assets/logo.png");
-  const [email, setEmail] = useState(DEV_EMAIL);
-  const [password, setPassword] = useState(DEV_PASSWORD);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 

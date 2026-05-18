@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { endpoints, type LeadMatchRow } from "@/lib/endpoints";
 import { ApiError } from "@/lib/api";
 import LeadsPaywall from "@/components/LeadsPaywall";
@@ -75,6 +75,7 @@ export default function MatchesScreen() {
   const { colors } = useTheme();
   const { t, locale } = useI18n();
   const styles = useMemo(() => makeStyles(colors), [colors]);
+  const qc = useQueryClient();
   const [activeFilterId, setActiveFilterId] = useState<string | null>(null);
   const [searchInput, setSearchInput] = useState("");
   const [searchDebounced, setSearchDebounced] = useState("");
@@ -99,6 +100,15 @@ export default function MatchesScreen() {
   const filtersQuery = useQuery({
     queryKey: ["filters"],
     queryFn: () => endpoints.myFilters(),
+  });
+
+  const deleteFilter = useMutation({
+    mutationFn: (fid: string) => endpoints.deleteFilter(fid),
+    onSuccess: async (_d, fid) => {
+      if (activeFilterId === fid) setActiveFilterId(null);
+      await qc.invalidateQueries({ queryKey: ["filters"] });
+      await qc.invalidateQueries({ queryKey: ["matches"] });
+    },
   });
 
   // Při aktivním search / ad-hoc rozšiřujeme page size — in-memory filter
@@ -130,6 +140,16 @@ export default function MatchesScreen() {
   });
 
   const filters = filtersQuery.data?.filters ?? [];
+
+  // Auto-pick právě vytvořený filtr — filter/[id] po createFilter zapíše id do
+  // ["pendingPickFilterId"]. Až sem doteče seznam, vybereme ho a marker smažeme.
+  useEffect(() => {
+    const pending = qc.getQueryData<string>(["pendingPickFilterId"]);
+    if (pending && filters.some((f) => f.id === pending)) {
+      setActiveFilterId(pending);
+      qc.removeQueries({ queryKey: ["pendingPickFilterId"] });
+    }
+  }, [filters, qc]);
   const matches = useMemo(
     () => matchesQuery.data?.pages.flatMap((p) => p.matches) ?? [],
     [matchesQuery.data],
@@ -181,6 +201,7 @@ export default function MatchesScreen() {
               onPick={setActiveFilterId}
               onAdd={() => router.push("/filter/new")}
               onEdit={(fid) => router.push({ pathname: "/filter/[id]", params: { id: fid } })}
+              onDelete={(fid) => deleteFilter.mutate(fid)}
             />
             <Pressable
               onPress={() => {

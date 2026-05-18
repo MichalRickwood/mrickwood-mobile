@@ -10,6 +10,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useTheme } from "@/lib/theme-context";
+import { useI18n } from "@/lib/i18n";
 import { fontSize, spacing, type Colors } from "@/constants/theme";
 
 /** Fullscreen image preview pro tender attachmenty (JPG/PNG/...). v1 jen
@@ -18,6 +19,7 @@ export default function DocImageScreen() {
   const { url, name } = useLocalSearchParams<{ url: string; name?: string }>();
   const router = useRouter();
   const { colors } = useTheme();
+  const { t } = useI18n();
   const styles = makeStyles(colors);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -26,9 +28,9 @@ export default function DocImageScreen() {
     <SafeAreaView style={styles.safe} edges={["top"]}>
       <Stack.Screen
         options={{
-          title: name ?? "Příloha",
+          title: name ?? t("feedback", "docPreviewTitle"),
           headerShown: true,
-          headerBackTitle: "Zpět",
+          headerBackTitle: t("settings", "back"),
           headerStyle: { backgroundColor: "#000" },
           headerTintColor: "#fff",
           headerTitleStyle: { fontSize: fontSize.sm, fontWeight: "600" },
@@ -54,9 +56,9 @@ export default function DocImageScreen() {
         )}
         {error && (
           <View style={styles.center}>
-            <Text style={styles.errorText}>Obrázek se nepodařilo načíst.</Text>
+            <Text style={styles.errorText}>{t("feedback", "docPreviewImageFailed")}</Text>
             <Pressable onPress={() => router.back()} style={styles.backBtn}>
-              <Text style={styles.backBtnText}>Zpět</Text>
+              <Text style={styles.backBtnText}>{t("settings", "back")}</Text>
             </Pressable>
           </View>
         )}

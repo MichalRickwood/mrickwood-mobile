@@ -17,7 +17,7 @@ import { useI18n } from "@/lib/i18n";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 
 /**
- * Paywall pro LEADS službu — zobrazí se v Zakázkách tabu když /api/mobile/matches
+ * Paywall pro LEADS službu — zobrazí se v Zakázkách tabu když /api/v2/leads/matches
  * vrátí 402. Loaduje status služby; pokud user nikdy neměl trial → tlačítko
  * aktivace, jinak → CTA do nastavení předplatného (karta/fa flow).
  */
@@ -68,7 +68,14 @@ export default function LeadsPaywall() {
   const data = status.data;
   if (!data) return null;
 
-  const trialActive = data.state === "TRIAL";
+  // Subscription.state zůstává "TRIAL" i po expiraci — entitlement check
+  // server-side vrátí 402, ale klient musí trial-vypršel detekovat sám
+  // (jinak by paywall vrátil null a zobrazila se bílá stránka).
+  const trialExpired =
+    data.state === "TRIAL" &&
+    !!data.trialEndsAt &&
+    new Date(data.trialEndsAt).getTime() < Date.now();
+  const trialActive = data.state === "TRIAL" && !trialExpired;
   const subscriptionActive = data.state === "ACTIVE";
 
   // Pokud je vše OK, paywall nemá co zobrazit (caller by neměl vůbec rendrovat)
@@ -127,13 +134,15 @@ export default function LeadsPaywall() {
       ) : (
         <>
           <Text style={styles.body}>
-            {data.state === "SUSPENDED"
-              ? t("filters", "paywallSuspended")
-              : data.state === "CANCELED"
-                ? t("filters", "paywallCanceled")
-                : data.state === "PAST_DUE"
-                  ? t("filters", "paywallSuspended")
-                  : t("filters", "paywallNoSubscription")}
+            {trialExpired
+              ? t("filters", "paywallExpiredTrial")
+              : data.state === "SUSPENDED"
+                ? t("filters", "paywallSuspended")
+                : data.state === "CANCELED"
+                  ? t("filters", "paywallCanceled")
+                  : data.state === "PAST_DUE"
+                    ? t("filters", "paywallSuspended")
+                    : t("filters", "paywallNoSubscription")}
           </Text>
           <Pressable
             onPress={() => router.push("/(tabs)/settings/billing")}

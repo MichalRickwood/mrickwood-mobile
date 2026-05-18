@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import {
+  Alert,
   FlatList,
   Modal,
   Pressable,
@@ -16,7 +17,7 @@ import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 /**
  * Pill button + centered modal (LocaleSwitcher style) pro výběr aktivního filtru.
  * X uvnitř pillu (jen když je filtr aktivní) okamžitě filter zruší a vrátí 'Všechny'.
- * Modal nabízí: list filtrů s edit ikonou + "+ Nový filtr".
+ * Modal nabízí: list filtrů s edit + delete ikonou + "+ Nový filtr".
  */
 interface Props {
   filters: LeadFilterRow[];
@@ -24,9 +25,10 @@ interface Props {
   onPick: (id: string | null) => void;
   onAdd: () => void;
   onEdit: (id: string) => void;
+  onDelete: (id: string) => void;
 }
 
-export default function FilterPicker({ filters, activeId, onPick, onAdd, onEdit }: Props) {
+export default function FilterPicker({ filters, activeId, onPick, onAdd, onEdit, onDelete }: Props) {
   const { t } = useI18n();
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
@@ -34,6 +36,21 @@ export default function FilterPicker({ filters, activeId, onPick, onAdd, onEdit 
 
   const active = filters.find((f) => f.id === activeId) ?? null;
   const label = active?.name ?? t("matches", "filterAll");
+
+  function confirmDelete(id: string, name: string) {
+    Alert.alert(
+      t("matches", "filterFormConfirmDeleteTitle"),
+      t("matches", "filterFormConfirmDeleteBody", { name }),
+      [
+        { text: t("settings", "cancel"), style: "cancel" },
+        {
+          text: t("matches", "filterFormDelete"),
+          style: "destructive",
+          onPress: () => onDelete(id),
+        },
+      ],
+    );
+  }
 
   return (
     <>
@@ -103,6 +120,14 @@ export default function FilterPicker({ filters, activeId, onPick, onAdd, onEdit 
                         hitSlop={6}
                       >
                         <Text style={styles.editIcon}>✎</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => confirmDelete(item.id, item.name)}
+                        style={styles.editBtn}
+                        activeOpacity={0.7}
+                        hitSlop={6}
+                      >
+                        <Text style={styles.deleteIcon}>✕</Text>
                       </TouchableOpacity>
                     </View>
                   );
@@ -208,6 +233,7 @@ const makeStyles = (colors: Colors) =>
       justifyContent: "center",
     },
     editIcon: { fontSize: fontSize.base, color: colors.textSubtle },
+    deleteIcon: { fontSize: fontSize.base, color: colors.danger, fontWeight: "600" },
     sep: { height: 1, backgroundColor: colors.border, marginHorizontal: spacing.md },
     addBtn: {
       marginTop: spacing.md,

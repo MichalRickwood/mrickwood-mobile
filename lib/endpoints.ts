@@ -216,7 +216,6 @@ export const endpoints = {
   },
 
   // LEADS service stav — v2: GET /account/subscriptions vrátí list, mobile filtruje na LEADS.
-  // Pro mobile UX behavior zachováváme: shape compatible se starým /api/mobile/services/leads.
   getLeadsService: async () => {
     const r = await api.get<{
       data: Array<{

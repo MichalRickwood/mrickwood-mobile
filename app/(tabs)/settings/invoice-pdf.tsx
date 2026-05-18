@@ -9,7 +9,7 @@ import { fontSize, spacing, type Colors } from "@/constants/theme";
 
 /**
  * Inline PDF preview přes WKWebView. URI je file:// na cached PDF stažený
- * z /api/mobile/billing/invoices/[id]/pdf. Header má 'Sdílet' tlačítko pro
+ * z /api/v2/account/billing/invoices/[id]. Header má 'Sdílet' tlačítko pro
  * export do iOS share sheetu (Save to Files, Mail, atd.).
  */
 export default function InvoicePdfScreen() {

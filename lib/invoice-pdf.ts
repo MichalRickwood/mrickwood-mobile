@@ -15,7 +15,7 @@ export async function downloadInvoicePdf(
   const token = await getToken();
   if (!token) throw new Error("Not signed in.");
 
-  const url = `${API_BASE_URL}/api/mobile/billing/invoices/${encodeURIComponent(invoiceId)}/pdf`;
+  const url = `${API_BASE_URL}/api/v2/account/billing/invoices/${encodeURIComponent(invoiceId)}`;
   const filename = `${invoiceNumber || invoiceId}.pdf`;
   const target = `${FileSystem.cacheDirectory}${filename}`;
 

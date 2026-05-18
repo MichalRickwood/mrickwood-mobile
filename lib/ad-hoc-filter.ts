@@ -1,6 +1,6 @@
 /**
  * Sdílený typ pro jednorázový (nepersistovaný) filtr v listu zakázek.
- * Picker komponenty modifikují tenhle state, /api/mobile/matches ho čte
+ * Picker komponenty modifikují tenhle state, /api/v2/leads/matches ho čte
  * jako query params (regions=…, minValue, maxValue).
  */
 export interface AdHocFilter {

@@ -10,6 +10,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { WebView } from "react-native-webview";
 import { useTheme } from "@/lib/theme-context";
+import { useI18n } from "@/lib/i18n";
 import { API_BASE_URL } from "@/lib/config";
 import { getToken } from "@/lib/auth-storage";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
@@ -25,6 +26,7 @@ export default function DocHtmlScreen() {
   }>();
   const router = useRouter();
   const { colors } = useTheme();
+  const { t } = useI18n();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const [token, setToken] = useState<string | null>(null);
   const [tokenLoaded, setTokenLoaded] = useState(false);
@@ -41,23 +43,23 @@ export default function DocHtmlScreen() {
   if (!url) {
     return (
       <SafeAreaView style={styles.safe}>
-        <Stack.Screen options={{ title: name ?? "Příloha", headerShown: true, headerBackTitle: "Zpět" }} />
+        <Stack.Screen options={{ title: name ?? t("feedback", "docPreviewTitle"), headerShown: true, headerBackTitle: t("settings", "back") }} />
         <View style={styles.center}>
-          <Text style={styles.errText}>Chybí URL dokumentu.</Text>
+          <Text style={styles.errText}>{t("feedback", "docPreviewMissingUrl")}</Text>
         </View>
       </SafeAreaView>
     );
   }
 
-  const previewUrl = `${API_BASE_URL}/api/mobile/document-preview?url=${encodeURIComponent(url)}&kind=${encodeURIComponent(kind ?? "docx")}`;
+  const previewUrl = `${API_BASE_URL}/api/v2/leads/documents/preview?url=${encodeURIComponent(url)}&kind=${encodeURIComponent(kind ?? "docx")}`;
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
       <Stack.Screen
         options={{
-          title: name ?? "Příloha",
+          title: name ?? t("feedback", "docPreviewTitle"),
           headerShown: true,
-          headerBackTitle: "Zpět",
+          headerBackTitle: t("settings", "back"),
           headerStyle: { backgroundColor: colors.bg },
           headerTintColor: colors.text,
           headerTitleStyle: { fontSize: fontSize.sm, fontWeight: "600" },
@@ -69,10 +71,10 @@ export default function DocHtmlScreen() {
         </View>
       ) : error ? (
         <View style={styles.center}>
-          <Text style={styles.errTitle}>Nepodařilo se zobrazit</Text>
+          <Text style={styles.errTitle}>{t("feedback", "docPreviewErrorTitle")}</Text>
           <Text style={styles.errText}>{error}</Text>
           <Pressable onPress={() => router.back()} style={styles.backBtn}>
-            <Text style={styles.backBtnText}>Zpět</Text>
+            <Text style={styles.backBtnText}>{t("settings", "back")}</Text>
           </Pressable>
         </View>
       ) : (
