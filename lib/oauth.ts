@@ -46,6 +46,10 @@ export function useGithubAuth() {
       clientId: GITHUB_CLIENT_ID,
       scopes: ["read:user", "user:email"],
       redirectUri,
+      // GitHub OAuth Apps neumí PKCE — kdyby zůstal default usePKCE=true, GitHub
+      // v exchange očekává code_verifier (který náš backend neposílá) a vrací
+      // bad_verification_code. Backend má client_secret, PKCE je tedy nadbytečný.
+      usePKCE: false,
     },
     githubDiscovery,
   );
