@@ -60,11 +60,17 @@ async function postOauth(
   provider: "google" | "apple" | "github",
   payload: { idToken?: string; code?: string; redirectUri?: string },
 ): Promise<StoredUser> {
-  const res = await fetch(`${API_BASE_URL}/api/auth/mobile/oauth`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Accept: "application/json" },
-    body: JSON.stringify({ provider, ...payload }),
-  });
+  const url = `${API_BASE_URL}/api/auth/mobile/oauth`;
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({ provider, ...payload }),
+    });
+  } catch (e) {
+    throw new Error(`Fetch fail → ${url} :: ${(e as Error).message}`);
+  }
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
     throw new Error(data?.error ?? `OAuth ${provider} selhalo (${res.status}).`);
