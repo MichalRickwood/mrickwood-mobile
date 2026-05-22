@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -60,6 +60,19 @@ export default function OnboardingProfile() {
   const [companyAddress, setCompanyAddress] = useState("");
   const [companyDic, setCompanyDic] = useState("");
   const [manualEntry, setManualEntry] = useState(false);
+  // Když user změní zemi na něco jiného než CZ/SK/FR (full-coverage lookup),
+  // přepneme automaticky na manual entry. Pro CZ/SK/FR ponecháme lookup.
+  // Fire jen při skutečné změně country (ne při toggle manuálně) → user
+  // může lookup vypnout manuálně i pro CZ/SK/FR bez re-trigger.
+  const FULL_COVERAGE = ["CZ", "SK", "FR"];
+  const prevCountryRef = useRef(country);
+  useEffect(() => {
+    if (prevCountryRef.current === country) return;
+    prevCountryRef.current = country;
+    if (!FULL_COVERAGE.includes(country)) {
+      setManualEntry(true);
+    }
+  }, [country]);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -333,14 +346,17 @@ function makeStyles(c: Colors) {
     labelRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
     label: { fontSize: fontSize.xs, color: c.textMuted, textTransform: "uppercase", fontWeight: "600", marginBottom: spacing.sm },
     labelOptional: { fontSize: fontSize.xs, color: c.textFaint, fontStyle: "italic" },
-    companyRow: { flexDirection: "row", gap: spacing.sm, alignItems: "center" },
+    // alignItems: 'flex-start' aby se picker NEVERTICAL-NECENTROVAL když
+    // CompanyLookupField rozšíří wrap o dropdown — picker by jinak skákal
+    // dolů/nahoru s výškou výsledků.
+    companyRow: { flexDirection: "row", gap: spacing.sm, alignItems: "flex-start" },
     input: {
       backgroundColor: c.card,
       borderWidth: 1,
       borderColor: c.border,
       borderRadius: radius.md,
       paddingHorizontal: spacing.md,
-      paddingVertical: spacing.sm,
+      paddingVertical: spacing.sm + 2,
       fontSize: fontSize.base,
       color: c.text,
     },

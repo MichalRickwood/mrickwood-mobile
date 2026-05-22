@@ -163,7 +163,7 @@ export default function CompanyLookupField({
   if (isResolved) {
     return (
       <View style={styles.wrap}>
-        <Text style={styles.label}>{label}</Text>
+        {label ? <Text style={styles.label}>{label}</Text> : null}
         <View style={styles.chip}>
           <View style={styles.chipText}>
             <Text style={styles.chipName} numberOfLines={2}>
@@ -187,7 +187,7 @@ export default function CompanyLookupField({
 
   return (
     <View style={styles.wrap}>
-      <Text style={styles.label}>{label}</Text>
+      {label ? <Text style={styles.label}>{label}</Text> : null}
       <TextInput
         value={query}
         onChangeText={onChangeText}
@@ -234,7 +234,7 @@ export default function CompanyLookupField({
 
 const makeStyles = (colors: Colors) =>
   StyleSheet.create({
-    wrap: { marginBottom: spacing.md },
+    wrap: {},
     label: { fontSize: fontSize.xs, color: colors.textSubtle, fontWeight: "500", marginBottom: spacing.xs },
     input: {
       backgroundColor: colors.bg,

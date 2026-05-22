@@ -105,7 +105,7 @@ export default function CountryPicker({ value, onChange, compact = false }: Prop
         ]}
       >
         <Text style={styles.flag}>{FLAGS[value] ?? "🌐"}</Text>
-        <Text style={styles.label} numberOfLines={1}>
+        <Text style={compact ? styles.labelCompact : styles.label} numberOfLines={1}>
           {compact ? value : (current?.label ?? value)}
         </Text>
       </Pressable>
@@ -186,6 +186,7 @@ const makeStyles = (colors: Colors) =>
     triggerPressed: { borderColor: colors.text },
     flag: { fontSize: 18 },
     label: { fontSize: fontSize.base, color: colors.text, flex: 1 },
+    labelCompact: { fontSize: fontSize.sm, color: colors.text, fontWeight: "600" },
     overlay: {
       flex: 1,
       backgroundColor: "rgba(0,0,0,0.5)",
