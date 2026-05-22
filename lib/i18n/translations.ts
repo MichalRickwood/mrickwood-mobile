@@ -130,6 +130,8 @@ export interface Dict {
     deadline: string;
     emptyTitle: string;
     emptyBody: string;
+    loadingTitle: string;
+    loadingBody: string;
     errorTitle: string;
     errorBody: string;
   };
@@ -283,6 +285,7 @@ export interface Dict {
     billingInvoicesKindProforma: string;
     billingInvoicesKindTax: string;
     billingServicesSection: string;
+    billingAddCountry: string;
     billingServicesEmpty: string;
     billingServiceCancel: string;
     billingServiceReactivate: string;
@@ -642,6 +645,8 @@ const cs: Dict = {
     emptyTitle: "Žádné nové zakázky",
     emptyBody:
       "Jakmile se objeví nová zakázka odpovídající vašim filtrům, uvidíte ji tady.",
+    loadingTitle: "Prohledávám zakázky…",
+    loadingBody: "Vybírám pro vás ty nejlepší kousky podle vašich kritérií.",
     errorTitle: "Nepodařilo se načíst",
     errorBody: "Zkuste pull-to-refresh.",
   },
@@ -795,6 +800,7 @@ const cs: Dict = {
     billingInvoicesKindProforma: "Záloha",
     billingInvoicesKindTax: "Daňový doklad",
     billingServicesSection: "Aktivní služby",
+    billingAddCountry: "Přidat další zemi",
     billingServicesEmpty: "Žádné aktivní služby.",
     billingServiceCancel: "Ukončit automatickou obnovu",
     billingServiceReactivate: "Obnovit automatickou obnovu",
@@ -1149,6 +1155,8 @@ const en: Dict = {
     deadline: "Due {date}",
     emptyTitle: "No new tenders",
     emptyBody: "When a new tender matches your filters, you'll see it here.",
+    loadingTitle: "Searching tenders…",
+    loadingBody: "Picking the best matches for your criteria.",
     errorTitle: "Could not load",
     errorBody: "Try pull-to-refresh.",
   },
@@ -1302,6 +1310,7 @@ const en: Dict = {
     billingInvoicesKindProforma: "Proforma",
     billingInvoicesKindTax: "Tax document",
     billingServicesSection: "Active services",
+    billingAddCountry: "Add another country",
     billingServicesEmpty: "No active services.",
     billingServiceCancel: "Cancel auto-renewal",
     billingServiceReactivate: "Resume auto-renewal",
@@ -1657,6 +1666,8 @@ const de: Dict = {
     emptyTitle: "Keine neuen Ausschreibungen",
     emptyBody:
       "Sobald eine neue Ausschreibung Ihren Filtern entspricht, erscheint sie hier.",
+    loadingTitle: "Suche Ausschreibungen…",
+    loadingBody: "Wir finden die besten Treffer nach Ihren Kriterien.",
     errorTitle: "Laden fehlgeschlagen",
     errorBody: "Versuchen Sie Pull-to-Refresh.",
   },
@@ -1811,6 +1822,7 @@ const de: Dict = {
     billingInvoicesKindProforma: "Vorausrechnung",
     billingInvoicesKindTax: "Steuerbeleg",
     billingServicesSection: "Aktive Dienste",
+    billingAddCountry: "Weiteres Land hinzufügen",
     billingServicesEmpty: "Keine aktiven Dienste.",
     billingServiceCancel: "Automatische Verlängerung beenden",
     billingServiceReactivate: "Automatische Verlängerung fortsetzen",

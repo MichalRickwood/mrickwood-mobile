@@ -625,6 +625,12 @@ export default function BillingScreen() {
                 />
               ))
             )}
+            <Pressable
+              onPress={() => router.push("/(onboarding)/countries")}
+              style={({ pressed }) => [styles.addCountryBtn, pressed && { opacity: 0.7 }]}
+            >
+              <Text style={styles.addCountryText}>＋ {t("settings", "billingAddCountry")}</Text>
+            </Pressable>
           </Section>
 
           {/* Faktury */}
@@ -835,10 +841,24 @@ function ServiceRow({
         )
       : null;
 
+  const FLAGS: Record<string, string> = {
+    CZ: "🇨🇿", SK: "🇸🇰", DE: "🇩🇪", AT: "🇦🇹", PL: "🇵🇱", FR: "🇫🇷",
+    IT: "🇮🇹", ES: "🇪🇸", NL: "🇳🇱", BE: "🇧🇪", PT: "🇵🇹", SE: "🇸🇪",
+    FI: "🇫🇮", DK: "🇩🇰", NO: "🇳🇴", IE: "🇮🇪", GR: "🇬🇷", RO: "🇷🇴",
+    BG: "🇧🇬", HU: "🇭🇺", HR: "🇭🇷", SI: "🇸🇮", LT: "🇱🇹", LV: "🇱🇻",
+    EE: "🇪🇪", LU: "🇱🇺", CY: "🇨🇾", MT: "🇲🇹", CH: "🇨🇭", IS: "🇮🇸", MK: "🇲🇰",
+  };
+  const scopeLabel =
+    service.service === "LEADS" && service.scope
+      ? `${FLAGS[service.scope] ?? "🌐"} ${service.scope}`
+      : null;
   return (
     <View style={styles.serviceRow}>
       <View style={styles.serviceText}>
-        <Text style={styles.serviceName}>{serviceLabel(service.service, t)}</Text>
+        <Text style={styles.serviceName}>
+          {serviceLabel(service.service, t)}
+          {scopeLabel ? ` — ${scopeLabel}` : ""}
+        </Text>
         <Text style={styles.serviceMeta}>
           {service.state === "TRIAL" && service.trialEndsAt
             ? t("settings", "billingServiceTrialEnds", { date: formatDate(service.trialEndsAt, dateLocale) })
@@ -1160,6 +1180,8 @@ const makeStyles = (colors: Colors) =>
     invoiceCta: { fontSize: fontSize.sm, color: colors.link, fontWeight: "600" },
 
     emptyText: { fontSize: fontSize.sm, color: colors.textSubtle, textAlign: "center" },
+    addCountryBtn: { marginTop: spacing.md, paddingVertical: spacing.sm, alignItems: "center", borderWidth: 1, borderColor: colors.border, borderStyle: "dashed", borderRadius: radius.md },
+    addCountryText: { fontSize: fontSize.sm, color: colors.link, fontWeight: "500" },
     errorBox: {
       marginTop: spacing.md,
       padding: spacing.md,

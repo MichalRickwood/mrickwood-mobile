@@ -522,8 +522,11 @@ export default function MatchesScreen() {
               body={(matchesQuery.error as Error)?.message ?? t("matches", "errorBody")}
             />
           ) : matchesQuery.isFetching && !matchesQuery.isFetchingNextPage ? (
-            <View style={styles.footerLoader}>
-              <ActivityIndicator color={colors.textSubtle} />
+            <View style={styles.loadingState}>
+              <Text style={styles.loadingEmoji}>🔍</Text>
+              <Text style={styles.loadingTitle}>{t("matches", "loadingTitle")}</Text>
+              <Text style={styles.loadingBody}>{t("matches", "loadingBody")}</Text>
+              <ActivityIndicator color={colors.textSubtle} style={{ marginTop: spacing.md }} />
             </View>
           ) : empty ? (
             <EmptyState
@@ -672,4 +675,8 @@ const makeStyles = (colors: Colors) =>
     empty: { alignItems: "center", paddingVertical: spacing.xxl * 2 },
     emptyTitle: { fontSize: fontSize.base, fontWeight: "600", color: colors.text, marginBottom: spacing.sm },
     emptyBody: { fontSize: fontSize.sm, color: colors.textSubtle, textAlign: "center", paddingHorizontal: spacing.xl },
+    loadingState: { paddingVertical: spacing.xxl, paddingHorizontal: spacing.xl, alignItems: "center" },
+    loadingEmoji: { fontSize: 48, marginBottom: spacing.md },
+    loadingTitle: { fontSize: fontSize.base, fontWeight: "600", color: colors.text, marginBottom: spacing.xs },
+    loadingBody: { fontSize: fontSize.sm, color: colors.textSubtle, textAlign: "center" },
   });
