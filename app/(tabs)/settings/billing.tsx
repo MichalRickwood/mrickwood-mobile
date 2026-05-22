@@ -331,21 +331,28 @@ export default function BillingScreen() {
 
   async function deactivateService(svc: BillingServiceRow) {
     if (svc.service !== "LEADS") return; // zatím jen LEADS má mobile deact endpoint
+    const scope = svc.scope ?? undefined;
 
-    // Reaktivace: pokud cancelAtPeriodEnd=true, klik na tlačítko clearuje flag.
-    // Bez potvrzovacího dialogu (akce je nedestruktivní).
+    // Reaktivace: cancelAtPeriodEnd=true → clearuje flag. Optimistic flip.
     if (svc.cancelAtPeriodEnd) {
-      setServiceBusy(svc.service);
+      if (!data) return;
+      const prevServices = data.services;
+      setData({
+        ...data,
+        services: data.services.map((s) =>
+          s.service === svc.service && (s.scope ?? null) === (scope ?? null)
+            ? { ...s, cancelAtPeriodEnd: false }
+            : s,
+        ),
+      });
       setError(null);
       try {
-        await endpoints.reactivateLeadsService();
-        await refresh();
-        await qc.invalidateQueries({ queryKey: ["service", "leads"] });
-        await qc.invalidateQueries({ queryKey: ["matches"] });
+        await endpoints.reactivateLeadsService(scope);
+        void qc.invalidateQueries({ queryKey: ["service", "leads"] });
+        void qc.invalidateQueries({ queryKey: ["matches"] });
       } catch (e) {
+        setData((d) => (d ? { ...d, services: prevServices } : d));
         setError(e instanceof ApiError ? e.message : t("settings", "billingSaveFailed"));
-      } finally {
-        setServiceBusy(null);
       }
       return;
     }
@@ -362,17 +369,24 @@ export default function BillingScreen() {
           text: t("settings", "billingServiceDeactivateConfirm"),
           style: "destructive",
           onPress: async () => {
-            setServiceBusy(svc.service);
+            if (!data) return;
+            const prevServices = data.services;
+            setData({
+              ...data,
+              services: data.services.map((s) =>
+                s.service === svc.service && (s.scope ?? null) === (scope ?? null)
+                  ? { ...s, cancelAtPeriodEnd: true }
+                  : s,
+              ),
+            });
             setError(null);
             try {
-              await endpoints.deactivateLeadsService();
-              await refresh();
-              await qc.invalidateQueries({ queryKey: ["service", "leads"] });
-              await qc.invalidateQueries({ queryKey: ["matches"] });
+              await endpoints.deactivateLeadsService(scope);
+              void qc.invalidateQueries({ queryKey: ["service", "leads"] });
+              void qc.invalidateQueries({ queryKey: ["matches"] });
             } catch (e) {
+              setData((d) => (d ? { ...d, services: prevServices } : d));
               setError(e instanceof ApiError ? e.message : t("settings", "billingSaveFailed"));
-            } finally {
-              setServiceBusy(null);
             }
           },
         },

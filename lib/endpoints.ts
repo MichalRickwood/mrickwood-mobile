@@ -345,12 +345,18 @@ export const endpoints = {
     }>("/api/v2/account/subscriptions");
     return r.data;
   },
-  reactivateLeadsService: async () => {
-    await api.patch("/api/v2/account/subscriptions/LEADS", { cancelAtPeriodEnd: false });
+  reactivateLeadsService: async (scope?: string) => {
+    await api.patch("/api/v2/account/subscriptions/LEADS", {
+      cancelAtPeriodEnd: false,
+      ...(scope ? { scope } : {}),
+    });
     return { ok: true as const };
   },
-  deactivateLeadsService: async () => {
-    await api.patch("/api/v2/account/subscriptions/LEADS", { cancelAtPeriodEnd: true });
+  deactivateLeadsService: async (scope?: string) => {
+    await api.patch("/api/v2/account/subscriptions/LEADS", {
+      cancelAtPeriodEnd: true,
+      ...(scope ? { scope } : {}),
+    });
     return { ok: true as const };
   },
 
