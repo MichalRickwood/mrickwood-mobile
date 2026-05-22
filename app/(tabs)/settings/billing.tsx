@@ -583,7 +583,7 @@ export default function BillingScreen() {
                   onPress={() => void setCycle("YEARLY")}
                 />
               </View>
-              <View style={styles.segments}>
+              <View style={[styles.segments, { marginLeft: "auto" }]}>
                 <Segment
                   styles={styles}
                   label="CZK"
