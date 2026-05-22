@@ -521,6 +521,10 @@ export default function MatchesScreen() {
               title={t("matches", "errorTitle")}
               body={(matchesQuery.error as Error)?.message ?? t("matches", "errorBody")}
             />
+          ) : matchesQuery.isFetching && !matchesQuery.isFetchingNextPage ? (
+            <View style={styles.footerLoader}>
+              <ActivityIndicator color={colors.textSubtle} />
+            </View>
           ) : empty ? (
             <EmptyState
               styles={styles}

@@ -589,6 +589,8 @@ export interface BillingInvoiceLite {
 
 export interface BillingServiceRow {
   service: ApiServiceId;
+  /** Scope rozlišuje multi-country LEADS (CZ/SK/DE…). Null pro PRICING/PROCUREMENT. */
+  scope?: string | null;
   tier: BillingTier;
   state: BillingState;
   trialEndsAt: string | null;

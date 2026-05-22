@@ -612,7 +612,7 @@ export default function BillingScreen() {
             ) : (
               data.services.map((svc) => (
                 <ServiceRow
-                  key={svc.service}
+                  key={`${svc.service}:${svc.scope ?? ""}`}
                   styles={styles}
                   service={svc}
                   t={t}
