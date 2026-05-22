@@ -186,6 +186,10 @@ export default function BillingScreen() {
     setError(null);
     try {
       await endpoints.updateBilling({ invoiceCurrency: currency });
+      // Po update potřebujeme re-fetch — ceny per row přepočtené backendem v
+      // nové měně (priceCurrency/priceMonthly/priceMonthlyOriginal). Bez refresh
+      // by ceny zůstaly v původní měně dokud user neopustil obrazovku.
+      await refresh();
     } catch (e) {
       setData((d) => (d ? { ...d, invoiceCurrency: prev } : d));
       setError(e instanceof ApiError ? e.message : t("settings", "billingSaveFailed"));
