@@ -55,7 +55,7 @@ export default function BillingScreen() {
   const [profileSavedAt, setProfileSavedAt] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<
-    null | "checkout" | "disconnect" | "proforma-create" | "proforma-delete" | "mode" | "cycle"
+    null | "checkout" | "disconnect" | "proforma-create" | "proforma-delete" | "mode" | "cycle" | "currency"
   >(null);
   const [openingInvoiceId, setOpeningInvoiceId] = useState<string | null>(null);
   const [serviceBusy, setServiceBusy] = useState<ApiServiceId | null>(null);
@@ -169,6 +169,20 @@ export default function BillingScreen() {
     setError(null);
     try {
       await endpoints.updateBilling({ billingMode: mode });
+      await refresh();
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : t("settings", "billingSaveFailed"));
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function setCurrency(currency: "CZK" | "EUR") {
+    if (!data || data.invoiceCurrency === currency) return;
+    setBusy("currency");
+    setError(null);
+    try {
+      await endpoints.updateBilling({ invoiceCurrency: currency });
       await refresh();
     } catch (e) {
       setError(e instanceof ApiError ? e.message : t("settings", "billingSaveFailed"));
@@ -518,7 +532,7 @@ export default function BillingScreen() {
             </View>
           </Section>
 
-          {/* Cycle toggle + (pro INVOICE) možnost přegenerovat proformu po změně */}
+          {/* Cycle toggle + Currency toggle (CZK/EUR) + (pro INVOICE) možnost přegenerovat proformu */}
           <Section styles={styles} title={t("settings", "billingCycleSection")}>
             <View style={styles.segments}>
               <Segment
@@ -534,6 +548,22 @@ export default function BillingScreen() {
                 active={cycle === "YEARLY"}
                 disabled={busy === "cycle"}
                 onPress={() => void setCycle("YEARLY")}
+              />
+            </View>
+            <View style={[styles.segments, { marginTop: spacing.sm }]}>
+              <Segment
+                styles={styles}
+                label="CZK"
+                active={(data.invoiceCurrency ?? "CZK") === "CZK"}
+                disabled={busy === "currency"}
+                onPress={() => void setCurrency("CZK")}
+              />
+              <Segment
+                styles={styles}
+                label="EUR"
+                active={data.invoiceCurrency === "EUR"}
+                disabled={busy === "currency"}
+                onPress={() => void setCurrency("EUR")}
               />
             </View>
             {showProforma && (
@@ -1136,15 +1166,15 @@ const makeStyles = (colors: Colors) =>
       paddingHorizontal: spacing.md,
     },
     secondaryBtnText: { color: colors.text, fontSize: fontSize.sm, fontWeight: "600" },
+    // Deaktivační/zrušit akce — vizuálně tlumené (sekundární), aby nebyly výraznější
+    // než primární CTA 'Přidat další zemi'.
     warnBtn: {
-      backgroundColor: colors.warningBg,
-      borderWidth: 1,
-      borderColor: colors.warning,
-      borderRadius: radius.md,
-      paddingVertical: spacing.sm,
-      paddingHorizontal: spacing.md,
+      backgroundColor: "transparent",
+      borderWidth: 0,
+      paddingVertical: spacing.xs,
+      paddingHorizontal: spacing.sm,
     },
-    warnBtnText: { color: colors.warning, fontSize: fontSize.sm, fontWeight: "600" },
+    warnBtnText: { color: colors.textSubtle, fontSize: fontSize.xs, fontWeight: "500", textDecorationLine: "underline" },
     dangerBtn: {
       backgroundColor: colors.danger,
       borderRadius: radius.md,
@@ -1180,8 +1210,9 @@ const makeStyles = (colors: Colors) =>
     invoiceCta: { fontSize: fontSize.sm, color: colors.link, fontWeight: "600" },
 
     emptyText: { fontSize: fontSize.sm, color: colors.textSubtle, textAlign: "center" },
-    addCountryBtn: { marginTop: spacing.md, paddingVertical: spacing.sm, alignItems: "center", borderWidth: 1, borderColor: colors.border, borderStyle: "dashed", borderRadius: radius.md },
-    addCountryText: { fontSize: fontSize.sm, color: colors.link, fontWeight: "500" },
+    // 'Přidat další zemi' — primární akce, výrazná (accent fill).
+    addCountryBtn: { marginTop: spacing.md, paddingVertical: spacing.sm + 2, alignItems: "center", borderRadius: radius.md, backgroundColor: colors.accent },
+    addCountryText: { fontSize: fontSize.sm, color: colors.accentForeground, fontWeight: "600" },
     errorBox: {
       marginTop: spacing.md,
       padding: spacing.md,

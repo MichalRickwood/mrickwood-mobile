@@ -435,6 +435,7 @@ export const endpoints = {
       data: {
         billingMode: BillingMode | null;
         billingCycle: BillingCycle | null;
+        invoiceCurrency?: "CZK" | "EUR" | null;
         billingProfile: BillingProfileShape | null;
         card: BillingCardInfo | null;
         invoice: BillingInvoiceLite | null;
@@ -444,6 +445,7 @@ export const endpoints = {
     return {
       billingMode: r.data.billingMode,
       billingCycle: r.data.billingCycle,
+      invoiceCurrency: r.data.invoiceCurrency ?? null,
       billingProfile: r.data.billingProfile ?? ({} as BillingProfileShape),
       card: r.data.card,
       invoice: r.data.invoice,
@@ -603,6 +605,7 @@ export interface BillingServiceRow {
 export interface BillingFullState {
   billingMode: BillingMode | null;
   billingCycle: BillingCycle | null;
+  invoiceCurrency: "CZK" | "EUR" | null;
   billingProfile: BillingProfileShape;
   card: BillingCardInfo | null;
   invoice: BillingInvoiceLite | null;
@@ -612,6 +615,7 @@ export interface BillingFullState {
 export interface BillingUpdateInput {
   billingMode?: BillingMode;
   billingCycle?: BillingCycle;
+  invoiceCurrency?: "CZK" | "EUR";
   billingProfile?: Partial<BillingProfileShape>;
 }
 

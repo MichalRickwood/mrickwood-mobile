@@ -185,6 +185,11 @@ export default function OnboardingCountries() {
         keyExtractor={(c) => c.code}
         ListHeaderComponent={
           <View style={styles.header}>
+            {activeScopes.size > 0 && (
+              <Pressable onPress={() => router.replace("/(tabs)/settings/billing")} style={styles.backBtn}>
+                <Text style={styles.backBtnText}>← {t("onboardingCountries", "backToSettings")}</Text>
+              </Pressable>
+            )}
             <Text style={styles.title}>{t("onboardingCountries", "title")}</Text>
             <Text style={styles.subtitle}>{t("onboardingCountries", "subtitle")}</Text>
             <Text style={styles.trialNote}>{t("onboardingCountries", "trialNote")}</Text>
@@ -425,6 +430,8 @@ function makeStyles(c: Colors) {
     loadingScreen: { flex: 1, backgroundColor: c.bg, alignItems: "center", justifyContent: "center" },
     list: { paddingBottom: spacing.xxl },
     header: { padding: spacing.lg, paddingTop: spacing.md },
+    backBtn: { marginBottom: spacing.md, alignSelf: "flex-start" },
+    backBtnText: { fontSize: fontSize.sm, color: c.link, fontWeight: "500" },
     title: { fontSize: fontSize.xxl, fontWeight: "700", color: c.text, marginBottom: spacing.sm },
     subtitle: { fontSize: fontSize.sm, color: c.textMuted, marginBottom: spacing.md, lineHeight: 20 },
     trialNote: { fontSize: fontSize.xs, color: c.textSubtle, marginBottom: spacing.lg, fontStyle: "italic" },
