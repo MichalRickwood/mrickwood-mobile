@@ -486,6 +486,10 @@ export interface Dict {
     footerNote: string;
     backToSettings: string;
     back: string;
+    unsavedTitle: string;
+    unsavedBody: string;
+    unsavedStay: string;
+    unsavedDiscard: string;
   };
   onboardingProfile: {
     title: string;
@@ -1003,6 +1007,10 @@ const cs: Dict = {
     footerNote: "Bez karty. Bez automatického prodloužení. Po trialu vás upozorníme emailem.",
     backToSettings: "Zpět do nastavení",
     back: "Zpět",
+    unsavedTitle: "Neuložené změny",
+    unsavedBody: "Máte vybrané nové země, které ještě nebyly aktivovány. Opravdu chcete jít zpět?",
+    unsavedStay: "Zůstat",
+    unsavedDiscard: "Zahodit a jít zpět",
   },
   onboardingProfile: {
     title: "Dokončete profil",
@@ -1515,6 +1523,10 @@ const en: Dict = {
     footerNote: "No card. No auto-renew. We'll email you when the trial ends.",
     backToSettings: "Back to settings",
     back: "Back",
+    unsavedTitle: "Unsaved selection",
+    unsavedBody: "You have selected new countries that haven't been activated. Go back anyway?",
+    unsavedStay: "Stay",
+    unsavedDiscard: "Discard and go back",
   },
   onboardingProfile: {
     title: "Complete your profile",
@@ -2029,6 +2041,10 @@ const de: Dict = {
     footerNote: "Keine Karte. Keine automatische Verlängerung. Wir benachrichtigen Sie per E-Mail.",
     backToSettings: "Zurück zu Einstellungen",
     back: "Zurück",
+    unsavedTitle: "Ungespeicherte Auswahl",
+    unsavedBody: "Sie haben neue Länder ausgewählt, die noch nicht aktiviert wurden. Trotzdem zurück?",
+    unsavedStay: "Bleiben",
+    unsavedDiscard: "Verwerfen und zurück",
   },
   onboardingProfile: {
     title: "Profil vervollständigen",

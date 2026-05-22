@@ -113,7 +113,9 @@ export default function RegionPickerModal({ visible, initial, onClose, onApply }
   }
 
   function handleAddCountry() {
-    onClose();
+    // Modal se NEzavírá — user se vrátí ze stránky zpět a uvidí region picker s
+    // novou zemí v seznamu (region cache se refreshne přes invalidation v
+    // countries.tsx po activate).
     router.push("/(onboarding)/countries");
   }
 

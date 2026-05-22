@@ -4,6 +4,7 @@ import { Stack } from "expo-router";
 import { HeaderBackButton } from "@react-navigation/elements";
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   Image,
   Pressable,
@@ -206,8 +207,28 @@ export default function OnboardingCountries() {
             ? () => (
                 <HeaderBackButton
                   tintColor={colors.text}
-                  displayMode="minimal"
-                  onPress={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)"))}
+                  label={t("onboardingCountries", "back")}
+                  displayMode="default"
+                  onPress={() => {
+                    const doBack = () =>
+                      router.canGoBack() ? router.back() : router.replace("/(tabs)");
+                    if (newSelections.length > 0) {
+                      Alert.alert(
+                        t("onboardingCountries", "unsavedTitle"),
+                        t("onboardingCountries", "unsavedBody"),
+                        [
+                          { text: t("onboardingCountries", "unsavedStay"), style: "cancel" },
+                          {
+                            text: t("onboardingCountries", "unsavedDiscard"),
+                            style: "destructive",
+                            onPress: doBack,
+                          },
+                        ],
+                      );
+                    } else {
+                      doBack();
+                    }
+                  }}
                 />
               )
             : () => null,
@@ -452,8 +473,7 @@ function makeStyles(c: Colors) {
     screen: { flex: 1, backgroundColor: c.bg },
     loadingScreen: { flex: 1, backgroundColor: c.bg, alignItems: "center", justifyContent: "center" },
     list: { paddingBottom: spacing.xxl },
-    // paddingTop: 0 — Stack header je nad listem, žádná mezera mezi headerem a subtitle.
-    header: { padding: spacing.lg, paddingTop: 0 },
+    header: { padding: spacing.lg, paddingTop: spacing.md },
     title: { fontSize: fontSize.xxl, fontWeight: "700", color: c.text, marginBottom: spacing.sm },
     subtitle: { fontSize: fontSize.sm, color: c.textMuted, marginBottom: spacing.md, lineHeight: 20 },
     trialNote: { fontSize: fontSize.xs, color: c.textSubtle, marginBottom: spacing.lg, fontStyle: "italic" },
