@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Stack } from "expo-router";
+import { HeaderBackButton } from "@react-navigation/elements";
 import {
   ActivityIndicator,
   FlatList,
@@ -198,18 +199,16 @@ export default function OnboardingCountries() {
   const showBack = activeScopes.size > 0;
 
   return (
-    <SafeAreaView style={styles.screen} edges={["top"]}>
+    <SafeAreaView style={styles.screen} edges={[]}>
       <Stack.Screen
         options={{
           headerLeft: showBack
             ? () => (
-                <Pressable
+                <HeaderBackButton
+                  tintColor={colors.text}
+                  displayMode="minimal"
                   onPress={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)"))}
-                  hitSlop={12}
-                  style={{ paddingHorizontal: 4 }}
-                >
-                  <Text style={{ fontSize: 22, color: colors.text }}>‹</Text>
-                </Pressable>
+                />
               )
             : () => null,
         }}
@@ -454,7 +453,7 @@ function makeStyles(c: Colors) {
     loadingScreen: { flex: 1, backgroundColor: c.bg, alignItems: "center", justifyContent: "center" },
     list: { paddingBottom: spacing.xxl },
     // paddingTop: 0 — Stack header je nad listem, žádná mezera mezi headerem a subtitle.
-    header: { padding: spacing.lg, paddingTop: spacing.sm },
+    header: { padding: spacing.lg, paddingTop: 0 },
     title: { fontSize: fontSize.xxl, fontWeight: "700", color: c.text, marginBottom: spacing.sm },
     subtitle: { fontSize: fontSize.sm, color: c.textMuted, marginBottom: spacing.md, lineHeight: 20 },
     trialNote: { fontSize: fontSize.xs, color: c.textSubtle, marginBottom: spacing.lg, fontStyle: "italic" },
