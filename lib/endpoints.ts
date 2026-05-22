@@ -659,6 +659,8 @@ export interface InvoiceRow {
   kind: InvoiceKind;
   status: string;
   totalAmount: number;
+  /** Měna faktury ('CZK' | 'EUR'). Default 'CZK' pro back-compat. */
+  currency?: "CZK" | "EUR";
   hasPdf: boolean;
   paidDate: string | null;
   createdAt: string;

@@ -564,9 +564,9 @@ export default function BillingScreen() {
                   </Text>
                 </Pressable>
               )}
-              {mode === "INVOICE" && !data.invoice && (
+              {mode === "INVOICE" && (
                 <Pressable
-                  onPress={generateProforma}
+                  onPress={data.invoice ? regenerateProforma : generateProforma}
                   disabled={busy === "proforma-create" || !data.billingCycle}
                   style={({ pressed }) => [
                     styles.modeCtaBtn,
@@ -575,7 +575,11 @@ export default function BillingScreen() {
                   ]}
                 >
                   <Text style={styles.modeCtaText}>
-                    {busy === "proforma-create" ? t("settings", "billingProformaGenerating") : t("settings", "billingProformaGenerate")}
+                    {busy === "proforma-create"
+                      ? t("settings", "billingProformaGenerating")
+                      : data.invoice
+                        ? t("settings", "billingProformaRegenerate")
+                        : t("settings", "billingProformaGenerate")}
                   </Text>
                 </Pressable>
               )}
@@ -618,25 +622,7 @@ export default function BillingScreen() {
                 />
               </View>
             </View>
-            {/* Pokud existuje aktivní proforma a user změnil cycle → nabídnout
-                přegenerovat. Vystavení nové proformy řeší kontextové CTA u
-                mode toggle nahoře. */}
-            {showProforma && data.invoice && (
-              <Pressable
-                onPress={regenerateProforma}
-                disabled={busy === "proforma-create"}
-                style={({ pressed }) => [
-                  styles.secondaryBtn,
-                  { marginTop: spacing.sm },
-                  pressed && styles.btnPressed,
-                  busy === "proforma-create" && styles.btnDisabled,
-                ]}
-              >
-                <Text style={styles.secondaryBtnText}>
-                  {t("settings", "billingProformaRegenerate")}
-                </Text>
-              </Pressable>
-            )}
+            {/* Generate/Regenerate proforma řeší kontextová CTA vedle mode pillu nahoře. */}
           </Section>
 
           {/* Card detail — jen pokud karta je připojená (connect CTA je nahoře
@@ -1035,7 +1021,18 @@ function InvoiceLine({
           {" · "}
           {formatDate(invoice.createdAt, dateLocale)}
           {" · "}
-          {formatMoney(invoice.totalAmount, numberLocale)}
+          {(() => {
+            const cur = invoice.currency ?? "CZK";
+            try {
+              return new Intl.NumberFormat(numberLocale, {
+                style: "currency",
+                currency: cur,
+                maximumFractionDigits: 0,
+              }).format(invoice.totalAmount);
+            } catch {
+              return `${invoice.totalAmount} ${cur === "EUR" ? "€" : "Kč"}`;
+            }
+          })()}
         </Text>
       </View>
       {invoice.hasPdf && (
