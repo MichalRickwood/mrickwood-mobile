@@ -874,6 +874,20 @@ function ServiceRow({
   const effCycle: BillingCycle = cycle ?? "MONTHLY";
   const priceVal =
     effCycle === "YEARLY" ? service.priceYearly : service.priceMonthly;
+  const priceOriginalVal =
+    effCycle === "YEARLY" ? service.priceYearlyOriginal ?? null : service.priceMonthlyOriginal ?? null;
+  const currency = service.priceCurrency ?? "CZK";
+  function fmtCurrency(amount: number): string {
+    try {
+      return new Intl.NumberFormat(numberLocale, {
+        style: "currency",
+        currency,
+        maximumFractionDigits: 0,
+      }).format(amount);
+    } catch {
+      return `${amount} ${currency === "EUR" ? "€" : "Kč"}`;
+    }
+  }
   const priceText =
     priceVal != null
       ? t(
@@ -881,8 +895,13 @@ function ServiceRow({
           effCycle === "YEARLY"
             ? "billingServicePriceYearly"
             : "billingServicePriceMonthly",
-          { price: formatMoney(priceVal, numberLocale) },
+          { price: fmtCurrency(priceVal) },
         )
+      : null;
+  const priceOriginalText = priceOriginalVal != null ? fmtCurrency(priceOriginalVal) : null;
+  const discountPctLabel =
+    service.discountPct && service.discountPct > 0
+      ? `−${Math.round(service.discountPct * 100)} %`
       : null;
 
   const FLAGS: Record<string, string> = {
@@ -910,7 +929,13 @@ function ServiceRow({
               ? t("settings", "billingServicePaidUntil", { date: formatDate(service.paidUntil, dateLocale) })
               : stateLabel(service.state, t)}
         </Text>
-        {priceText && <Text style={styles.servicePrice}>{priceText}</Text>}
+        {priceText && (
+          <View style={styles.priceRow}>
+            <Text style={styles.servicePrice}>{priceText}</Text>
+            {priceOriginalText && <Text style={styles.priceStrikethrough}>{priceOriginalText}</Text>}
+            {discountPctLabel && <Text style={styles.discountBadge}>{discountPctLabel}</Text>}
+          </View>
+        )}
       </View>
       <View style={{ flexDirection: "row", gap: spacing.xs }}>
         {service.tier === "PAID" && service.state === "ACTIVE" && (
@@ -1220,7 +1245,10 @@ const makeStyles = (colors: Colors) =>
     serviceText: { flex: 1, paddingRight: spacing.md },
     serviceName: { fontSize: fontSize.base, fontWeight: "600", color: colors.text },
     serviceMeta: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: 2 },
-    servicePrice: { fontSize: fontSize.xs, color: colors.text, fontWeight: "600", marginTop: 2 },
+    servicePrice: { fontSize: fontSize.xs, color: colors.text, fontWeight: "600" },
+    priceRow: { flexDirection: "row", alignItems: "center", gap: 6, flexWrap: "wrap", marginTop: 2 },
+    priceStrikethrough: { fontSize: fontSize.xs, color: colors.textFaint, textDecorationLine: "line-through" },
+    discountBadge: { fontSize: 10, fontWeight: "700", color: colors.success, backgroundColor: colors.successBg, paddingHorizontal: 6, paddingVertical: 1, borderRadius: 4 },
 
     invoiceRow: {
       flexDirection: "row",

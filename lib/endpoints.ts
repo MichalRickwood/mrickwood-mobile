@@ -616,8 +616,16 @@ export interface BillingServiceRow {
   trialEndsAt: string | null;
   paidUntil: string | null;
   cancelAtPeriodEnd: boolean;
+  /** Cena per cycle PO aplikaci volume discount. */
   priceMonthly: number | null;
   priceYearly: number | null;
+  /** Cena před discountem (null pokud žádný discount). Pro strikethrough. */
+  priceMonthlyOriginal?: number | null;
+  priceYearlyOriginal?: number | null;
+  /** 0..1 — kolik volume slevy. 0 pro single-country a non-LEADS. */
+  discountPct?: number;
+  /** Měna ve které jsou priceMonthly/Yearly ('CZK' | 'EUR'). */
+  priceCurrency?: "CZK" | "EUR";
 }
 
 export interface BillingFullState {
