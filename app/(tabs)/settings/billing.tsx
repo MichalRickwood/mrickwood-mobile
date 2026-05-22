@@ -163,45 +163,45 @@ export default function BillingScreen() {
     }
   }
 
+  // Optimistic toggles — okamžitě překlopíme local state, API call fire-and-forget.
+  // Při fail rollback + error. Bez await refresh() = instant UI feedback (countries
+  // picker má stejný pattern, proto tam přepínání frčí).
   async function setMode(mode: BillingMode) {
     if (!data || data.billingMode === mode) return;
-    setBusy("mode");
+    const prev = data.billingMode;
+    setData({ ...data, billingMode: mode });
     setError(null);
     try {
       await endpoints.updateBilling({ billingMode: mode });
-      await refresh();
     } catch (e) {
+      setData((d) => (d ? { ...d, billingMode: prev } : d));
       setError(e instanceof ApiError ? e.message : t("settings", "billingSaveFailed"));
-    } finally {
-      setBusy(null);
     }
   }
 
   async function setCurrency(currency: "CZK" | "EUR") {
     if (!data || data.invoiceCurrency === currency) return;
-    setBusy("currency");
+    const prev = data.invoiceCurrency;
+    setData({ ...data, invoiceCurrency: currency });
     setError(null);
     try {
       await endpoints.updateBilling({ invoiceCurrency: currency });
-      await refresh();
     } catch (e) {
+      setData((d) => (d ? { ...d, invoiceCurrency: prev } : d));
       setError(e instanceof ApiError ? e.message : t("settings", "billingSaveFailed"));
-    } finally {
-      setBusy(null);
     }
   }
 
   async function setCycle(cycle: BillingCycle) {
     if (!data || data.billingCycle === cycle) return;
-    setBusy("cycle");
+    const prev = data.billingCycle;
+    setData({ ...data, billingCycle: cycle });
     setError(null);
     try {
       await endpoints.updateBilling({ billingCycle: cycle });
-      await refresh();
     } catch (e) {
+      setData((d) => (d ? { ...d, billingCycle: prev } : d));
       setError(e instanceof ApiError ? e.message : t("settings", "billingSaveFailed"));
-    } finally {
-      setBusy(null);
     }
   }
 
