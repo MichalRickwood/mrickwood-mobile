@@ -485,6 +485,7 @@ export interface Dict {
     perYear: string;
     footerNote: string;
     backToSettings: string;
+    back: string;
   };
   onboardingProfile: {
     title: string;
@@ -1001,6 +1002,7 @@ const cs: Dict = {
     perYear: "/rok",
     footerNote: "Bez karty. Bez automatického prodloužení. Po trialu vás upozorníme emailem.",
     backToSettings: "Zpět do nastavení",
+    back: "Zpět",
   },
   onboardingProfile: {
     title: "Dokončete profil",
@@ -1512,6 +1514,7 @@ const en: Dict = {
     perYear: "/year",
     footerNote: "No card. No auto-renew. We'll email you when the trial ends.",
     backToSettings: "Back to settings",
+    back: "Back",
   },
   onboardingProfile: {
     title: "Complete your profile",
@@ -2025,6 +2028,7 @@ const de: Dict = {
     perYear: "/Jahr",
     footerNote: "Keine Karte. Keine automatische Verlängerung. Wir benachrichtigen Sie per E-Mail.",
     backToSettings: "Zurück zu Einstellungen",
+    back: "Zurück",
   },
   onboardingProfile: {
     title: "Profil vervollständigen",

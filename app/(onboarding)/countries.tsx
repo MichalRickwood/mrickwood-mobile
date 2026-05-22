@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ActivityIndicator,
   FlatList,
@@ -63,40 +64,49 @@ export default function OnboardingCountries() {
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const router = useRouter();
+  const qc = useQueryClient();
 
-  const [countries, setCountries] = useState<Country[] | null>(null);
-  const [activeScopes, setActiveScopes] = useState<Set<string>>(new Set());
+  // Countries katalog se nemění často — staleTime 30 min. Cache se sdílí napříč
+  // mounty (návrat z billing → onboarding/countries je instant).
+  const countriesQuery = useQuery({
+    queryKey: ["leads-countries"],
+    queryFn: () => endpoints.getLeadsCountries(),
+    staleTime: 30 * 60 * 1000,
+  });
+  // Subscriptions — krátká cache 30s aby návrat po activate okamžitě reflektoval.
+  const subsQuery = useQuery({
+    queryKey: ["account-subscriptions"],
+    queryFn: () => endpoints.listSubscriptions(),
+    staleTime: 30 * 1000,
+  });
+  const countries: Country[] | null = countriesQuery.data ?? null;
+  const activeScopes = useMemo(() => {
+    const set = new Set<string>();
+    for (const s of subsQuery.data ?? []) {
+      if (s.service === "LEADS" && s.scope && s.state !== "CANCELED" && s.state !== "SUSPENDED") {
+        set.add(s.scope);
+      }
+    }
+    return set;
+  }, [subsQuery.data]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [currency, setCurrency] = useState<Currency>(locale === "cs" ? "CZK" : "EUR");
   const [cycle, setCycle] = useState<Cycle>("MONTHLY");
   const [activating, setActivating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Pre-check existující aktivní scopes (jen jednou při prvním načtení subs).
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const [data, subs] = await Promise.all([
-          endpoints.getLeadsCountries(),
-          endpoints.listSubscriptions().catch(() => []),
-        ]);
-        if (cancelled) return;
-        setCountries(data);
-        const active = new Set(
-          subs
-            .filter((s) => s.service === "LEADS" && s.scope && s.state !== "CANCELED" && s.state !== "SUSPENDED")
-            .map((s) => s.scope as string),
-        );
-        setActiveScopes(active);
-        setSelected(new Set(active)); // Pre-check existující aktivní scopes
-      } catch (e) {
-        if (!cancelled) setError(e instanceof Error ? e.message : String(e));
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    if (subsQuery.data && selected.size === 0 && activeScopes.size > 0) {
+      setSelected(new Set(activeScopes));
+    }
+  }, [subsQuery.data, activeScopes, selected.size]);
+
+  // Surface fetch error z queries (rare — backend cachuje).
+  useEffect(() => {
+    const err = countriesQuery.error ?? subsQuery.error;
+    if (err) setError(err instanceof Error ? err.message : String(err));
+  }, [countriesQuery.error, subsQuery.error]);
 
   const newSelections = useMemo(() => {
     return [...selected].filter((c) => !activeScopes.has(c));
@@ -153,6 +163,10 @@ export default function OnboardingCountries() {
       for (const scope of newSelections) {
         await endpoints.activateLeadsScope(scope);
       }
+      // Invalidate caches → billing screen ukáže nové scopes po návratu.
+      await qc.invalidateQueries({ queryKey: ["account-subscriptions"] });
+      await qc.invalidateQueries({ queryKey: ["billing"] });
+      await qc.invalidateQueries({ queryKey: ["service", "leads"] });
       // Po aktivaci → profile completion (name/phone/country/company)
       router.replace("/(onboarding)/profile");
     } catch (e) {
@@ -185,11 +199,6 @@ export default function OnboardingCountries() {
         keyExtractor={(c) => c.code}
         ListHeaderComponent={
           <View style={styles.header}>
-            {activeScopes.size > 0 && (
-              <Pressable onPress={() => router.replace("/(tabs)/settings/billing")} style={styles.backBtn}>
-                <Text style={styles.backBtnText}>← {t("onboardingCountries", "backToSettings")}</Text>
-              </Pressable>
-            )}
             <Text style={styles.title}>{t("onboardingCountries", "title")}</Text>
             <Text style={styles.subtitle}>{t("onboardingCountries", "subtitle")}</Text>
             <Text style={styles.trialNote}>{t("onboardingCountries", "trialNote")}</Text>
