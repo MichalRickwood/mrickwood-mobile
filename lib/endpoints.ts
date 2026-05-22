@@ -316,7 +316,16 @@ export const endpoints = {
   getLeadsRegions: async (country?: string) => {
     const r = await api.get<{
       data: Record<string, Array<{ region: string; count: number }>>;
-    }>("/api/v2/leads/regions", { params: country ? { country } : {} });
+    }>("/api/v2/leads/regions", { params: country ? { region: country } : {} });
+    return r.data;
+  },
+  // Primary NUTS regions catalog per LEADS země + labels v daném locale.
+  // Cache 24h server-side. Single payload pro region picker.
+  getLeadsRegionsCatalog: async (locale: string) => {
+    const r = await api.get<{
+      data: Record<string, Array<{ code: string; label: string }>>;
+      generatedAt: string;
+    }>("/api/v2/leads/regions/catalog", { params: { locale } });
     return r.data;
   },
   // List všech subscriptions usera (per scope). Mobile detekuje aktivní LEADS scopes

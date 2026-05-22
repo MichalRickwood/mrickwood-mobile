@@ -57,6 +57,7 @@ export default function RegionPickerModal({ visible, initial, onClose, onApply }
   const router = useRouter();
   const [selected, setSelected] = useState<string[]>(initial);
   const [activeCountries, setActiveCountries] = useState<string[]>([]);
+  const [regionsCatalog, setRegionsCatalog] = useState<Record<string, Array<{ code: string; label: string }>>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -65,33 +66,39 @@ export default function RegionPickerModal({ visible, initial, onClose, onApply }
     setLoading(true);
     (async () => {
       try {
-        const subs = await endpoints.listSubscriptions();
+        const [subs, catalog] = await Promise.all([
+          endpoints.listSubscriptions(),
+          endpoints.getLeadsRegionsCatalog(locale).catch(() => ({})),
+        ]);
         const codes = subs
           .filter((s) => s.service === "LEADS" && s.scope && s.state !== "CANCELED" && s.state !== "SUSPENDED")
           .map((s) => s.scope as string);
         const unique = Array.from(new Set(codes));
-        // CZ first, pak ostatní abecedně
         unique.sort((a, b) => (a === "CZ" ? -1 : b === "CZ" ? 1 : a.localeCompare(b)));
         setActiveCountries(unique.length > 0 ? unique : ["CZ"]);
+        setRegionsCatalog(catalog);
       } catch {
         setActiveCountries(["CZ"]);
       } finally {
         setLoading(false);
       }
     })();
-  }, [visible, initial]);
+  }, [visible, initial, locale]);
 
   function toggle(code: string) {
     setSelected((prev) => (prev.includes(code) ? prev.filter((x) => x !== code) : [...prev, code]));
   }
 
-  // CZ má NUTS-3 chips (14 krajů), ostatní země mají jeden "Celá země" chip
-  // s ISO codem (backend matchuje na t.country).
+  // CZ má NUTS-3 chips z lokální mapy. Non-CZ země čerpá z backend catalogu
+  // (NUTS-1 pro DE, NUTS-2 pro PL/AT/FR atd.). První chip "Celá země" s ISO
+  // codem — toggle všechny tendrů v zemi bez ohledu na region.
   function chipsForCountry(country: string): { code: string; label: string }[] {
+    const whole = { code: country, label: t("matches", "filterFormAllRegions") };
     if (country === "CZ") {
-      return CZ_REGIONS.map((r) => ({ code: r.code, label: regionLabel(r.code, locale) }));
+      return [whole, ...CZ_REGIONS.map((r) => ({ code: r.code, label: regionLabel(r.code, locale) }))];
     }
-    return [{ code: country, label: t("matches", "filterFormAllRegions") }];
+    const catalogRegions = regionsCatalog[country] ?? [];
+    return [whole, ...catalogRegions];
   }
 
   function selectAllInCountry(country: string) {
