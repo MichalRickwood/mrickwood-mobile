@@ -1162,8 +1162,9 @@ const makeStyles = (colors: Colors) =>
     segmentActive: { backgroundColor: colors.accent },
     segmentText: { fontSize: 12, color: colors.textSubtle, fontWeight: "500" },
     segmentTextActive: { color: colors.accentForeground, fontWeight: "600" },
-    // Kontextová CTA vedle mode pillů (Připojit kartu / Vystavit zálohovou)
-    modeCtaBtn: { backgroundColor: colors.accent, paddingHorizontal: spacing.md, height: 30, borderRadius: radius.full, alignItems: "center", justifyContent: "center" },
+    // Kontextová CTA vedle mode pillů (Připojit kartu / Vystavit zálohovou).
+    // marginLeft: auto → CTA se posune doprava, pill zůstává vlevo.
+    modeCtaBtn: { marginLeft: "auto", backgroundColor: colors.accent, paddingHorizontal: spacing.md, height: 30, borderRadius: radius.full, alignItems: "center", justifyContent: "center" },
     modeCtaText: { fontSize: 12, color: colors.accentForeground, fontWeight: "600" },
 
     cardRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
