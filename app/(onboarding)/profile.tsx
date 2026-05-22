@@ -51,6 +51,7 @@ export default function OnboardingProfile() {
   const [companyAddress, setCompanyAddress] = useState("");
   const [companyDic, setCompanyDic] = useState("");
 
+  const [manualEntry, setManualEntry] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -74,6 +75,9 @@ export default function OnboardingProfile() {
         setCompanyIco(p.ico ?? "");
         setCompanyAddress(p.address ?? "");
         setCompanyDic(p.dic ?? "");
+        // Pokud user už nějaká data má (návrat na obrazovku), preferuj manual
+        // mode — lookup field by se snažil přepsat ručně zadané hodnoty.
+        if (p.ico || p.address) setManualEntry(true);
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : String(e));
       } finally {
@@ -186,26 +190,82 @@ export default function OnboardingProfile() {
               <Text style={styles.label}>{t("onboardingProfile", "companyLabel")}</Text>
               <Text style={styles.labelOptional}>{t("onboardingProfile", "companyOptional")}</Text>
             </View>
-            <CompanyLookupField
-              country={country}
-              value={companyIco}
-              resolvedName={companyName}
-              label=""
-              placeholder={t("onboardingProfile", "companyPlaceholder")}
-              onResolve={(d) => {
-                setCompanyIco(d.taxId);
-                setCompanyName(d.name);
-                setCompanyAddress(d.address);
-                setCompanyDic(d.vatNumber ?? "");
-              }}
-              onClear={() => {
-                setCompanyIco("");
-                setCompanyName("");
-                setCompanyAddress("");
-                setCompanyDic("");
-              }}
-            />
-            <Text style={styles.hint}>{t("onboardingProfile", "companyHint")}</Text>
+            {!manualEntry ? (
+              <>
+                <CompanyLookupField
+                  country={country}
+                  value={companyIco}
+                  resolvedName={companyName}
+                  label=""
+                  placeholder={t("onboardingProfile", "companyPlaceholder")}
+                  onResolve={(d) => {
+                    setCompanyIco(d.taxId);
+                    setCompanyName(d.name);
+                    setCompanyAddress(d.address);
+                    setCompanyDic(d.vatNumber ?? "");
+                  }}
+                  onClear={() => {
+                    setCompanyIco("");
+                    setCompanyName("");
+                    setCompanyAddress("");
+                    setCompanyDic("");
+                  }}
+                />
+                <Text style={styles.hint}>{t("onboardingProfile", "companyHint")}</Text>
+              </>
+            ) : (
+              <View style={styles.manualBlock}>
+                <TextInput
+                  value={companyIco}
+                  onChangeText={setCompanyIco}
+                  placeholder={t("onboardingProfile", "manualTaxIdPlaceholder")}
+                  placeholderTextColor={colors.textFaint}
+                  style={styles.input}
+                  autoCorrect={false}
+                  maxLength={64}
+                />
+                <TextInput
+                  value={companyName}
+                  onChangeText={setCompanyName}
+                  placeholder={t("onboardingProfile", "manualNamePlaceholder")}
+                  placeholderTextColor={colors.textFaint}
+                  style={[styles.input, { marginTop: spacing.sm }]}
+                  autoCapitalize="words"
+                  autoCorrect={false}
+                  maxLength={500}
+                />
+                <TextInput
+                  value={companyAddress}
+                  onChangeText={setCompanyAddress}
+                  placeholder={t("onboardingProfile", "manualAddressPlaceholder")}
+                  placeholderTextColor={colors.textFaint}
+                  style={[styles.input, { marginTop: spacing.sm }]}
+                  autoCapitalize="words"
+                  autoCorrect={false}
+                  maxLength={500}
+                />
+                <TextInput
+                  value={companyDic}
+                  onChangeText={setCompanyDic}
+                  placeholder={t("onboardingProfile", "manualVatPlaceholder")}
+                  placeholderTextColor={colors.textFaint}
+                  style={[styles.input, { marginTop: spacing.sm }]}
+                  autoCapitalize="characters"
+                  autoCorrect={false}
+                  maxLength={32}
+                />
+                <Text style={styles.hint}>{t("onboardingProfile", "companyManualHint")}</Text>
+              </View>
+            )}
+            <Pressable
+              onPress={() => setManualEntry((v) => !v)}
+              style={styles.manualToggle}
+            >
+              <View style={[styles.manualCheckbox, manualEntry && styles.manualCheckboxOn]}>
+                {manualEntry && <Text style={styles.manualCheckboxMark}>✓</Text>}
+              </View>
+              <Text style={styles.manualToggleText}>{t("onboardingProfile", "companyManualToggle")}</Text>
+            </Pressable>
           </View>
 
           {error && <Text style={styles.errorText}>{error}</Text>}
@@ -254,6 +314,12 @@ function makeStyles(c: Colors) {
     },
     inputReadonly: { backgroundColor: c.bg, color: c.textMuted },
     hint: { fontSize: fontSize.xs, color: c.textSubtle, marginTop: spacing.xs, lineHeight: 16 },
+    manualBlock: { gap: 0 },
+    manualToggle: { flexDirection: "row", alignItems: "center", gap: spacing.sm, marginTop: spacing.sm, paddingVertical: spacing.xs },
+    manualCheckbox: { width: 18, height: 18, borderRadius: 4, borderWidth: 2, borderColor: c.border, alignItems: "center", justifyContent: "center" },
+    manualCheckboxOn: { backgroundColor: c.accent, borderColor: c.accent },
+    manualCheckboxMark: { color: c.accentForeground, fontSize: 11, fontWeight: "700" },
+    manualToggleText: { fontSize: fontSize.sm, color: c.textMuted },
     errorText: { fontSize: fontSize.sm, color: c.danger, marginBottom: spacing.md, textAlign: "center" },
     ctaBtn: { backgroundColor: c.accent, paddingVertical: spacing.md, borderRadius: radius.md, alignItems: "center", marginTop: spacing.md },
     ctaBtnText: { color: c.accentForeground, fontSize: fontSize.base, fontWeight: "600" },

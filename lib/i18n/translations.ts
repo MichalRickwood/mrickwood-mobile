@@ -497,6 +497,16 @@ export interface Dict {
     companyOptional: string;
     companyHint: string;
     companyPlaceholder: string;
+    companyManualToggle: string;
+    companyManualHint: string;
+    manualTaxIdLabel: string;
+    manualTaxIdPlaceholder: string;
+    manualNameLabel: string;
+    manualNamePlaceholder: string;
+    manualAddressLabel: string;
+    manualAddressPlaceholder: string;
+    manualVatLabel: string;
+    manualVatPlaceholder: string;
     cta: string;
     saving: string;
     saveFailed: string;
@@ -998,6 +1008,16 @@ const cs: Dict = {
     companyOptional: "nepovinné",
     companyHint: "Pokud fakturujete na firmu, vyhledejte ji v rejstříku — automaticky doplníme IČO, adresu a DIČ.",
     companyPlaceholder: "Název nebo IČO firmy…",
+    companyManualToggle: "Zadat ručně",
+    companyManualHint: "Pro firmy mimo český/slovenský/francouzský rejstřík nebo když lookup selže.",
+    manualTaxIdLabel: "IČO / Tax ID",
+    manualTaxIdPlaceholder: "Identifikační číslo",
+    manualNameLabel: "Název firmy",
+    manualNamePlaceholder: "Acme s. r. o.",
+    manualAddressLabel: "Adresa",
+    manualAddressPlaceholder: "Ulice, PSČ, Město",
+    manualVatLabel: "DIČ / VAT",
+    manualVatPlaceholder: "CZ12345678",
     cta: "Pokračovat",
     saving: "Ukládám…",
     saveFailed: "Uložení selhalo. Zkuste to znovu.",
@@ -1494,6 +1514,16 @@ const en: Dict = {
     companyOptional: "optional",
     companyHint: "If you invoice as a business, look it up in the registry — we'll prefill the tax ID, address and VAT.",
     companyPlaceholder: "Company name or tax ID…",
+    companyManualToggle: "Enter manually",
+    companyManualHint: "For businesses outside CZ/SK/FR registries or when lookup fails.",
+    manualTaxIdLabel: "Tax ID",
+    manualTaxIdPlaceholder: "Business ID",
+    manualNameLabel: "Company name",
+    manualNamePlaceholder: "Acme Ltd.",
+    manualAddressLabel: "Address",
+    manualAddressPlaceholder: "Street, ZIP, City",
+    manualVatLabel: "VAT number",
+    manualVatPlaceholder: "DE123456789",
     cta: "Continue",
     saving: "Saving…",
     saveFailed: "Save failed. Please try again.",
@@ -1992,6 +2022,16 @@ const de: Dict = {
     companyOptional: "optional",
     companyHint: "Wenn Sie als Unternehmen abrechnen, suchen Sie es im Register — Steuernummer, Adresse und USt-ID werden automatisch ausgefüllt.",
     companyPlaceholder: "Firmenname oder Steuernummer…",
+    companyManualToggle: "Manuell eingeben",
+    companyManualHint: "Für Firmen außerhalb der CZ/SK/FR-Register oder wenn die Suche fehlschlägt.",
+    manualTaxIdLabel: "Steuernummer",
+    manualTaxIdPlaceholder: "Firmen-ID",
+    manualNameLabel: "Firmenname",
+    manualNamePlaceholder: "Acme GmbH",
+    manualAddressLabel: "Adresse",
+    manualAddressPlaceholder: "Straße, PLZ, Stadt",
+    manualVatLabel: "USt-ID",
+    manualVatPlaceholder: "DE123456789",
     cta: "Weiter",
     saving: "Speichere…",
     saveFailed: "Speichern fehlgeschlagen. Bitte erneut versuchen.",

@@ -270,7 +270,7 @@ export const endpoints = {
     // onboarding používej activateLeadsScope(scope) přímo.
     const r = await api.post<{
       data: { state: string; trialEndsAt: string | null };
-    }>("/api/v2/account/subscriptions", { service: "LEADS", scope: "CZ" });
+    }>("/api/v2/account/subscriptions", { service: "LEADS", scope: "CZ", mode: "trial" });
     return { ok: true as const, state: r.data.state, trialEndsAt: r.data.trialEndsAt };
   },
   // Activate LEADS pro konkrétní zemi (ISO code). Volá se per země v onboarding.
@@ -279,7 +279,7 @@ export const endpoints = {
     try {
       const r = await api.post<{
         data: { state: string; scope: string | null; trialEndsAt: string | null };
-      }>("/api/v2/account/subscriptions", { service: "LEADS", scope });
+      }>("/api/v2/account/subscriptions", { service: "LEADS", scope, mode: "trial" });
       return { ok: true as const, state: r.data.state, scope: r.data.scope, trialEndsAt: r.data.trialEndsAt };
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
