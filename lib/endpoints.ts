@@ -310,6 +310,15 @@ export const endpoints = {
     }>("/api/v2/leads/countries");
     return r.data;
   },
+  // Regions per country pro region picker. Vrací NUTS regions + raw region names
+  // z RWX (CZ má z.region = kraj name text, non-CZ zatím prázdné dokud RWX nebude
+  // plnit z TED NUTS metadat).
+  getLeadsRegions: async (country?: string) => {
+    const r = await api.get<{
+      data: Record<string, Array<{ region: string; count: number }>>;
+    }>("/api/v2/leads/regions", { params: country ? { country } : {} });
+    return r.data;
+  },
   // List všech subscriptions usera (per scope). Mobile detekuje aktivní LEADS scopes
   // pro onboarding pre-fill + post-auth routing decision.
   listSubscriptions: async () => {
