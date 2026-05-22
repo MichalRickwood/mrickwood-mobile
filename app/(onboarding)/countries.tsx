@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Stack } from "expo-router";
 import {
   ActivityIndicator,
   FlatList,
@@ -191,15 +192,34 @@ export default function OnboardingCountries() {
       ? t("onboardingCountries", "ctaAddToTrial")
       : t("onboardingCountries", "cta");
 
+  // Back button v native Stack header — vždy viditelný pokud user už má aktivní
+  // scopes (= přišel ze Settings). Pro first-time signup (no scopes) je skrytý
+  // (RouterGuard ho replace tady, není kam zpět).
+  const showBack = activeScopes.size > 0;
+
   return (
     <SafeAreaView style={styles.screen} edges={["top"]}>
+      <Stack.Screen
+        options={{
+          headerLeft: showBack
+            ? () => (
+                <Pressable
+                  onPress={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)"))}
+                  hitSlop={12}
+                  style={{ paddingHorizontal: 4 }}
+                >
+                  <Text style={{ fontSize: 22, color: colors.text }}>‹</Text>
+                </Pressable>
+              )
+            : () => null,
+        }}
+      />
       <FlatList
         contentContainerStyle={styles.list}
         data={countries}
         keyExtractor={(c) => c.code}
         ListHeaderComponent={
           <View style={styles.header}>
-            <Text style={styles.title}>{t("onboardingCountries", "title")}</Text>
             <Text style={styles.subtitle}>{t("onboardingCountries", "subtitle")}</Text>
             <Text style={styles.trialNote}>{t("onboardingCountries", "trialNote")}</Text>
 
@@ -346,11 +366,6 @@ export default function OnboardingCountries() {
                 <Text style={styles.ctaBtnText}>{ctaLabel}</Text>
               )}
             </Pressable>
-            {hasActiveTrial && newSelections.length === 0 && (
-              <Pressable onPress={() => router.replace("/(tabs)")} style={styles.skipBtn}>
-                <Text style={styles.skipBtnText}>{t("onboardingCountries", "ctaSkip")}</Text>
-              </Pressable>
-            )}
             <Text style={styles.footerNote}>{t("onboardingCountries", "footerNote")}</Text>
           </View>
         }
@@ -438,9 +453,8 @@ function makeStyles(c: Colors) {
     screen: { flex: 1, backgroundColor: c.bg },
     loadingScreen: { flex: 1, backgroundColor: c.bg, alignItems: "center", justifyContent: "center" },
     list: { paddingBottom: spacing.xxl },
-    header: { padding: spacing.lg, paddingTop: spacing.md },
-    backBtn: { marginBottom: spacing.md, alignSelf: "flex-start" },
-    backBtnText: { fontSize: fontSize.sm, color: c.link, fontWeight: "500" },
+    // paddingTop: 0 — Stack header je nad listem, žádná mezera mezi headerem a subtitle.
+    header: { padding: spacing.lg, paddingTop: spacing.sm },
     title: { fontSize: fontSize.xxl, fontWeight: "700", color: c.text, marginBottom: spacing.sm },
     subtitle: { fontSize: fontSize.sm, color: c.textMuted, marginBottom: spacing.md, lineHeight: 20 },
     trialNote: { fontSize: fontSize.xs, color: c.textSubtle, marginBottom: spacing.lg, fontStyle: "italic" },
