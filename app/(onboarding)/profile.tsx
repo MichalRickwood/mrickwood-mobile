@@ -13,17 +13,26 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import CountryPicker from "@/components/CountryPicker";
+import CompanyLookupField from "@/components/CompanyLookupField";
 import { endpoints } from "@/lib/endpoints";
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme-context";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 
 /**
- * OAuth completion screen — pro usery co se přihlásili přes Apple/Google/GitHub
- * a nemají dořešený profil (typicky chybí country pro currency).
+ * Profile completion screen — pro nového usera po prvním aktivovaném trialu
+ * (countries → profile → tabs flow). Doplňuje kontaktní + fakturační údaje.
  *
- * Routing: RouterGuard → pokud profile.name nebo profile.country chybí → sem.
- * Po submit → /(onboarding)/countries.
+ * Pole:
+ *   - name (povinné)
+ *   - email (read-only, prefilled z User row)
+ *   - phone (nepovinné)
+ *   - country (povinné, určuje currency)
+ *   - company (nepovinné, CompanyLookupField volá ARES/RPO/VIES dle zvolené země
+ *     a po výběru doplní IČO/název/adresu/DIČ)
+ *
+ * Routing: po Continue → /(tabs). Pokud user už profile complete (vrátil se),
+ * router.replace skip rovnou na /(tabs).
  */
 export default function OnboardingProfile() {
   const { t } = useI18n();
@@ -31,8 +40,17 @@ export default function OnboardingProfile() {
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const router = useRouter();
 
+  const [email, setEmail] = useState("");
   const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const [country, setCountry] = useState("CZ");
+  // Company lookup — taxId+name+address+dic se vyplní automaticky po výběru
+  // z CompanyLookupField; user může taky nechat prázdné (nepovinné).
+  const [companyName, setCompanyName] = useState("");
+  const [companyIco, setCompanyIco] = useState("");
+  const [companyAddress, setCompanyAddress] = useState("");
+  const [companyDic, setCompanyDic] = useState("");
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -43,8 +61,19 @@ export default function OnboardingProfile() {
       try {
         const p = await endpoints.getProfileV2();
         if (cancelled) return;
+        // Pokud user už profile complete → skip rovnou na tabs (returning user)
+        if (p.name && p.country) {
+          router.replace("/(tabs)");
+          return;
+        }
+        setEmail(p.email);
         setName(p.name ?? "");
+        setPhone(p.phone ?? "");
         if (p.country) setCountry(p.country);
+        setCompanyName(p.company ?? "");
+        setCompanyIco(p.ico ?? "");
+        setCompanyAddress(p.address ?? "");
+        setCompanyDic(p.dic ?? "");
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : String(e));
       } finally {
@@ -54,7 +83,7 @@ export default function OnboardingProfile() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [router]);
 
   async function submit() {
     const trimmedName = name.trim();
@@ -69,8 +98,18 @@ export default function OnboardingProfile() {
     setSaving(true);
     setError(null);
     try {
-      await endpoints.updateProfileV2({ name: trimmedName, country });
-      router.replace("/(onboarding)/countries");
+      const input: Parameters<typeof endpoints.updateProfileV2>[0] = {
+        name: trimmedName,
+        country,
+      };
+      const trimmedPhone = phone.trim();
+      if (trimmedPhone) input.phone = trimmedPhone;
+      if (companyName.trim()) input.company = companyName.trim();
+      if (companyIco.trim()) input.ico = companyIco.trim();
+      if (companyAddress.trim()) input.address = companyAddress.trim();
+      if (companyDic.trim()) input.dic = companyDic.trim();
+      await endpoints.updateProfileV2(input);
+      router.replace("/(tabs)");
     } catch (e) {
       setError(e instanceof Error ? e.message : t("onboardingProfile", "saveFailed"));
     } finally {
@@ -111,9 +150,62 @@ export default function OnboardingProfile() {
           </View>
 
           <View style={styles.field}>
+            <Text style={styles.label}>{t("onboardingProfile", "emailLabel")}</Text>
+            <TextInput
+              value={email}
+              editable={false}
+              style={[styles.input, styles.inputReadonly]}
+            />
+          </View>
+
+          <View style={styles.field}>
+            <View style={styles.labelRow}>
+              <Text style={styles.label}>{t("onboardingProfile", "phoneLabel")}</Text>
+              <Text style={styles.labelOptional}>{t("onboardingProfile", "phoneOptional")}</Text>
+            </View>
+            <TextInput
+              value={phone}
+              onChangeText={setPhone}
+              placeholder={t("onboardingProfile", "phonePlaceholder")}
+              placeholderTextColor={colors.textFaint}
+              style={styles.input}
+              keyboardType="phone-pad"
+              autoCorrect={false}
+              maxLength={32}
+            />
+          </View>
+
+          <View style={styles.field}>
             <Text style={styles.label}>{t("onboardingProfile", "countryLabel")}</Text>
             <CountryPicker value={country} onChange={setCountry} />
             <Text style={styles.hint}>{t("onboardingProfile", "countryHint")}</Text>
+          </View>
+
+          <View style={styles.field}>
+            <View style={styles.labelRow}>
+              <Text style={styles.label}>{t("onboardingProfile", "companyLabel")}</Text>
+              <Text style={styles.labelOptional}>{t("onboardingProfile", "companyOptional")}</Text>
+            </View>
+            <CompanyLookupField
+              country={country}
+              value={companyIco}
+              resolvedName={companyName}
+              label=""
+              placeholder={t("onboardingProfile", "companyPlaceholder")}
+              onResolve={(d) => {
+                setCompanyIco(d.taxId);
+                setCompanyName(d.name);
+                setCompanyAddress(d.address);
+                setCompanyDic(d.vatNumber ?? "");
+              }}
+              onClear={() => {
+                setCompanyIco("");
+                setCompanyName("");
+                setCompanyAddress("");
+                setCompanyDic("");
+              }}
+            />
+            <Text style={styles.hint}>{t("onboardingProfile", "companyHint")}</Text>
           </View>
 
           {error && <Text style={styles.errorText}>{error}</Text>}
@@ -143,11 +235,13 @@ function makeStyles(c: Colors) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: c.bg },
     loadingScreen: { flex: 1, backgroundColor: c.bg, alignItems: "center", justifyContent: "center" },
-    content: { padding: spacing.lg, paddingTop: spacing.xl },
+    content: { padding: spacing.lg, paddingTop: spacing.xl, paddingBottom: spacing.xxl },
     title: { fontSize: fontSize.xxl, fontWeight: "700", color: c.text, marginBottom: spacing.sm },
     subtitle: { fontSize: fontSize.sm, color: c.textMuted, marginBottom: spacing.xl, lineHeight: 20 },
     field: { marginBottom: spacing.lg },
-    label: { fontSize: fontSize.xs, color: c.textMuted, marginBottom: spacing.xs, textTransform: "uppercase", fontWeight: "600" },
+    labelRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "baseline", marginBottom: spacing.xs },
+    label: { fontSize: fontSize.xs, color: c.textMuted, textTransform: "uppercase", fontWeight: "600" },
+    labelOptional: { fontSize: fontSize.xs, color: c.textFaint, fontStyle: "italic" },
     input: {
       backgroundColor: c.card,
       borderWidth: 1,
@@ -158,7 +252,8 @@ function makeStyles(c: Colors) {
       fontSize: fontSize.base,
       color: c.text,
     },
-    hint: { fontSize: fontSize.xs, color: c.textSubtle, marginTop: spacing.xs },
+    inputReadonly: { backgroundColor: c.bg, color: c.textMuted },
+    hint: { fontSize: fontSize.xs, color: c.textSubtle, marginTop: spacing.xs, lineHeight: 16 },
     errorText: { fontSize: fontSize.sm, color: c.danger, marginBottom: spacing.md, textAlign: "center" },
     ctaBtn: { backgroundColor: c.accent, paddingVertical: spacing.md, borderRadius: radius.md, alignItems: "center", marginTop: spacing.md },
     ctaBtnText: { color: c.accentForeground, fontSize: fontSize.base, fontWeight: "600" },

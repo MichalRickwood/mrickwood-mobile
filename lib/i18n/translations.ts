@@ -455,13 +455,22 @@ export interface Dict {
     deselectAll: string;
     alreadyActive: string;
     notAvailable: string;
+    partialCoverage: string;
     requestCountry: string;
     requestSubmitted: string;
+    requestToggle: string;
+    requestHelper: string;
+    requestPlaceholder: string;
+    requestSubmit: string;
+    requestCancel: string;
+    requestSending: string;
     discountTier: string;
     summaryTitle: string;
     summarySubtotal: string;
     summaryDiscount: string;
     summaryTotal: string;
+    summaryAfterTrial: string;
+    countriesCount: string;
     pricePerMonth: string;
     pricePerYear: string;
     cta: string;
@@ -471,14 +480,23 @@ export interface Dict {
     activateFailed: string;
     perMonth: string;
     perYear: string;
+    footerNote: string;
   };
   onboardingProfile: {
     title: string;
     subtitle: string;
     nameLabel: string;
     namePlaceholder: string;
+    emailLabel: string;
+    phoneLabel: string;
+    phonePlaceholder: string;
+    phoneOptional: string;
     countryLabel: string;
     countryHint: string;
+    companyLabel: string;
+    companyOptional: string;
+    companyHint: string;
+    companyPlaceholder: string;
     cta: string;
     saving: string;
     saveFailed: string;
@@ -938,13 +956,22 @@ const cs: Dict = {
     deselectAll: "Zrušit výběr",
     alreadyActive: "Aktivní",
     notAvailable: "Brzy",
+    partialCoverage: "Částečné pokrytí",
     requestCountry: "Požádat o přidání",
-    requestSubmitted: "Žádost odeslána",
+    requestSubmitted: "✓ Žádost odeslána, ozveme se",
+    requestToggle: "Nevidíte svou zemi? Požádejte o její přidání →",
+    requestHelper: "Napište nám zemi (případně i poznámku) a my zvážíme rozšíření.",
+    requestPlaceholder: "např. Moldavsko, Albánie, Srbsko…",
+    requestSubmit: "Odeslat",
+    requestCancel: "Zrušit",
+    requestSending: "Odesílám…",
     discountTier: "Sleva za více zemí: {pct} %",
     summaryTitle: "Souhrn",
     summarySubtotal: "Mezisoučet",
     summaryDiscount: "Sleva {pct} %",
     summaryTotal: "Celkem",
+    summaryAfterTrial: "Po trialu",
+    countriesCount: "{count} zemí",
     pricePerMonth: "{price}/měsíc",
     pricePerYear: "{price}/rok",
     cta: "Spustit 14denní trial",
@@ -954,14 +981,23 @@ const cs: Dict = {
     activateFailed: "Aktivace selhala. Zkuste to znovu.",
     perMonth: "/měsíc",
     perYear: "/rok",
+    footerNote: "Bez karty. Bez automatického prodloužení. Po trialu vás upozorníme emailem.",
   },
   onboardingProfile: {
     title: "Dokončete profil",
-    subtitle: "Doplňte ještě jméno a zemi pro fakturaci. Údaje můžete kdykoli upravit v nastavení.",
+    subtitle: "Doplňte kontakty pro fakturaci. Údaje můžete kdykoli upravit v nastavení.",
     nameLabel: "Jméno a příjmení",
     namePlaceholder: "Jan Novák",
+    emailLabel: "Email",
+    phoneLabel: "Telefon",
+    phonePlaceholder: "+420 …",
+    phoneOptional: "nepovinné",
     countryLabel: "Země",
     countryHint: "Podle země nastavíme měnu fakturace (CZ → CZK, jinak EUR).",
+    companyLabel: "Firma",
+    companyOptional: "nepovinné",
+    companyHint: "Pokud fakturujete na firmu, vyhledejte ji v rejstříku — automaticky doplníme IČO, adresu a DIČ.",
+    companyPlaceholder: "Název nebo IČO firmy…",
     cta: "Pokračovat",
     saving: "Ukládám…",
     saveFailed: "Uložení selhalo. Zkuste to znovu.",
@@ -1416,13 +1452,22 @@ const en: Dict = {
     deselectAll: "Clear selection",
     alreadyActive: "Active",
     notAvailable: "Coming soon",
+    partialCoverage: "Partial coverage",
     requestCountry: "Request country",
-    requestSubmitted: "Request sent",
+    requestSubmitted: "✓ Request sent, we'll get back to you",
+    requestToggle: "Don't see your country? Request to add it →",
+    requestHelper: "Tell us which country (and a note if you wish) — we'll consider it.",
+    requestPlaceholder: "e.g. Moldova, Albania, Serbia…",
+    requestSubmit: "Submit",
+    requestCancel: "Cancel",
+    requestSending: "Sending…",
     discountTier: "Multi-country discount: {pct}%",
     summaryTitle: "Summary",
     summarySubtotal: "Subtotal",
     summaryDiscount: "Discount {pct}%",
     summaryTotal: "Total",
+    summaryAfterTrial: "After trial",
+    countriesCount: "{count} countries",
     pricePerMonth: "{price}/month",
     pricePerYear: "{price}/year",
     cta: "Start 14-day trial",
@@ -1432,14 +1477,23 @@ const en: Dict = {
     activateFailed: "Activation failed. Please try again.",
     perMonth: "/month",
     perYear: "/year",
+    footerNote: "No card. No auto-renew. We'll email you when the trial ends.",
   },
   onboardingProfile: {
     title: "Complete your profile",
-    subtitle: "Add your name and country for billing. You can update this anytime in settings.",
+    subtitle: "Fill in contact details for billing. You can update everything later in settings.",
     nameLabel: "Full name",
     namePlaceholder: "Jane Doe",
+    emailLabel: "Email",
+    phoneLabel: "Phone",
+    phonePlaceholder: "+1 …",
+    phoneOptional: "optional",
     countryLabel: "Country",
     countryHint: "We use the country to set the billing currency (CZ → CZK, else EUR).",
+    companyLabel: "Company",
+    companyOptional: "optional",
+    companyHint: "If you invoice as a business, look it up in the registry — we'll prefill the tax ID, address and VAT.",
+    companyPlaceholder: "Company name or tax ID…",
     cta: "Continue",
     saving: "Saving…",
     saveFailed: "Save failed. Please try again.",
@@ -1896,13 +1950,22 @@ const de: Dict = {
     deselectAll: "Auswahl löschen",
     alreadyActive: "Aktiv",
     notAvailable: "Bald verfügbar",
+    partialCoverage: "Teilweise Abdeckung",
     requestCountry: "Land anfragen",
-    requestSubmitted: "Anfrage gesendet",
+    requestSubmitted: "✓ Anfrage gesendet, wir melden uns",
+    requestToggle: "Ihr Land fehlt? Anfragen zur Hinzufügung →",
+    requestHelper: "Schreiben Sie uns das Land (gerne mit Notiz) — wir prüfen es.",
+    requestPlaceholder: "z. B. Moldau, Albanien, Serbien…",
+    requestSubmit: "Senden",
+    requestCancel: "Abbrechen",
+    requestSending: "Sende…",
     discountTier: "Mehrländer-Rabatt: {pct} %",
     summaryTitle: "Zusammenfassung",
     summarySubtotal: "Zwischensumme",
     summaryDiscount: "Rabatt {pct} %",
     summaryTotal: "Gesamt",
+    summaryAfterTrial: "Nach Testphase",
+    countriesCount: "{count} Länder",
     pricePerMonth: "{price}/Monat",
     pricePerYear: "{price}/Jahr",
     cta: "14-tägige Testphase starten",
@@ -1912,14 +1975,23 @@ const de: Dict = {
     activateFailed: "Aktivierung fehlgeschlagen. Bitte erneut versuchen.",
     perMonth: "/Monat",
     perYear: "/Jahr",
+    footerNote: "Keine Karte. Keine automatische Verlängerung. Wir benachrichtigen Sie per E-Mail.",
   },
   onboardingProfile: {
     title: "Profil vervollständigen",
-    subtitle: "Geben Sie Ihren Namen und Land für die Abrechnung an. Sie können dies jederzeit in den Einstellungen ändern.",
+    subtitle: "Geben Sie Ihre Kontaktdaten für die Abrechnung an. Sie können alles später in den Einstellungen ändern.",
     nameLabel: "Vor- und Nachname",
     namePlaceholder: "Max Mustermann",
+    emailLabel: "E-Mail",
+    phoneLabel: "Telefon",
+    phonePlaceholder: "+49 …",
+    phoneOptional: "optional",
     countryLabel: "Land",
     countryHint: "Anhand des Landes wird die Abrechnungswährung gesetzt (CZ → CZK, sonst EUR).",
+    companyLabel: "Firma",
+    companyOptional: "optional",
+    companyHint: "Wenn Sie als Unternehmen abrechnen, suchen Sie es im Register — Steuernummer, Adresse und USt-ID werden automatisch ausgefüllt.",
+    companyPlaceholder: "Firmenname oder Steuernummer…",
     cta: "Weiter",
     saving: "Speichere…",
     saveFailed: "Speichern fehlgeschlagen. Bitte erneut versuchen.",

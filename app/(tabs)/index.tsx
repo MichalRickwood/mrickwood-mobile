@@ -14,7 +14,6 @@ import { useRouter } from "expo-router";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { endpoints, type LeadMatchRow } from "@/lib/endpoints";
 import { ApiError } from "@/lib/api";
-import LeadsPaywall from "@/components/LeadsPaywall";
 import FilterPicker from "@/components/FilterPicker";
 import MatchCard from "@/components/MatchCard";
 import RegionPickerModal from "@/components/RegionPickerModal";
@@ -178,13 +177,21 @@ export default function MatchesScreen() {
     return t("matches", "counterFilter", { filter: name, count: totalCount });
   }, [activeFilterId, filters, totalCount, t]);
 
+  // 402 = LEADS service není aktivní. Místo paywall (deprecated) redirect na
+  // /(onboarding)/countries — user vybere zemi/země a aktivuje 14d trial.
+  // Paywall byl pro pre-multi-country flow (jedna LEADS služba). Nový tok:
+  // multi-country onboarding s coverage gating.
+  useEffect(() => {
+    if (paymentRequired) {
+      router.replace("/(onboarding)/countries");
+    }
+  }, [paymentRequired, router]);
   if (paymentRequired) {
     return (
       <SafeAreaView style={styles.safe} edges={["top"]}>
-        <View style={styles.header}>
-          <Text style={styles.title}>{t("matches", "title")}</Text>
+        <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+          <ActivityIndicator />
         </View>
-        <LeadsPaywall />
       </SafeAreaView>
     );
   }

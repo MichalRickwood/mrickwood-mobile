@@ -41,20 +41,16 @@ function RouterGuard() {
     }
 
     // Authenticated — gating:
-    //   1) profile.name + profile.country missing → /(onboarding)/profile
-    //      (typicky OAuth signup: Apple/Google neposkytne country)
-    //   2) žádná aktivní LEADS sub → /(onboarding)/countries
+    //   1) žádná aktivní LEADS sub → /(onboarding)/countries
+    //   2) má sub ale profile.name/country missing → /(onboarding)/profile
+    //      (transitioning: countries → profile, nebo OAuth user co nedokončil)
     //   3) jinak → (tabs)
     if (!onboardingChecked && !inOnboarding) {
       let cancelled = false;
       (async () => {
         try {
-          const [profile, subs] = await Promise.all([
-            endpoints.getProfileV2().catch(() => null),
-            endpoints.listSubscriptions().catch(() => []),
-          ]);
+          const subs = await endpoints.listSubscriptions().catch(() => []);
           if (cancelled) return;
-          const needsProfile = !profile || !profile.name || !profile.country;
           const hasActiveLeads = subs.some(
             (s) =>
               s.service === "LEADS" &&
@@ -62,15 +58,20 @@ function RouterGuard() {
               s.state !== "SUSPENDED",
           );
           setOnboardingChecked(true);
+          if (!hasActiveLeads) {
+            router.replace("/(onboarding)/countries");
+            return;
+          }
+          // Má sub — zkontroluj profile pro completion gating
+          const profile = await endpoints.getProfileV2().catch(() => null);
+          if (cancelled) return;
+          const needsProfile = !profile || !profile.name || !profile.country;
           if (needsProfile) {
             router.replace("/(onboarding)/profile");
-          } else if (!hasActiveLeads) {
-            router.replace("/(onboarding)/countries");
           } else if (inAuth) {
             router.replace("/(tabs)");
           }
         } catch {
-          // Fail open — pokud nelze načíst subs (offline atd.), nech user projít
           if (!cancelled) {
             setOnboardingChecked(true);
             if (inAuth) router.replace("/(tabs)");

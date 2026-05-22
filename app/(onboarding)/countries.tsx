@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   FlatList,
   Image,
   Pressable,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -125,22 +125,27 @@ export default function OnboardingCountries() {
     });
   }
 
+  const availableCodes = useMemo(
+    () => (countries ?? []).filter((c) => c.available).map((c) => c.code),
+    [countries],
+  );
+  const allAvailableSelected =
+    availableCodes.length > 0 && availableCodes.every((c) => selected.has(c));
+
   function selectAll() {
     if (!countries) return;
-    const available = countries.filter((c) => c.available).map((c) => c.code);
-    const allSelected = available.every((c) => selected.has(c));
-    if (allSelected) {
-      // Keep only active ones, deselect new
+    if (allAvailableSelected) {
       setSelected(new Set(activeScopes));
     } else {
-      setSelected(new Set([...activeScopes, ...available]));
+      setSelected(new Set([...activeScopes, ...availableCodes]));
     }
   }
 
   async function activate() {
     if (newSelections.length === 0) {
-      router.replace("/(tabs)");
-      return;
+      // Returning user co jen prochází → rovnou na profile gating (RouterGuard rozhodne)
+      if (activeScopes.size > 0) router.replace("/(onboarding)/profile");
+      return; // first-time user without selection — disabled button stops them
     }
     setActivating(true);
     setError(null);
@@ -148,7 +153,8 @@ export default function OnboardingCountries() {
       for (const scope of newSelections) {
         await endpoints.activateLeadsScope(scope);
       }
-      router.replace("/(tabs)");
+      // Po aktivaci → profile completion (name/phone/country/company)
+      router.replace("/(onboarding)/profile");
     } catch (e) {
       setError(e instanceof Error ? e.message : t("onboardingCountries", "activateFailed"));
     } finally {
@@ -184,53 +190,48 @@ export default function OnboardingCountries() {
             <Text style={styles.trialNote}>{t("onboardingCountries", "trialNote")}</Text>
 
             <View style={styles.toggleRow}>
-              <View style={styles.toggleGroup}>
-                <Text style={styles.toggleLabel}>{t("onboardingCountries", "cycleLabel")}</Text>
-                <View style={styles.segmented}>
-                  <Pressable
-                    onPress={() => setCycle("MONTHLY")}
-                    style={[styles.segment, cycle === "MONTHLY" && styles.segmentActive]}
-                  >
-                    <Text style={[styles.segmentText, cycle === "MONTHLY" && styles.segmentTextActive]}>
-                      {t("onboardingCountries", "cycleMonthly")}
-                    </Text>
-                  </Pressable>
-                  <Pressable
-                    onPress={() => setCycle("YEARLY")}
-                    style={[styles.segment, cycle === "YEARLY" && styles.segmentActive]}
-                  >
-                    <Text style={[styles.segmentText, cycle === "YEARLY" && styles.segmentTextActive]}>
-                      {t("onboardingCountries", "cycleYearly")}
-                    </Text>
-                  </Pressable>
-                </View>
+              <View style={[styles.segmented, { flex: 1.4 }]}>
+                <Pressable
+                  onPress={() => setCycle("MONTHLY")}
+                  style={[styles.segment, cycle === "MONTHLY" && styles.segmentActive]}
+                >
+                  <Text style={[styles.segmentText, cycle === "MONTHLY" && styles.segmentTextActive]}>
+                    {t("onboardingCountries", "cycleMonthly")}
+                  </Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => setCycle("YEARLY")}
+                  style={[styles.segment, cycle === "YEARLY" && styles.segmentActive]}
+                >
+                  <Text style={[styles.segmentText, cycle === "YEARLY" && styles.segmentTextActive]}>
+                    {t("onboardingCountries", "cycleYearly")}
+                  </Text>
+                </Pressable>
               </View>
-
-              <View style={styles.toggleGroup}>
-                <Text style={styles.toggleLabel}>{t("onboardingCountries", "currencyLabel")}</Text>
-                <View style={styles.segmented}>
-                  <Pressable
-                    onPress={() => setCurrency("CZK")}
-                    style={[styles.segment, currency === "CZK" && styles.segmentActive]}
-                  >
-                    <Text style={[styles.segmentText, currency === "CZK" && styles.segmentTextActive]}>
-                      CZK
-                    </Text>
-                  </Pressable>
-                  <Pressable
-                    onPress={() => setCurrency("EUR")}
-                    style={[styles.segment, currency === "EUR" && styles.segmentActive]}
-                  >
-                    <Text style={[styles.segmentText, currency === "EUR" && styles.segmentTextActive]}>
-                      EUR
-                    </Text>
-                  </Pressable>
-                </View>
+              <View style={[styles.segmented, { flex: 1 }]}>
+                <Pressable
+                  onPress={() => setCurrency("CZK")}
+                  style={[styles.segment, currency === "CZK" && styles.segmentActive]}
+                >
+                  <Text style={[styles.segmentText, currency === "CZK" && styles.segmentTextActive]}>
+                    CZK
+                  </Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => setCurrency("EUR")}
+                  style={[styles.segment, currency === "EUR" && styles.segmentActive]}
+                >
+                  <Text style={[styles.segmentText, currency === "EUR" && styles.segmentTextActive]}>
+                    EUR
+                  </Text>
+                </Pressable>
               </View>
             </View>
 
             <Pressable onPress={selectAll} style={styles.selectAllBtn}>
-              <Text style={styles.selectAllText}>{t("onboardingCountries", "selectAll")}</Text>
+              <Text style={styles.selectAllText}>
+                {t("onboardingCountries", allAvailableSelected ? "deselectAll" : "selectAll")}
+              </Text>
             </Pressable>
           </View>
         }
@@ -260,6 +261,11 @@ export default function OnboardingCountries() {
                 ) : (
                   <Text style={styles.countryBadge}>{t("onboardingCountries", "notAvailable")}</Text>
                 )}
+                {c.available && c.code !== "CZ" && !isActive && (
+                  <View style={styles.partialTag}>
+                    <Text style={styles.partialTagText}>{t("onboardingCountries", "partialCoverage")}</Text>
+                  </View>
+                )}
               </View>
               {isActive ? (
                 <View style={styles.activeBadge}>
@@ -275,9 +281,16 @@ export default function OnboardingCountries() {
         }}
         ListFooterComponent={
           <View style={styles.footer}>
+            <RequestNewCountry styles={styles} colors={colors} />
+
             {newSelections.length > 0 && (
               <View style={styles.summary}>
-                <Text style={styles.summaryTitle}>{t("onboardingCountries", "summaryTitle")}</Text>
+                <View style={styles.summaryHeader}>
+                  <Text style={styles.summaryTitle}>{t("onboardingCountries", "summaryTitle")}</Text>
+                  <Text style={styles.summaryCount}>
+                    {t("onboardingCountries", "countriesCount", { count: newSelections.length })}
+                  </Text>
+                </View>
                 <View style={styles.summaryRow}>
                   <Text style={styles.summaryLabel}>{t("onboardingCountries", "summarySubtotal")}</Text>
                   <Text style={styles.summaryValue}>{fmtPrice(subtotal, currency, locale)}</Text>
@@ -293,7 +306,7 @@ export default function OnboardingCountries() {
                   </View>
                 )}
                 <View style={[styles.summaryRow, styles.summaryRowTotal]}>
-                  <Text style={styles.summaryTotalLabel}>{t("onboardingCountries", "summaryTotal")}</Text>
+                  <Text style={styles.summaryTotalLabel}>{t("onboardingCountries", "summaryAfterTrial")}</Text>
                   <Text style={styles.summaryTotalValue}>
                     {fmtPrice(total, currency, locale)}{cycle === "YEARLY" ? t("onboardingCountries", "perYear") : t("onboardingCountries", "perMonth")}
                   </Text>
@@ -305,11 +318,12 @@ export default function OnboardingCountries() {
 
             <Pressable
               onPress={activate}
-              disabled={activating}
+              disabled={activating || (newSelections.length === 0 && activeScopes.size === 0)}
               style={({ pressed }) => [
                 styles.ctaBtn,
                 pressed && { opacity: 0.85 },
                 activating && { opacity: 0.6 },
+                newSelections.length === 0 && activeScopes.size === 0 && styles.ctaBtnDisabled,
               ]}
             >
               {activating ? (
@@ -323,10 +337,85 @@ export default function OnboardingCountries() {
                 <Text style={styles.skipBtnText}>{t("onboardingCountries", "ctaSkip")}</Text>
               </Pressable>
             )}
+            <Text style={styles.footerNote}>{t("onboardingCountries", "footerNote")}</Text>
           </View>
         }
       />
     </SafeAreaView>
+  );
+}
+
+function RequestNewCountry({ styles, colors }: { styles: ReturnType<typeof makeStyles>; colors: Colors }) {
+  const { t } = useI18n();
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [sent, setSent] = useState(false);
+
+  async function submit() {
+    const v = value.trim();
+    if (!v) return;
+    setSubmitting(true);
+    try {
+      await endpoints.submitFeedback({
+        kind: "OTHER",
+        message: `[new-country-request] Žádám přidání země do LEADS pokrytí: ${v}`,
+      });
+      setSent(true);
+      setValue("");
+    } catch {
+      // Silently fail — request je best-effort, user can retry později.
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  if (sent) {
+    return (
+      <View style={styles.requestSentBox}>
+        <Text style={styles.requestSentText}>{t("onboardingCountries", "requestSubmitted")}</Text>
+      </View>
+    );
+  }
+
+  if (!open) {
+    return (
+      <Pressable onPress={() => setOpen(true)} style={styles.requestToggle}>
+        <Text style={styles.requestToggleText}>{t("onboardingCountries", "requestToggle")}</Text>
+      </Pressable>
+    );
+  }
+
+  return (
+    <View style={styles.requestBox}>
+      <Text style={styles.requestHelper}>{t("onboardingCountries", "requestHelper")}</Text>
+      <TextInput
+        value={value}
+        onChangeText={setValue}
+        placeholder={t("onboardingCountries", "requestPlaceholder")}
+        placeholderTextColor={colors.textFaint}
+        style={styles.requestInput}
+        autoFocus
+        autoCapitalize="words"
+      />
+      <View style={styles.requestActions}>
+        <Pressable
+          onPress={() => { setOpen(false); setValue(""); }}
+          style={styles.requestCancelBtn}
+        >
+          <Text style={styles.requestCancelText}>{t("onboardingCountries", "requestCancel")}</Text>
+        </Pressable>
+        <Pressable
+          onPress={submit}
+          disabled={submitting || !value.trim()}
+          style={[styles.requestSubmitBtn, (submitting || !value.trim()) && { opacity: 0.5 }]}
+        >
+          <Text style={styles.requestSubmitText}>
+            {submitting ? t("onboardingCountries", "requestSending") : t("onboardingCountries", "requestSubmit")}
+          </Text>
+        </Pressable>
+      </View>
+    </View>
   );
 }
 
@@ -339,14 +428,12 @@ function makeStyles(c: Colors) {
     title: { fontSize: fontSize.xxl, fontWeight: "700", color: c.text, marginBottom: spacing.sm },
     subtitle: { fontSize: fontSize.sm, color: c.textMuted, marginBottom: spacing.md, lineHeight: 20 },
     trialNote: { fontSize: fontSize.xs, color: c.textSubtle, marginBottom: spacing.lg, fontStyle: "italic" },
-    toggleRow: { flexDirection: "row", gap: spacing.lg, marginBottom: spacing.lg },
-    toggleGroup: { flex: 1 },
-    toggleLabel: { fontSize: fontSize.xs, color: c.textMuted, marginBottom: spacing.xs, textTransform: "uppercase" },
-    segmented: { flexDirection: "row", backgroundColor: c.card, borderRadius: radius.md, padding: 2, borderWidth: 1, borderColor: c.border },
-    segment: { flex: 1, paddingVertical: spacing.xs, paddingHorizontal: spacing.sm, alignItems: "center", borderRadius: radius.sm },
-    segmentActive: { backgroundColor: c.bg },
-    segmentText: { fontSize: fontSize.xs, color: c.textMuted, fontWeight: "500" },
-    segmentTextActive: { color: c.text, fontWeight: "600" },
+    toggleRow: { flexDirection: "row", gap: spacing.sm, marginBottom: spacing.md },
+    segmented: { flexDirection: "row", backgroundColor: c.card, borderRadius: radius.full, padding: 3, borderWidth: 1, borderColor: c.border, height: 36 },
+    segment: { flex: 1, paddingHorizontal: spacing.sm, alignItems: "center", justifyContent: "center", borderRadius: radius.full },
+    segmentActive: { backgroundColor: c.accent },
+    segmentText: { fontSize: 13, color: c.textMuted, fontWeight: "500" },
+    segmentTextActive: { color: c.accentForeground, fontWeight: "600" },
     selectAllBtn: { alignSelf: "flex-start", paddingVertical: spacing.xs, paddingHorizontal: spacing.sm },
     selectAllText: { fontSize: fontSize.xs, color: c.link, fontWeight: "500", textDecorationLine: "underline" },
     countryCard: {
@@ -370,12 +457,16 @@ function makeStyles(c: Colors) {
     countryBadge: { fontSize: fontSize.xs, color: c.warning, marginTop: 2 },
     activeBadge: { backgroundColor: c.successBg, paddingHorizontal: spacing.sm, paddingVertical: 4, borderRadius: radius.sm },
     activeBadgeText: { fontSize: 10, fontWeight: "700", color: c.success, textTransform: "uppercase", letterSpacing: 0.5 },
+    partialTag: { alignSelf: "flex-start", marginTop: 4, backgroundColor: c.warningBg, borderWidth: 1, borderColor: c.warning, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
+    partialTagText: { fontSize: 10, color: c.warning, fontWeight: "500" },
     checkbox: { width: 24, height: 24, borderRadius: radius.sm, borderWidth: 2, borderColor: c.border, alignItems: "center", justifyContent: "center" },
     checkboxOn: { borderColor: c.accent, backgroundColor: c.accent },
     checkmark: { color: c.accentForeground, fontSize: 14, fontWeight: "700" },
     footer: { padding: spacing.lg, paddingTop: spacing.md },
     summary: { backgroundColor: c.card, borderWidth: 1, borderColor: c.border, borderRadius: radius.md, padding: spacing.md, marginBottom: spacing.lg },
-    summaryTitle: { fontSize: fontSize.xs, color: c.textMuted, fontWeight: "600", textTransform: "uppercase", marginBottom: spacing.sm },
+    summaryHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "baseline", marginBottom: spacing.sm },
+    summaryTitle: { fontSize: fontSize.xs, color: c.textMuted, fontWeight: "600", textTransform: "uppercase" },
+    summaryCount: { fontSize: fontSize.xs, color: c.textSubtle },
     summaryRow: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 4 },
     summaryRowTotal: { borderTopWidth: 1, borderTopColor: c.border, marginTop: spacing.sm, paddingTop: spacing.sm },
     summaryLabel: { fontSize: fontSize.sm, color: c.textMuted },
@@ -384,8 +475,22 @@ function makeStyles(c: Colors) {
     summaryTotalValue: { fontSize: fontSize.base, color: c.text, fontWeight: "700" },
     errorText: { fontSize: fontSize.sm, color: c.danger, marginBottom: spacing.md, textAlign: "center" },
     ctaBtn: { backgroundColor: c.accent, paddingVertical: spacing.md, borderRadius: radius.md, alignItems: "center" },
+    ctaBtnDisabled: { backgroundColor: c.border, opacity: 0.6 },
     ctaBtnText: { color: c.accentForeground, fontSize: fontSize.base, fontWeight: "600" },
     skipBtn: { paddingVertical: spacing.md, alignItems: "center", marginTop: spacing.sm },
     skipBtnText: { color: c.textMuted, fontSize: fontSize.sm },
+    footerNote: { fontSize: fontSize.xs, color: c.textSubtle, textAlign: "center", marginTop: spacing.md, lineHeight: 16 },
+    requestToggle: { alignItems: "center", paddingVertical: spacing.md, marginBottom: spacing.sm },
+    requestToggleText: { fontSize: fontSize.sm, color: c.link, textDecorationLine: "underline" },
+    requestBox: { backgroundColor: c.card, borderWidth: 1, borderColor: c.border, borderRadius: radius.md, padding: spacing.md, marginBottom: spacing.md },
+    requestHelper: { fontSize: fontSize.xs, color: c.textMuted, marginBottom: spacing.sm },
+    requestInput: { backgroundColor: c.bg, borderWidth: 1, borderColor: c.border, borderRadius: radius.sm, paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, fontSize: fontSize.sm, color: c.text, marginBottom: spacing.sm },
+    requestActions: { flexDirection: "row", justifyContent: "flex-end", gap: spacing.sm },
+    requestCancelBtn: { paddingVertical: spacing.xs, paddingHorizontal: spacing.sm },
+    requestCancelText: { fontSize: fontSize.sm, color: c.textMuted },
+    requestSubmitBtn: { backgroundColor: c.accent, paddingVertical: spacing.xs, paddingHorizontal: spacing.md, borderRadius: radius.sm },
+    requestSubmitText: { fontSize: fontSize.sm, color: c.accentForeground, fontWeight: "500" },
+    requestSentBox: { backgroundColor: c.successBg, borderWidth: 1, borderColor: c.success, borderRadius: radius.md, padding: spacing.md, marginBottom: spacing.md },
+    requestSentText: { fontSize: fontSize.sm, color: c.success, textAlign: "center", fontWeight: "500" },
   });
 }

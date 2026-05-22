@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useFocusEffect } from "expo-router";
 import {
   ActivityIndicator,
@@ -14,7 +14,6 @@ import { useRouter } from "expo-router";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { endpoints } from "@/lib/endpoints";
 import { ApiError } from "@/lib/api";
-import LeadsPaywall from "@/components/LeadsPaywall";
 import MatchCard from "@/components/MatchCard";
 import { useToggleTenderPreference } from "@/lib/use-tender-preference";
 import { useTheme } from "@/lib/theme-context";
@@ -65,13 +64,18 @@ export default function StarredScreen() {
     void q.refetch();
   }, [q]);
 
+  // 402 = LEADS service není aktivní → redirect na onboarding (paywall deprecated).
+  useEffect(() => {
+    if (paymentRequired) {
+      router.replace("/(onboarding)/countries");
+    }
+  }, [paymentRequired, router]);
   if (paymentRequired) {
     return (
       <SafeAreaView style={styles.safe} edges={["top"]}>
-        <View style={styles.header}>
-          <Text style={styles.title}>{t("matches", "starredTab")}</Text>
+        <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+          <ActivityIndicator />
         </View>
-        <LeadsPaywall />
       </SafeAreaView>
     );
   }
