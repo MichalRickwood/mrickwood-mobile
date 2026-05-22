@@ -532,39 +532,41 @@ export default function BillingScreen() {
             </View>
           </Section>
 
-          {/* Cycle toggle + Currency toggle (CZK/EUR) + (pro INVOICE) možnost přegenerovat proformu */}
+          {/* Cycle + Currency toggle vedle sebe (compact pill, intrinsic width) */}
           <Section styles={styles} title={t("settings", "billingCycleSection")}>
-            <View style={styles.segments}>
-              <Segment
-                styles={styles}
-                label={t("settings", "billingCycleMonthly")}
-                active={cycle === "MONTHLY"}
-                disabled={busy === "cycle"}
-                onPress={() => void setCycle("MONTHLY")}
-              />
-              <Segment
-                styles={styles}
-                label={t("settings", "billingCycleYearly")}
-                active={cycle === "YEARLY"}
-                disabled={busy === "cycle"}
-                onPress={() => void setCycle("YEARLY")}
-              />
-            </View>
-            <View style={[styles.segments, { marginTop: spacing.sm }]}>
-              <Segment
-                styles={styles}
-                label="CZK"
-                active={(data.invoiceCurrency ?? "CZK") === "CZK"}
-                disabled={busy === "currency"}
-                onPress={() => void setCurrency("CZK")}
-              />
-              <Segment
-                styles={styles}
-                label="EUR"
-                active={data.invoiceCurrency === "EUR"}
-                disabled={busy === "currency"}
-                onPress={() => void setCurrency("EUR")}
-              />
+            <View style={{ flexDirection: "row", gap: spacing.sm, flexWrap: "wrap" }}>
+              <View style={styles.segments}>
+                <Segment
+                  styles={styles}
+                  label={t("settings", "billingCycleMonthly")}
+                  active={cycle === "MONTHLY"}
+                  disabled={busy === "cycle"}
+                  onPress={() => void setCycle("MONTHLY")}
+                />
+                <Segment
+                  styles={styles}
+                  label={t("settings", "billingCycleYearly")}
+                  active={cycle === "YEARLY"}
+                  disabled={busy === "cycle"}
+                  onPress={() => void setCycle("YEARLY")}
+                />
+              </View>
+              <View style={styles.segments}>
+                <Segment
+                  styles={styles}
+                  label="CZK"
+                  active={(data.invoiceCurrency ?? "CZK") === "CZK"}
+                  disabled={busy === "currency"}
+                  onPress={() => void setCurrency("CZK")}
+                />
+                <Segment
+                  styles={styles}
+                  label="EUR"
+                  active={data.invoiceCurrency === "EUR"}
+                  disabled={busy === "currency"}
+                  onPress={() => void setCurrency("EUR")}
+                />
+              </View>
             </View>
             {showProforma && (
               <Pressable
@@ -1128,26 +1130,25 @@ const makeStyles = (colors: Colors) =>
     lookupHint: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: -spacing.sm, marginBottom: spacing.md },
     lookupWarn: { fontSize: fontSize.xs, color: colors.warning, marginTop: -spacing.sm, marginBottom: spacing.md },
 
-    // Pill segments — sjednocený design s onboarding/countries (radius.full,
-    // container drží border, aktivní položka uvnitř s accent fill).
+    // Compact pill segments — menší než default, vejdou se 2 na řádek vedle sebe.
     segments: {
       flexDirection: "row",
       backgroundColor: colors.card,
       borderRadius: radius.full,
-      padding: 3,
+      padding: 2,
       borderWidth: 1,
       borderColor: colors.border,
-      height: 36,
+      height: 30,
+      alignSelf: "flex-start",
     },
     segment: {
-      flex: 1,
-      paddingHorizontal: spacing.sm,
+      paddingHorizontal: spacing.md,
       alignItems: "center",
       justifyContent: "center",
       borderRadius: radius.full,
     },
     segmentActive: { backgroundColor: colors.accent },
-    segmentText: { fontSize: 13, color: colors.textSubtle, fontWeight: "500" },
+    segmentText: { fontSize: 12, color: colors.textSubtle, fontWeight: "500" },
     segmentTextActive: { color: colors.accentForeground, fontWeight: "600" },
 
     cardRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
