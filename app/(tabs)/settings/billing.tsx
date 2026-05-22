@@ -512,23 +512,55 @@ export default function BillingScreen() {
             )}
           </Section>
 
-          {/* Mode toggle */}
+          {/* Mode toggle + kontextová CTA podle volby */}
           <Section styles={styles} title={t("settings", "billingModeSection")}>
-            <View style={styles.segments}>
-              <Segment
-                styles={styles}
-                label={t("settings", "billingModeCard")}
-                active={mode === "CARD"}
-                disabled={busy === "mode"}
-                onPress={() => void setMode("CARD")}
-              />
-              <Segment
-                styles={styles}
-                label={t("settings", "billingModeInvoice")}
-                active={mode === "INVOICE"}
-                disabled={busy === "mode"}
-                onPress={() => void setMode("INVOICE")}
-              />
+            <View style={{ flexDirection: "row", gap: spacing.sm, alignItems: "center", flexWrap: "wrap" }}>
+              <View style={styles.segments}>
+                <Segment
+                  styles={styles}
+                  label={t("settings", "billingModeCard")}
+                  active={mode === "CARD"}
+                  disabled={busy === "mode"}
+                  onPress={() => void setMode("CARD")}
+                />
+                <Segment
+                  styles={styles}
+                  label={t("settings", "billingModeInvoice")}
+                  active={mode === "INVOICE"}
+                  disabled={busy === "mode"}
+                  onPress={() => void setMode("INVOICE")}
+                />
+              </View>
+              {mode === "CARD" && !data.card && (
+                <Pressable
+                  onPress={connectCard}
+                  disabled={busy === "checkout"}
+                  style={({ pressed }) => [
+                    styles.modeCtaBtn,
+                    pressed && { opacity: 0.85 },
+                    busy === "checkout" && styles.btnDisabled,
+                  ]}
+                >
+                  <Text style={styles.modeCtaText}>
+                    {busy === "checkout" ? t("settings", "billingCardConnecting") : t("settings", "billingCardConnect")}
+                  </Text>
+                </Pressable>
+              )}
+              {mode === "INVOICE" && !data.invoice && (
+                <Pressable
+                  onPress={generateProforma}
+                  disabled={busy === "proforma-create" || !data.billingCycle}
+                  style={({ pressed }) => [
+                    styles.modeCtaBtn,
+                    pressed && { opacity: 0.85 },
+                    (busy === "proforma-create" || !data.billingCycle) && styles.btnDisabled,
+                  ]}
+                >
+                  <Text style={styles.modeCtaText}>
+                    {busy === "proforma-create" ? t("settings", "billingProformaGenerating") : t("settings", "billingProformaGenerate")}
+                  </Text>
+                </Pressable>
+              )}
             </View>
           </Section>
 
@@ -1150,6 +1182,9 @@ const makeStyles = (colors: Colors) =>
     segmentActive: { backgroundColor: colors.accent },
     segmentText: { fontSize: 12, color: colors.textSubtle, fontWeight: "500" },
     segmentTextActive: { color: colors.accentForeground, fontWeight: "600" },
+    // Kontextová CTA vedle mode pillů (Připojit kartu / Vystavit zálohovou)
+    modeCtaBtn: { backgroundColor: colors.accent, paddingHorizontal: spacing.md, height: 30, borderRadius: radius.full, alignItems: "center", justifyContent: "center" },
+    modeCtaText: { fontSize: 12, color: colors.accentForeground, fontWeight: "600" },
 
     cardRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
     cardBrand: { fontSize: fontSize.base, fontWeight: "700", color: colors.text },
