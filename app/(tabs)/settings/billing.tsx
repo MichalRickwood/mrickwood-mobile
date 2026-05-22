@@ -1128,18 +1128,26 @@ const makeStyles = (colors: Colors) =>
     lookupHint: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: -spacing.sm, marginBottom: spacing.md },
     lookupWarn: { fontSize: fontSize.xs, color: colors.warning, marginTop: -spacing.sm, marginBottom: spacing.md },
 
-    segments: { flexDirection: "row", gap: spacing.sm },
-    segment: {
-      flex: 1,
-      paddingVertical: spacing.sm + 2,
-      borderRadius: radius.md,
+    // Pill segments — sjednocený design s onboarding/countries (radius.full,
+    // container drží border, aktivní položka uvnitř s accent fill).
+    segments: {
+      flexDirection: "row",
+      backgroundColor: colors.card,
+      borderRadius: radius.full,
+      padding: 3,
       borderWidth: 1,
       borderColor: colors.border,
-      alignItems: "center",
-      backgroundColor: colors.bg,
+      height: 36,
     },
-    segmentActive: { backgroundColor: colors.accent, borderColor: colors.accent },
-    segmentText: { fontSize: fontSize.sm, color: colors.textSubtle, fontWeight: "500" },
+    segment: {
+      flex: 1,
+      paddingHorizontal: spacing.sm,
+      alignItems: "center",
+      justifyContent: "center",
+      borderRadius: radius.full,
+    },
+    segmentActive: { backgroundColor: colors.accent },
+    segmentText: { fontSize: 13, color: colors.textSubtle, fontWeight: "500" },
     segmentTextActive: { color: colors.accentForeground, fontWeight: "600" },
 
     cardRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
