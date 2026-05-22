@@ -512,6 +512,7 @@ export interface Dict {
     saveFailed: string;
     nameRequired: string;
     countryRequired: string;
+    emailInvalid: string;
   };
   locale: {
     cs: string;
@@ -1002,7 +1003,7 @@ const cs: Dict = {
     phoneLabel: "Telefon",
     phonePlaceholder: "+420 …",
     phoneOptional: "nepovinné",
-    countryLabel: "Země",
+    countryLabel: "Země firmy",
     countryHint: "Podle země nastavíme měnu fakturace (CZ → CZK, jinak EUR).",
     companyLabel: "Firma",
     companyOptional: "nepovinné",
@@ -1023,6 +1024,7 @@ const cs: Dict = {
     saveFailed: "Uložení selhalo. Zkuste to znovu.",
     nameRequired: "Vyplňte jméno.",
     countryRequired: "Vyberte zemi.",
+    emailInvalid: "Neplatný formát emailu.",
   },
   locale: { cs: "Čeština", en: "English", de: "Deutsch" },
 };
@@ -1508,7 +1510,7 @@ const en: Dict = {
     phoneLabel: "Phone",
     phonePlaceholder: "+1 …",
     phoneOptional: "optional",
-    countryLabel: "Country",
+    countryLabel: "Company country",
     countryHint: "We use the country to set the billing currency (CZ → CZK, else EUR).",
     companyLabel: "Company",
     companyOptional: "optional",
@@ -1529,6 +1531,7 @@ const en: Dict = {
     saveFailed: "Save failed. Please try again.",
     nameRequired: "Please enter your name.",
     countryRequired: "Please select a country.",
+    emailInvalid: "Invalid email format.",
   },
   locale: { cs: "Čeština", en: "English", de: "Deutsch" },
 };
@@ -2016,7 +2019,7 @@ const de: Dict = {
     phoneLabel: "Telefon",
     phonePlaceholder: "+49 …",
     phoneOptional: "optional",
-    countryLabel: "Land",
+    countryLabel: "Firmenland",
     countryHint: "Anhand des Landes wird die Abrechnungswährung gesetzt (CZ → CZK, sonst EUR).",
     companyLabel: "Firma",
     companyOptional: "optional",
@@ -2037,6 +2040,7 @@ const de: Dict = {
     saveFailed: "Speichern fehlgeschlagen. Bitte erneut versuchen.",
     nameRequired: "Bitte geben Sie Ihren Namen ein.",
     countryRequired: "Bitte wählen Sie ein Land aus.",
+    emailInvalid: "Ungültiges E-Mail-Format.",
   },
   locale: { cs: "Čeština", en: "English", de: "Deutsch" },
 };
