@@ -121,7 +121,13 @@ export default function RegionPickerModal({ visible, initial, onClose, onApply }
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={onClose}>
         <Pressable style={styles.card} onPress={(e) => e.stopPropagation()}>
-          <Text style={styles.title}>{t("matches", "filterFormRegions")}</Text>
+          {/* Header: title + 'Přidat zemi' CTA vpravo */}
+          <View style={styles.header}>
+            <Text style={styles.title}>{t("matches", "filterFormRegions")}</Text>
+            <Pressable onPress={handleAddCountry} style={styles.addCountryBtn} hitSlop={4}>
+              <Text style={styles.addCountryText}>＋ {t("settings", "billingAddCountry")}</Text>
+            </Pressable>
+          </View>
           {loading ? (
             <View style={{ paddingVertical: spacing.xl, alignItems: "center" }}>
               <ActivityIndicator color={colors.textSubtle} />
@@ -132,25 +138,32 @@ export default function RegionPickerModal({ visible, initial, onClose, onApply }
                 const chips = chipsForCountry(country);
                 const codes = chips.map((c) => c.code);
                 const allSelectedHere = codes.every((c) => selected.includes(c));
+                const someSelectedHere = !allSelectedHere && codes.some((c) => selected.includes(c));
                 const selectedCountHere = codes.filter((c) => selected.includes(c)).length;
                 return (
-                  <View key={country} style={styles.countrySection}>
-                    <Pressable
-                      onPress={() => selectAllInCountry(country)}
-                      style={({ pressed }) => [styles.countryHeader, pressed && { opacity: 0.85 }]}
-                    >
+                  <Pressable
+                    key={country}
+                    onPress={() => selectAllInCountry(country)}
+                    style={({ pressed }) => [
+                      styles.areaContainer,
+                      allSelectedHere && styles.areaContainerActive,
+                      someSelectedHere && styles.areaContainerPartial,
+                      pressed && { opacity: 0.85 },
+                    ]}
+                  >
+                    <View style={styles.areaHeader}>
                       <Image
                         source={{ uri: `https://flagcdn.com/24x18/${country.toLowerCase()}.png` }}
                         style={styles.flag}
                       />
-                      <Text style={styles.countryName}>{countryName(country, locale)}</Text>
-                      <Text style={styles.countryCount}>
-                        {selectedCountHere}/{codes.length}
+                      <Text style={styles.areaLabel}>
+                        {countryName(country, locale)}
+                        {selectedCountHere > 0 ? ` (${selectedCountHere}/${codes.length})` : ""}
                       </Text>
-                      <View style={[styles.countryCheck, allSelectedHere && styles.countryCheckOn]}>
-                        {allSelectedHere && <Text style={styles.countryCheckMark}>✓</Text>}
-                      </View>
-                    </Pressable>
+                      <Text style={styles.areaCheck}>
+                        {allSelectedHere ? "✓" : someSelectedHere ? "−" : ""}
+                      </Text>
+                    </View>
                     <View style={styles.grid}>
                       {chips.map((c) => {
                         const active = selected.includes(c.code);
@@ -167,12 +180,9 @@ export default function RegionPickerModal({ visible, initial, onClose, onApply }
                         );
                       })}
                     </View>
-                  </View>
+                  </Pressable>
                 );
               })}
-              <Pressable onPress={handleAddCountry} style={styles.addCountryBtn}>
-                <Text style={styles.addCountryText}>＋ {t("settings", "billingAddCountry")}</Text>
-              </Pressable>
             </ScrollView>
           )}
           <View style={styles.actions}>
@@ -205,23 +215,24 @@ const makeStyles = (colors: Colors) =>
   StyleSheet.create({
     overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", alignItems: "center", padding: spacing.xl },
     card: { width: "100%", maxWidth: 420, maxHeight: "85%", backgroundColor: colors.card, borderRadius: radius.lg, padding: spacing.lg, borderWidth: 1, borderColor: colors.border },
-    title: { fontSize: fontSize.lg, fontWeight: "600", color: colors.text, marginBottom: spacing.md, textAlign: "center" },
+    header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: spacing.md, gap: spacing.sm },
+    title: { fontSize: fontSize.lg, fontWeight: "600", color: colors.text, flex: 1 },
+    addCountryBtn: { paddingHorizontal: spacing.sm + 2, paddingVertical: 6, borderRadius: radius.full, borderWidth: 1, borderStyle: "dashed", borderColor: colors.border },
+    addCountryText: { fontSize: fontSize.xs, color: colors.link, fontWeight: "500" },
     body: { maxHeight: 500 },
-    countrySection: { marginBottom: spacing.lg },
-    countryHeader: { flexDirection: "row", alignItems: "center", gap: spacing.sm, paddingHorizontal: spacing.sm, paddingVertical: spacing.sm, borderRadius: radius.md, backgroundColor: colors.bg, marginBottom: spacing.sm },
+    // Country card — stejný pattern jako category area: výrazná karta s headerem + chips uvnitř
+    areaContainer: { marginBottom: spacing.md, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.bg, padding: spacing.md },
+    areaContainerActive: { borderColor: colors.accent, backgroundColor: colors.card },
+    areaContainerPartial: { borderColor: colors.text },
+    areaHeader: { flexDirection: "row", alignItems: "center", gap: spacing.sm, marginBottom: spacing.sm },
     flag: { width: 24, height: 18, borderRadius: 2 },
-    countryName: { flex: 1, fontSize: fontSize.sm, color: colors.text, fontWeight: "600" },
-    countryCount: { fontSize: fontSize.xs, color: colors.textSubtle, marginRight: spacing.xs },
-    countryCheck: { width: 22, height: 22, borderRadius: 4, borderWidth: 2, borderColor: colors.border, alignItems: "center", justifyContent: "center" },
-    countryCheckOn: { backgroundColor: colors.accent, borderColor: colors.accent },
-    countryCheckMark: { color: colors.accentForeground, fontSize: 12, fontWeight: "700" },
+    areaLabel: { flex: 1, fontSize: fontSize.sm, color: colors.text, fontWeight: "600" },
+    areaCheck: { fontSize: 16, color: colors.text, fontWeight: "700" },
     grid: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
-    chip: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: radius.full, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.bg },
+    chip: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: radius.full, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card },
     chipActive: { backgroundColor: colors.accent, borderColor: colors.accent },
     chipText: { fontSize: fontSize.xs, color: colors.text, fontWeight: "500" },
     chipTextActive: { color: colors.accentForeground, fontWeight: "600" },
-    addCountryBtn: { marginTop: spacing.md, paddingVertical: spacing.sm + 2, alignItems: "center", borderRadius: radius.md, borderWidth: 1, borderStyle: "dashed", borderColor: colors.border },
-    addCountryText: { fontSize: fontSize.sm, color: colors.link, fontWeight: "500" },
     actions: { flexDirection: "row", gap: spacing.sm, marginTop: spacing.lg },
     clearBtn: { flex: 1, paddingVertical: spacing.md, alignItems: "center", borderRadius: radius.md, borderWidth: 1, borderColor: colors.border },
     clearBtnText: { fontSize: fontSize.sm, color: colors.textSubtle, fontWeight: "500" },
