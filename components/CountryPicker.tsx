@@ -32,6 +32,8 @@ const FLAGS: Record<string, string> = {
 interface Props {
   value: string;
   onChange: (countryCode: string) => void;
+  /** Compact = jen vlajka + ISO code (úzký trigger pro inline layouty). */
+  compact?: boolean;
 }
 
 const COUNTRY_LABELS: Record<string, Record<string, string>> = {
@@ -64,7 +66,7 @@ const COUNTRY_LABELS: Record<string, Record<string, string>> = {
   },
 };
 
-export default function CountryPicker({ value, onChange }: Props) {
+export default function CountryPicker({ value, onChange, compact = false }: Props) {
   const { t, locale } = useI18n();
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
@@ -96,11 +98,15 @@ export default function CountryPicker({ value, onChange }: Props) {
     <>
       <Pressable
         onPress={() => setOpen(true)}
-        style={({ pressed }) => [styles.trigger, pressed && styles.triggerPressed]}
+        style={({ pressed }) => [
+          styles.trigger,
+          compact && styles.triggerCompact,
+          pressed && styles.triggerPressed,
+        ]}
       >
         <Text style={styles.flag}>{FLAGS[value] ?? "🌐"}</Text>
         <Text style={styles.label} numberOfLines={1}>
-          {current?.label ?? value}
+          {compact ? value : (current?.label ?? value)}
         </Text>
       </Pressable>
 
@@ -176,6 +182,7 @@ const makeStyles = (colors: Colors) =>
       borderWidth: 1,
       borderColor: colors.border,
     },
+    triggerCompact: { paddingHorizontal: spacing.sm, gap: 6 },
     triggerPressed: { borderColor: colors.text },
     flag: { fontSize: 18 },
     label: { fontSize: fontSize.base, color: colors.text, flex: 1 },

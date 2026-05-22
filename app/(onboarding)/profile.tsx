@@ -192,10 +192,7 @@ export default function OnboardingProfile() {
           </View>
 
           <View style={styles.field}>
-            <View style={styles.labelRow}>
-              <Text style={styles.label}>{t("onboardingProfile", "phoneLabel")}</Text>
-              <Text style={styles.labelOptional}>{t("onboardingProfile", "phoneOptional")}</Text>
-            </View>
+            <Text style={styles.label}>{t("onboardingProfile", "phoneLabel")}</Text>
             <View style={styles.phoneRow}>
               <View style={styles.dialCodeWrap}>
                 <DialCodePicker value={dialCode} onChange={setDialCode} />
@@ -215,7 +212,7 @@ export default function OnboardingProfile() {
 
           <View style={styles.field}>
             <View style={styles.labelRow}>
-              <Text style={styles.label}>{t("onboardingProfile", "countryLabel")}</Text>
+              <Text style={styles.label}>{t("onboardingProfile", "companyLabel")}</Text>
               <Pressable
                 onPress={() => setManualEntry((v) => !v)}
                 style={styles.manualToggle}
@@ -227,48 +224,45 @@ export default function OnboardingProfile() {
                 <Text style={styles.manualToggleText}>{t("onboardingProfile", "companyManualToggle")}</Text>
               </Pressable>
             </View>
-            <CountryPicker value={country} onChange={setCountry} />
-          </View>
-
-          <View style={styles.field}>
-            <View style={styles.labelRow}>
-              <Text style={styles.label}>{t("onboardingProfile", "companyLabel")}</Text>
-              <Text style={styles.labelOptional}>{t("onboardingProfile", "companyOptional")}</Text>
-            </View>
             {!manualEntry ? (
-              <>
-                <CompanyLookupField
-                  country={country}
-                  value={companyIco}
-                  resolvedName={companyName}
-                  label=""
-                  placeholder={t("onboardingProfile", "companyPlaceholder")}
-                  onResolve={(d) => {
-                    setCompanyIco(d.taxId);
-                    setCompanyName(d.name);
-                    setCompanyAddress(d.address);
-                    setCompanyDic(d.vatNumber ?? "");
-                  }}
-                  onClear={() => {
-                    setCompanyIco("");
-                    setCompanyName("");
-                    setCompanyAddress("");
-                    setCompanyDic("");
-                  }}
-                />
-                <Text style={styles.hint}>{t("onboardingProfile", "companyHint")}</Text>
-              </>
+              <View style={styles.companyRow}>
+                <CountryPicker value={country} onChange={setCountry} compact />
+                <View style={{ flex: 1 }}>
+                  <CompanyLookupField
+                    country={country}
+                    value={companyIco}
+                    resolvedName={companyName}
+                    label=""
+                    placeholder={t("onboardingProfile", "companyPlaceholder")}
+                    onResolve={(d) => {
+                      setCompanyIco(d.taxId);
+                      setCompanyName(d.name);
+                      setCompanyAddress(d.address);
+                      setCompanyDic(d.vatNumber ?? "");
+                    }}
+                    onClear={() => {
+                      setCompanyIco("");
+                      setCompanyName("");
+                      setCompanyAddress("");
+                      setCompanyDic("");
+                    }}
+                  />
+                </View>
+              </View>
             ) : (
               <View>
-                <TextInput
-                  value={companyIco}
-                  onChangeText={setCompanyIco}
-                  placeholder={t("onboardingProfile", "manualTaxIdPlaceholder")}
-                  placeholderTextColor={colors.textFaint}
-                  style={styles.input}
-                  autoCorrect={false}
-                  maxLength={64}
-                />
+                <View style={styles.companyRow}>
+                  <CountryPicker value={country} onChange={setCountry} compact />
+                  <TextInput
+                    value={companyIco}
+                    onChangeText={setCompanyIco}
+                    placeholder={t("onboardingProfile", "manualTaxIdPlaceholder")}
+                    placeholderTextColor={colors.textFaint}
+                    style={[styles.input, { flex: 1 }]}
+                    autoCorrect={false}
+                    maxLength={64}
+                  />
+                </View>
                 <TextInput
                   value={companyName}
                   onChangeText={setCompanyName}
@@ -299,7 +293,6 @@ export default function OnboardingProfile() {
                   autoCorrect={false}
                   maxLength={32}
                 />
-                <Text style={styles.hint}>{t("onboardingProfile", "companyManualHint")}</Text>
               </View>
             )}
           </View>
@@ -335,9 +328,12 @@ function makeStyles(c: Colors) {
     title: { fontSize: fontSize.xxl, fontWeight: "700", color: c.text, marginBottom: spacing.sm },
     subtitle: { fontSize: fontSize.sm, color: c.textMuted, marginBottom: spacing.xl, lineHeight: 20 },
     field: { marginBottom: spacing.lg },
-    labelRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: spacing.sm },
+    // Mezera label → input je vlastnost label samotného (spacing.sm). labelRow
+    // jen řadí label + akce vedle sebe, marginBottom = 0 aby se mezery nečítaly.
+    labelRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
     label: { fontSize: fontSize.xs, color: c.textMuted, textTransform: "uppercase", fontWeight: "600", marginBottom: spacing.sm },
     labelOptional: { fontSize: fontSize.xs, color: c.textFaint, fontStyle: "italic" },
+    companyRow: { flexDirection: "row", gap: spacing.sm, alignItems: "center" },
     input: {
       backgroundColor: c.card,
       borderWidth: 1,
