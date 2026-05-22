@@ -443,6 +443,35 @@ export interface Dict {
     google: string;
     github: string;
   };
+  onboardingCountries: {
+    title: string;
+    subtitle: string;
+    trialNote: string;
+    currencyLabel: string;
+    cycleLabel: string;
+    cycleMonthly: string;
+    cycleYearly: string;
+    selectAll: string;
+    deselectAll: string;
+    alreadyActive: string;
+    notAvailable: string;
+    requestCountry: string;
+    requestSubmitted: string;
+    discountTier: string;
+    summaryTitle: string;
+    summarySubtotal: string;
+    summaryDiscount: string;
+    summaryTotal: string;
+    pricePerMonth: string;
+    pricePerYear: string;
+    cta: string;
+    ctaAddToTrial: string;
+    ctaSkip: string;
+    activating: string;
+    activateFailed: string;
+    perMonth: string;
+    perYear: string;
+  };
   locale: {
     cs: string;
     en: string;
@@ -884,6 +913,35 @@ const cs: Dict = {
     google: "Pokračovat přes Google",
     github: "Pokračovat přes GitHub",
   },
+  onboardingCountries: {
+    title: "Vyberte země",
+    subtitle: "Hlídač zakázek funguje pro 31 zemí. Vyberte ty, ze kterých chcete sledovat veřejné zakázky.",
+    trialNote: "14denní zkušební období zdarma — bez závazků, neplatíte hned.",
+    currencyLabel: "Měna",
+    cycleLabel: "Cyklus",
+    cycleMonthly: "Měsíčně",
+    cycleYearly: "Ročně −10 %",
+    selectAll: "Vybrat vše",
+    deselectAll: "Zrušit výběr",
+    alreadyActive: "Aktivní",
+    notAvailable: "Brzy",
+    requestCountry: "Požádat o přidání",
+    requestSubmitted: "Žádost odeslána",
+    discountTier: "Sleva za více zemí: {pct} %",
+    summaryTitle: "Souhrn",
+    summarySubtotal: "Mezisoučet",
+    summaryDiscount: "Sleva {pct} %",
+    summaryTotal: "Celkem",
+    pricePerMonth: "{price}/měsíc",
+    pricePerYear: "{price}/rok",
+    cta: "Spustit 14denní trial",
+    ctaAddToTrial: "Přidat do trialu",
+    ctaSkip: "Přeskočit",
+    activating: "Aktivuji…",
+    activateFailed: "Aktivace selhala. Zkuste to znovu.",
+    perMonth: "/měsíc",
+    perYear: "/rok",
+  },
   locale: { cs: "Čeština", en: "English", de: "Deutsch" },
 };
 
@@ -1319,6 +1377,35 @@ const en: Dict = {
     apple: "Continue with Apple",
     google: "Continue with Google",
     github: "Continue with GitHub",
+  },
+  onboardingCountries: {
+    title: "Select countries",
+    subtitle: "Tender monitor works for 31 countries. Pick the ones to track public tenders from.",
+    trialNote: "14-day free trial — no commitment, no payment up front.",
+    currencyLabel: "Currency",
+    cycleLabel: "Cycle",
+    cycleMonthly: "Monthly",
+    cycleYearly: "Yearly −10%",
+    selectAll: "Select all",
+    deselectAll: "Clear selection",
+    alreadyActive: "Active",
+    notAvailable: "Coming soon",
+    requestCountry: "Request country",
+    requestSubmitted: "Request sent",
+    discountTier: "Multi-country discount: {pct}%",
+    summaryTitle: "Summary",
+    summarySubtotal: "Subtotal",
+    summaryDiscount: "Discount {pct}%",
+    summaryTotal: "Total",
+    pricePerMonth: "{price}/month",
+    pricePerYear: "{price}/year",
+    cta: "Start 14-day trial",
+    ctaAddToTrial: "Add to trial",
+    ctaSkip: "Skip",
+    activating: "Activating…",
+    activateFailed: "Activation failed. Please try again.",
+    perMonth: "/month",
+    perYear: "/year",
   },
   locale: { cs: "Čeština", en: "English", de: "Deutsch" },
 };
@@ -1757,6 +1844,35 @@ const de: Dict = {
     apple: "Mit Apple fortfahren",
     google: "Mit Google fortfahren",
     github: "Mit GitHub fortfahren",
+  },
+  onboardingCountries: {
+    title: "Länder auswählen",
+    subtitle: "Der Ausschreibungs-Monitor unterstützt 31 Länder. Wählen Sie, aus welchen Sie öffentliche Aufträge verfolgen möchten.",
+    trialNote: "14 Tage kostenlos testen — ohne Verpflichtung, ohne Vorauszahlung.",
+    currencyLabel: "Währung",
+    cycleLabel: "Zyklus",
+    cycleMonthly: "Monatlich",
+    cycleYearly: "Jährlich −10 %",
+    selectAll: "Alle auswählen",
+    deselectAll: "Auswahl löschen",
+    alreadyActive: "Aktiv",
+    notAvailable: "Bald verfügbar",
+    requestCountry: "Land anfragen",
+    requestSubmitted: "Anfrage gesendet",
+    discountTier: "Mehrländer-Rabatt: {pct} %",
+    summaryTitle: "Zusammenfassung",
+    summarySubtotal: "Zwischensumme",
+    summaryDiscount: "Rabatt {pct} %",
+    summaryTotal: "Gesamt",
+    pricePerMonth: "{price}/Monat",
+    pricePerYear: "{price}/Jahr",
+    cta: "14-tägige Testphase starten",
+    ctaAddToTrial: "Zur Testphase hinzufügen",
+    ctaSkip: "Überspringen",
+    activating: "Aktiviere…",
+    activateFailed: "Aktivierung fehlgeschlagen. Bitte erneut versuchen.",
+    perMonth: "/Monat",
+    perYear: "/Jahr",
   },
   locale: { cs: "Čeština", en: "English", de: "Deutsch" },
 };

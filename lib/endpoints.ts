@@ -244,10 +244,66 @@ export const endpoints = {
     };
   },
   activateLeadsTrial: async () => {
+    // Default scope=CZ pro back-compat (starší mobile builds). Pro multi-country
+    // onboarding používej activateLeadsScope(scope) přímo.
     const r = await api.post<{
       data: { state: string; trialEndsAt: string | null };
-    }>("/api/v2/account/subscriptions", { service: "LEADS", mode: "trial" });
+    }>("/api/v2/account/subscriptions", { service: "LEADS", scope: "CZ" });
     return { ok: true as const, state: r.data.state, trialEndsAt: r.data.trialEndsAt };
+  },
+  // Activate LEADS pro konkrétní zemi (ISO code). Volá se per země v onboarding.
+  // 409 pokud pro tu zemi už subscription existuje — caller to ignoruje (idempotent).
+  activateLeadsScope: async (scope: string) => {
+    try {
+      const r = await api.post<{
+        data: { state: string; scope: string | null; trialEndsAt: string | null };
+      }>("/api/v2/account/subscriptions", { service: "LEADS", scope });
+      return { ok: true as const, state: r.data.state, scope: r.data.scope, trialEndsAt: r.data.trialEndsAt };
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (msg.includes("CONFLICT") || msg.includes("409")) {
+        return { ok: true as const, state: "ALREADY", scope, trialEndsAt: null };
+      }
+      throw e;
+    }
+  },
+  // Plný katalog LEADS zemí (labels per locale + pricing CZK+EUR + coverage).
+  // Mobile používá pro onboarding picker. Cache 1h server-side.
+  getLeadsCountries: async () => {
+    const r = await api.get<{
+      data: Array<{
+        code: string;
+        flag: string;
+        labels: { cs: string; en: string; de: string };
+        sources: string[];
+        price: {
+          czk: { monthly: number; yearly: number };
+          eur: { monthly: number; yearly: number };
+        };
+        trialEnabled: boolean;
+        coverage: number;
+        available: boolean;
+      }>;
+      generatedAt: string;
+    }>("/api/v2/leads/countries");
+    return r.data;
+  },
+  // List všech subscriptions usera (per scope). Mobile detekuje aktivní LEADS scopes
+  // pro onboarding pre-fill + post-auth routing decision.
+  listSubscriptions: async () => {
+    const r = await api.get<{
+      data: Array<{
+        id: string;
+        service: string;
+        scope: string | null;
+        state: "TRIAL" | "ACTIVE" | "PAST_DUE" | "SUSPENDED" | "CANCELED";
+        tier: "FREE" | "PAID";
+        trialEndsAt: string | null;
+        paidUntil: string | null;
+        cancelAtPeriodEnd: boolean;
+      }>;
+    }>("/api/v2/account/subscriptions");
+    return r.data;
   },
   reactivateLeadsService: async () => {
     await api.patch("/api/v2/account/subscriptions/LEADS", { cancelAtPeriodEnd: false });
