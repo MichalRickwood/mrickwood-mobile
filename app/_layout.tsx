@@ -40,14 +40,21 @@ function RouterGuard() {
       return;
     }
 
-    // Authenticated — pokud user nemá žádnou aktivní LEADS subscription, redirect
-    // na onboarding/countries (nový user nebo OAuth signup bez výběru).
+    // Authenticated — gating:
+    //   1) profile.name + profile.country missing → /(onboarding)/profile
+    //      (typicky OAuth signup: Apple/Google neposkytne country)
+    //   2) žádná aktivní LEADS sub → /(onboarding)/countries
+    //   3) jinak → (tabs)
     if (!onboardingChecked && !inOnboarding) {
       let cancelled = false;
       (async () => {
         try {
-          const subs = await endpoints.listSubscriptions();
+          const [profile, subs] = await Promise.all([
+            endpoints.getProfileV2().catch(() => null),
+            endpoints.listSubscriptions().catch(() => []),
+          ]);
           if (cancelled) return;
+          const needsProfile = !profile || !profile.name || !profile.country;
           const hasActiveLeads = subs.some(
             (s) =>
               s.service === "LEADS" &&
@@ -55,7 +62,9 @@ function RouterGuard() {
               s.state !== "SUSPENDED",
           );
           setOnboardingChecked(true);
-          if (!hasActiveLeads) {
+          if (needsProfile) {
+            router.replace("/(onboarding)/profile");
+          } else if (!hasActiveLeads) {
             router.replace("/(onboarding)/countries");
           } else if (inAuth) {
             router.replace("/(tabs)");

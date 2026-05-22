@@ -148,6 +148,28 @@ export const endpoints = {
   updateProfile: (input: ProfileUpdate) =>
     api.patch<{ ok: true }>("/api/account/profile", input),
 
+  // v2 profile — používá unified API. Onboarding/OAuth completion flow.
+  getProfileV2: async () => {
+    const r = await api.get<{
+      data: {
+        email: string;
+        name: string | null;
+        phone: string | null;
+        company: string | null;
+        ico: string | null;
+        dic: string | null;
+        address: string | null;
+        country: string | null;
+        locale: string;
+        isComplete: boolean;
+      };
+    }>("/api/v2/account/profile");
+    return r.data;
+  },
+  updateProfileV2: async (input: { name?: string; country?: string; phone?: string; company?: string; ico?: string; dic?: string; address?: string }) => {
+    await api.patch("/api/v2/account/profile", input);
+  },
+
   // Aktuální user (verifikace JWT na startu)
   me: () => api.get<{ user: MobileLoginResponse["user"] }>("/api/auth/mobile/me"),
 

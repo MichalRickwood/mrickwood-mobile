@@ -472,6 +472,19 @@ export interface Dict {
     perMonth: string;
     perYear: string;
   };
+  onboardingProfile: {
+    title: string;
+    subtitle: string;
+    nameLabel: string;
+    namePlaceholder: string;
+    countryLabel: string;
+    countryHint: string;
+    cta: string;
+    saving: string;
+    saveFailed: string;
+    nameRequired: string;
+    countryRequired: string;
+  };
   locale: {
     cs: string;
     en: string;
@@ -942,6 +955,19 @@ const cs: Dict = {
     perMonth: "/měsíc",
     perYear: "/rok",
   },
+  onboardingProfile: {
+    title: "Dokončete profil",
+    subtitle: "Doplňte ještě jméno a zemi pro fakturaci. Údaje můžete kdykoli upravit v nastavení.",
+    nameLabel: "Jméno a příjmení",
+    namePlaceholder: "Jan Novák",
+    countryLabel: "Země",
+    countryHint: "Podle země nastavíme měnu fakturace (CZ → CZK, jinak EUR).",
+    cta: "Pokračovat",
+    saving: "Ukládám…",
+    saveFailed: "Uložení selhalo. Zkuste to znovu.",
+    nameRequired: "Vyplňte jméno.",
+    countryRequired: "Vyberte zemi.",
+  },
   locale: { cs: "Čeština", en: "English", de: "Deutsch" },
 };
 
@@ -1406,6 +1432,19 @@ const en: Dict = {
     activateFailed: "Activation failed. Please try again.",
     perMonth: "/month",
     perYear: "/year",
+  },
+  onboardingProfile: {
+    title: "Complete your profile",
+    subtitle: "Add your name and country for billing. You can update this anytime in settings.",
+    nameLabel: "Full name",
+    namePlaceholder: "Jane Doe",
+    countryLabel: "Country",
+    countryHint: "We use the country to set the billing currency (CZ → CZK, else EUR).",
+    cta: "Continue",
+    saving: "Saving…",
+    saveFailed: "Save failed. Please try again.",
+    nameRequired: "Please enter your name.",
+    countryRequired: "Please select a country.",
   },
   locale: { cs: "Čeština", en: "English", de: "Deutsch" },
 };
@@ -1873,6 +1912,19 @@ const de: Dict = {
     activateFailed: "Aktivierung fehlgeschlagen. Bitte erneut versuchen.",
     perMonth: "/Monat",
     perYear: "/Jahr",
+  },
+  onboardingProfile: {
+    title: "Profil vervollständigen",
+    subtitle: "Geben Sie Ihren Namen und Land für die Abrechnung an. Sie können dies jederzeit in den Einstellungen ändern.",
+    nameLabel: "Vor- und Nachname",
+    namePlaceholder: "Max Mustermann",
+    countryLabel: "Land",
+    countryHint: "Anhand des Landes wird die Abrechnungswährung gesetzt (CZ → CZK, sonst EUR).",
+    cta: "Weiter",
+    saving: "Speichere…",
+    saveFailed: "Speichern fehlgeschlagen. Bitte erneut versuchen.",
+    nameRequired: "Bitte geben Sie Ihren Namen ein.",
+    countryRequired: "Bitte wählen Sie ein Land aus.",
   },
   locale: { cs: "Čeština", en: "English", de: "Deutsch" },
 };
