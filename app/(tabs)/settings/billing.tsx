@@ -600,9 +600,12 @@ export default function BillingScreen() {
                 />
               </View>
             </View>
-            {showProforma && (
+            {/* Pokud existuje aktivní proforma a user změnil cycle → nabídnout
+                přegenerovat. Vystavení nové proformy řeší kontextové CTA u
+                mode toggle nahoře. */}
+            {showProforma && data.invoice && (
               <Pressable
-                onPress={data.invoice ? regenerateProforma : generateProforma}
+                onPress={regenerateProforma}
                 disabled={busy === "proforma-create"}
                 style={({ pressed }) => [
                   styles.secondaryBtn,
@@ -612,60 +615,37 @@ export default function BillingScreen() {
                 ]}
               >
                 <Text style={styles.secondaryBtnText}>
-                  {data.invoice
-                    ? t("settings", "billingProformaRegenerate")
-                    : busy === "proforma-create"
-                      ? t("settings", "billingProformaGenerating")
-                      : t("settings", "billingProformaGenerate")}
+                  {t("settings", "billingProformaRegenerate")}
                 </Text>
               </Pressable>
             )}
           </Section>
 
-          {/* Card / Proforma */}
-          {showCard && (
+          {/* Card detail — jen pokud karta je připojená (connect CTA je nahoře
+              vedle mode toggle pro lepší UX flow). */}
+          {showCard && data.card && (
             <Section styles={styles} title={t("settings", "billingCardSection")}>
-              {data.card ? (
-                <>
-                  <View style={styles.cardRow}>
-                    <Text style={styles.cardBrand}>{data.card.brand.toUpperCase()}</Text>
-                    <Text style={styles.cardLast4}>•••• {data.card.last4}</Text>
-                  </View>
-                  <Text style={styles.cardExp}>
-                    {t("settings", "billingCardExp", {
-                      month: String(data.card.expMonth).padStart(2, "0"),
-                      year: String(data.card.expYear),
-                    })}
-                  </Text>
-                  <Pressable
-                    onPress={disconnectCard}
-                    disabled={busy === "disconnect"}
-                    style={({ pressed }) => [
-                      styles.linkBtn,
-                      pressed && styles.btnPressed,
-                      busy === "disconnect" && styles.btnDisabled,
-                    ]}
-                  >
-                    <Text style={styles.linkBtnText}>{t("settings", "billingCardDisconnect")}</Text>
-                  </Pressable>
-                </>
-              ) : (
-                <Pressable
-                  onPress={connectCard}
-                  disabled={busy === "checkout"}
-                  style={({ pressed }) => [
-                    styles.primaryBtn,
-                    pressed && styles.btnPressed,
-                    busy === "checkout" && styles.btnDisabled,
-                  ]}
-                >
-                  <Text style={styles.primaryBtnText}>
-                    {busy === "checkout"
-                      ? t("settings", "billingCardConnecting")
-                      : t("settings", "billingCardConnect")}
-                  </Text>
-                </Pressable>
-              )}
+              <View style={styles.cardRow}>
+                <Text style={styles.cardBrand}>{data.card.brand.toUpperCase()}</Text>
+                <Text style={styles.cardLast4}>•••• {data.card.last4}</Text>
+              </View>
+              <Text style={styles.cardExp}>
+                {t("settings", "billingCardExp", {
+                  month: String(data.card.expMonth).padStart(2, "0"),
+                  year: String(data.card.expYear),
+                })}
+              </Text>
+              <Pressable
+                onPress={disconnectCard}
+                disabled={busy === "disconnect"}
+                style={({ pressed }) => [
+                  styles.linkBtn,
+                  pressed && styles.btnPressed,
+                  busy === "disconnect" && styles.btnDisabled,
+                ]}
+              >
+                <Text style={styles.linkBtnText}>{t("settings", "billingCardDisconnect")}</Text>
+              </Pressable>
             </Section>
           )}
 
