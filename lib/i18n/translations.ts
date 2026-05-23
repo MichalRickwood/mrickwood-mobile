@@ -284,6 +284,8 @@ export interface Dict {
     billingInvoicesOpening: string;
     billingInvoicesKindProforma: string;
     billingInvoicesKindTax: string;
+    billingInvoicesConfirmDelete: string;
+    billingInvoicesDeleting: string;
     billingServicesSection: string;
     billingAddCountry: string;
     billingServicesEmpty: string;
@@ -805,6 +807,8 @@ const cs: Dict = {
     billingInvoicesOpening: "Otevírám…",
     billingInvoicesKindProforma: "Záloha",
     billingInvoicesKindTax: "Daňový doklad",
+    billingInvoicesConfirmDelete: "Smazat zálohovou fakturu {number}?",
+    billingInvoicesDeleting: "Mažu…",
     billingServicesSection: "Aktivní služby",
     billingAddCountry: "Přidat další zemi",
     billingServicesEmpty: "Žádné aktivní služby.",
@@ -1321,6 +1325,8 @@ const en: Dict = {
     billingInvoicesOpening: "Opening…",
     billingInvoicesKindProforma: "Proforma",
     billingInvoicesKindTax: "Tax document",
+    billingInvoicesConfirmDelete: "Delete proforma invoice {number}?",
+    billingInvoicesDeleting: "Deleting…",
     billingServicesSection: "Active services",
     billingAddCountry: "Add another country",
     billingServicesEmpty: "No active services.",
@@ -1839,6 +1845,8 @@ const de: Dict = {
     billingInvoicesOpening: "Wird geöffnet…",
     billingInvoicesKindProforma: "Vorausrechnung",
     billingInvoicesKindTax: "Steuerbeleg",
+    billingInvoicesConfirmDelete: "Vorausrechnung {number} löschen?",
+    billingInvoicesDeleting: "Lösche…",
     billingServicesSection: "Aktive Dienste",
     billingAddCountry: "Weiteres Land hinzufügen",
     billingServicesEmpty: "Keine aktiven Dienste.",

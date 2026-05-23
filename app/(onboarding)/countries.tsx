@@ -4,7 +4,6 @@ import { Stack } from "expo-router";
 import { HeaderBackButton } from "@react-navigation/elements";
 import {
   ActivityIndicator,
-  Alert,
   FlatList,
   Image,
   Pressable,
@@ -97,6 +96,29 @@ export default function OnboardingCountries() {
   const [cycle, setCycle] = useState<Cycle>("MONTHLY");
   const [activating, setActivating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [requestOpen, setRequestOpen] = useState(false);
+  const [requestValue, setRequestValue] = useState("");
+  const [requestSubmitting, setRequestSubmitting] = useState(false);
+  const [requestSent, setRequestSent] = useState(false);
+
+  async function submitRequest() {
+    const v = requestValue.trim();
+    if (!v) return;
+    setRequestSubmitting(true);
+    try {
+      await endpoints.submitFeedback({
+        kind: "OTHER",
+        message: `[new-country-request] Žádám přidání země do LEADS pokrytí: ${v}`,
+      });
+      setRequestSent(true);
+      setRequestValue("");
+      setRequestOpen(false);
+    } catch {
+      // Silently fail — best-effort.
+    } finally {
+      setRequestSubmitting(false);
+    }
+  }
 
   // Pre-check existující aktivní scopes (jen jednou při prvním načtení subs).
   useEffect(() => {
@@ -124,7 +146,10 @@ export default function OnboardingCountries() {
     }, 0);
   }, [countries, newSelections, currency, cycle]);
 
-  const pct = discountPct(newSelections.length);
+  // Tier discount se počítá z TOTAL scopes po aktivaci (existující + nové).
+  // Match s backend pricing — pricingCtx.discountPct vychází z total billable scopes.
+  const totalScopeCount = activeScopes.size + newSelections.length;
+  const pct = discountPct(totalScopeCount);
   const discountAmount = Math.round(subtotal * pct);
   const total = subtotal - discountAmount;
 
@@ -188,9 +213,12 @@ export default function OnboardingCountries() {
   }
 
   const hasActiveTrial = activeScopes.size > 0;
+  // Label nezávisí na newSelections.length aby měl save button v headeru
+  // konstantní šířku (title 'Vyberte země' jinak hopká mezi slotama když se
+  // button objeví/zmizí).
   const ctaLabel = activating
     ? t("onboardingCountries", "activating")
-    : hasActiveTrial && newSelections.length > 0
+    : hasActiveTrial
       ? t("onboardingCountries", "ctaAddToTrial")
       : t("onboardingCountries", "cta");
 
@@ -203,35 +231,43 @@ export default function OnboardingCountries() {
     <SafeAreaView style={styles.screen} edges={[]}>
       <Stack.Screen
         options={{
+          // Returning user (přes router.push) má swipe-back; first-time signup
+          // (žádné aktivní scopes) má swipe disabled.
+          gestureEnabled: showBack,
           headerLeft: showBack
             ? () => (
                 <HeaderBackButton
                   tintColor={colors.text}
                   label={t("onboardingCountries", "back")}
                   displayMode="default"
-                  onPress={() => {
-                    const doBack = () =>
-                      router.canGoBack() ? router.back() : router.replace("/(tabs)");
-                    if (newSelections.length > 0) {
-                      Alert.alert(
-                        t("onboardingCountries", "unsavedTitle"),
-                        t("onboardingCountries", "unsavedBody"),
-                        [
-                          { text: t("onboardingCountries", "unsavedStay"), style: "cancel" },
-                          {
-                            text: t("onboardingCountries", "unsavedDiscard"),
-                            style: "destructive",
-                            onPress: doBack,
-                          },
-                        ],
-                      );
-                    } else {
-                      doBack();
-                    }
-                  }}
+                  onPress={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)"))}
                 />
               )
             : () => null,
+          // Always-rendered placeholder, jen toggleujeme opacity, aby title
+          // 'Vyberte země' nehopkal mezi slotama když se Save objeví/zmizí.
+          headerRight: () => {
+            const visible = newSelections.length > 0;
+            return (
+              <Pressable
+                onPress={visible ? activate : undefined}
+                disabled={!visible || activating}
+                hitSlop={8}
+                style={({ pressed }) => [
+                  styles.headerSaveBtn,
+                  pressed && visible && { opacity: 0.6 },
+                  activating && { opacity: 0.6 },
+                  !visible && { opacity: 0 },
+                ]}
+              >
+                {activating ? (
+                  <ActivityIndicator color={colors.text} size="small" />
+                ) : (
+                  <Text style={styles.headerSaveText}>{ctaLabel}</Text>
+                )}
+              </Pressable>
+            );
+          },
         }}
       />
       <FlatList
@@ -282,17 +318,66 @@ export default function OnboardingCountries() {
               </View>
             </View>
 
-            <Pressable onPress={selectAll} style={styles.selectAllBtn}>
-              <Text style={styles.selectAllText}>
-                {t("onboardingCountries", allAvailableSelected ? "deselectAll" : "selectAll")}
-              </Text>
-            </Pressable>
+            <View style={styles.selectAllRow}>
+              <Pressable onPress={selectAll} style={styles.selectAllBtn}>
+                <Text style={styles.selectAllText}>
+                  {t("onboardingCountries", allAvailableSelected ? "deselectAll" : "selectAll")}
+                </Text>
+              </Pressable>
+              {!requestSent && (
+                <Pressable onPress={() => setRequestOpen((v) => !v)} style={styles.selectAllBtn}>
+                  <Text style={styles.selectAllText}>{t("onboardingCountries", "requestToggle")}</Text>
+                </Pressable>
+              )}
+            </View>
+
+            {requestOpen && (
+              <View style={styles.requestBox}>
+                <Text style={styles.requestHelper}>{t("onboardingCountries", "requestHelper")}</Text>
+                <TextInput
+                  value={requestValue}
+                  onChangeText={setRequestValue}
+                  placeholder={t("onboardingCountries", "requestPlaceholder")}
+                  placeholderTextColor={colors.textFaint}
+                  style={styles.requestInput}
+                  autoFocus
+                  autoCapitalize="words"
+                />
+                <View style={styles.requestActions}>
+                  <Pressable
+                    onPress={() => { setRequestOpen(false); setRequestValue(""); }}
+                    style={styles.requestCancelBtn}
+                  >
+                    <Text style={styles.requestCancelText}>{t("onboardingCountries", "requestCancel")}</Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={submitRequest}
+                    disabled={requestSubmitting || !requestValue.trim()}
+                    style={[styles.requestSubmitBtn, (requestSubmitting || !requestValue.trim()) && { opacity: 0.5 }]}
+                  >
+                    <Text style={styles.requestSubmitText}>
+                      {requestSubmitting ? t("onboardingCountries", "requestSending") : t("onboardingCountries", "requestSubmit")}
+                    </Text>
+                  </Pressable>
+                </View>
+              </View>
+            )}
+
+            {requestSent && (
+              <View style={styles.requestSentBox}>
+                <Text style={styles.requestSentText}>{t("onboardingCountries", "requestSubmitted")}</Text>
+              </View>
+            )}
           </View>
         }
         renderItem={({ item: c }) => {
           const isActive = activeScopes.has(c.code);
           const isSelected = selected.has(c.code);
           const price = priceFor(c, currency, cycle);
+          const isCountedInTier = isSelected || isActive;
+          const discounted = isCountedInTier && pct > 0 ? Math.round(price * (1 - pct)) : price;
+          const showDiscount = isCountedInTier && pct > 0;
+          const perLabel = cycle === "YEARLY" ? t("onboardingCountries", "perYear") : t("onboardingCountries", "perMonth");
           const label = c.labels[locale] ?? c.labels.en;
           const flagUrl = `https://flagcdn.com/24x18/${c.code.toLowerCase()}.png`;
           return (
@@ -309,9 +394,17 @@ export default function OnboardingCountries() {
               <View style={styles.countryInfo}>
                 <Text style={styles.countryName}>{label}</Text>
                 {c.available ? (
-                  <Text style={styles.countryPrice}>
-                    {fmtPrice(price, currency, locale)}{cycle === "YEARLY" ? t("onboardingCountries", "perYear") : t("onboardingCountries", "perMonth")}
-                  </Text>
+                  <View style={styles.priceRow}>
+                    <Text style={styles.countryPrice}>
+                      {fmtPrice(discounted, currency, locale)}{perLabel}
+                    </Text>
+                    {showDiscount && (
+                      <Text style={styles.priceStrikethrough}>{fmtPrice(price, currency, locale)}</Text>
+                    )}
+                    {showDiscount && (
+                      <Text style={styles.discountBadge}>−{Math.round(pct * 100)} %</Text>
+                    )}
+                  </View>
                 ) : (
                   <Text style={styles.countryBadge}>{t("onboardingCountries", "notAvailable")}</Text>
                 )}
@@ -335,8 +428,6 @@ export default function OnboardingCountries() {
         }}
         ListFooterComponent={
           <View style={styles.footer}>
-            <RequestNewCountry styles={styles} colors={colors} />
-
             {newSelections.length > 0 && (
               <View style={styles.summary}>
                 <View style={styles.summaryHeader}>
@@ -369,102 +460,10 @@ export default function OnboardingCountries() {
             )}
 
             {error && <Text style={styles.errorText}>{error}</Text>}
-
-            <Pressable
-              onPress={activate}
-              disabled={activating || (newSelections.length === 0 && activeScopes.size === 0)}
-              style={({ pressed }) => [
-                styles.ctaBtn,
-                pressed && { opacity: 0.85 },
-                activating && { opacity: 0.6 },
-                newSelections.length === 0 && activeScopes.size === 0 && styles.ctaBtnDisabled,
-              ]}
-            >
-              {activating ? (
-                <ActivityIndicator color={colors.accentForeground} />
-              ) : (
-                <Text style={styles.ctaBtnText}>{ctaLabel}</Text>
-              )}
-            </Pressable>
-            <Text style={styles.footerNote}>{t("onboardingCountries", "footerNote")}</Text>
           </View>
         }
       />
     </SafeAreaView>
-  );
-}
-
-function RequestNewCountry({ styles, colors }: { styles: ReturnType<typeof makeStyles>; colors: Colors }) {
-  const { t } = useI18n();
-  const [open, setOpen] = useState(false);
-  const [value, setValue] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [sent, setSent] = useState(false);
-
-  async function submit() {
-    const v = value.trim();
-    if (!v) return;
-    setSubmitting(true);
-    try {
-      await endpoints.submitFeedback({
-        kind: "OTHER",
-        message: `[new-country-request] Žádám přidání země do LEADS pokrytí: ${v}`,
-      });
-      setSent(true);
-      setValue("");
-    } catch {
-      // Silently fail — request je best-effort, user can retry později.
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  if (sent) {
-    return (
-      <View style={styles.requestSentBox}>
-        <Text style={styles.requestSentText}>{t("onboardingCountries", "requestSubmitted")}</Text>
-      </View>
-    );
-  }
-
-  if (!open) {
-    return (
-      <Pressable onPress={() => setOpen(true)} style={styles.requestToggle}>
-        <Text style={styles.requestToggleText}>{t("onboardingCountries", "requestToggle")}</Text>
-      </Pressable>
-    );
-  }
-
-  return (
-    <View style={styles.requestBox}>
-      <Text style={styles.requestHelper}>{t("onboardingCountries", "requestHelper")}</Text>
-      <TextInput
-        value={value}
-        onChangeText={setValue}
-        placeholder={t("onboardingCountries", "requestPlaceholder")}
-        placeholderTextColor={colors.textFaint}
-        style={styles.requestInput}
-        autoFocus
-        autoCapitalize="words"
-      />
-      <View style={styles.requestActions}>
-        <Pressable
-          onPress={() => { setOpen(false); setValue(""); }}
-          style={styles.requestCancelBtn}
-        >
-          <Text style={styles.requestCancelText}>{t("onboardingCountries", "requestCancel")}</Text>
-        </Pressable>
-        <Pressable
-          onPress={submit}
-          disabled={submitting || !value.trim()}
-          style={[styles.requestSubmitBtn, (submitting || !value.trim()) && { opacity: 0.5 }]}
-        >
-          <Text style={styles.requestSubmitText}>
-            {submitting ? t("onboardingCountries", "requestSending") : t("onboardingCountries", "requestSubmit")}
-          </Text>
-        </Pressable>
-      </View>
-    </View>
   );
 }
 
@@ -483,7 +482,8 @@ function makeStyles(c: Colors) {
     segmentActive: { backgroundColor: c.accent },
     segmentText: { fontSize: 13, color: c.textMuted, fontWeight: "500" },
     segmentTextActive: { color: c.accentForeground, fontWeight: "600" },
-    selectAllBtn: { alignSelf: "flex-start", paddingVertical: spacing.xs, paddingHorizontal: spacing.sm },
+    selectAllRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: spacing.xs },
+    selectAllBtn: { paddingVertical: spacing.xs, paddingHorizontal: spacing.sm },
     selectAllText: { fontSize: fontSize.xs, color: c.link, fontWeight: "500", textDecorationLine: "underline" },
     countryCard: {
       flexDirection: "row",
@@ -502,7 +502,10 @@ function makeStyles(c: Colors) {
     flag: { width: 24, height: 18, borderRadius: 2 },
     countryInfo: { flex: 1 },
     countryName: { fontSize: fontSize.base, color: c.text, fontWeight: "500" },
-    countryPrice: { fontSize: fontSize.xs, color: c.textMuted, marginTop: 2 },
+    countryPrice: { fontSize: fontSize.xs, color: c.textMuted },
+    priceRow: { flexDirection: "row", alignItems: "center", gap: 6, flexWrap: "wrap", marginTop: 2 },
+    priceStrikethrough: { fontSize: fontSize.xs, color: c.textFaint, textDecorationLine: "line-through" },
+    discountBadge: { fontSize: 10, fontWeight: "700", color: c.success, backgroundColor: c.successBg, paddingHorizontal: 6, paddingVertical: 1, borderRadius: 4 },
     countryBadge: { fontSize: fontSize.xs, color: c.warning, marginTop: 2 },
     activeBadge: { backgroundColor: c.successBg, paddingHorizontal: spacing.sm, paddingVertical: 4, borderRadius: radius.sm },
     activeBadgeText: { fontSize: 10, fontWeight: "700", color: c.success, textTransform: "uppercase", letterSpacing: 0.5 },
@@ -523,11 +526,8 @@ function makeStyles(c: Colors) {
     summaryTotalLabel: { fontSize: fontSize.base, color: c.text, fontWeight: "600" },
     summaryTotalValue: { fontSize: fontSize.base, color: c.text, fontWeight: "700" },
     errorText: { fontSize: fontSize.sm, color: c.danger, marginBottom: spacing.md, textAlign: "center" },
-    ctaBtn: { backgroundColor: c.accent, paddingVertical: spacing.md, borderRadius: radius.md, alignItems: "center" },
-    ctaBtnDisabled: { backgroundColor: c.border, opacity: 0.6 },
-    ctaBtnText: { color: c.accentForeground, fontSize: fontSize.base, fontWeight: "600" },
-    skipBtn: { paddingVertical: spacing.md, alignItems: "center", marginTop: spacing.sm },
-    skipBtnText: { color: c.textMuted, fontSize: fontSize.sm },
+    headerSaveBtn: { paddingHorizontal: spacing.sm, paddingVertical: 6, marginRight: spacing.sm, alignItems: "center", justifyContent: "center" },
+    headerSaveText: { color: c.text, fontSize: 17, fontWeight: "400" },
     footerNote: { fontSize: fontSize.xs, color: c.textSubtle, textAlign: "center", marginTop: spacing.md, lineHeight: 16 },
     requestToggle: { alignItems: "center", paddingVertical: spacing.md, marginBottom: spacing.sm },
     requestToggleText: { fontSize: fontSize.sm, color: c.link, textDecorationLine: "underline" },
