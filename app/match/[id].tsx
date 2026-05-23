@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, useLocalSearchParams, useRouter, type Router } from "expo-router";
+import { HeaderBackButton } from "@react-navigation/elements";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as WebBrowser from "expo-web-browser";
 import { endpoints, type LeadMatchRow, type TenderDocument } from "@/lib/endpoints";
@@ -183,6 +184,17 @@ export default function MatchDetailScreen() {
           headerStyle: { backgroundColor: colors.bg },
           headerTintColor: colors.text,
           headerTitleStyle: { fontSize: fontSize.sm, fontWeight: "600" },
+          // Explicit headerLeft přes router.back() — defaultní iOS back button
+          // občas nereaguje na tap (expo-router quirk u screen mimo declared
+          // root stack), tlačítko vypadá identicky jako swipe-back gesture.
+          headerLeft: () => (
+            <HeaderBackButton
+              tintColor={colors.text}
+              label={t("matchDetail", "back")}
+              displayMode="default"
+              onPress={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)"))}
+            />
+          ),
           headerRight: () => (
             <View style={styles.headerActions}>
               <Pressable
