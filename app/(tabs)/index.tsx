@@ -278,35 +278,18 @@ export default function MatchesScreen() {
             autoCapitalize="none"
             autoCorrect={false}
           />
-          {(() => {
-            const showSpinner =
-              searchInput !== searchDebounced ||
-              (hasNarrowingFilter && matchesQuery.isFetching);
-            if (showSpinner) {
-              return (
-                <ActivityIndicator
-                  size="small"
-                  color={colors.textSubtle}
-                  style={styles.searchSpinner}
-                />
-              );
-            }
-            if (searchInput.length > 0) {
-              return (
-                <Pressable
-                  onPress={() => setSearchInput("")}
-                  hitSlop={10}
-                  style={({ pressed }) => [
-                    styles.searchClearBtn,
-                    pressed && { opacity: 0.6 },
-                  ]}
-                >
-                  <Text style={styles.searchClearText}>×</Text>
-                </Pressable>
-              );
-            }
-            return null;
-          })()}
+          {searchInput.length > 0 && (
+            <Pressable
+              onPress={() => setSearchInput("")}
+              hitSlop={10}
+              style={({ pressed }) => [
+                styles.searchClearBtn,
+                pressed && { opacity: 0.6 },
+              ]}
+            >
+              <Text style={styles.searchClearText}>×</Text>
+            </Pressable>
+          )}
         </View>
         {adHocOpen && (
           <View style={styles.adHocPanel}>
