@@ -55,7 +55,7 @@ export default function BillingScreen() {
   const [profileSavedAt, setProfileSavedAt] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<
-    null | "checkout" | "disconnect" | "proforma-create" | "proforma-delete" | "mode" | "cycle" | "currency"
+    null | "checkout" | "disconnect" | "proforma-create" | "proforma-delete" | "mode" | "cycle" | "currency" | `invoice-delete-${string}`
   >(null);
   const [openingInvoiceId, setOpeningInvoiceId] = useState<string | null>(null);
   const [serviceBusy, setServiceBusy] = useState<ApiServiceId | null>(null);
@@ -312,6 +312,35 @@ export default function BillingScreen() {
     );
   }
 
+  // Smazání konkrétní (neuhrazené) proformy z historie. Volá DELETE
+  // /invoices/:id — backend RWX cleanup + případně vyčistí BillingProfile
+  // pokud byla aktivní.
+  function deleteInvoice(invoice: InvoiceRow) {
+    Alert.alert(
+      t("settings", "billingProformaSection"),
+      t("settings", "billingInvoicesConfirmDelete", { number: invoice.number }),
+      [
+        { text: t("settings", "cancel"), style: "cancel" },
+        {
+          text: t("settings", "billingProformaDelete"),
+          style: "destructive",
+          onPress: async () => {
+            setBusy(`invoice-delete-${invoice.id}`);
+            setError(null);
+            try {
+              await endpoints.deleteProformaById(invoice.id);
+              await refresh();
+            } catch (e) {
+              setError(e instanceof ApiError ? e.message : t("settings", "billingSaveFailed"));
+            } finally {
+              setBusy(null);
+            }
+          },
+        },
+      ],
+    );
+  }
+
   async function toggleService(svc: BillingServiceRow) {
     setServiceBusy(svc.service);
     setError(null);
@@ -530,6 +559,45 @@ export default function BillingScreen() {
             )}
           </Section>
 
+          {/* Cycle + Currency toggle vedle sebe (compact pill, intrinsic width) */}
+          <Section styles={styles} title={t("settings", "billingCycleSection")}>
+            <View style={{ flexDirection: "row", gap: spacing.sm, flexWrap: "wrap" }}>
+              <View style={styles.segments}>
+                <Segment
+                  styles={styles}
+                  label={t("settings", "billingCycleMonthly")}
+                  active={cycle === "MONTHLY"}
+                  disabled={busy === "cycle"}
+                  onPress={() => void setCycle("MONTHLY")}
+                />
+                <Segment
+                  styles={styles}
+                  label={t("settings", "billingCycleYearly")}
+                  active={cycle === "YEARLY"}
+                  disabled={busy === "cycle"}
+                  onPress={() => void setCycle("YEARLY")}
+                />
+              </View>
+              <View style={[styles.segments, { marginLeft: "auto" }]}>
+                <Segment
+                  styles={styles}
+                  label="CZK"
+                  active={(data.invoiceCurrency ?? "CZK") === "CZK"}
+                  disabled={busy === "currency"}
+                  onPress={() => void setCurrency("CZK")}
+                />
+                <Segment
+                  styles={styles}
+                  label="EUR"
+                  active={data.invoiceCurrency === "EUR"}
+                  disabled={busy === "currency"}
+                  onPress={() => void setCurrency("EUR")}
+                />
+              </View>
+            </View>
+            {/* Generate/Regenerate proforma řeší kontextová CTA vedle mode pillu níže. */}
+          </Section>
+
           {/* Mode toggle + kontextová CTA podle volby */}
           <Section styles={styles} title={t("settings", "billingModeSection")}>
             <View style={{ flexDirection: "row", gap: spacing.sm, alignItems: "center", flexWrap: "wrap" }}>
@@ -584,45 +652,6 @@ export default function BillingScreen() {
                 </Pressable>
               )}
             </View>
-          </Section>
-
-          {/* Cycle + Currency toggle vedle sebe (compact pill, intrinsic width) */}
-          <Section styles={styles} title={t("settings", "billingCycleSection")}>
-            <View style={{ flexDirection: "row", gap: spacing.sm, flexWrap: "wrap" }}>
-              <View style={styles.segments}>
-                <Segment
-                  styles={styles}
-                  label={t("settings", "billingCycleMonthly")}
-                  active={cycle === "MONTHLY"}
-                  disabled={busy === "cycle"}
-                  onPress={() => void setCycle("MONTHLY")}
-                />
-                <Segment
-                  styles={styles}
-                  label={t("settings", "billingCycleYearly")}
-                  active={cycle === "YEARLY"}
-                  disabled={busy === "cycle"}
-                  onPress={() => void setCycle("YEARLY")}
-                />
-              </View>
-              <View style={[styles.segments, { marginLeft: "auto" }]}>
-                <Segment
-                  styles={styles}
-                  label="CZK"
-                  active={(data.invoiceCurrency ?? "CZK") === "CZK"}
-                  disabled={busy === "currency"}
-                  onPress={() => void setCurrency("CZK")}
-                />
-                <Segment
-                  styles={styles}
-                  label="EUR"
-                  active={data.invoiceCurrency === "EUR"}
-                  disabled={busy === "currency"}
-                  onPress={() => void setCurrency("EUR")}
-                />
-              </View>
-            </View>
-            {/* Generate/Regenerate proforma řeší kontextová CTA vedle mode pillu nahoře. */}
           </Section>
 
           {/* Card detail — jen pokud karta je připojená (connect CTA je nahoře
@@ -693,7 +722,9 @@ export default function BillingScreen() {
                   dateLocale={dateLocale}
                   numberLocale={numberLocale}
                   opening={openingInvoiceId === inv.id}
+                  deleting={busy === `invoice-delete-${inv.id}`}
                   onOpen={() => void openInvoicePdf(inv.id, inv.number)}
+                  onDelete={() => deleteInvoice(inv)}
                 />
               ))
             ) : (
@@ -996,7 +1027,9 @@ function InvoiceLine({
   dateLocale,
   numberLocale,
   opening,
+  deleting,
   onOpen,
+  onDelete,
 }: {
   styles: ReturnType<typeof makeStyles>;
   invoice: InvoiceRow;
@@ -1004,8 +1037,13 @@ function InvoiceLine({
   dateLocale: string;
   numberLocale: string;
   opening: boolean;
+  deleting: boolean;
   onOpen: () => void;
+  onDelete: () => void;
 }) {
+  // Smazat jde jen neuhrazená proforma (PROFORMA + bez paidDate). Daňové
+  // doklady ani uhrazené proformy mazat nelze.
+  const canDelete = invoice.kind === "PROFORMA" && invoice.paidDate === null;
   return (
     <Pressable
       onPress={invoice.hasPdf ? onOpen : undefined}
@@ -1039,6 +1077,18 @@ function InvoiceLine({
         <Text style={styles.invoiceCta}>
           {opening ? t("settings", "billingInvoicesOpening") : t("settings", "billingInvoicesOpenPdf")}
         </Text>
+      )}
+      {canDelete && (
+        <Pressable
+          onPress={onDelete}
+          disabled={deleting}
+          hitSlop={8}
+          style={({ pressed }) => [styles.invoiceDeleteBtn, pressed && { opacity: 0.5 }, deleting && { opacity: 0.4 }]}
+        >
+          <Text style={styles.invoiceDeleteText}>
+            {deleting ? t("settings", "billingInvoicesDeleting") : t("settings", "billingProformaDelete")}
+          </Text>
+        </Pressable>
       )}
     </Pressable>
   );
@@ -1276,6 +1326,8 @@ const makeStyles = (colors: Colors) =>
     invoiceNumber: { fontSize: fontSize.base, fontWeight: "600", color: colors.text },
     invoiceMeta: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: 2 },
     invoiceCta: { fontSize: fontSize.sm, color: colors.link, fontWeight: "600" },
+    invoiceDeleteBtn: { marginLeft: spacing.sm, paddingHorizontal: spacing.sm, paddingVertical: 4 },
+    invoiceDeleteText: { fontSize: fontSize.sm, color: colors.danger, fontWeight: "500" },
 
     emptyText: { fontSize: fontSize.sm, color: colors.textSubtle, textAlign: "center" },
     // 'Přidat další zemi' — primární akce, výrazná (accent fill).

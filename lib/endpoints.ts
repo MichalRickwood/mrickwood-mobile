@@ -508,6 +508,12 @@ export const endpoints = {
     await api.delete("/api/v2/account/billing/proforma");
     return { ok: true as const };
   },
+  // Smaže konkrétní (neuhrazenou) proformu z historie. Pokud byla aktivní
+  // v BillingProfile, backend vyčistí pointer.
+  deleteProformaById: async (invoiceId: string) => {
+    await api.delete(`/api/v2/account/billing/invoices/${encodeURIComponent(invoiceId)}`);
+    return { ok: true as const };
+  },
 
   // Cancel / reactivate service auto-renewal — v2 cesta přes /subscriptions/[id] PATCH
   cancelService: async (service: ApiServiceId) => {
