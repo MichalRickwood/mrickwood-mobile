@@ -40,15 +40,27 @@ function RouterGuard() {
       return;
     }
 
-    // Authenticated — gating:
-    //   1) žádná aktivní LEADS sub → /(onboarding)/countries
-    //   2) má sub ale profile.name/country missing → /(onboarding)/profile
-    //      (transitioning: countries → profile, nebo OAuth user co nedokončil)
+    // Authenticated — gating (order: profil → countries → tabs):
+    //   1) profil missing (name/country/ico) → /(onboarding)/profile
+    //   2) má profil ale žádná aktivní LEADS sub → /(onboarding)/countries
     //   3) jinak → (tabs)
+    //
+    // Proč profil first: IČO musí být známé před trial activation (1-trial-per-IČO
+    // anti-abuse rule). Country picker triggeruje activateTrial, tedy IČO musí
+    // být sebrané předtím.
     if (!onboardingChecked && !inOnboarding) {
       let cancelled = false;
       (async () => {
         try {
+          const profile = await endpoints.getProfileV2().catch(() => null);
+          if (cancelled) return;
+          const needsProfile = !profile || !profile.name || !profile.country || !profile.ico;
+          if (needsProfile) {
+            setOnboardingChecked(true);
+            router.replace("/(onboarding)/profile");
+            return;
+          }
+          // Má kompletní profil — zkontroluj LEADS subscription
           const subs = await endpoints.listSubscriptions().catch(() => []);
           if (cancelled) return;
           const hasActiveLeads = subs.some(
@@ -60,14 +72,6 @@ function RouterGuard() {
           setOnboardingChecked(true);
           if (!hasActiveLeads) {
             router.replace("/(onboarding)/countries");
-            return;
-          }
-          // Má sub — zkontroluj profile pro completion gating
-          const profile = await endpoints.getProfileV2().catch(() => null);
-          if (cancelled) return;
-          const needsProfile = !profile || !profile.name || !profile.country;
-          if (needsProfile) {
-            router.replace("/(onboarding)/profile");
           } else if (inAuth) {
             router.replace("/(tabs)");
           }

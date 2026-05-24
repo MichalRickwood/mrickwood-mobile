@@ -84,8 +84,11 @@ export default function OnboardingProfile() {
       try {
         const p = await endpoints.getProfileV2();
         if (cancelled) return;
-        if (p.name && p.country) {
-          router.replace("/(tabs)");
+        // Pokud má profil + IČO kompletní → další krok (countries pokud
+        // chybí sub, jinak tabs). RouterGuard ve _layout.tsx to už řeší —
+        // tady jen kontrola že na profilu nedrží usera bez důvodu.
+        if (p.name && p.country && p.ico) {
+          router.replace("/(onboarding)/countries");
           return;
         }
         setEmail(p.email);
@@ -128,6 +131,10 @@ export default function OnboardingProfile() {
       setError(t("onboardingProfile", "countryRequired"));
       return;
     }
+    if (!companyIco.trim()) {
+      setError(t("onboardingProfile", "icoRequired"));
+      return;
+    }
     if (email.trim() && !EMAIL_RE.test(email.trim())) {
       setEmailError(t("onboardingProfile", "emailInvalid"));
       setError(t("onboardingProfile", "emailInvalid"));
@@ -147,7 +154,8 @@ export default function OnboardingProfile() {
       if (companyAddress.trim()) input.address = companyAddress.trim();
       if (companyDic.trim()) input.dic = companyDic.trim();
       await endpoints.updateProfileV2(input);
-      router.replace("/(tabs)");
+      // Profile complete → countries picker (router guard pak rozhodne)
+      router.replace("/(onboarding)/countries");
     } catch (e) {
       setError(e instanceof Error ? e.message : t("onboardingProfile", "saveFailed"));
     } finally {

@@ -537,6 +537,7 @@ export interface Dict {
     saveFailed: string;
     nameRequired: string;
     countryRequired: string;
+    icoRequired: string;
     emailInvalid: string;
   };
   locale: {
@@ -1074,6 +1075,7 @@ const cs: Dict = {
     saveFailed: "Uložení selhalo. Zkuste to znovu.",
     nameRequired: "Vyplňte jméno.",
     countryRequired: "Vyberte zemi.",
+    icoRequired: "Vyplňte IČO (nutné pro fakturaci a trial).",
     emailInvalid: "Neplatný formát emailu.",
   },
   locale: { cs: "Čeština", en: "English", de: "Deutsch" },
@@ -1606,6 +1608,7 @@ const en: Dict = {
     saveFailed: "Save failed. Please try again.",
     nameRequired: "Please enter your name.",
     countryRequired: "Please select a country.",
+    icoRequired: "Please enter your company ID (required for billing and trial).",
     emailInvalid: "Invalid email format.",
   },
   locale: { cs: "Čeština", en: "English", de: "Deutsch" },
@@ -2140,6 +2143,7 @@ const de: Dict = {
     saveFailed: "Speichern fehlgeschlagen. Bitte erneut versuchen.",
     nameRequired: "Bitte geben Sie Ihren Namen ein.",
     countryRequired: "Bitte wählen Sie ein Land aus.",
+    icoRequired: "Bitte geben Sie Ihre USt-IdNr. ein (für Abrechnung und Testphase erforderlich).",
     emailInvalid: "Ungültiges E-Mail-Format.",
   },
   locale: { cs: "Čeština", en: "English", de: "Deutsch" },
