@@ -208,9 +208,9 @@ export default function OnboardingCountries() {
     setActivating(true);
     setError(null);
     try {
-      for (const scope of newSelections) {
-        await endpoints.activateLeadsScope(scope);
-      }
+      // Atomická batch aktivace — buď všechny vybrané země nebo žádná. Backend
+      // skipuje země už aktivní (bezpečné poslat celé selection).
+      await endpoints.activateLeadsBatch(newSelections);
       // Invalidate caches → billing screen ukáže nové scopes po návratu.
       await qc.invalidateQueries({ queryKey: ["account-subscriptions"] });
       await qc.invalidateQueries({ queryKey: ["billing"] });

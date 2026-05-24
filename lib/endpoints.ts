@@ -294,6 +294,15 @@ export const endpoints = {
       throw e;
     }
   },
+  // Atomická batch aktivace LEADS pro N zemí. Použito v multi-country onboarding —
+  // bez tohoto by částečný fail nechal user s neúplným setem trialů. Backend
+  // skipuje země, na které už user má subscription (silent idempotent).
+  activateLeadsBatch: async (scopes: string[]) => {
+    const r = await api.post<{
+      data: Array<{ state: string; scope: string | null; trialEndsAt: string | null }>;
+    }>("/api/v2/account/subscriptions/batch", { service: "LEADS", scopes, mode: "trial" });
+    return { ok: true as const, created: r.data };
+  },
   // Plný katalog LEADS zemí (labels per locale + pricing CZK+EUR + coverage).
   // Mobile používá pro onboarding picker. Cache 1h server-side.
   getLeadsCountries: async () => {
