@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "Tendero",
-    "slug": "tendero",
-    "scheme": "tendero",
+    "name": "Veritra",
+    "slug": "veritra",
+    "scheme": "veritra",
     "owner": "michalrickwood",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -16,7 +16,7 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "cz.mrickwood.tendero",
+      "bundleIdentifier": "cz.mrickwood.veritra",
       "buildNumber": "1",
       "usesAppleSignIn": true,
       "config": {

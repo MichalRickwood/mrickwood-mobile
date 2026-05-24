@@ -486,7 +486,7 @@ export const endpoints = {
     return { ok: true as const };
   },
 
-  // Stripe Checkout (mobile deep links). v2 endpoint detekuje audience="mobile" + používá tendero:// scheme.
+  // Stripe Checkout (mobile deep links). v2 endpoint detekuje audience="mobile" + používá veritra:// scheme.
   createBillingCheckout: async () => {
     const r = await api.post<{ data: { url: string } }>("/api/v2/account/billing/checkout");
     return r.data;

@@ -1,5 +1,5 @@
 /**
- * Design tokens — light + dark palettes pro Tendero.
+ * Design tokens — light + dark palettes pro Veritra.
  *
  * Light = sjednoceno s webovým mrickwood.cz (stone/zinc gray scale).
  * Dark = inverse s mírnými warm tones (ne čistá čerň — vypadá teplej a méně OLED-aggressive).

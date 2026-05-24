@@ -40,7 +40,7 @@ const githubDiscovery: AuthSession.DiscoveryDocument = {
 };
 
 export function useGithubAuth() {
-  const redirectUri = AuthSession.makeRedirectUri({ scheme: "tendero", path: "oauth/github" });
+  const redirectUri = AuthSession.makeRedirectUri({ scheme: "veritra", path: "oauth/github" });
   const [request, response, promptAsync] = AuthSession.useAuthRequest(
     {
       clientId: GITHUB_CLIENT_ID,

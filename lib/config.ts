@@ -14,4 +14,4 @@ export const API_BASE_URL =
   ((Constants.expoConfig?.extra as Record<string, unknown> | undefined)?.apiBaseUrl as string | undefined) ||
   PROD;
 
-export const APP_NAME = "Tendero";
+export const APP_NAME = "Veritra";

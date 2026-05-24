@@ -2,7 +2,7 @@ import { API_BASE_URL } from "./config";
 import { clearSession, getToken } from "./auth-storage";
 
 /**
- * Typed API client pro Tendero mobile.
+ * Typed API client pro Veritra mobile.
  *
  * - Bearer JWT token z SecureStore přidá do Authorization headeru.
  * - 401 → vyčistíme session (UI se rerenderuje na login screen).
