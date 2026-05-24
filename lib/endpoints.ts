@@ -141,6 +141,11 @@ export const endpoints = {
   register: (input: MobileRegisterInput) =>
     api.post<{ success: boolean; userId: string }>("/api/auth/mobile/register", input, { noAuth: true }),
 
+  // Zapomenuté heslo — pošle email s reset linkem (vede na web /reset-password).
+  // Backend vždy vrací 200 (i pro neexistující email) kvůli email-enumeration prevenci.
+  requestPasswordReset: (email: string) =>
+    api.post<{ ok: true }>("/api/auth/forgot-password", { email }, { noAuth: true }),
+
   // Profile read — používáme po loginu pro detekci jestli je profil kompletní
   profile: () => api.get<ProfileView>("/api/account/profile"),
 

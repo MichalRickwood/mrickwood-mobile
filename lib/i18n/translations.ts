@@ -24,10 +24,24 @@ export interface Dict {
     or: string;
     noAccount: string;
     register: string;
+    forgotPassword: string;
     errorInvalid: string;
     errorAccount: string;
     errorGeneric: string;
     errorNetwork: string;
+  };
+  forgotPassword: {
+    title: string;
+    subtitle: string;
+    emailLabel: string;
+    emailPlaceholder: string;
+    submit: string;
+    submitting: string;
+    successTitle: string;
+    successBody: string;
+    backToLogin: string;
+    errorEmailInvalid: string;
+    errorGeneric: string;
   };
   register: {
     title: string;
@@ -545,10 +559,24 @@ const cs: Dict = {
     or: "nebo",
     noAccount: "Nemáte účet?",
     register: "Zaregistrovat se",
+    forgotPassword: "Zapomenuté heslo?",
     errorInvalid: "Neplatný email nebo heslo.",
     errorAccount: "Účet není aktivní.",
     errorGeneric: "Přihlášení selhalo.",
     errorNetwork: "Chyba sítě. Zkuste to znovu.",
+  },
+  forgotPassword: {
+    title: "Zapomenuté heslo",
+    subtitle: "Zadejte email vašeho účtu. Pošleme vám odkaz pro nastavení nového hesla.",
+    emailLabel: "Email",
+    emailPlaceholder: "jan@firma.cz",
+    submit: "Poslat odkaz",
+    submitting: "Posílám…",
+    successTitle: "Hotovo",
+    successBody: "Pokud k tomuto emailu existuje účet, právě jsme poslali odkaz pro reset hesla. Zkontrolujte schránku.",
+    backToLogin: "Zpět na přihlášení",
+    errorEmailInvalid: "Neplatný formát emailu.",
+    errorGeneric: "Něco se pokazilo. Zkuste to znovu.",
   },
   register: {
     title: "Vytvořit účet",
@@ -1064,10 +1092,24 @@ const en: Dict = {
     or: "or",
     noAccount: "No account?",
     register: "Sign up",
+    forgotPassword: "Forgot password?",
     errorInvalid: "Invalid email or password.",
     errorAccount: "Account is not active.",
     errorGeneric: "Sign-in failed.",
     errorNetwork: "Network error. Please try again.",
+  },
+  forgotPassword: {
+    title: "Forgot password",
+    subtitle: "Enter your account email. We'll send you a link to set a new password.",
+    emailLabel: "Email",
+    emailPlaceholder: "you@company.com",
+    submit: "Send link",
+    submitting: "Sending…",
+    successTitle: "Done",
+    successBody: "If an account exists for this email, we just sent a password reset link. Check your inbox.",
+    backToLogin: "Back to sign-in",
+    errorEmailInvalid: "Invalid email format.",
+    errorGeneric: "Something went wrong. Please try again.",
   },
   register: {
     title: "Create account",
@@ -1582,10 +1624,24 @@ const de: Dict = {
     or: "oder",
     noAccount: "Kein Konto?",
     register: "Registrieren",
+    forgotPassword: "Passwort vergessen?",
     errorInvalid: "Ungültige E-Mail oder Passwort.",
     errorAccount: "Konto ist nicht aktiv.",
     errorGeneric: "Anmeldung fehlgeschlagen.",
     errorNetwork: "Netzwerkfehler. Bitte erneut versuchen.",
+  },
+  forgotPassword: {
+    title: "Passwort vergessen",
+    subtitle: "Geben Sie Ihre Konto-E-Mail ein. Wir senden Ihnen einen Link zum Setzen eines neuen Passworts.",
+    emailLabel: "E-Mail",
+    emailPlaceholder: "sie@firma.de",
+    submit: "Link senden",
+    submitting: "Senden…",
+    successTitle: "Erledigt",
+    successBody: "Wenn ein Konto mit dieser E-Mail existiert, haben wir gerade einen Reset-Link gesendet. Prüfen Sie Ihr Postfach.",
+    backToLogin: "Zurück zur Anmeldung",
+    errorEmailInvalid: "Ungültiges E-Mail-Format.",
+    errorGeneric: "Etwas ist schiefgelaufen. Bitte erneut versuchen.",
   },
   register: {
     title: "Konto erstellen",

@@ -106,6 +106,14 @@ export default function LoginScreen() {
               onSubmitEditing={onSubmit}
             />
 
+            <Pressable
+              onPress={() => router.push("/(auth)/forgot-password")}
+              style={styles.forgotLink}
+              hitSlop={6}
+            >
+              <Text style={styles.forgotLinkText}>{t("login", "forgotPassword")}</Text>
+            </Pressable>
+
             {error && <Text style={styles.error}>{error}</Text>}
 
             <Pressable
@@ -186,6 +194,8 @@ const makeStyles = (colors: Colors) =>
     buttonDisabled: { opacity: 0.4 },
     buttonPressed: { backgroundColor: colors.accentHover },
     buttonText: { color: colors.accentForeground, fontSize: fontSize.base, fontWeight: "600" },
+    forgotLink: { alignSelf: "flex-end", marginTop: spacing.sm },
+    forgotLinkText: { fontSize: fontSize.xs, color: colors.link, fontWeight: "500" },
     bottomLink: { marginTop: spacing.xl, alignItems: "center" },
     bottomLinkText: { fontSize: fontSize.sm, color: colors.textSubtle },
     bottomLinkAccent: { color: colors.text, fontWeight: "600" },
