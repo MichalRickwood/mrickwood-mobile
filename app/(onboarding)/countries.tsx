@@ -129,19 +129,23 @@ export default function OnboardingCountries() {
   // Pre-check existující aktivní scopes (jen jednou při prvním načtení subs).
   // Fallback pro first-time user (žádné scopes): default na profile.country,
   // jinak CZ. Country musí být v katalogu (jinak skip — exotické země typu BR).
+  // Čekáme až profile query doběhne (success OR error) — jinak po resetu (kde
+  // profile fetch failne nebo vrátí null) by useEffect čekal věčně a CZ default
+  // by se nikdy neaplikoval.
   useEffect(() => {
     if (selected.size !== 0) return;
+    if (!countries) return;
     if (activeScopes.size > 0) {
       setSelected(new Set(activeScopes));
       return;
     }
-    if (!profileQuery.data || !countries) return;
-    const profileCountry = profileQuery.data.country?.toUpperCase() ?? null;
+    if (profileQuery.isPending) return;
+    const profileCountry = profileQuery.data?.country?.toUpperCase() ?? null;
     const inCatalog = (code: string) =>
       countries.some((c) => c.code === code && c.available);
     const def = profileCountry && inCatalog(profileCountry) ? profileCountry : "CZ";
     if (inCatalog(def)) setSelected(new Set([def]));
-  }, [subsQuery.data, activeScopes, selected.size, profileQuery.data, countries]);
+  }, [subsQuery.data, activeScopes, selected.size, profileQuery.isPending, profileQuery.data, countries]);
 
   // Surface fetch error z queries (rare — backend cachuje).
   useEffect(() => {
