@@ -81,7 +81,7 @@ export interface LeadFilterInput {
   minValue?: number | null;
   maxValue?: number | null;
   emailDigest?: boolean;
-  isActive?: boolean;
+  active?: boolean;
 }
 
 export interface MobileRegisterInput {
@@ -401,7 +401,6 @@ export const endpoints = {
     return r.data;
   },
   createFilter: async (input: LeadFilterInput) => {
-    // v2 endpoint akceptuje jak `isActive` (legacy) tak `active` (v2)
     const r = await api.post<{ data: V2Filter }>("/api/v2/leads/filters", input);
     return { filter: legacyFilterShape(r.data) };
   },
