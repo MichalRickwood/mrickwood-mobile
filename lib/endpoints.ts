@@ -167,11 +167,12 @@ export const endpoints = {
         country: string | null;
         locale: string;
         isComplete: boolean;
+        consentRequired: boolean;
       };
     }>("/api/v2/account/profile");
     return r.data;
   },
-  updateProfileV2: async (input: { name?: string; country?: string; phone?: string; company?: string; ico?: string; dic?: string; address?: string }) => {
+  updateProfileV2: async (input: { name?: string; country?: string; phone?: string; company?: string; ico?: string; dic?: string; address?: string; consentVop?: boolean; consentGdpr?: boolean }) => {
     await api.patch("/api/v2/account/profile", input);
   },
 

@@ -539,6 +539,10 @@ export interface Dict {
     countryRequired: string;
     icoRequired: string;
     emailInvalid: string;
+    consentIntro: string;
+    consentVopLabel: string;
+    consentGdprLabel: string;
+    consentRequiredError: string;
   };
   locale: {
     cs: string;
@@ -1077,6 +1081,10 @@ const cs: Dict = {
     countryRequired: "Vyberte zemi.",
     icoRequired: "Vyplňte IČO (nutné pro fakturaci a trial).",
     emailInvalid: "Neplatný formát emailu.",
+    consentIntro: "Pro pokračování potřebujeme váš souhlas:",
+    consentVopLabel: "Souhlasím s Všeobecnými obchodními podmínkami.",
+    consentGdprLabel: "Souhlasím se zpracováním osobních údajů (GDPR).",
+    consentRequiredError: "Pro pokračování zaškrtněte oba souhlasy.",
   },
   locale: { cs: "Čeština", en: "English", de: "Deutsch" },
 };
@@ -1610,6 +1618,10 @@ const en: Dict = {
     countryRequired: "Please select a country.",
     icoRequired: "Please enter your company ID (required for billing and trial).",
     emailInvalid: "Invalid email format.",
+    consentIntro: "To continue we need your consent:",
+    consentVopLabel: "I agree to the Terms of Service.",
+    consentGdprLabel: "I agree to the processing of personal data (GDPR).",
+    consentRequiredError: "Please tick both consents to continue.",
   },
   locale: { cs: "Čeština", en: "English", de: "Deutsch" },
 };
@@ -2145,6 +2157,10 @@ const de: Dict = {
     countryRequired: "Bitte wählen Sie ein Land aus.",
     icoRequired: "Bitte geben Sie Ihre USt-IdNr. ein (für Abrechnung und Testphase erforderlich).",
     emailInvalid: "Ungültiges E-Mail-Format.",
+    consentIntro: "Zum Fortfahren benötigen wir Ihre Zustimmung:",
+    consentVopLabel: "Ich stimme den AGB zu.",
+    consentGdprLabel: "Ich stimme der Verarbeitung personenbezogener Daten (DSGVO) zu.",
+    consentRequiredError: "Bitte aktivieren Sie beide Zustimmungen, um fortzufahren.",
   },
   locale: { cs: "Čeština", en: "English", de: "Deutsch" },
 };

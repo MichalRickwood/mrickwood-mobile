@@ -77,6 +77,11 @@ export default function OnboardingProfile() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // OAuth users zatím nemají consent proof — checkboxy se zobrazí jen pokud
+  // backend řekne consentRequired=true.
+  const [consentRequired, setConsentRequired] = useState(false);
+  const [consentVop, setConsentVop] = useState(false);
+  const [consentGdpr, setConsentGdpr] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -102,6 +107,7 @@ export default function OnboardingProfile() {
         setCompanyAddress(p.address ?? "");
         setCompanyDic(p.dic ?? "");
         if (p.ico || p.address) setManualEntry(true);
+        setConsentRequired(!!p.consentRequired);
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : String(e));
       } finally {
@@ -140,6 +146,10 @@ export default function OnboardingProfile() {
       setError(t("onboardingProfile", "emailInvalid"));
       return;
     }
+    if (consentRequired && (!consentVop || !consentGdpr)) {
+      setError(t("onboardingProfile", "consentRequiredError"));
+      return;
+    }
     setSaving(true);
     setError(null);
     try {
@@ -153,6 +163,10 @@ export default function OnboardingProfile() {
       if (companyIco.trim()) input.ico = companyIco.trim();
       if (companyAddress.trim()) input.address = companyAddress.trim();
       if (companyDic.trim()) input.dic = companyDic.trim();
+      if (consentRequired) {
+        input.consentVop = consentVop;
+        input.consentGdpr = consentGdpr;
+      }
       await endpoints.updateProfileV2(input);
       // Profile complete → countries picker (router guard pak rozhodne)
       router.replace("/(onboarding)/countries");
@@ -318,6 +332,30 @@ export default function OnboardingProfile() {
             )}
           </View>
 
+          {consentRequired && (
+            <View style={styles.consentSection}>
+              <Text style={styles.consentIntro}>{t("onboardingProfile", "consentIntro")}</Text>
+              <Pressable
+                onPress={() => setConsentVop((v) => !v)}
+                style={styles.consentRow}
+              >
+                <View style={[styles.checkbox, consentVop && styles.checkboxOn]}>
+                  {consentVop && <Text style={styles.checkboxMark}>✓</Text>}
+                </View>
+                <Text style={styles.consentLabel}>{t("onboardingProfile", "consentVopLabel")}</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => setConsentGdpr((v) => !v)}
+                style={styles.consentRow}
+              >
+                <View style={[styles.checkbox, consentGdpr && styles.checkboxOn]}>
+                  {consentGdpr && <Text style={styles.checkboxMark}>✓</Text>}
+                </View>
+                <Text style={styles.consentLabel}>{t("onboardingProfile", "consentGdprLabel")}</Text>
+              </Pressable>
+            </View>
+          )}
+
           {error && <Text style={styles.errorText}>{error}</Text>}
 
           <Pressable
@@ -381,5 +419,12 @@ function makeStyles(c: Colors) {
     errorText: { fontSize: fontSize.sm, color: c.danger, marginBottom: spacing.md, textAlign: "center" },
     ctaBtn: { backgroundColor: c.accent, paddingVertical: spacing.md, borderRadius: radius.md, alignItems: "center", marginTop: spacing.md },
     ctaBtnText: { color: c.accentForeground, fontSize: fontSize.base, fontWeight: "600" },
+    consentSection: { marginTop: spacing.md, paddingTop: spacing.md, borderTopWidth: 1, borderTopColor: c.border, gap: spacing.sm },
+    consentIntro: { fontSize: fontSize.xs, color: c.textMuted, marginBottom: spacing.xs },
+    consentRow: { flexDirection: "row", alignItems: "flex-start", gap: spacing.sm },
+    checkbox: { width: 20, height: 20, borderRadius: 4, borderWidth: 1.5, borderColor: c.border, backgroundColor: c.card, marginTop: 2, alignItems: "center", justifyContent: "center" },
+    checkboxOn: { backgroundColor: c.accent, borderColor: c.accent },
+    checkboxMark: { color: c.accentForeground, fontSize: 14, fontWeight: "700" },
+    consentLabel: { flex: 1, fontSize: fontSize.xs, color: c.text, lineHeight: 16 },
   });
 }
