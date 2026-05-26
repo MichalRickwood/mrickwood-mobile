@@ -60,8 +60,16 @@
       "url": "https://u.expo.dev/edf4c097-b67f-42a5-b16c-5721bbd674b6"
     },
     "android": {
+      "package": "cz.mrickwood.veritra",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FAFAF9"
+      },
       "permissions": [
-        "android.permission.RECORD_AUDIO"
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.CAMERA",
+        "android.permission.READ_MEDIA_IMAGES"
       ]
     }
   }

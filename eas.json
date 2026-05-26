@@ -9,6 +9,9 @@
       "distribution": "internal",
       "ios": {
         "simulator": true
+      },
+      "android": {
+        "buildType": "apk"
       }
     },
     "preview": {
@@ -16,15 +19,22 @@
       "channel": "preview",
       "ios": {
         "simulator": false
+      },
+      "android": {
+        "buildType": "apk"
       }
     },
     "production": {
       "channel": "production",
       "autoIncrement": true,
+      "android": {
+        "buildType": "app-bundle"
+      },
       "env": {
         "EXPO_PUBLIC_API_BASE_URL": "https://mrickwood.cz",
         "EXPO_PUBLIC_GITHUB_CLIENT_ID": "Ov23li4qyINmMmAuNfnq",
-        "EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID": "513591543173-5g22haim45u2v0u6a1ffvtdprdeicbsl.apps.googleusercontent.com"
+        "EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID": "513591543173-5g22haim45u2v0u6a1ffvtdprdeicbsl.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID": ""
       }
     }
   },
@@ -35,6 +45,11 @@
         "ascApiKeyPath": "./private/AuthKey_X5ZFJXJ53Z.p8",
         "ascApiKeyId": "X5ZFJXJ53Z",
         "ascApiKeyIssuerId": "786f2d55-60c2-4d71-a6c5-ebceb59b6699"
+      },
+      "android": {
+        "serviceAccountKeyPath": "./private/google-play-service-account.json",
+        "track": "internal",
+        "releaseStatus": "draft"
       }
     }
   }

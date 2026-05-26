@@ -15,9 +15,11 @@ import { API_BASE_URL } from "./config";
 WebBrowser.maybeCompleteAuthSession();
 
 const GOOGLE_IOS_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID || "";
+const GOOGLE_ANDROID_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID || "";
 const GITHUB_CLIENT_ID = process.env.EXPO_PUBLIC_GITHUB_CLIENT_ID || "";
 
 export function isGoogleConfigured(): boolean {
+  if (Platform.OS === "android") return Boolean(GOOGLE_ANDROID_CLIENT_ID);
   return Boolean(GOOGLE_IOS_CLIENT_ID);
 }
 export function isGithubConfigured(): boolean {
@@ -30,6 +32,7 @@ export function isAppleAvailable(): boolean {
 export function useGoogleAuth() {
   const [request, response, promptAsync] = Google.useAuthRequest({
     iosClientId: GOOGLE_IOS_CLIENT_ID,
+    androidClientId: GOOGLE_ANDROID_CLIENT_ID,
   });
   return { request, response, promptAsync };
 }
