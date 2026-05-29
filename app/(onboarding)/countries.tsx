@@ -99,15 +99,15 @@ export default function OnboardingCountries() {
     }
   }
 
-  // Defense-in-depth: pokud user dorazí na countries bez kompletního profilu
-  // (RouterGuard cache race, manuální navigace, fallback po failed updateProfile),
-  // přesměrujeme zpět na profile. Bez tohohle by user viděl spinner na "Spustit
-  // trial" + tichý 400 v footeru (off-screen) — vypadalo to že nic nedělá.
+  // Defense-in-depth: pokud user dorazí na countries bez minimálního profilu
+  // (name + country + consent — IČO je volitelný per App Store 3.1.1), pošleme
+  // zpět na profile. Bez tohohle by user viděl spinner na "Pokračovat" + tichý
+  // 400 v footeru a vypadalo by to že nic nedělá.
   useEffect(() => {
     if (profileQuery.isPending) return;
     const p = profileQuery.data;
     const needsProfile =
-      !p || !p.name || !p.country || !p.ico || p.consentRequired;
+      !p || !p.name || !p.country || p.consentRequired;
     if (needsProfile) {
       router.replace("/(onboarding)/profile");
     }

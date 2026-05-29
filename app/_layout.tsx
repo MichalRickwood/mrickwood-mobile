@@ -41,20 +41,20 @@ function RouterGuard() {
     }
 
     // Authenticated — gating (order: profil → countries → tabs):
-    //   1) profil missing (name/country/ico) → /(onboarding)/profile
+    //   1) profil missing (name/country) → /(onboarding)/profile
     //   2) má profil ale žádná aktivní LEADS sub → /(onboarding)/countries
     //   3) jinak → (tabs)
     //
-    // Proč profil first: IČO musí být známé před trial activation (1-trial-per-IČO
-    // anti-abuse rule). Country picker triggeruje activateTrial, tedy IČO musí
-    // být sebrané předtím.
+    // Profile minimum = name + country. IČO je volitelný (App Store 3.1.1 —
+    // mobile registrace nesmí business ID vyžadovat). Bez IČO trial běží
+    // a anti-abuse 1-trial-per-IČO se aplikuje jen pokud user IČO vyplní.
     if (!onboardingChecked && !inOnboarding) {
       let cancelled = false;
       (async () => {
         try {
           const profile = await endpoints.getProfileV2().catch(() => null);
           if (cancelled) return;
-          const needsProfile = !profile || !profile.name || !profile.country || !profile.ico;
+          const needsProfile = !profile || !profile.name || !profile.country;
           if (needsProfile) {
             setOnboardingChecked(true);
             router.replace("/(onboarding)/profile");
