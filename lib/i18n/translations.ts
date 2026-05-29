@@ -518,27 +518,11 @@ export interface Dict {
     phonePlaceholder: string;
     phoneOptional: string;
     countryLabel: string;
-    countryHint: string;
-    companyLabel: string;
-    companyOptional: string;
-    companyHint: string;
-    companyPlaceholder: string;
-    companyManualToggle: string;
-    companyManualHint: string;
-    manualTaxIdLabel: string;
-    manualTaxIdPlaceholder: string;
-    manualNameLabel: string;
-    manualNamePlaceholder: string;
-    manualAddressLabel: string;
-    manualAddressPlaceholder: string;
-    manualVatLabel: string;
-    manualVatPlaceholder: string;
     cta: string;
     saving: string;
     saveFailed: string;
     nameRequired: string;
     countryRequired: string;
-    icoRequired: string;
     emailInvalid: string;
     consentIntro: string;
     consentVopLabel: string;
@@ -1043,7 +1027,7 @@ const cs: Dict = {
     activateFailed: "Uložení selhalo. Zkuste to znovu.",
     perMonth: "/měsíc",
     perYear: "/rok",
-    footerNote: "Detaily fakturace a ceník spravujete na mrickwood.cz.",
+    footerNote: "Výběr můžete kdykoli upravit v nastavení.",
     backToSettings: "Zpět do nastavení",
     back: "Zpět",
     unsavedTitle: "Neuložené změny",
@@ -1053,35 +1037,19 @@ const cs: Dict = {
   },
   onboardingProfile: {
     title: "Dokončete profil",
-    subtitle: "Doplňte kontakty pro fakturaci. Údaje můžete kdykoli upravit v nastavení.",
+    subtitle: "Doplňte základní kontaktní údaje. Můžete je kdykoli upravit v nastavení.",
     nameLabel: "Jméno a příjmení",
     namePlaceholder: "Jan Novák",
     emailLabel: "Email",
     phoneLabel: "Telefon",
     phonePlaceholder: "+420 …",
     phoneOptional: "nepovinné",
-    countryLabel: "Země firmy",
-    countryHint: "Podle země nastavíme měnu fakturace (CZ → CZK, jinak EUR).",
-    companyLabel: "Firma (volitelné)",
-    companyOptional: "nepovinné",
-    companyHint: "Pokud fakturujete na firmu, vyhledejte ji v rejstříku — automaticky doplníme IČO, adresu a DIČ.",
-    companyPlaceholder: "Název nebo IČO firmy…",
-    companyManualToggle: "Zadat ručně",
-    companyManualHint: "Pro firmy mimo český/slovenský/francouzský rejstřík nebo když lookup selže.",
-    manualTaxIdLabel: "IČO / Tax ID",
-    manualTaxIdPlaceholder: "Identifikační číslo",
-    manualNameLabel: "Název firmy",
-    manualNamePlaceholder: "Acme s. r. o.",
-    manualAddressLabel: "Adresa",
-    manualAddressPlaceholder: "Ulice, PSČ, Město",
-    manualVatLabel: "DIČ / VAT",
-    manualVatPlaceholder: "CZ12345678",
+    countryLabel: "Země",
     cta: "Pokračovat",
     saving: "Ukládám…",
     saveFailed: "Uložení selhalo. Zkuste to znovu.",
     nameRequired: "Vyplňte jméno.",
     countryRequired: "Vyberte zemi.",
-    icoRequired: "Vyplňte IČO (nutné pro fakturaci a trial).",
     emailInvalid: "Neplatný formát emailu.",
     consentIntro: "Pro pokračování potřebujeme váš souhlas:",
     consentVopLabel: "Souhlasím s Všeobecnými obchodními podmínkami.",
@@ -1581,7 +1549,7 @@ const en: Dict = {
     activateFailed: "Save failed. Please try again.",
     perMonth: "/month",
     perYear: "/year",
-    footerNote: "Billing details and pricing are managed at mrickwood.cz.",
+    footerNote: "You can change this any time in settings.",
     backToSettings: "Back to settings",
     back: "Back",
     unsavedTitle: "Unsaved selection",
@@ -1591,35 +1559,19 @@ const en: Dict = {
   },
   onboardingProfile: {
     title: "Complete your profile",
-    subtitle: "Fill in contact details for billing. You can update everything later in settings.",
+    subtitle: "Add basic contact details. You can edit them anytime in settings.",
     nameLabel: "Full name",
     namePlaceholder: "Jane Doe",
     emailLabel: "Email",
     phoneLabel: "Phone",
     phonePlaceholder: "+1 …",
     phoneOptional: "optional",
-    countryLabel: "Company country",
-    countryHint: "We use the country to set the billing currency (CZ → CZK, else EUR).",
-    companyLabel: "Company (optional)",
-    companyOptional: "optional",
-    companyHint: "If you invoice as a business, look it up in the registry — we'll prefill the tax ID, address and VAT.",
-    companyPlaceholder: "Company name or tax ID…",
-    companyManualToggle: "Enter manually",
-    companyManualHint: "For businesses outside CZ/SK/FR registries or when lookup fails.",
-    manualTaxIdLabel: "Tax ID",
-    manualTaxIdPlaceholder: "Business ID",
-    manualNameLabel: "Company name",
-    manualNamePlaceholder: "Acme Ltd.",
-    manualAddressLabel: "Address",
-    manualAddressPlaceholder: "Street, ZIP, City",
-    manualVatLabel: "VAT number",
-    manualVatPlaceholder: "DE123456789",
+    countryLabel: "Country",
     cta: "Continue",
     saving: "Saving…",
     saveFailed: "Save failed. Please try again.",
     nameRequired: "Please enter your name.",
     countryRequired: "Please select a country.",
-    icoRequired: "Please enter your company ID (required for billing and trial).",
     emailInvalid: "Invalid email format.",
     consentIntro: "To continue we need your consent:",
     consentVopLabel: "I agree to the Terms of Service.",
@@ -2121,7 +2073,7 @@ const de: Dict = {
     activateFailed: "Speichern fehlgeschlagen. Bitte erneut versuchen.",
     perMonth: "/Monat",
     perYear: "/Jahr",
-    footerNote: "Abrechnung und Preise werden unter mrickwood.cz verwaltet.",
+    footerNote: "Sie können die Auswahl jederzeit in den Einstellungen ändern.",
     backToSettings: "Zurück zu Einstellungen",
     back: "Zurück",
     unsavedTitle: "Ungespeicherte Auswahl",
@@ -2131,35 +2083,19 @@ const de: Dict = {
   },
   onboardingProfile: {
     title: "Profil vervollständigen",
-    subtitle: "Geben Sie Ihre Kontaktdaten für die Abrechnung an. Sie können alles später in den Einstellungen ändern.",
+    subtitle: "Geben Sie grundlegende Kontaktdaten an. Sie können sie jederzeit in den Einstellungen ändern.",
     nameLabel: "Vor- und Nachname",
     namePlaceholder: "Max Mustermann",
     emailLabel: "E-Mail",
     phoneLabel: "Telefon",
     phonePlaceholder: "+49 …",
     phoneOptional: "optional",
-    countryLabel: "Firmenland",
-    countryHint: "Anhand des Landes wird die Abrechnungswährung gesetzt (CZ → CZK, sonst EUR).",
-    companyLabel: "Firma (optional)",
-    companyOptional: "optional",
-    companyHint: "Wenn Sie als Unternehmen abrechnen, suchen Sie es im Register — Steuernummer, Adresse und USt-ID werden automatisch ausgefüllt.",
-    companyPlaceholder: "Firmenname oder Steuernummer…",
-    companyManualToggle: "Manuell eingeben",
-    companyManualHint: "Für Firmen außerhalb der CZ/SK/FR-Register oder wenn die Suche fehlschlägt.",
-    manualTaxIdLabel: "Steuernummer",
-    manualTaxIdPlaceholder: "Firmen-ID",
-    manualNameLabel: "Firmenname",
-    manualNamePlaceholder: "Acme GmbH",
-    manualAddressLabel: "Adresse",
-    manualAddressPlaceholder: "Straße, PLZ, Stadt",
-    manualVatLabel: "USt-ID",
-    manualVatPlaceholder: "DE123456789",
+    countryLabel: "Land",
     cta: "Weiter",
     saving: "Speichere…",
     saveFailed: "Speichern fehlgeschlagen. Bitte erneut versuchen.",
     nameRequired: "Bitte geben Sie Ihren Namen ein.",
     countryRequired: "Bitte wählen Sie ein Land aus.",
-    icoRequired: "Bitte geben Sie Ihre USt-IdNr. ein (für Abrechnung und Testphase erforderlich).",
     emailInvalid: "Ungültiges E-Mail-Format.",
     consentIntro: "Zum Fortfahren benötigen wir Ihre Zustimmung:",
     consentVopLabel: "Ich stimme den AGB zu.",

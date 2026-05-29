@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -14,7 +14,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useQueryClient } from "@tanstack/react-query";
 import CountryPicker from "@/components/CountryPicker";
-import CompanyLookupField from "@/components/CompanyLookupField";
 import DialCodePicker from "@/components/DialCodePicker";
 import { defaultDialCodeForLocale, DIAL_CODES } from "@/lib/dial-codes";
 import { endpoints } from "@/lib/endpoints";
@@ -57,24 +56,11 @@ export default function OnboardingProfile() {
   const [dialCode, setDialCode] = useState(defaultDialCodeForLocale(locale));
   const [phoneLocal, setPhoneLocal] = useState("");
   const [country, setCountry] = useState("CZ");
-  const [companyName, setCompanyName] = useState("");
-  const [companyIco, setCompanyIco] = useState("");
-  const [companyAddress, setCompanyAddress] = useState("");
-  const [companyDic, setCompanyDic] = useState("");
-  const [manualEntry, setManualEntry] = useState(false);
-  // Když user změní zemi na něco jiného než CZ/SK/FR (full-coverage lookup),
-  // přepneme automaticky na manual entry. Pro CZ/SK/FR ponecháme lookup.
-  // Fire jen při skutečné změně country (ne při toggle manuálně) → user
-  // může lookup vypnout manuálně i pro CZ/SK/FR bez re-trigger.
-  const FULL_COVERAGE = ["CZ", "SK", "FR"];
-  const prevCountryRef = useRef(country);
-  useEffect(() => {
-    if (prevCountryRef.current === country) return;
-    prevCountryRef.current = country;
-    if (!FULL_COVERAGE.includes(country)) {
-      setManualEntry(true);
-    }
-  }, [country]);
+
+  // App Store 3.1.1: company / IČO / DIČ / address (business identifikátory)
+  // se v mobile vědomě nesbírají — Apple zamítl "registration features for
+  // businesses and organizations". Pokud user potřebuje vyplnit fakturační
+  // údaje (B2B), udělá to na webu v mrickwood.cz/dashboard/settings/billing.
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -104,11 +90,6 @@ export default function OnboardingProfile() {
         setDialCode(dial);
         setPhoneLocal(local);
         if (p.country) setCountry(p.country);
-        setCompanyName(p.company ?? "");
-        setCompanyIco(p.ico ?? "");
-        setCompanyAddress(p.address ?? "");
-        setCompanyDic(p.dic ?? "");
-        if (p.ico || p.address) setManualEntry(true);
         setConsentRequired(!!p.consentRequired);
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : String(e));
@@ -139,10 +120,10 @@ export default function OnboardingProfile() {
       setError(t("onboardingProfile", "countryRequired"));
       return;
     }
-    // IČO/tax ID je optional (App Store 3.1.1 — mobile registrace nesmí vyžadovat
-    // business identifikátory, ty patří na web pro billing). Pokud user pošle,
-    // server ho uloží a aplikuje 1-trial-per-IČO anti-abuse; jinak trial běží
-    // bez něj a anti-abuse fallback je per-email/per-userId.
+    // Žádné business fields (firma/IČO/DIČ/adresa) — Apple 3.1.1 zakazuje
+    // mobile "registration features for businesses and organizations". User je
+    // vyplní na webu (mrickwood.cz/dashboard/settings/billing) pokud chce B2B
+    // billing. Mobile profile = osobní kontaktní údaje + země.
     if (email.trim() && !EMAIL_RE.test(email.trim())) {
       setEmailError(t("onboardingProfile", "emailInvalid"));
       setError(t("onboardingProfile", "emailInvalid"));
@@ -161,10 +142,6 @@ export default function OnboardingProfile() {
       };
       const phoneDigits = phoneLocal.replace(/\D/g, "");
       if (phoneDigits) input.phone = `${dialCode} ${phoneDigits}`;
-      if (companyName.trim()) input.company = companyName.trim();
-      if (companyIco.trim()) input.ico = companyIco.trim();
-      if (companyAddress.trim()) input.address = companyAddress.trim();
-      if (companyDic.trim()) input.dic = companyDic.trim();
       if (consentRequired) {
         input.consentVop = consentVop;
         input.consentGdpr = consentGdpr;
@@ -252,90 +229,8 @@ export default function OnboardingProfile() {
           </View>
 
           <View style={styles.field}>
-            <View style={styles.labelRow}>
-              <Text style={styles.label}>{t("onboardingProfile", "companyLabel")}</Text>
-              <Pressable
-                onPress={() => setManualEntry((v) => !v)}
-                style={styles.manualToggle}
-                hitSlop={8}
-              >
-                <View style={[styles.manualCheckbox, manualEntry && styles.manualCheckboxOn]}>
-                  {manualEntry && <Text style={styles.manualCheckboxMark}>✓</Text>}
-                </View>
-                <Text style={styles.manualToggleText}>{t("onboardingProfile", "companyManualToggle")}</Text>
-              </Pressable>
-            </View>
-            {!manualEntry ? (
-              <View style={styles.companyRow}>
-                <CountryPicker value={country} onChange={setCountry} compact />
-                <View style={{ flex: 1 }}>
-                  <CompanyLookupField
-                    country={country}
-                    value={companyIco}
-                    resolvedName={companyName}
-                    label=""
-                    placeholder={t("onboardingProfile", "companyPlaceholder")}
-                    onResolve={(d) => {
-                      setCompanyIco(d.taxId);
-                      setCompanyName(d.name);
-                      setCompanyAddress(d.address);
-                      setCompanyDic(d.vatNumber ?? "");
-                    }}
-                    onClear={() => {
-                      setCompanyIco("");
-                      setCompanyName("");
-                      setCompanyAddress("");
-                      setCompanyDic("");
-                    }}
-                  />
-                </View>
-              </View>
-            ) : (
-              <View>
-                <View style={styles.companyRow}>
-                  <CountryPicker value={country} onChange={setCountry} compact />
-                  <TextInput
-                    value={companyIco}
-                    onChangeText={setCompanyIco}
-                    placeholder={t("onboardingProfile", "manualTaxIdPlaceholder")}
-                    placeholderTextColor={colors.textFaint}
-                    style={[styles.input, { flex: 1 }]}
-                    autoCorrect={false}
-                    maxLength={64}
-                  />
-                </View>
-                <TextInput
-                  value={companyName}
-                  onChangeText={setCompanyName}
-                  placeholder={t("onboardingProfile", "manualNamePlaceholder")}
-                  placeholderTextColor={colors.textFaint}
-                  style={[styles.input, { marginTop: spacing.sm }]}
-                  autoCapitalize="words"
-                  autoCorrect={false}
-                  maxLength={500}
-                />
-                <TextInput
-                  value={companyAddress}
-                  onChangeText={setCompanyAddress}
-                  placeholder={t("onboardingProfile", "manualAddressPlaceholder")}
-                  placeholderTextColor={colors.textFaint}
-                  style={[styles.input, { marginTop: spacing.sm }]}
-                  autoCapitalize="words"
-                  autoCorrect={false}
-                  maxLength={500}
-                />
-                <TextInput
-                  value={companyDic}
-                  onChangeText={setCompanyDic}
-                  placeholder={t("onboardingProfile", "manualVatPlaceholder")}
-                  placeholderTextColor={colors.textFaint}
-                  style={[styles.input, { marginTop: spacing.sm }]}
-                  autoCapitalize="characters"
-                  autoCorrect={false}
-                  maxLength={32}
-                />
-              </View>
-            )}
+            <Text style={styles.label}>{t("onboardingProfile", "countryLabel")}</Text>
+            <CountryPicker value={country} onChange={setCountry} />
           </View>
 
           {consentRequired && (
@@ -393,15 +288,7 @@ function makeStyles(c: Colors) {
     title: { fontSize: fontSize.xxl, fontWeight: "700", color: c.text, marginBottom: spacing.sm },
     subtitle: { fontSize: fontSize.sm, color: c.textMuted, marginBottom: spacing.xl, lineHeight: 20 },
     field: { marginBottom: spacing.lg },
-    // Mezera label → input je vlastnost label samotného (spacing.sm). labelRow
-    // jen řadí label + akce vedle sebe, marginBottom = 0 aby se mezery nečítaly.
-    labelRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
     label: { fontSize: fontSize.xs, color: c.textMuted, textTransform: "uppercase", fontWeight: "600", marginBottom: spacing.sm },
-    labelOptional: { fontSize: fontSize.xs, color: c.textFaint, fontStyle: "italic" },
-    // alignItems: 'flex-start' aby se picker NEVERTICAL-NECENTROVAL když
-    // CompanyLookupField rozšíří wrap o dropdown — picker by jinak skákal
-    // dolů/nahoru s výškou výsledků.
-    companyRow: { flexDirection: "row", gap: spacing.sm, alignItems: "flex-start" },
     input: {
       backgroundColor: c.card,
       borderWidth: 1,
@@ -416,12 +303,6 @@ function makeStyles(c: Colors) {
     fieldError: { fontSize: fontSize.xs, color: c.danger, marginTop: spacing.xs },
     phoneRow: { flexDirection: "row", gap: spacing.sm, alignItems: "center" },
     dialCodeWrap: { minWidth: 100 },
-    hint: { fontSize: fontSize.xs, color: c.textSubtle, marginTop: spacing.xs, lineHeight: 16 },
-    manualToggle: { flexDirection: "row", alignItems: "center", gap: spacing.xs, paddingVertical: 4 },
-    manualCheckbox: { width: 16, height: 16, borderRadius: 4, borderWidth: 2, borderColor: c.border, alignItems: "center", justifyContent: "center" },
-    manualCheckboxOn: { backgroundColor: c.accent, borderColor: c.accent },
-    manualCheckboxMark: { color: c.accentForeground, fontSize: 10, fontWeight: "700" },
-    manualToggleText: { fontSize: fontSize.xs, color: c.textMuted },
     errorText: { fontSize: fontSize.sm, color: c.danger, marginBottom: spacing.md, textAlign: "center" },
     ctaBtn: { backgroundColor: c.accent, paddingVertical: spacing.md, borderRadius: radius.md, alignItems: "center", marginTop: spacing.md },
     ctaBtnText: { color: c.accentForeground, fontSize: fontSize.base, fontWeight: "600" },
