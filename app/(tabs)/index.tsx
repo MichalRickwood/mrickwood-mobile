@@ -177,20 +177,17 @@ export default function MatchesScreen() {
     return t("matches", "counterFilter", { filter: name, count: totalCount });
   }, [activeFilterId, filters, totalCount, t]);
 
-  // 402 = LEADS service není aktivní. Místo paywall (deprecated) redirect na
-  // /(onboarding)/countries — user vybere zemi/země a aktivuje 14d trial.
-  // Paywall byl pro pre-multi-country flow (jedna LEADS služba). Nový tok:
-  // multi-country onboarding s coverage gating.
-  useEffect(() => {
-    if (paymentRequired) {
-      router.replace("/(onboarding)/countries");
-    }
-  }, [paymentRequired, router]);
+  // 402 = LEADS service není aktivní. Předtím jsme dělali auto-redirect na
+  // /(onboarding)/countries, což ale (a) způsobilo redirect loop kdykoli byl
+  // matches cache stale po čerstvé aktivaci, (b) Apple 3.1.1 by mohla flagnout
+  // jako "subscription gating mechanism". Nyní jen prázdný stav s pokynem
+  // jít do Nastavení (kde se země spravují bez Apple-flagged onboarding flow).
   if (paymentRequired) {
     return (
       <SafeAreaView style={styles.safe} edges={["top"]}>
-        <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-          <ActivityIndicator />
+        <View style={styles.entitlementEmpty}>
+          <Text style={styles.entitlementTitle}>{t("matches", "noCountriesTitle")}</Text>
+          <Text style={styles.entitlementBody}>{t("matches", "noCountriesBody")}</Text>
         </View>
       </SafeAreaView>
     );
@@ -658,6 +655,9 @@ const makeStyles = (colors: Colors) =>
     empty: { alignItems: "center", paddingVertical: spacing.xxl * 2 },
     emptyTitle: { fontSize: fontSize.base, fontWeight: "600", color: colors.text, marginBottom: spacing.sm },
     emptyBody: { fontSize: fontSize.sm, color: colors.textSubtle, textAlign: "center", paddingHorizontal: spacing.xl },
+    entitlementEmpty: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: spacing.xl },
+    entitlementTitle: { fontSize: fontSize.base, fontWeight: "600", color: colors.text, marginBottom: spacing.sm, textAlign: "center" },
+    entitlementBody: { fontSize: fontSize.sm, color: colors.textSubtle, textAlign: "center", lineHeight: 20 },
     loadingState: { paddingVertical: spacing.xxl, paddingHorizontal: spacing.xl, alignItems: "center" },
     loadingEmoji: { fontSize: 48, marginBottom: spacing.md },
     loadingTitle: { fontSize: fontSize.base, fontWeight: "600", color: colors.text, marginBottom: spacing.xs },

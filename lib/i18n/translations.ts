@@ -97,6 +97,8 @@ export interface Dict {
     excludedCounter: string;
     excludedEmptyTitle: string;
     excludedEmptyBody: string;
+    noCountriesTitle: string;
+    noCountriesBody: string;
     viewSwitchStarred: string;
     viewSwitchExcluded: string;
     counterAll: string;
@@ -623,6 +625,8 @@ const cs: Dict = {
     excludedCounter: "Odstraněné · {count}",
     excludedEmptyTitle: "Žádné odstraněné",
     excludedEmptyBody: "Zakázky, které odstraníš palcem dolů, se sem uloží. Můžeš je vrátit zpět.",
+    noCountriesTitle: "Zatím žádné země",
+    noCountriesBody: "V nastavení vyberte země, ze kterých chcete sledovat zakázky.",
     viewSwitchStarred: "☆ Sledované",
     viewSwitchExcluded: "👎 Odstraněné",
     counterAll: "Všechny matche · {count}",
@@ -1146,6 +1150,8 @@ const en: Dict = {
     excludedCounter: "Excluded · {count}",
     excludedEmptyTitle: "No excluded tenders",
     excludedEmptyBody: "Tenders you swipe down on are saved here. You can restore them anytime.",
+    noCountriesTitle: "No countries selected yet",
+    noCountriesBody: "Choose the countries to track in settings.",
     viewSwitchStarred: "☆ Starred",
     viewSwitchExcluded: "👎 Excluded",
     counterAll: "All matches · {count}",
@@ -1668,6 +1674,8 @@ const de: Dict = {
     excludedCounter: "Ausgeblendet · {count}",
     excludedEmptyTitle: "Nichts ausgeblendet",
     excludedEmptyBody: "Ausschreibungen, die Sie ausblenden, landen hier. Sie können sie jederzeit wiederherstellen.",
+    noCountriesTitle: "Noch keine Länder ausgewählt",
+    noCountriesBody: "Wählen Sie in den Einstellungen die Länder, die Sie verfolgen möchten.",
     viewSwitchStarred: "☆ Favoriten",
     viewSwitchExcluded: "👎 Ausgeblendet",
     counterAll: "Alle Treffer · {count}",

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useFocusEffect } from "expo-router";
 import {
   ActivityIndicator,
@@ -64,17 +64,14 @@ export default function StarredScreen() {
     void q.refetch();
   }, [q]);
 
-  // 402 = LEADS service není aktivní → redirect na onboarding (paywall deprecated).
-  useEffect(() => {
-    if (paymentRequired) {
-      router.replace("/(onboarding)/countries");
-    }
-  }, [paymentRequired, router]);
+  // 402 = LEADS service není aktivní. Bez auto-redirectu na onboarding —
+  // viz důvody v (tabs)/index.tsx: prevence loop a Apple 3.1.1 alignment.
   if (paymentRequired) {
     return (
       <SafeAreaView style={styles.safe} edges={["top"]}>
-        <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-          <ActivityIndicator />
+        <View style={styles.entitlementEmpty}>
+          <Text style={styles.entitlementTitle}>{t("matches", "noCountriesTitle")}</Text>
+          <Text style={styles.entitlementBody}>{t("matches", "noCountriesBody")}</Text>
         </View>
       </SafeAreaView>
     );
@@ -230,4 +227,7 @@ const makeStyles = (colors: Colors) =>
     empty: { alignItems: "center", paddingVertical: spacing.xxl * 2 },
     emptyTitle: { fontSize: fontSize.base, fontWeight: "600", color: colors.text, marginBottom: spacing.sm },
     emptyBody: { fontSize: fontSize.sm, color: colors.textSubtle, textAlign: "center", paddingHorizontal: spacing.xl },
+    entitlementEmpty: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: spacing.xl },
+    entitlementTitle: { fontSize: fontSize.base, fontWeight: "600", color: colors.text, marginBottom: spacing.sm, textAlign: "center" },
+    entitlementBody: { fontSize: fontSize.sm, color: colors.textSubtle, textAlign: "center", lineHeight: 20 },
   });

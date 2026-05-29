@@ -216,10 +216,17 @@ export default function OnboardingCountries() {
       // Atomická batch aktivace — buď všechny vybrané země nebo žádná. Backend
       // skipuje země už aktivní (bezpečné poslat celé selection).
       await endpoints.activateLeadsBatch(newSelections);
-      // Invalidate caches → billing screen ukáže nové scopes po návratu.
-      await qc.invalidateQueries({ queryKey: ["account-subscriptions"] });
-      await qc.invalidateQueries({ queryKey: ["billing"] });
-      await qc.invalidateQueries({ queryKey: ["service", "leads"] });
+      // Invalidate caches → tabs ukáží nový stav po návratu. KRITICKÉ: invaliduj
+      // i `matches` query, jinak tabs/index + tabs/starred zobrazí cached 402
+      // (z předaktivačního stavu) a může to vyvolat loop redirect zpět sem.
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["account-subscriptions"] }),
+        qc.invalidateQueries({ queryKey: ["billing"] }),
+        qc.invalidateQueries({ queryKey: ["service", "leads"] }),
+        qc.invalidateQueries({ queryKey: ["matches"] }),
+        qc.invalidateQueries({ queryKey: ["filters"] }),
+        qc.invalidateQueries({ queryKey: ["profile-v2"] }),
+      ]);
       // Po aktivaci → tabs (profil už je kompletní, jinak by se k aktivaci
       // user nedostal kvůli pre-flight checku výše).
       router.replace("/(tabs)");
