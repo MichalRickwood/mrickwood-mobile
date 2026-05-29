@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
+import { useQueryClient } from "@tanstack/react-query";
 import CountryPicker from "@/components/CountryPicker";
 import CompanyLookupField from "@/components/CompanyLookupField";
 import DialCodePicker from "@/components/DialCodePicker";
@@ -48,6 +49,7 @@ export default function OnboardingProfile() {
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const router = useRouter();
+  const qc = useQueryClient();
 
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState<string | null>(null);
@@ -89,10 +91,10 @@ export default function OnboardingProfile() {
       try {
         const p = await endpoints.getProfileV2();
         if (cancelled) return;
-        // Pokud má profil + IČO kompletní → další krok (countries pokud
-        // chybí sub, jinak tabs). RouterGuard ve _layout.tsx to už řeší —
-        // tady jen kontrola že na profilu nedrží usera bez důvodu.
-        if (p.name && p.country && p.ico) {
+        // Profil kompletní (name + country, IČO je optional) + consent ok →
+        // skip rovnou na countries. Bez tohoto by user s vyplněným profilem
+        // (návrat ze Settings) viděl prázdné formové pole místo aby šel dál.
+        if (p.name && p.country && !p.consentRequired) {
           router.replace("/(onboarding)/countries");
           return;
         }
@@ -168,6 +170,10 @@ export default function OnboardingProfile() {
         input.consentGdpr = consentGdpr;
       }
       await endpoints.updateProfileV2(input);
+      // Invalidate profileQuery cache aby countries.tsx pre-flight check
+      // viděl čerstvý stav (jinak by mu staleTime 5 min ukázal starý
+      // profile=incomplete a redirectoval by zpět na profile → smyčka).
+      await qc.invalidateQueries({ queryKey: ["profile-v2"] });
       // Profile complete → countries picker (router guard pak rozhodne)
       router.replace("/(onboarding)/countries");
     } catch (e) {
