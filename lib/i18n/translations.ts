@@ -475,6 +475,7 @@ export interface Dict {
     alreadyActive: string;
     notAvailable: string;
     partialCoverage: string;
+    activeTendersCount: string;
     requestCountry: string;
     requestSubmitted: string;
     requestToggle: string;
@@ -1017,6 +1018,7 @@ const cs: Dict = {
     alreadyActive: "Aktivní",
     notAvailable: "Brzy",
     partialCoverage: "Částečné pokrytí",
+    activeTendersCount: "{count} aktivních zakázek",
     requestCountry: "Požádat o přidání",
     requestSubmitted: "✓ Žádost odeslána, ozveme se",
     requestToggle: "Nevidíte svou zemi? Požádejte o její přidání →",
@@ -1554,6 +1556,7 @@ const en: Dict = {
     alreadyActive: "Active",
     notAvailable: "Coming soon",
     partialCoverage: "Partial coverage",
+    activeTendersCount: "{count} active tenders",
     requestCountry: "Request country",
     requestSubmitted: "✓ Request sent, we'll get back to you",
     requestToggle: "Don't see your country? Request to add it →",
@@ -2093,6 +2096,7 @@ const de: Dict = {
     alreadyActive: "Aktiv",
     notAvailable: "Bald verfügbar",
     partialCoverage: "Teilweise Abdeckung",
+    activeTendersCount: "{count} aktive Ausschreibungen",
     requestCountry: "Land anfragen",
     requestSubmitted: "✓ Anfrage gesendet, wir melden uns",
     requestToggle: "Ihr Land fehlt? Anfragen zur Hinzufügung →",

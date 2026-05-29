@@ -23,6 +23,22 @@ import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 // se v mobile vědomě nezobrazují (App Store 3.1.1/3.1.3(c)) — ceník je
 // dostupný jen na webu. Pole `price` necháváme v typu jen pro shape match,
 // abychom mohli vrátit ceny v budoucnu (např. po IAP migraci) bez API změny.
+
+/**
+ * Locale-aware thousand separator (CZ "1 234", DE "1.234", EN "1,234"). Pro
+ * země s ≥10k aktivních zakázek (CZ obvykle ~24k) jinak číslo splývá v jedno.
+ * Fallback na hrubý formátting kdyby Intl.NumberFormat selhal (Hermes edge case).
+ */
+function fmtCoverage(n: number, locale: string): string {
+  try {
+    return new Intl.NumberFormat(
+      locale === "cs" ? "cs-CZ" : locale === "de" ? "de-DE" : "en-US",
+    ).format(n);
+  } catch {
+    return String(n);
+  }
+}
+
 interface Country {
   code: string;
   flag: string;
@@ -369,6 +385,13 @@ export default function OnboardingCountries() {
               <Image source={{ uri: flagUrl }} style={styles.flag} />
               <View style={styles.countryInfo}>
                 <Text style={styles.countryName}>{label}</Text>
+                {c.available && (
+                  <Text style={styles.coverageText}>
+                    {t("onboardingCountries", "activeTendersCount", {
+                      count: fmtCoverage(c.coverage, locale),
+                    })}
+                  </Text>
+                )}
                 {!c.available && (
                   <Text style={styles.countryBadge}>{t("onboardingCountries", "notAvailable")}</Text>
                 )}
@@ -442,6 +465,7 @@ function makeStyles(c: Colors) {
     priceStrikethrough: { fontSize: fontSize.xs, color: c.textFaint, textDecorationLine: "line-through" },
     discountBadge: { fontSize: 10, fontWeight: "700", color: c.success, backgroundColor: c.successBg, paddingHorizontal: 6, paddingVertical: 1, borderRadius: 4 },
     countryBadge: { fontSize: fontSize.xs, color: c.warning, marginTop: 2 },
+    coverageText: { fontSize: fontSize.xs, color: c.textMuted, marginTop: 2 },
     activeBadge: { backgroundColor: c.successBg, paddingHorizontal: spacing.sm, paddingVertical: 4, borderRadius: radius.sm },
     activeBadgeText: { fontSize: 10, fontWeight: "700", color: c.success, textTransform: "uppercase", letterSpacing: 0.5 },
     partialTag: { alignSelf: "flex-start", marginTop: 4, backgroundColor: c.warningBg, borderWidth: 1, borderColor: c.warning, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
