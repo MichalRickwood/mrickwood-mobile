@@ -19,9 +19,10 @@ import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme-context";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 
-type Currency = "CZK" | "EUR";
-type Cycle = "MONTHLY" | "YEARLY";
-
+// Country object z /api/v2/leads/countries. Price/discount metadata
+// se v mobile vědomě nezobrazují (App Store 3.1.1/3.1.3(c)) — ceník je
+// dostupný jen na webu. Pole `price` necháváme v typu jen pro shape match,
+// abychom mohli vrátit ceny v budoucnu (např. po IAP migraci) bez API změny.
 interface Country {
   code: string;
   flag: string;
@@ -33,32 +34,6 @@ interface Country {
   trialEnabled: boolean;
   coverage: number;
   available: boolean;
-}
-
-// Volume discount tiers — match s lib/leads-countries.ts na backendu.
-function discountPct(n: number): number {
-  if (n >= 5) return 0.5;
-  if (n === 4) return 0.4;
-  if (n === 3) return 0.3;
-  if (n === 2) return 0.2;
-  return 0;
-}
-
-function priceFor(c: Country, cur: Currency, cycle: Cycle): number {
-  const bucket = cur === "CZK" ? c.price.czk : c.price.eur;
-  return cycle === "YEARLY" ? bucket.yearly : bucket.monthly;
-}
-
-function fmtPrice(amount: number, cur: Currency, locale: string): string {
-  try {
-    return new Intl.NumberFormat(locale === "cs" ? "cs-CZ" : locale === "de" ? "de-DE" : "en-US", {
-      style: "currency",
-      currency: cur,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  } catch {
-    return `${amount} ${cur}`;
-  }
 }
 
 export default function OnboardingCountries() {
@@ -98,8 +73,6 @@ export default function OnboardingCountries() {
     return set;
   }, [subsQuery.data]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [currency, setCurrency] = useState<Currency>(locale === "cs" ? "CZK" : "EUR");
-  const [cycle, setCycle] = useState<Cycle>("MONTHLY");
   const [activating, setActivating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [requestOpen, setRequestOpen] = useState(false);
@@ -171,22 +144,6 @@ export default function OnboardingCountries() {
     return [...selected].filter((c) => !activeScopes.has(c));
   }, [selected, activeScopes]);
 
-  const subtotal = useMemo(() => {
-    if (!countries) return 0;
-    return newSelections.reduce((s, code) => {
-      const c = countries.find((x) => x.code === code);
-      if (!c) return s;
-      return s + priceFor(c, currency, cycle);
-    }, 0);
-  }, [countries, newSelections, currency, cycle]);
-
-  // Tier discount se počítá z TOTAL scopes po aktivaci (existující + nové).
-  // Match s backend pricing — pricingCtx.discountPct vychází z total billable scopes.
-  const totalScopeCount = activeScopes.size + newSelections.length;
-  const pct = discountPct(totalScopeCount);
-  const discountAmount = Math.round(subtotal * pct);
-  const total = subtotal - discountAmount;
-
   function toggle(code: string) {
     if (activeScopes.has(code)) return; // locked
     setSelected((prev) => {
@@ -225,11 +182,12 @@ export default function OnboardingCountries() {
     // profil screen MÍSTO API callu — předtím UI tiše hodil error v footeru
     // (off-screen) a user viděl jen spinning button (bug report 2026-05-29).
     const profile = profileQuery.data;
+    // IČO je volitelný (App Store 3.1.1) — nevyžadujeme v pre-flight checku.
+    // Server fallback: 1-trial-per-userId na (userId, service, scope) unique key.
     const needsProfile =
       !profile ||
       !profile.name ||
       !profile.country ||
-      !profile.ico ||
       profile.consentRequired;
     if (needsProfile) {
       router.replace("/(onboarding)/profile");
@@ -336,44 +294,10 @@ export default function OnboardingCountries() {
               </View>
             )}
 
-            <View style={styles.toggleRow}>
-              <View style={[styles.segmented, { flex: 1.4 }]}>
-                <Pressable
-                  onPress={() => setCycle("MONTHLY")}
-                  style={[styles.segment, cycle === "MONTHLY" && styles.segmentActive]}
-                >
-                  <Text style={[styles.segmentText, cycle === "MONTHLY" && styles.segmentTextActive]}>
-                    {t("onboardingCountries", "cycleMonthly")}
-                  </Text>
-                </Pressable>
-                <Pressable
-                  onPress={() => setCycle("YEARLY")}
-                  style={[styles.segment, cycle === "YEARLY" && styles.segmentActive]}
-                >
-                  <Text style={[styles.segmentText, cycle === "YEARLY" && styles.segmentTextActive]}>
-                    {t("onboardingCountries", "cycleYearly")}
-                  </Text>
-                </Pressable>
-              </View>
-              <View style={[styles.segmented, { flex: 1 }]}>
-                <Pressable
-                  onPress={() => setCurrency("CZK")}
-                  style={[styles.segment, currency === "CZK" && styles.segmentActive]}
-                >
-                  <Text style={[styles.segmentText, currency === "CZK" && styles.segmentTextActive]}>
-                    CZK
-                  </Text>
-                </Pressable>
-                <Pressable
-                  onPress={() => setCurrency("EUR")}
-                  style={[styles.segment, currency === "EUR" && styles.segmentActive]}
-                >
-                  <Text style={[styles.segmentText, currency === "EUR" && styles.segmentTextActive]}>
-                    EUR
-                  </Text>
-                </Pressable>
-              </View>
-            </View>
+            {/* App Store 3.1.1 / 3.1.3(c): mobile UI nesmí ukazovat ceny ani
+                cycle toggle (vypadalo by to jako sales mechanism v appce).
+                Billing + ceník je výhradně na webu (mrickwood.cz/pricing).
+                Country picker zde slouží pouze jako filter preference. */}
 
             <View style={styles.selectAllRow}>
               <Pressable onPress={selectAll} style={styles.selectAllBtn}>
@@ -430,11 +354,6 @@ export default function OnboardingCountries() {
         renderItem={({ item: c }) => {
           const isActive = activeScopes.has(c.code);
           const isSelected = selected.has(c.code);
-          const price = priceFor(c, currency, cycle);
-          const isCountedInTier = isSelected || isActive;
-          const discounted = isCountedInTier && pct > 0 ? Math.round(price * (1 - pct)) : price;
-          const showDiscount = isCountedInTier && pct > 0;
-          const perLabel = cycle === "YEARLY" ? t("onboardingCountries", "perYear") : t("onboardingCountries", "perMonth");
           const label = c.labels[locale] ?? c.labels.en;
           const flagUrl = `https://flagcdn.com/24x18/${c.code.toLowerCase()}.png`;
           return (
@@ -450,19 +369,7 @@ export default function OnboardingCountries() {
               <Image source={{ uri: flagUrl }} style={styles.flag} />
               <View style={styles.countryInfo}>
                 <Text style={styles.countryName}>{label}</Text>
-                {c.available ? (
-                  <View style={styles.priceRow}>
-                    <Text style={styles.countryPrice}>
-                      {fmtPrice(discounted, currency, locale)}{perLabel}
-                    </Text>
-                    {showDiscount && (
-                      <Text style={styles.priceStrikethrough}>{fmtPrice(price, currency, locale)}</Text>
-                    )}
-                    {showDiscount && (
-                      <Text style={styles.discountBadge}>−{Math.round(pct * 100)} %</Text>
-                    )}
-                  </View>
-                ) : (
+                {!c.available && (
                   <Text style={styles.countryBadge}>{t("onboardingCountries", "notAvailable")}</Text>
                 )}
                 {c.available && c.code !== "CZ" && !isActive && (
@@ -485,37 +392,8 @@ export default function OnboardingCountries() {
         }}
         ListFooterComponent={
           <View style={styles.footer}>
-            {newSelections.length > 0 && (
-              <View style={styles.summary}>
-                <View style={styles.summaryHeader}>
-                  <Text style={styles.summaryTitle}>{t("onboardingCountries", "summaryTitle")}</Text>
-                  <Text style={styles.summaryCount}>
-                    {t("onboardingCountries", "countriesCount", { count: newSelections.length })}
-                  </Text>
-                </View>
-                <View style={styles.summaryRow}>
-                  <Text style={styles.summaryLabel}>{t("onboardingCountries", "summarySubtotal")}</Text>
-                  <Text style={styles.summaryValue}>{fmtPrice(subtotal, currency, locale)}</Text>
-                </View>
-                {pct > 0 && (
-                  <View style={styles.summaryRow}>
-                    <Text style={[styles.summaryLabel, { color: colors.success }]}>
-                      {t("onboardingCountries", "summaryDiscount", { pct: Math.round(pct * 100) })}
-                    </Text>
-                    <Text style={[styles.summaryValue, { color: colors.success }]}>
-                      −{fmtPrice(discountAmount, currency, locale)}
-                    </Text>
-                  </View>
-                )}
-                <View style={[styles.summaryRow, styles.summaryRowTotal]}>
-                  <Text style={styles.summaryTotalLabel}>{t("onboardingCountries", "summaryAfterTrial")}</Text>
-                  <Text style={styles.summaryTotalValue}>
-                    {fmtPrice(total, currency, locale)}{cycle === "YEARLY" ? t("onboardingCountries", "perYear") : t("onboardingCountries", "perMonth")}
-                  </Text>
-                </View>
-              </View>
-            )}
-
+            {/* App Store 3.1.1: footer summary s cenami/slevami pryč. Pro
+                přehled ceníku směruj uživatele na webový dashboard. */}
             {error && <Text style={styles.errorText}>{error}</Text>}
           </View>
         }

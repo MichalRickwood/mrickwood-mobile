@@ -137,10 +137,10 @@ export default function OnboardingProfile() {
       setError(t("onboardingProfile", "countryRequired"));
       return;
     }
-    if (!companyIco.trim()) {
-      setError(t("onboardingProfile", "icoRequired"));
-      return;
-    }
+    // IČO/tax ID je optional (App Store 3.1.1 — mobile registrace nesmí vyžadovat
+    // business identifikátory, ty patří na web pro billing). Pokud user pošle,
+    // server ho uloží a aplikuje 1-trial-per-IČO anti-abuse; jinak trial běží
+    // bez něj a anti-abuse fallback je per-email/per-userId.
     if (email.trim() && !EMAIL_RE.test(email.trim())) {
       setEmailError(t("onboardingProfile", "emailInvalid"));
       setError(t("onboardingProfile", "emailInvalid"));
