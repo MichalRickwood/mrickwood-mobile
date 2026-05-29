@@ -519,12 +519,10 @@ export interface Dict {
     phoneLabel: string;
     phonePlaceholder: string;
     phoneOptional: string;
-    countryLabel: string;
     cta: string;
     saving: string;
     saveFailed: string;
     nameRequired: string;
-    countryRequired: string;
     emailInvalid: string;
     consentIntro: string;
     consentVopLabel: string;
@@ -1048,12 +1046,10 @@ const cs: Dict = {
     phoneLabel: "Telefon",
     phonePlaceholder: "+420 …",
     phoneOptional: "nepovinné",
-    countryLabel: "Země",
     cta: "Pokračovat",
     saving: "Ukládám…",
     saveFailed: "Uložení selhalo. Zkuste to znovu.",
     nameRequired: "Vyplňte jméno.",
-    countryRequired: "Vyberte zemi.",
     emailInvalid: "Neplatný formát emailu.",
     consentIntro: "Pro pokračování potřebujeme váš souhlas:",
     consentVopLabel: "Souhlasím s Všeobecnými obchodními podmínkami.",
@@ -1572,12 +1568,10 @@ const en: Dict = {
     phoneLabel: "Phone",
     phonePlaceholder: "+1 …",
     phoneOptional: "optional",
-    countryLabel: "Country",
     cta: "Continue",
     saving: "Saving…",
     saveFailed: "Save failed. Please try again.",
     nameRequired: "Please enter your name.",
-    countryRequired: "Please select a country.",
     emailInvalid: "Invalid email format.",
     consentIntro: "To continue we need your consent:",
     consentVopLabel: "I agree to the Terms of Service.",
@@ -2098,12 +2092,10 @@ const de: Dict = {
     phoneLabel: "Telefon",
     phonePlaceholder: "+49 …",
     phoneOptional: "optional",
-    countryLabel: "Land",
     cta: "Weiter",
     saving: "Speichere…",
     saveFailed: "Speichern fehlgeschlagen. Bitte erneut versuchen.",
     nameRequired: "Bitte geben Sie Ihren Namen ein.",
-    countryRequired: "Bitte wählen Sie ein Land aus.",
     emailInvalid: "Ungültiges E-Mail-Format.",
     consentIntro: "Zum Fortfahren benötigen wir Ihre Zustimmung:",
     consentVopLabel: "Ich stimme den AGB zu.",

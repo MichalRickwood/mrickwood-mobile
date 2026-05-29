@@ -13,7 +13,6 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useQueryClient } from "@tanstack/react-query";
-import CountryPicker from "@/components/CountryPicker";
 import DialCodePicker from "@/components/DialCodePicker";
 import { defaultDialCodeForLocale, DIAL_CODES } from "@/lib/dial-codes";
 import { endpoints } from "@/lib/endpoints";
@@ -55,12 +54,15 @@ export default function OnboardingProfile() {
   const [name, setName] = useState("");
   const [dialCode, setDialCode] = useState(defaultDialCodeForLocale(locale));
   const [phoneLocal, setPhoneLocal] = useState("");
-  const [country, setCountry] = useState("CZ");
 
   // App Store 3.1.1: company / IČO / DIČ / address (business identifikátory)
   // se v mobile vědomě nesbírají — Apple zamítl "registration features for
   // businesses and organizations". Pokud user potřebuje vyplnit fakturační
   // údaje (B2B), udělá to na webu v mrickwood.cz/dashboard/settings/billing.
+  //
+  // Country se taky neptáme přímo — derivujeme ho z předvolby telefonu
+  // (DialCode.iso). User vybírá +420/+49/+33 v phone fieldu, server dostane
+  // ISO code automaticky.
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -77,7 +79,7 @@ export default function OnboardingProfile() {
       try {
         const p = await endpoints.getProfileV2();
         if (cancelled) return;
-        // Profil kompletní (name + country, IČO je optional) + consent ok →
+        // Profil kompletní (name + country derived z telefonu) + consent ok →
         // skip rovnou na countries. Bez tohoto by user s vyplněným profilem
         // (návrat ze Settings) viděl prázdné formové pole místo aby šel dál.
         if (p.name && p.country && !p.consentRequired) {
@@ -86,10 +88,14 @@ export default function OnboardingProfile() {
         }
         setEmail(p.email);
         setName(p.name ?? "");
-        const { dial, local } = splitPhone(p.phone, defaultDialCodeForLocale(locale));
+        // Dial code preferuj ze server-side country pokud uložená (matchni
+        // ISO → DialCode), jinak split z phone, jinak default per locale.
+        const dialFromCountry = p.country
+          ? DIAL_CODES.find((d) => d.iso === p.country)?.code ?? null
+          : null;
+        const { dial, local } = splitPhone(p.phone, dialFromCountry ?? defaultDialCodeForLocale(locale));
         setDialCode(dial);
         setPhoneLocal(local);
-        if (p.country) setCountry(p.country);
         setConsentRequired(!!p.consentRequired);
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : String(e));
@@ -116,14 +122,14 @@ export default function OnboardingProfile() {
       setError(t("onboardingProfile", "nameRequired"));
       return;
     }
-    if (!country) {
-      setError(t("onboardingProfile", "countryRequired"));
-      return;
-    }
+    // Country derived z dial code (předvolby). Fallback CZ kdyby DIAL_CODES
+    // matchnutí selhalo (custom dial code mimo katalog by neměl projít UI).
+    const derivedCountry = DIAL_CODES.find((d) => d.code === dialCode)?.iso ?? "CZ";
+
     // Žádné business fields (firma/IČO/DIČ/adresa) — Apple 3.1.1 zakazuje
     // mobile "registration features for businesses and organizations". User je
     // vyplní na webu (mrickwood.cz/dashboard/settings/billing) pokud chce B2B
-    // billing. Mobile profile = osobní kontaktní údaje + země.
+    // billing. Mobile profile = osobní kontaktní údaje.
     if (email.trim() && !EMAIL_RE.test(email.trim())) {
       setEmailError(t("onboardingProfile", "emailInvalid"));
       setError(t("onboardingProfile", "emailInvalid"));
@@ -138,7 +144,7 @@ export default function OnboardingProfile() {
     try {
       const input: Parameters<typeof endpoints.updateProfileV2>[0] = {
         name: trimmedName,
-        country,
+        country: derivedCountry,
       };
       const phoneDigits = phoneLocal.replace(/\D/g, "");
       if (phoneDigits) input.phone = `${dialCode} ${phoneDigits}`;
@@ -226,11 +232,6 @@ export default function OnboardingProfile() {
                 maxLength={20}
               />
             </View>
-          </View>
-
-          <View style={styles.field}>
-            <Text style={styles.label}>{t("onboardingProfile", "countryLabel")}</Text>
-            <CountryPicker value={country} onChange={setCountry} />
           </View>
 
           {consentRequired && (
