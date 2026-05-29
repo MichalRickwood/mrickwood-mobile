@@ -126,6 +126,20 @@ export default function OnboardingCountries() {
     }
   }
 
+  // Defense-in-depth: pokud user dorazí na countries bez kompletního profilu
+  // (RouterGuard cache race, manuální navigace, fallback po failed updateProfile),
+  // přesměrujeme zpět na profile. Bez tohohle by user viděl spinner na "Spustit
+  // trial" + tichý 400 v footeru (off-screen) — vypadalo to že nic nedělá.
+  useEffect(() => {
+    if (profileQuery.isPending) return;
+    const p = profileQuery.data;
+    const needsProfile =
+      !p || !p.name || !p.country || !p.ico || p.consentRequired;
+    if (needsProfile) {
+      router.replace("/(onboarding)/profile");
+    }
+  }, [profileQuery.isPending, profileQuery.data, router]);
+
   // Pre-check existující aktivní scopes (jen jednou při prvním načtení subs).
   // Fallback pro first-time user (žádné scopes): default na profile.country,
   // jinak CZ. Country musí být v katalogu (jinak skip — exotické země typu BR).
@@ -201,10 +215,27 @@ export default function OnboardingCountries() {
 
   async function activate() {
     if (newSelections.length === 0) {
-      // Returning user co jen prochází → rovnou na profile gating (RouterGuard rozhodne)
-      if (activeScopes.size > 0) router.replace("/(onboarding)/profile");
+      // Returning user co jen prochází → rovnou do tabs (nic ke schválení)
+      if (activeScopes.size > 0) router.replace("/(tabs)");
       return; // first-time user without selection — disabled button stops them
     }
+
+    // Pre-flight: backend trial activation vyžaduje kompletní profile
+    // (name + country + IČO + consent). Pokud profil chybí, redirect na
+    // profil screen MÍSTO API callu — předtím UI tiše hodil error v footeru
+    // (off-screen) a user viděl jen spinning button (bug report 2026-05-29).
+    const profile = profileQuery.data;
+    const needsProfile =
+      !profile ||
+      !profile.name ||
+      !profile.country ||
+      !profile.ico ||
+      profile.consentRequired;
+    if (needsProfile) {
+      router.replace("/(onboarding)/profile");
+      return;
+    }
+
     setActivating(true);
     setError(null);
     try {
@@ -215,8 +246,9 @@ export default function OnboardingCountries() {
       await qc.invalidateQueries({ queryKey: ["account-subscriptions"] });
       await qc.invalidateQueries({ queryKey: ["billing"] });
       await qc.invalidateQueries({ queryKey: ["service", "leads"] });
-      // Po aktivaci → profile completion (name/phone/country/company)
-      router.replace("/(onboarding)/profile");
+      // Po aktivaci → tabs (profil už je kompletní, jinak by se k aktivaci
+      // user nedostal kvůli pre-flight checku výše).
+      router.replace("/(tabs)");
     } catch (e) {
       setError(e instanceof Error ? e.message : t("onboardingCountries", "activateFailed"));
     } finally {
@@ -298,6 +330,11 @@ export default function OnboardingCountries() {
           <View style={styles.header}>
             <Text style={styles.subtitle}>{t("onboardingCountries", "subtitle")}</Text>
             <Text style={styles.trialNote}>{t("onboardingCountries", "trialNote")}</Text>
+            {error && (
+              <View style={styles.errorBanner}>
+                <Text style={styles.errorBannerText}>{error}</Text>
+              </View>
+            )}
 
             <View style={styles.toggleRow}>
               <View style={[styles.segmented, { flex: 1.4 }]}>
@@ -546,6 +583,16 @@ function makeStyles(c: Colors) {
     summaryTotalLabel: { fontSize: fontSize.base, color: c.text, fontWeight: "600" },
     summaryTotalValue: { fontSize: fontSize.base, color: c.text, fontWeight: "700" },
     errorText: { fontSize: fontSize.sm, color: c.danger, marginBottom: spacing.md, textAlign: "center" },
+    errorBanner: {
+      backgroundColor: c.dangerBg,
+      borderWidth: 1,
+      borderColor: c.danger,
+      borderRadius: radius.sm,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      marginBottom: spacing.md,
+    },
+    errorBannerText: { color: c.danger, fontSize: fontSize.sm, lineHeight: 18 },
     headerSaveBtn: { paddingHorizontal: spacing.sm, paddingVertical: 6, marginRight: spacing.sm, alignItems: "center", justifyContent: "center" },
     headerSaveText: { color: c.text, fontSize: 17, fontWeight: "400" },
     footerNote: { fontSize: fontSize.xs, color: c.textSubtle, textAlign: "center", marginTop: spacing.md, lineHeight: 16 },
