@@ -33,8 +33,7 @@
       "env": {
         "EXPO_PUBLIC_API_BASE_URL": "https://mrickwood.cz",
         "EXPO_PUBLIC_GITHUB_CLIENT_ID": "Ov23li4qyINmMmAuNfnq",
-        "EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID": "513591543173-5g22haim45u2v0u6a1ffvtdprdeicbsl.apps.googleusercontent.com",
-        "EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID": ""
+        "EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID": "513591543173-5g22haim45u2v0u6a1ffvtdprdeicbsl.apps.googleusercontent.com"
       }
     }
   },
