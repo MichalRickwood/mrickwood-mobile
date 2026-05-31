@@ -215,7 +215,6 @@ export default function RegisterScreen() {
               label={t("register", "consentVopPre")}
               linkText={t("register", "consentVopLink")}
               linkUrl={`${API_BASE_URL}/vop`}
-              tail={t("register", "consentVopTail")}
             />
             <Checkbox styles={styles}
               checked={consentGdpr}
@@ -289,7 +288,7 @@ function Checkbox({
   label: string;
   linkText: string;
   linkUrl: string;
-  tail: string;
+  tail?: string;
 }) {
   return (
     <Pressable onPress={onToggle} style={styles.checkboxRow}>
@@ -306,8 +305,8 @@ function Checkbox({
           }}
         >
           {linkText}
-        </Text>{" "}
-        {tail}
+        </Text>
+        {tail ? <>{" "}{tail}</> : null}
       </Text>
     </Pressable>
   );

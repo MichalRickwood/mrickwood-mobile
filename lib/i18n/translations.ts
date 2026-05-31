@@ -53,7 +53,6 @@ export interface Dict {
     passwordPlaceholder: string;
     consentVopPre: string;
     consentVopLink: string;
-    consentVopTail: string;
     consentGdprPre: string;
     consentGdprLink: string;
     consentGdprTail: string;
@@ -577,8 +576,7 @@ const cs: Dict = {
     passwordLabel: "Heslo (min. 8 znaků)",
     passwordPlaceholder: "Vaše heslo",
     consentVopPre: "Souhlasím s",
-    consentVopLink: "obchodními podmínkami",
-    consentVopTail: "a potvrzuji, že jednám v rámci podnikatelské činnosti.",
+    consentVopLink: "obchodními podmínkami.",
     consentGdprPre: "Souhlasím se",
     consentGdprLink: "zpracováním osobních údajů",
     consentGdprTail: "dle GDPR.",
@@ -1100,8 +1098,7 @@ const en: Dict = {
     passwordLabel: "Password (min. 8 chars)",
     passwordPlaceholder: "Your password",
     consentVopPre: "I agree to the",
-    consentVopLink: "Terms of Service",
-    consentVopTail: "and confirm I am acting as a business.",
+    consentVopLink: "Terms of Service.",
     consentGdprPre: "I agree to the",
     consentGdprLink: "processing of personal data",
     consentGdprTail: "under GDPR.",
@@ -1622,8 +1619,7 @@ const de: Dict = {
     passwordLabel: "Passwort (min. 8 Zeichen)",
     passwordPlaceholder: "Ihr Passwort",
     consentVopPre: "Ich stimme den",
-    consentVopLink: "Geschäftsbedingungen",
-    consentVopTail: "zu und bestätige, dass ich gewerblich tätig bin.",
+    consentVopLink: "Geschäftsbedingungen zu.",
     consentGdprPre: "Ich stimme der",
     consentGdprLink: "Verarbeitung personenbezogener Daten",
     consentGdprTail: "gemäß DSGVO zu.",
