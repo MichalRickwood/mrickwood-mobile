@@ -48,48 +48,57 @@ function RouterGuard() {
     // Profile minimum = name + country. IČO je volitelný (App Store 3.1.1 —
     // mobile registrace nesmí business ID vyžadovat). Bez IČO trial běží
     // a anti-abuse 1-trial-per-IČO se aplikuje jen pokud user IČO vyplní.
-    if (!onboardingChecked && !inOnboarding) {
-      let cancelled = false;
-      (async () => {
-        try {
-          const profile = await endpoints.getProfileV2().catch(() => null);
-          if (cancelled) return;
-          const needsProfile = !profile || !profile.name || !profile.country;
-          if (needsProfile) {
-            setOnboardingChecked(true);
-            router.replace("/(onboarding)/profile");
-            return;
-          }
-          // Má kompletní profil — zkontroluj LEADS subscription
-          const subs = await endpoints.listSubscriptions().catch(() => []);
-          if (cancelled) return;
-          const hasActiveLeads = subs.some(
-            (s) =>
-              s.service === "LEADS" &&
-              s.state !== "CANCELED" &&
-              s.state !== "SUSPENDED",
-          );
-          setOnboardingChecked(true);
-          if (!hasActiveLeads) {
-            router.replace("/(onboarding)/countries");
-          } else if (inAuth) {
-            router.replace("/(tabs)");
-          }
-        } catch {
-          if (!cancelled) {
-            setOnboardingChecked(true);
-            if (inAuth) router.replace("/(tabs)");
-          }
-        }
-      })();
-      return () => {
-        cancelled = true;
-      };
+
+    // Pokud check už proběhl, jen řešíme přechod z (auth) do (tabs).
+    // POZOR: žádný fallback na (tabs) v dalších branchích — race s async
+    // checkem dřív vyhazoval OAuth usery rovnou do matches "Zatím žádné země".
+    if (onboardingChecked) {
+      if (inAuth) router.replace("/(tabs)");
+      return;
     }
 
-    if (inAuth && onboardingChecked) {
-      router.replace("/(tabs)");
-    }
+    // Uvnitř onboardingu necháváme uživatele dokončit flow.
+    if (inOnboarding) return;
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const profile = await endpoints.getProfileV2().catch(() => null);
+        if (cancelled) return;
+        const needsProfile = !profile || !profile.name || !profile.country;
+        if (needsProfile) {
+          // Navigaci spouštíme DŘÍV než state update — jinak useEffect re-run
+          // s onboardingChecked=true + segments ještě v (auth) by spustil
+          // (auth)→(tabs) přesměrování dřív, než se router.replace propagne.
+          router.replace("/(onboarding)/profile");
+          setOnboardingChecked(true);
+          return;
+        }
+        const subs = await endpoints.listSubscriptions().catch(() => []);
+        if (cancelled) return;
+        const hasActiveLeads = subs.some(
+          (s) =>
+            s.service === "LEADS" &&
+            s.state !== "CANCELED" &&
+            s.state !== "SUSPENDED",
+        );
+        if (!hasActiveLeads) {
+          router.replace("/(onboarding)/countries");
+        } else if (inAuth) {
+          router.replace("/(tabs)");
+        }
+        setOnboardingChecked(true);
+      } catch {
+        // Nečekaný throw v guardu — bezpečný fallback je onboarding, ne tabs.
+        if (!cancelled) {
+          router.replace("/(onboarding)/profile");
+          setOnboardingChecked(true);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [status, segments, router, onboardingChecked]);
 
   return (
