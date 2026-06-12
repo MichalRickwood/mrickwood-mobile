@@ -41,13 +41,15 @@ function RouterGuard() {
     }
 
     // Authenticated — gating (order: profil → countries → tabs):
-    //   1) profil missing (name/country) → /(onboarding)/profile
+    //   1) chybí jméno NEBO souhlasy (OAuth) → /(onboarding)/profile
     //   2) má profil ale žádná aktivní LEADS sub → /(onboarding)/countries
     //   3) jinak → (tabs)
     //
-    // Profile minimum = name + country. IČO je volitelný (App Store 3.1.1 —
-    // mobile registrace nesmí business ID vyžadovat). Bez IČO trial běží
-    // a anti-abuse 1-trial-per-IČO se aplikuje jen pokud user IČO vyplní.
+    // Profile minimum = name + consent. Country se NEVYNUCUJE — derivuje se
+    // tiše (countries.tsx z device region / vybrané země). IČO je volitelný
+    // (App Store 3.1.1 — mobile registrace nesmí business ID vyžadovat).
+    // Stejná podmínka jako gate v countries.tsx — drž je synchronizované,
+    // jinak guard pustí do tabs usera, kterého countries vrací na profile.
 
     // Pokud check už proběhl, jen řešíme přechod z (auth) do (tabs).
     // POZOR: žádný fallback na (tabs) v dalších branchích — race s async
@@ -65,7 +67,7 @@ function RouterGuard() {
       try {
         const profile = await endpoints.getProfileV2().catch(() => null);
         if (cancelled) return;
-        const needsProfile = !profile || !profile.name || !profile.country;
+        const needsProfile = !profile || !profile.name || profile.consentRequired;
         if (needsProfile) {
           // Navigaci spouštíme DŘÍV než state update — jinak useEffect re-run
           // s onboardingChecked=true + segments ještě v (auth) by spustil

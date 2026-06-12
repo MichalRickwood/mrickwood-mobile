@@ -79,10 +79,11 @@ export default function OnboardingProfile() {
       try {
         const p = await endpoints.getProfileV2();
         if (cancelled) return;
-        // Profil kompletní (name + country derived z telefonu) + consent ok →
-        // skip rovnou na countries. Bez tohoto by user s vyplněným profilem
-        // (návrat ze Settings) viděl prázdné formové pole místo aby šel dál.
-        if (p.name && p.country && !p.consentRequired) {
+        // Profil kompletní (name + consent) → skip rovnou na countries.
+        // Country se nevynucuje — derivuje se tiše (countries.tsx). Bez tohoto
+        // by user s vyplněným profilem (návrat ze Settings) viděl prázdný
+        // formulář místo aby šel dál.
+        if (p.name && !p.consentRequired) {
           router.replace("/(onboarding)/countries");
           return;
         }

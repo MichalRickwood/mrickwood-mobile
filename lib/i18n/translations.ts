@@ -528,35 +528,14 @@ export interface Dict {
     consentGdprLabel: string;
     consentRequiredError: string;
   };
-  iap: {
+  tariff: {
     sectionTitle: string;
-    subscribeCta: string;
-    subscribing: string;
-    priceMonthly: string;
-    priceYearly: string;
-    priceLoading: string;
-    manageCta: string;
-    restoreCta: string;
-    restoring: string;
-    restoredOk: string;
-    restoredNone: string;
-    restoreUnassigned: string;
-    purchaseFailed: string;
-    notAvailable: string;
-    activeNote: string;
-    cancelInfo: string;
-    pendingDowngradeNote: string;
-    tooManyCountries: string;
-    addCountry: string;
-    changeCountries: string;
-    removeCountryTitle: string;
-    removeCountryBody: string;
-    removeCountryConfirm: string;
-    upgradeTitle: string;
-    upgradeBody: string;
-    upgradeConfirm: string;
-    legalTerms: string;
-    legalPrivacy: string;
+    totalMonthly: string;
+    totalYearly: string;
+    confirmCta: string;
+    confirming: string;
+    invoiceSent: string;
+    invoiceNote: string;
   };
   locale: {
     cs: string;
@@ -1084,35 +1063,14 @@ const cs: Dict = {
     consentGdprLabel: "Souhlasím se zpracováním osobních údajů (GDPR).",
     consentRequiredError: "Pro pokračování zaškrtněte oba souhlasy.",
   },
-  iap: {
-    sectionTitle: "Předplatné",
-    subscribeCta: "Předplatit přes App Store",
-    subscribing: "Zpracovávám nákup…",
-    priceMonthly: "{price} měsíčně",
-    priceYearly: "{price} ročně",
-    priceLoading: "Načítám cenu…",
-    manageCta: "Spravovat předplatné",
-    restoreCta: "Obnovit nákupy",
-    restoring: "Obnovuji…",
-    restoredOk: "Nákupy obnoveny.",
-    restoredNone: "Žádné nákupy k obnovení.",
-    restoreUnassigned: "Nákup nalezen, ale nelze přiřadit země. Vyberte země v sekci předplatného a zkuste to znovu.",
-    purchaseFailed: "Nákup se nepodařilo dokončit. Zkuste to znovu.",
-    notAvailable: "App Store nákupy nejsou momentálně dostupné.",
-    activeNote: "Předplatné je aktivní přes App Store.",
-    cancelInfo: "Zrušení, platební údaje a účtenky spravuje Apple ve správě předplatných.",
-    pendingDowngradeNote: "Změna výběru zemí proběhne na konci aktuálního období.",
-    tooManyCountries: "Přes App Store lze předplatit nejvýše 6 zemí najednou.",
-    addCountry: "Přidat další zemi",
-    changeCountries: "Změnit výběr zemí",
-    removeCountryTitle: "Odebrat zemi",
-    removeCountryBody: "Země {country} bude z předplatného odebrána na konci aktuálního období. Změnu potvrdíte nákupem nižší varianty v App Store.",
-    removeCountryConfirm: "Odebrat",
-    upgradeTitle: "Rozšířit předplatné",
-    upgradeBody: "Nový výběr: {count} zemí za {price}. Apple započítá zbývající období stávajícího předplatného.",
-    upgradeConfirm: "Koupit",
-    legalTerms: "Obchodní podmínky",
-    legalPrivacy: "Ochrana soukromí",
+  tariff: {
+    sectionTitle: "Tarif",
+    totalMonthly: "{price} měsíčně",
+    totalYearly: "{price} ročně",
+    confirmCta: "Potvrdit tarif",
+    confirming: "Odesílám…",
+    invoiceSent: "Hotovo — zálohovou fakturu jsme poslali na {email}.",
+    invoiceNote: "Po potvrzení vám pošleme zálohovou fakturu e-mailem. Služby se aktivují po jejím uhrazení převodem.",
   },
   locale: { cs: "Čeština", en: "English", de: "Deutsch" },
 };
@@ -1635,35 +1593,14 @@ const en: Dict = {
     consentGdprLabel: "I agree to the processing of personal data (GDPR).",
     consentRequiredError: "Please tick both consents to continue.",
   },
-  iap: {
-    sectionTitle: "Subscription",
-    subscribeCta: "Subscribe via App Store",
-    subscribing: "Processing purchase…",
-    priceMonthly: "{price} per month",
-    priceYearly: "{price} per year",
-    priceLoading: "Loading price…",
-    manageCta: "Manage subscription",
-    restoreCta: "Restore purchases",
-    restoring: "Restoring…",
-    restoredOk: "Purchases restored.",
-    restoredNone: "No purchases to restore.",
-    restoreUnassigned: "A purchase was found but countries could not be assigned. Select your countries in the subscription section and try again.",
-    purchaseFailed: "The purchase could not be completed. Please try again.",
-    notAvailable: "App Store purchases are currently unavailable.",
-    activeNote: "Subscription is active via the App Store.",
-    cancelInfo: "Cancellation, payment details and receipts are managed by Apple in subscription settings.",
-    pendingDowngradeNote: "The country selection change takes effect at the end of the current period.",
-    tooManyCountries: "At most 6 countries can be subscribed via the App Store.",
-    addCountry: "Add another country",
-    changeCountries: "Change country selection",
-    removeCountryTitle: "Remove country",
-    removeCountryBody: "{country} will be removed from your subscription at the end of the current period. Confirm the change by purchasing the lower tier in the App Store.",
-    removeCountryConfirm: "Remove",
-    upgradeTitle: "Expand subscription",
-    upgradeBody: "New selection: {count} countries for {price}. Apple prorates the remaining period of your current subscription.",
-    upgradeConfirm: "Buy",
-    legalTerms: "Terms of Service",
-    legalPrivacy: "Privacy Policy",
+  tariff: {
+    sectionTitle: "Plan",
+    totalMonthly: "{price} per month",
+    totalYearly: "{price} per year",
+    confirmCta: "Confirm plan",
+    confirming: "Sending…",
+    invoiceSent: "Done — we've sent the proforma invoice to {email}.",
+    invoiceNote: "After confirming, we'll email you a proforma invoice. Services activate once it's paid by bank transfer.",
   },
   locale: { cs: "Čeština", en: "English", de: "Deutsch" },
 };
@@ -2188,35 +2125,14 @@ const de: Dict = {
     consentGdprLabel: "Ich stimme der Verarbeitung personenbezogener Daten (DSGVO) zu.",
     consentRequiredError: "Bitte aktivieren Sie beide Zustimmungen, um fortzufahren.",
   },
-  iap: {
-    sectionTitle: "Abonnement",
-    subscribeCta: "Über App Store abonnieren",
-    subscribing: "Kauf wird verarbeitet…",
-    priceMonthly: "{price} pro Monat",
-    priceYearly: "{price} pro Jahr",
-    priceLoading: "Preis wird geladen…",
-    manageCta: "Abonnement verwalten",
-    restoreCta: "Käufe wiederherstellen",
-    restoring: "Wird wiederhergestellt…",
-    restoredOk: "Käufe wiederhergestellt.",
-    restoredNone: "Keine Käufe zum Wiederherstellen.",
-    restoreUnassigned: "Ein Kauf wurde gefunden, aber die Länder konnten nicht zugeordnet werden. Wählen Sie Ihre Länder im Abonnement-Bereich und versuchen Sie es erneut.",
-    purchaseFailed: "Der Kauf konnte nicht abgeschlossen werden. Bitte versuchen Sie es erneut.",
-    notAvailable: "App-Store-Käufe sind derzeit nicht verfügbar.",
-    activeNote: "Das Abonnement ist über den App Store aktiv.",
-    cancelInfo: "Kündigung, Zahlungsdaten und Belege verwaltet Apple in den Abonnement-Einstellungen.",
-    pendingDowngradeNote: "Die Änderung der Länderauswahl wird zum Ende des aktuellen Zeitraums wirksam.",
-    tooManyCountries: "Über den App Store können höchstens 6 Länder abonniert werden.",
-    addCountry: "Weiteres Land hinzufügen",
-    changeCountries: "Länderauswahl ändern",
-    removeCountryTitle: "Land entfernen",
-    removeCountryBody: "{country} wird zum Ende des aktuellen Zeitraums aus dem Abonnement entfernt. Bestätigen Sie die Änderung durch den Kauf der niedrigeren Stufe im App Store.",
-    removeCountryConfirm: "Entfernen",
-    upgradeTitle: "Abonnement erweitern",
-    upgradeBody: "Neue Auswahl: {count} Länder für {price}. Apple verrechnet den verbleibenden Zeitraum Ihres aktuellen Abonnements.",
-    upgradeConfirm: "Kaufen",
-    legalTerms: "AGB",
-    legalPrivacy: "Datenschutz",
+  tariff: {
+    sectionTitle: "Tarif",
+    totalMonthly: "{price} pro Monat",
+    totalYearly: "{price} pro Jahr",
+    confirmCta: "Tarif bestätigen",
+    confirming: "Wird gesendet…",
+    invoiceSent: "Fertig — wir haben die Proforma-Rechnung an {email} gesendet.",
+    invoiceNote: "Nach der Bestätigung senden wir Ihnen eine Proforma-Rechnung per E-Mail. Die Dienste werden nach Zahlung per Überweisung aktiviert.",
   },
   locale: { cs: "Čeština", en: "English", de: "Deutsch" },
 };
