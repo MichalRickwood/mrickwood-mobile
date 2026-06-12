@@ -1,47 +1,32 @@
 /**
- * Billing screen pro iOS — tarifní model po vzoru eProtokol.
+ * Billing screen pro iOS — čistě informativní (App Store 3.1.1, „reader" model).
  *
- * V aplikaci NENÍ žádný platební mechanismus (App Store 3.1.1):
- * žádný Stripe, karty, faktury ani PDF. User jen vybere tarif (země řeší
- * countries screen, tady cyklus) a potvrdí — backend přepne billing na
- * fakturaci a zálohovou fakturu pošle e-mailem. Platba proběhne převodem
- * úplně mimo aplikaci.
- *
- * Ceny zobrazujeme z backendu (per-row priceMonthly/priceYearly už po
- * volume slevě, v měně uživatele) — stejně jako eProtokol ukazuje ceník
- * tarifů u tarifní změny.
+ * V aplikaci NENÍ žádný nákupní mechanismus ani call to action: žádné ceny,
+ * žádný cyklus, žádné potvrzení tarifu, žádná zmínka o fakturách či webu.
+ * Zobrazujeme jen aktivní služby a jejich stav (trial do / zaplaceno do)
+ * + přidání další země (trial je zdarma). Konverze na placené předplatné
+ * probíhá kompletně mimo aplikaci (e-mailové připomínky s proformou,
+ * platba převodem) — appka pak jen ukáže nový stav.
  */
-import { useMemo, useState } from "react";
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMemo } from "react";
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
-import { endpoints, type BillingCycle, type BillingServiceRow } from "@/lib/endpoints";
-import { useAuth } from "@/lib/auth-context";
+import { endpoints, type BillingServiceRow } from "@/lib/endpoints";
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme-context";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 
 const LOCALE_MAP: Record<string, string> = { cs: "cs-CZ", en: "en-GB", de: "de-DE" };
-const NUMBER_LOCALE_MAP: Record<string, string> = { cs: "cs-CZ", en: "en-US", de: "de-DE" };
 
 type TFn = ReturnType<typeof useI18n>["t"];
 
 export default function TariffIOS() {
   const { t, locale } = useI18n();
   const { colors } = useTheme();
-  const { user } = useAuth();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const router = useRouter();
-  const qc = useQueryClient();
   const dateLocale = LOCALE_MAP[locale] ?? "cs-CZ";
-  const numberLocale = NUMBER_LOCALE_MAP[locale] ?? "cs-CZ";
 
   const billingQuery = useQuery({
     queryKey: ["billing"],
@@ -54,60 +39,10 @@ export default function TariffIOS() {
     staleTime: 30 * 60 * 1000,
   });
 
-  const [cycle, setCycle] = useState<BillingCycle | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [notice, setNotice] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  const data = billingQuery.data ?? null;
-  const services = data?.services ?? [];
-  const activeRows = services.filter((s) => s.state !== "CANCELED");
-  const effectiveCycle: BillingCycle = cycle ?? data?.billingCycle ?? "MONTHLY";
-
-  // Součet cen aktivních služeb v daném cyklu (backend posílá per-row ceny po
-  // volume slevě v měně uživatele).
-  const currency = activeRows.find((s) => s.priceCurrency)?.priceCurrency ?? "CZK";
-  const total = activeRows.reduce((sum, s) => {
-    const p = effectiveCycle === "YEARLY" ? s.priceYearly : s.priceMonthly;
-    return sum + (p ?? 0);
-  }, 0);
-
-  function fmtCurrency(amount: number): string {
-    try {
-      return new Intl.NumberFormat(numberLocale, {
-        style: "currency",
-        currency,
-        maximumFractionDigits: 0,
-      }).format(amount);
-    } catch {
-      return `${amount} ${currency === "EUR" ? "€" : "Kč"}`;
-    }
-  }
-
   function countryLabelFor(code: string): string {
     const c = countriesQuery.data?.find((x) => x.code === code);
     if (!c) return code;
     return c.labels[locale as "cs" | "en" | "de"] ?? c.labels.en;
-  }
-
-  async function confirmTariff() {
-    setBusy(true);
-    setError(null);
-    setNotice(null);
-    try {
-      await endpoints.updateBilling({ billingMode: "INVOICE", billingCycle: effectiveCycle });
-      // Existující nezaplacenou proformu nahradíme novou (změna cyklu/zemí).
-      if (data?.invoice && data.invoice.paidDate === null) {
-        await endpoints.deleteProforma().catch(() => {});
-      }
-      await endpoints.createProforma(effectiveCycle);
-      setNotice(t("tariff", "invoiceSent", { email: user?.email ?? "" }));
-      await qc.invalidateQueries({ queryKey: ["billing"] });
-    } catch (e) {
-      setError(e instanceof Error ? e.message : t("settings", "billingSaveFailed"));
-    } finally {
-      setBusy(false);
-    }
   }
 
   if (billingQuery.isPending) {
@@ -118,6 +53,7 @@ export default function TariffIOS() {
     );
   }
 
+  const data = billingQuery.data ?? null;
   if (!data) {
     return (
       <View style={styles.center}>
@@ -126,10 +62,11 @@ export default function TariffIOS() {
     );
   }
 
+  const activeRows = data.services.filter((s) => s.state !== "CANCELED");
+
   return (
     <View style={styles.safe}>
       <ScrollView contentContainerStyle={styles.scroll}>
-        {/* Aktivní služby */}
         <Section styles={styles} title={t("settings", "billingServicesSection")}>
           {activeRows.length === 0 ? (
             <Text style={styles.emptyText}>{t("settings", "billingServicesEmpty")}</Text>
@@ -154,62 +91,6 @@ export default function TariffIOS() {
             <Text style={styles.addCountryText}>＋ {t("settings", "billingAddCountry")}</Text>
           </Pressable>
         </Section>
-
-        {/* Tarif — cyklus + cena + potvrzení (fakturace mimo aplikaci) */}
-        {activeRows.length > 0 && (
-          <Section styles={styles} title={t("tariff", "sectionTitle")}>
-            <View style={styles.segments}>
-              <Segment
-                styles={styles}
-                label={t("settings", "billingCycleMonthly")}
-                active={effectiveCycle === "MONTHLY"}
-                onPress={() => setCycle("MONTHLY")}
-              />
-              <Segment
-                styles={styles}
-                label={t("settings", "billingCycleYearly")}
-                active={effectiveCycle === "YEARLY"}
-                onPress={() => setCycle("YEARLY")}
-              />
-            </View>
-
-            {total > 0 && (
-              <Text style={styles.priceText}>
-                {t(
-                  "tariff",
-                  effectiveCycle === "YEARLY" ? "totalYearly" : "totalMonthly",
-                  { price: fmtCurrency(total) },
-                )}
-              </Text>
-            )}
-
-            <Pressable
-              onPress={confirmTariff}
-              disabled={busy || total === 0}
-              style={({ pressed }) => [
-                styles.primaryBtn,
-                pressed && { opacity: 0.85 },
-                (busy || total === 0) && styles.btnDisabled,
-              ]}
-            >
-              <Text style={styles.primaryBtnText}>
-                {busy ? t("tariff", "confirming") : t("tariff", "confirmCta")}
-              </Text>
-            </Pressable>
-            <Text style={styles.fineprint}>{t("tariff", "invoiceNote")}</Text>
-          </Section>
-        )}
-
-        {notice && (
-          <View style={styles.noticeBox}>
-            <Text style={styles.noticeText}>{notice}</Text>
-          </View>
-        )}
-        {error && (
-          <View style={styles.errorBox}>
-            <Text style={styles.errorBoxText}>{error}</Text>
-          </View>
-        )}
       </ScrollView>
     </View>
   );
@@ -286,31 +167,6 @@ function Section({
   );
 }
 
-function Segment({
-  styles,
-  label,
-  active,
-  onPress,
-}: {
-  styles: ReturnType<typeof makeStyles>;
-  label: string;
-  active: boolean;
-  onPress: () => void;
-}) {
-  return (
-    <Pressable
-      onPress={onPress}
-      style={({ pressed }) => [
-        styles.segment,
-        active && styles.segmentActive,
-        pressed && { opacity: 0.7 },
-      ]}
-    >
-      <Text style={[styles.segmentText, active && styles.segmentTextActive]}>{label}</Text>
-    </Pressable>
-  );
-}
-
 const makeStyles = (colors: Colors) =>
   StyleSheet.create({
     safe: { flex: 1, backgroundColor: colors.bg },
@@ -339,40 +195,6 @@ const makeStyles = (colors: Colors) =>
     serviceName: { fontSize: fontSize.base, fontWeight: "600", color: colors.text },
     serviceMeta: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: 2 },
 
-    segments: {
-      flexDirection: "row",
-      backgroundColor: colors.bg,
-      borderRadius: radius.full,
-      padding: 2,
-      borderWidth: 1,
-      borderColor: colors.border,
-      height: 30,
-      alignSelf: "flex-start",
-      marginBottom: spacing.md,
-    },
-    segment: {
-      paddingHorizontal: spacing.md,
-      alignItems: "center",
-      justifyContent: "center",
-      borderRadius: radius.full,
-    },
-    segmentActive: { backgroundColor: colors.accent },
-    segmentText: { fontSize: 12, color: colors.textSubtle, fontWeight: "500" },
-    segmentTextActive: { color: colors.accentForeground, fontWeight: "600" },
-
-    priceText: { fontSize: fontSize.lg, fontWeight: "700", color: colors.text, marginBottom: spacing.md },
-    fineprint: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: spacing.md, lineHeight: 16 },
-
-    primaryBtn: {
-      backgroundColor: colors.accent,
-      borderRadius: radius.md,
-      paddingVertical: spacing.sm + 2,
-      paddingHorizontal: spacing.lg,
-      alignItems: "center",
-    },
-    primaryBtnText: { color: colors.accentForeground, fontSize: fontSize.sm, fontWeight: "600" },
-    btnDisabled: { opacity: 0.4 },
-
     addCountryBtn: {
       marginTop: spacing.md,
       paddingVertical: spacing.sm + 2,
@@ -383,9 +205,5 @@ const makeStyles = (colors: Colors) =>
     addCountryText: { fontSize: fontSize.sm, color: colors.accentForeground, fontWeight: "600" },
 
     emptyText: { fontSize: fontSize.sm, color: colors.textSubtle, textAlign: "center" },
-    noticeBox: { marginTop: spacing.xs, marginBottom: spacing.md, padding: spacing.md, backgroundColor: colors.successBg, borderRadius: radius.md },
-    noticeText: { fontSize: fontSize.sm, color: colors.success, lineHeight: 20 },
-    errorBox: { marginTop: spacing.xs, marginBottom: spacing.md, padding: spacing.md, backgroundColor: colors.dangerBg, borderRadius: radius.md },
-    errorBoxText: { fontSize: fontSize.sm, color: colors.danger },
     errorText: { fontSize: fontSize.sm, color: colors.danger, textAlign: "center" },
   });

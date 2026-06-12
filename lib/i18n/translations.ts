@@ -532,15 +532,6 @@ export interface Dict {
     consentGdprLabel: string;
     consentRequiredError: string;
   };
-  tariff: {
-    sectionTitle: string;
-    totalMonthly: string;
-    totalYearly: string;
-    confirmCta: string;
-    confirming: string;
-    invoiceSent: string;
-    invoiceNote: string;
-  };
   locale: {
     cs: string;
     en: string;
@@ -1071,15 +1062,6 @@ const cs: Dict = {
     consentGdprLabel: "Souhlasím se zpracováním osobních údajů (GDPR).",
     consentRequiredError: "Pro pokračování zaškrtněte oba souhlasy.",
   },
-  tariff: {
-    sectionTitle: "Tarif",
-    totalMonthly: "{price} měsíčně",
-    totalYearly: "{price} ročně",
-    confirmCta: "Potvrdit tarif",
-    confirming: "Odesílám…",
-    invoiceSent: "Hotovo — zálohovou fakturu jsme poslali na {email}.",
-    invoiceNote: "Po potvrzení vám pošleme zálohovou fakturu e-mailem. Služby se aktivují po jejím uhrazení převodem.",
-  },
   locale: { cs: "Čeština", en: "English", de: "Deutsch" },
 };
 
@@ -1604,15 +1586,6 @@ const en: Dict = {
     consentVopLabel: "I agree to the Terms of Service.",
     consentGdprLabel: "I agree to the processing of personal data (GDPR).",
     consentRequiredError: "Please tick both consents to continue.",
-  },
-  tariff: {
-    sectionTitle: "Plan",
-    totalMonthly: "{price} per month",
-    totalYearly: "{price} per year",
-    confirmCta: "Confirm plan",
-    confirming: "Sending…",
-    invoiceSent: "Done — we've sent the proforma invoice to {email}.",
-    invoiceNote: "After confirming, we'll email you a proforma invoice. Services activate once it's paid by bank transfer.",
   },
   locale: { cs: "Čeština", en: "English", de: "Deutsch" },
 };
@@ -2140,15 +2113,6 @@ const de: Dict = {
     consentVopLabel: "Ich stimme den AGB zu.",
     consentGdprLabel: "Ich stimme der Verarbeitung personenbezogener Daten (DSGVO) zu.",
     consentRequiredError: "Bitte aktivieren Sie beide Zustimmungen, um fortzufahren.",
-  },
-  tariff: {
-    sectionTitle: "Tarif",
-    totalMonthly: "{price} pro Monat",
-    totalYearly: "{price} pro Jahr",
-    confirmCta: "Tarif bestätigen",
-    confirming: "Wird gesendet…",
-    invoiceSent: "Fertig — wir haben die Proforma-Rechnung an {email} gesendet.",
-    invoiceNote: "Nach der Bestätigung senden wir Ihnen eine Proforma-Rechnung per E-Mail. Die Dienste werden nach Zahlung per Überweisung aktiviert.",
   },
   locale: { cs: "Čeština", en: "English", de: "Deutsch" },
 };
