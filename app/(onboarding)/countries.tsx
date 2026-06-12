@@ -116,20 +116,10 @@ export default function OnboardingCountries() {
     }
   }
 
-  // Defense-in-depth: na profile screen posíláme JEN při skutečných blockerech
-  // — chybějící jméno (Apple OAuth ho nemusí dát) nebo chybějící souhlasy
-  // (OAuth registrace, právně nutné). Country se NIKDY nevynucuje formulářem —
-  // derivuje se tiše (device region / první vybraná země) v activate().
-  // POZOR: network error u profile query ≠ nekompletní profil — dřív tahle
-  // brána redirectovala i při výpadku API (`!p`), což vyhazovalo returning
-  // usery z „Přidat další zemi" na „Dokončete profil".
-  useEffect(() => {
-    const p = profileQuery.data;
-    if (!p) return;
-    if (!p.name || p.consentRequired) {
-      router.replace("/(onboarding)/profile");
-    }
-  }, [profileQuery.data, router]);
+  // ŽÁDNÝ profil gate — „Dokončete profil" krok v appce neexistuje.
+  // Jméno: backend fallback z email local part (OAuth backfill při loginu).
+  // Souhlasy: clickwrap pod OAuth tlačítky / checkboxy v registraci.
+  // Země: tiše derivovaná v activate() (device region / první vybraná země).
 
   // Pre-check existující aktivní scopes (jen jednou při prvním načtení subs).
   // Fallback pro first-time user (žádné scopes): default na profile.country,
@@ -195,14 +185,9 @@ export default function OnboardingCountries() {
       return; // first-time user without selection — disabled button stops them
     }
 
-    // Pre-flight: skutečné blockery = jméno + souhlasy (viz gate výše).
     // Country tiše doplníme z device region / první vybrané země — user kvůli
-    // němu nikdy nevidí formulář.
+    // němu nikdy nevidí formulář (jméno/souhlasy řeší backend fallbacky).
     const profile = profileQuery.data;
-    if (profile && (!profile.name || profile.consentRequired)) {
-      router.replace("/(onboarding)/profile");
-      return;
-    }
     if (profile && !profile.country) {
       const region = Localization.getLocales()[0]?.regionCode?.toUpperCase() ?? null;
       const derived =

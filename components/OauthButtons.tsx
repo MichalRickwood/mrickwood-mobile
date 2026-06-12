@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Pressable, StyleSheet, Text, View, ActivityIndicator } from "react-native";
+import { Linking, Pressable, StyleSheet, Text, View, ActivityIndicator } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { useAuth } from "@/lib/auth-context";
+import { API_BASE_URL } from "@/lib/config";
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme-context";
 import {
@@ -161,6 +162,21 @@ export default function OauthButtons({ onError }: { onError: (msg: string) => vo
           onPress={tryGithub}
         />
       )}
+
+      {/* Clickwrap consent — OAuth registrace nemá checkboxy, souhlas vzniká
+          pokračováním (backend ho zapíše při OAuth loginu). Žádný in-app
+          „Dokončete profil" krok neexistuje. */}
+      <Text style={styles.consentNote}>
+        {t("oauth", "consentPre")}{" "}
+        <Text style={styles.consentLink} onPress={() => void Linking.openURL(`${API_BASE_URL}/vop`)}>
+          {t("oauth", "consentVopLink")}
+        </Text>{" "}
+        {t("oauth", "consentAnd")}{" "}
+        <Text style={styles.consentLink} onPress={() => void Linking.openURL(`${API_BASE_URL}/gdpr`)}>
+          {t("oauth", "consentGdprLink")}
+        </Text>
+        .
+      </Text>
     </View>
   );
 }
@@ -213,6 +229,8 @@ const makeStyles = (colors: Colors) => StyleSheet.create({
   divider: { flexDirection: "row", alignItems: "center", marginBottom: spacing.md },
   dividerLine: { flex: 1, height: 1, backgroundColor: colors.border },
   dividerText: { marginHorizontal: spacing.md, fontSize: fontSize.xs, color: colors.textSubtle },
+  consentNote: { marginTop: spacing.md, fontSize: fontSize.xs, color: colors.textSubtle, textAlign: "center", lineHeight: 16 },
+  consentLink: { color: colors.link, textDecorationLine: "underline" },
   button: {
     borderRadius: radius.md,
     paddingVertical: spacing.md,

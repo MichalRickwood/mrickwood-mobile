@@ -40,16 +40,13 @@ function RouterGuard() {
       return;
     }
 
-    // Authenticated — gating (order: profil → countries → tabs):
-    //   1) chybí jméno NEBO souhlasy (OAuth) → /(onboarding)/profile
-    //   2) má profil ale žádná aktivní LEADS sub → /(onboarding)/countries
-    //   3) jinak → (tabs)
+    // Authenticated — gating:
+    //   1) žádná aktivní LEADS sub → /(onboarding)/countries
+    //   2) jinak → (tabs)
     //
-    // Profile minimum = name + consent. Country se NEVYNUCUJE — derivuje se
-    // tiše (countries.tsx z device region / vybrané země). IČO je volitelný
-    // (App Store 3.1.1 — mobile registrace nesmí business ID vyžadovat).
-    // Stejná podmínka jako gate v countries.tsx — drž je synchronizované,
-    // jinak guard pustí do tabs usera, kterého countries vrací na profile.
+    // ŽÁDNÝ profil gate — „Dokončete profil" krok v appce neexistuje (App
+    // Store flow). Jméno i souhlasy řeší backend (registrace / OAuth clickwrap
+    // + backfill při loginu), country se derivuje tiše v countries.tsx.
 
     // Pokud check už proběhl, jen řešíme přechod z (auth) do (tabs).
     // POZOR: žádný fallback na (tabs) v dalších branchích — race s async
@@ -65,17 +62,6 @@ function RouterGuard() {
     let cancelled = false;
     (async () => {
       try {
-        const profile = await endpoints.getProfileV2().catch(() => null);
-        if (cancelled) return;
-        const needsProfile = !profile || !profile.name || profile.consentRequired;
-        if (needsProfile) {
-          // Navigaci spouštíme DŘÍV než state update — jinak useEffect re-run
-          // s onboardingChecked=true + segments ještě v (auth) by spustil
-          // (auth)→(tabs) přesměrování dřív, než se router.replace propagne.
-          router.replace("/(onboarding)/profile");
-          setOnboardingChecked(true);
-          return;
-        }
         const subs = await endpoints.listSubscriptions().catch(() => []);
         if (cancelled) return;
         const hasActiveLeads = subs.some(
@@ -85,15 +71,18 @@ function RouterGuard() {
             s.state !== "SUSPENDED",
         );
         if (!hasActiveLeads) {
+          // Navigaci spouštíme DŘÍV než state update — jinak useEffect re-run
+          // s onboardingChecked=true + segments ještě v (auth) by spustil
+          // (auth)→(tabs) přesměrování dřív, než se router.replace propagne.
           router.replace("/(onboarding)/countries");
         } else if (inAuth) {
           router.replace("/(tabs)");
         }
         setOnboardingChecked(true);
       } catch {
-        // Nečekaný throw v guardu — bezpečný fallback je onboarding, ne tabs.
+        // Nečekaný throw v guardu — bezpečný fallback je countries, ne tabs.
         if (!cancelled) {
-          router.replace("/(onboarding)/profile");
+          router.replace("/(onboarding)/countries");
           setOnboardingChecked(true);
         }
       }

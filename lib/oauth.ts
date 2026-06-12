@@ -61,7 +61,7 @@ export function useGithubAuth() {
 
 async function postOauth(
   provider: "google" | "apple" | "github",
-  payload: { idToken?: string; code?: string; redirectUri?: string },
+  payload: { idToken?: string; code?: string; redirectUri?: string; name?: string },
 ): Promise<StoredUser> {
   const url = `${API_BASE_URL}/api/auth/mobile/oauth`;
   let res: Response;
@@ -107,7 +107,13 @@ export async function signInWithApple(): Promise<StoredUser> {
     ],
   });
   if (!cred.identityToken) throw new Error("Apple neposlal identityToken.");
-  return postOauth("apple", { idToken: cred.identityToken });
+  // fullName chodí JEN při první autorizaci a jen nativně (v id_tokenu není)
+  // — posíláme zvlášť, backend ho použije při založení účtu.
+  const name = [cred.fullName?.givenName, cred.fullName?.familyName]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+  return postOauth("apple", { idToken: cred.identityToken, ...(name ? { name } : {}) });
 }
 
 export type { StoredUser };

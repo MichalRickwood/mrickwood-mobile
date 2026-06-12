@@ -462,6 +462,10 @@ export interface Dict {
     apple: string;
     google: string;
     github: string;
+    consentPre: string;
+    consentVopLink: string;
+    consentAnd: string;
+    consentGdprLink: string;
   };
   onboardingCountries: {
     title: string;
@@ -997,6 +1001,10 @@ const cs: Dict = {
     apple: "Pokračovat přes Apple",
     google: "Pokračovat přes Google",
     github: "Pokračovat přes GitHub",
+    consentPre: "Pokračováním souhlasíte s",
+    consentVopLink: "obchodními podmínkami",
+    consentAnd: "a",
+    consentGdprLink: "zásadami zpracování osobních údajů",
   },
   onboardingCountries: {
     title: "Vyberte země",
@@ -1527,6 +1535,10 @@ const en: Dict = {
     apple: "Continue with Apple",
     google: "Continue with Google",
     github: "Continue with GitHub",
+    consentPre: "By continuing you agree to the",
+    consentVopLink: "Terms of Service",
+    consentAnd: "and the",
+    consentGdprLink: "Privacy Policy",
   },
   onboardingCountries: {
     title: "Select countries",
@@ -2059,6 +2071,10 @@ const de: Dict = {
     apple: "Mit Apple fortfahren",
     google: "Mit Google fortfahren",
     github: "Mit GitHub fortfahren",
+    consentPre: "Mit dem Fortfahren stimmen Sie den",
+    consentVopLink: "AGB",
+    consentAnd: "und der",
+    consentGdprLink: "Datenschutzerklärung zu",
   },
   onboardingCountries: {
     title: "Länder auswählen",
