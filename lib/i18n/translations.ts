@@ -212,6 +212,9 @@ export interface Dict {
     sectionSecurityHint: string;
     sectionBilling: string;
     sectionBillingHint: string;
+    sectionCountries: string;
+    sectionCountriesHint: string;
+    countriesTitle: string;
     sectionFeedback: string;
     sectionFeedbackHint: string;
     exportTitle: string;
@@ -503,6 +506,7 @@ export interface Dict {
     ctaSkip: string;
     activating: string;
     activateFailed: string;
+    addedNotice: string;
     perMonth: string;
     perYear: string;
     footerNote: string;
@@ -742,6 +746,9 @@ const cs: Dict = {
     sectionSecurityHint: "Změna hesla",
     sectionBilling: "Předplatné",
     sectionBillingHint: "Plán, fakturace, předplatné",
+    sectionCountries: "Sledované země",
+    sectionCountriesHint: "Výběr zemí, stav služeb",
+    countriesTitle: "Sledované země",
     sectionFeedback: "Zpětná vazba",
     sectionFeedbackHint: "Nahlásit chybu, návrh vylepšení, chybějící zakázka",
     exportTitle: "Poslat moje data emailem",
@@ -1033,6 +1040,7 @@ const cs: Dict = {
     ctaSkip: "Přeskočit",
     activating: "Pokračuji…",
     activateFailed: "Uložení selhalo. Zkuste to znovu.",
+    addedNotice: "✓ Země přidány. Zakázky z nich uvidíte během chvíle.",
     perMonth: "/měsíc",
     perYear: "/rok",
     footerNote: "Výběr můžete kdykoli upravit v nastavení.",
@@ -1267,6 +1275,9 @@ const en: Dict = {
     sectionSecurityHint: "Change password",
     sectionBilling: "Subscription",
     sectionBillingHint: "Plan, billing, subscription",
+    sectionCountries: "Monitored countries",
+    sectionCountriesHint: "Country selection, service status",
+    countriesTitle: "Monitored countries",
     sectionFeedback: "Feedback",
     sectionFeedbackHint: "Report a bug, suggest improvement, missing tender",
     exportTitle: "Email my data",
@@ -1558,6 +1569,7 @@ const en: Dict = {
     ctaSkip: "Skip",
     activating: "Saving…",
     activateFailed: "Save failed. Please try again.",
+    addedNotice: "✓ Countries added. Their tenders will appear shortly.",
     perMonth: "/month",
     perYear: "/year",
     footerNote: "You can change this any time in settings.",
@@ -1794,6 +1806,9 @@ const de: Dict = {
     sectionSecurityHint: "Passwort ändern",
     sectionBilling: "Abonnement",
     sectionBillingHint: "Tarif, Abrechnung, Abonnement",
+    sectionCountries: "Überwachte Länder",
+    sectionCountriesHint: "Länderauswahl, Dienststatus",
+    countriesTitle: "Überwachte Länder",
     sectionFeedback: "Feedback",
     sectionFeedbackHint: "Fehler melden, Verbesserungsvorschlag, fehlende Ausschreibung",
     exportTitle: "Meine Daten per E-Mail senden",
@@ -2085,6 +2100,7 @@ const de: Dict = {
     ctaSkip: "Überspringen",
     activating: "Speichere…",
     activateFailed: "Speichern fehlgeschlagen. Bitte erneut versuchen.",
+    addedNotice: "✓ Länder hinzugefügt. Ausschreibungen erscheinen in Kürze.",
     perMonth: "/Monat",
     perYear: "/Jahr",
     footerNote: "Sie können die Auswahl jederzeit in den Einstellungen ändern.",

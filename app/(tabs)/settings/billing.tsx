@@ -30,7 +30,7 @@ import { useTheme } from "@/lib/theme-context";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 import CompanyLookupField from "@/components/CompanyLookupField";
 import CountryPicker from "@/components/CountryPicker";
-import TariffIOS from "@/components/TariffIOS";
+import CountriesManager from "@/components/CountriesManager";
 import { downloadInvoicePdf } from "@/lib/invoice-pdf";
 import { useRouter } from "expo-router";
 
@@ -41,10 +41,10 @@ const SAVE_DEBOUNCE_MS = 700;
 type TFn = ReturnType<typeof useI18n>["t"];
 
 export default function BillingScreen() {
-  // iOS: App Store 3.1.1 — žádný platební mechanismus v appce (Stripe/karty/
-  // PDF faktur). Tarifní model po vzoru eProtokol: výběr + potvrzení, faktura
-  // jde e-mailem, platí se převodem mimo aplikaci. Android drží self-service.
-  if (Platform.OS === "ios") return <TariffIOS />;
+  // iOS: App Store 3.1.1 — žádný platební mechanismus v appce. „Sledované
+  // země" = stejný picker jako onboarding (stav služeb, přidání země, žádost
+  // o novou zemi) — unifikovaná obrazovka. Android drží legacy self-service.
+  if (Platform.OS === "ios") return <CountriesManager mode="settings" />;
   return <BillingLegacy />;
 }
 

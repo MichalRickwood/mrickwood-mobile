@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/lib/auth-context";
@@ -63,10 +63,12 @@ export default function SettingsIndexScreen() {
         </View>
 
         <View style={styles.group}>
+          {/* iOS: „Sledované země" — žádná platební terminologie (3.1.1).
+              Android: legacy billing s fakturací. */}
           <SectionRow
             styles={styles}
-            label={t("settings", "sectionBilling")}
-            hint={t("settings", "sectionBillingHint")}
+            label={t("settings", Platform.OS === "ios" ? "sectionCountries" : "sectionBilling")}
+            hint={t("settings", Platform.OS === "ios" ? "sectionCountriesHint" : "sectionBillingHint")}
             onPress={() => router.push("/(tabs)/settings/billing")}
           />
         </View>

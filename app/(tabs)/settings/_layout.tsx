@@ -1,3 +1,4 @@
+import { Platform } from "react-native";
 import { Stack } from "expo-router";
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme-context";
@@ -19,7 +20,14 @@ export default function SettingsLayout() {
       <Stack.Screen name="profile" options={{ title: t("settings", "profileTitle") }} />
       <Stack.Screen name="notifications" options={{ title: t("settings", "notificationsTitle") }} />
       <Stack.Screen name="security" options={{ title: t("settings", "securityTitle") }} />
-      <Stack.Screen name="billing" options={{ title: t("settings", "billingTitle") }} />
+      {/* iOS: „Sledované země" (žádná platební terminologie — App Store 3.1.1),
+          Android: legacy billing screen s fakturací. */}
+      <Stack.Screen
+        name="billing"
+        options={{
+          title: Platform.OS === "ios" ? t("settings", "countriesTitle") : t("settings", "billingTitle"),
+        }}
+      />
       <Stack.Screen name="invoice-pdf" options={{ title: t("settings", "billingInvoicesSection") }} />
       <Stack.Screen name="feedback" options={{ title: t("feedback", "title") }} />
       <Stack.Screen name="account" options={{ title: t("settings", "accountTitle") }} />
