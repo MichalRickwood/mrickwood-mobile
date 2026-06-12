@@ -529,6 +529,44 @@ export const endpoints = {
     return { ok: true as const };
   },
 
+  // --- Apple In-App Purchase (iOS) ---
+  // Quote: který IAP produkt koupit pro daný set zemí + appAccountToken pro
+  // párování StoreKit transakce s účtem.
+  getIapQuote: async (scopes: string[], cycle: BillingCycle) => {
+    const r = await api.get<{
+      data: {
+        appAccountToken: string;
+        productId: string;
+        small: number;
+        large: number;
+        cycle: BillingCycle;
+        current: IapCurrentState;
+      };
+    }>("/api/v2/account/billing/iap", {
+      params: { scopes: scopes.join(","), cycle },
+    });
+    return r.data;
+  },
+  // Aktuální Apple stav účtu (bez quote).
+  getIapState: async () => {
+    const r = await api.get<{
+      data: { appAccountToken: string; current: IapCurrentState };
+    }>("/api/v2/account/billing/iap");
+    return r.data;
+  },
+  // Verifikace podepsané StoreKit 2 transakce — backend zapne subscriptions.
+  verifyIapPurchase: async (jws: string, scopes: string[]) => {
+    const r = await api.post<{
+      data: { productId: string; scopes: string[]; paidUntil: string };
+    }>("/api/v2/account/billing/iap", { jws, scopes });
+    return r.data;
+  },
+  // Downgrade: cílový set zemí aplikovaný při příštím renewalu.
+  setIapPendingScopes: async (scopes: string[]) => {
+    await api.post("/api/v2/account/billing/iap/pending", { scopes });
+    return { ok: true as const };
+  },
+
   // Cancel / reactivate service auto-renewal — v2 cesta přes /subscriptions/[id] PATCH
   cancelService: async (service: ApiServiceId) => {
     await api.patch(`/api/v2/account/subscriptions/${service}`, { cancelAtPeriodEnd: true });
@@ -607,6 +645,13 @@ export type BillingState = "TRIAL" | "ACTIVE" | "PAST_DUE" | "SUSPENDED" | "CANC
 export type BillingCycle = "MONTHLY" | "YEARLY";
 export type BillingMode = "CARD" | "INVOICE";
 export type ApiServiceId = "PRICING" | "LEADS" | "PROCUREMENT" | "MANAGEMENT";
+
+export interface IapCurrentState {
+  active: boolean;
+  productId: string | null;
+  scopes: string[];
+  pendingScopes: string[];
+}
 
 export interface BillingProfileShape {
   name: string;

@@ -30,6 +30,7 @@ import { useTheme } from "@/lib/theme-context";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 import CompanyLookupField from "@/components/CompanyLookupField";
 import CountryPicker from "@/components/CountryPicker";
+import BillingIOS from "@/components/BillingIOS";
 import { downloadInvoicePdf } from "@/lib/invoice-pdf";
 import { useRouter } from "expo-router";
 
@@ -40,6 +41,13 @@ const SAVE_DEBOUNCE_MS = 700;
 type TFn = ReturnType<typeof useI18n>["t"];
 
 export default function BillingScreen() {
+  // iOS: App Store guideline 3.1.1 — žádný Stripe/proforma/ceník v appce,
+  // nákup výhradně přes In-App Purchase. Android/web drží původní self-service.
+  if (Platform.OS === "ios") return <BillingIOS />;
+  return <BillingLegacy />;
+}
+
+function BillingLegacy() {
   const router = useRouter();
   const { t, locale } = useI18n();
   const { colors } = useTheme();

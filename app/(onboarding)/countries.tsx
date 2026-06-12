@@ -4,8 +4,10 @@ import { Stack } from "expo-router";
 import { HeaderBackButton } from "@react-navigation/elements";
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   Image,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -15,6 +17,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { endpoints } from "@/lib/endpoints";
+import { fetchLeadsProduct, IapCancelledError, purchaseLeads } from "@/lib/iap";
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme-context";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
@@ -213,6 +216,51 @@ export default function OnboardingCountries() {
     setActivating(true);
     setError(null);
     try {
+      // iOS + aktivní Apple subscription: přidání země = upgrade na vyšší IAP
+      // produkt (Apple proration). Trial cesta níže zůstává pro users bez
+      // placeného předplatného (trial je zdarma, žádný purchase mechanism).
+      if (Platform.OS === "ios") {
+        const iapState = await endpoints.getIapState();
+        if (iapState.current.active) {
+          const target = [...new Set([...activeScopes, ...selected])];
+          if (target.length > 6) {
+            setError(t("iap", "tooManyCountries"));
+            return;
+          }
+          const cycle = iapState.current.productId?.endsWith(".y") ? "YEARLY" : "MONTHLY";
+          const quote = await endpoints.getIapQuote(target, cycle);
+          const product = await fetchLeadsProduct(quote.productId);
+          const confirmed = await new Promise<boolean>((resolve) =>
+            Alert.alert(
+              t("iap", "upgradeTitle"),
+              t("iap", "upgradeBody", {
+                count: String(target.length),
+                price: product?.displayPrice ?? "…",
+              }),
+              [
+                { text: t("settings", "cancel"), style: "cancel", onPress: () => resolve(false) },
+                { text: t("iap", "upgradeConfirm"), onPress: () => resolve(true) },
+              ],
+            ),
+          );
+          if (!confirmed) return;
+          await purchaseLeads({
+            productId: quote.productId,
+            appAccountToken: quote.appAccountToken,
+            scopes: target,
+          });
+          await Promise.all([
+            qc.invalidateQueries({ queryKey: ["account-subscriptions"] }),
+            qc.invalidateQueries({ queryKey: ["billing"] }),
+            qc.invalidateQueries({ queryKey: ["iap-state"] }),
+            qc.invalidateQueries({ queryKey: ["service", "leads"] }),
+            qc.invalidateQueries({ queryKey: ["matches"] }),
+            qc.invalidateQueries({ queryKey: ["filters"] }),
+          ]);
+          router.replace("/(tabs)");
+          return;
+        }
+      }
       // Atomická batch aktivace — buď všechny vybrané země nebo žádná. Backend
       // skipuje země už aktivní (bezpečné poslat celé selection).
       await endpoints.activateLeadsBatch(newSelections);
@@ -231,6 +279,7 @@ export default function OnboardingCountries() {
       // user nedostal kvůli pre-flight checku výše).
       router.replace("/(tabs)");
     } catch (e) {
+      if (e instanceof IapCancelledError) return;
       setError(e instanceof Error ? e.message : t("onboardingCountries", "activateFailed"));
     } finally {
       setActivating(false);

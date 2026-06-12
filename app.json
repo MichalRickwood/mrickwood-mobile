@@ -45,7 +45,8 @@
           "photosPermission": "Aplikace potřebuje přístup k fotkám pro přiložení screenshotu k feedbacku."
         }
       ],
-      "expo-font"
+      "expo-font",
+      "expo-iap"
     ],
     "extra": {
       "router": {},
