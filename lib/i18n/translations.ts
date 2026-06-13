@@ -507,6 +507,16 @@ export interface Dict {
     activating: string;
     activateFailed: string;
     addedNotice: string;
+    addSelected: string;
+    remove: string;
+    reactivate: string;
+    removeTitle: string;
+    removeBody: string;
+    removeBodyNoDate: string;
+    removeConfirm: string;
+    removeUntil: string;
+    removeScheduled: string;
+    removedNotice: string;
     perMonth: string;
     perYear: string;
     footerNote: string;
@@ -1041,6 +1051,16 @@ const cs: Dict = {
     activating: "Pokračuji…",
     activateFailed: "Uložení selhalo. Zkuste to znovu.",
     addedNotice: "✓ Země přidány. Zakázky z nich uvidíte během chvíle.",
+    addSelected: "Přidat",
+    remove: "Odebrat",
+    reactivate: "Obnovit",
+    removeTitle: "Odebrat zemi",
+    removeBody: "Země {country} zůstane sledovaná do {date}, poté se ukončí. V dalším období se už nebude účtovat.",
+    removeBodyNoDate: "Země {country} bude odebrána ze sledování. V dalším období se už nebude účtovat.",
+    removeConfirm: "Odebrat",
+    removeUntil: "Sledováno do {date}, poté se ukončí",
+    removeScheduled: "Ukončení naplánováno",
+    removedNotice: "✓ {country} bude ukončena na konci období, dál se neúčtuje.",
     perMonth: "/měsíc",
     perYear: "/rok",
     footerNote: "Výběr můžete kdykoli upravit v nastavení.",
@@ -1570,6 +1590,16 @@ const en: Dict = {
     activating: "Saving…",
     activateFailed: "Save failed. Please try again.",
     addedNotice: "✓ Countries added. Their tenders will appear shortly.",
+    addSelected: "Add",
+    remove: "Remove",
+    reactivate: "Restore",
+    removeTitle: "Remove country",
+    removeBody: "{country} stays monitored until {date}, then ends. It won't be billed in the next period.",
+    removeBodyNoDate: "{country} will be removed from monitoring. It won't be billed in the next period.",
+    removeConfirm: "Remove",
+    removeUntil: "Monitored until {date}, then ends",
+    removeScheduled: "Cancellation scheduled",
+    removedNotice: "✓ {country} will end at the period's end and won't be billed further.",
     perMonth: "/month",
     perYear: "/year",
     footerNote: "You can change this any time in settings.",
@@ -2101,6 +2131,16 @@ const de: Dict = {
     activating: "Speichere…",
     activateFailed: "Speichern fehlgeschlagen. Bitte erneut versuchen.",
     addedNotice: "✓ Länder hinzugefügt. Ausschreibungen erscheinen in Kürze.",
+    addSelected: "Hinzufügen",
+    remove: "Entfernen",
+    reactivate: "Wiederherstellen",
+    removeTitle: "Land entfernen",
+    removeBody: "{country} bleibt bis {date} überwacht, danach endet es. Im nächsten Zeitraum wird es nicht berechnet.",
+    removeBodyNoDate: "{country} wird aus der Überwachung entfernt. Im nächsten Zeitraum wird es nicht berechnet.",
+    removeConfirm: "Entfernen",
+    removeUntil: "Überwacht bis {date}, dann Ende",
+    removeScheduled: "Kündigung geplant",
+    removedNotice: "✓ {country} endet zum Periodenende und wird nicht weiter berechnet.",
     perMonth: "/Monat",
     perYear: "/Jahr",
     footerNote: "Sie können die Auswahl jederzeit in den Einstellungen ändern.",

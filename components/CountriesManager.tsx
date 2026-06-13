@@ -18,6 +18,7 @@ import { Stack } from "expo-router";
 import { HeaderBackButton } from "@react-navigation/elements";
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   Image,
   Pressable,
@@ -73,6 +74,7 @@ interface SubRow {
   tier: "FREE" | "PAID";
   trialEndsAt: string | null;
   paidUntil: string | null;
+  cancelAtPeriodEnd: boolean;
 }
 
 export default function CountriesManager({ mode }: { mode: "onboarding" | "settings" }) {
@@ -128,6 +130,7 @@ export default function CountriesManager({ mode }: { mode: "onboarding" | "setti
 
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [activating, setActivating] = useState(false);
+  const [busyScope, setBusyScope] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [requestOpen, setRequestOpen] = useState(false);
@@ -262,6 +265,73 @@ export default function CountriesManager({ mode }: { mode: "onboarding" | "setti
     }
   }
 
+  function countryLabel(code: string): string {
+    const c = countries?.find((x) => x.code === code);
+    return c ? c.labels[locale] ?? c.labels.en : code;
+  }
+
+  async function refreshSubs() {
+    await Promise.all([
+      qc.invalidateQueries({ queryKey: ["account-subscriptions"] }),
+      qc.invalidateQueries({ queryKey: ["billing"] }),
+      qc.invalidateQueries({ queryKey: ["service", "leads"] }),
+      qc.invalidateQueries({ queryKey: ["matches"] }),
+    ]);
+  }
+
+  // Odebrání aktivní země = cancelAtPeriodEnd. Země zůstane sledovaná do konce
+  // zaplaceného/zkušebního období a do DALŠÍ fakturace se nezahrne (backend
+  // generateProforma filtruje cancelAtPeriodEnd=false). Žádné okamžité zrušení
+  // — user nepřijde o období, za které už zaplatil.
+  function confirmRemove(code: string) {
+    const row = rowByScope.get(code);
+    const dateIso = row?.paidUntil ?? row?.trialEndsAt ?? null;
+    const dateStr = dateIso ? fmtDate(dateIso, dateLocale) : null;
+    Alert.alert(
+      t("onboardingCountries", "removeTitle"),
+      dateStr
+        ? t("onboardingCountries", "removeBody", { country: countryLabel(code), date: dateStr })
+        : t("onboardingCountries", "removeBodyNoDate", { country: countryLabel(code) }),
+      [
+        { text: t("settings", "cancel"), style: "cancel" },
+        {
+          text: t("onboardingCountries", "removeConfirm"),
+          style: "destructive",
+          onPress: () => void doRemove(code),
+        },
+      ],
+    );
+  }
+
+  async function doRemove(code: string) {
+    setBusyScope(code);
+    setError(null);
+    setNotice(null);
+    try {
+      await endpoints.deactivateLeadsService(code);
+      await refreshSubs();
+      setNotice(t("onboardingCountries", "removedNotice", { country: countryLabel(code) }));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : t("onboardingCountries", "activateFailed"));
+    } finally {
+      setBusyScope(null);
+    }
+  }
+
+  async function doReactivate(code: string) {
+    setBusyScope(code);
+    setError(null);
+    setNotice(null);
+    try {
+      await endpoints.reactivateLeadsService(code);
+      await refreshSubs();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : t("onboardingCountries", "activateFailed"));
+    } finally {
+      setBusyScope(null);
+    }
+  }
+
   if (countries === null) {
     return (
       <SafeAreaView style={styles.loadingScreen}>
@@ -275,40 +345,48 @@ export default function CountriesManager({ mode }: { mode: "onboarding" | "setti
   // konstantní šířku (title jinak hopká mezi slotama když se button objeví/zmizí).
   const ctaLabel = activating
     ? t("onboardingCountries", "activating")
-    : hasActiveTrial
-      ? t("onboardingCountries", "ctaAddToTrial")
-      : t("onboardingCountries", "cta");
+    : mode === "settings"
+      ? t("onboardingCountries", "addSelected")
+      : hasActiveTrial
+        ? t("onboardingCountries", "ctaAddToTrial")
+        : t("onboardingCountries", "cta");
+
+  // Spravovat aktivní země (odebrat/obnovit) jde jen v Nastavení — onboarding
+  // je čistě first-run výběr.
+  const canManage = mode === "settings";
 
   // Onboarding: back button jen pro returning usery (first-time signup nemá
   // kam zpět — RouterGuard ho sem replace-nul). Settings: back řeší settings stack.
   const showBack = mode === "onboarding" && activeScopes.size > 0;
 
-  const headerSave = () => {
-    const visible = newSelections.length > 0;
-    return (
-      <Pressable
-        onPress={visible ? activate : undefined}
-        disabled={!visible || activating}
-        hitSlop={8}
-        style={({ pressed }) => [
-          styles.headerSaveBtn,
-          pressed && visible && { opacity: 0.6 },
-          activating && { opacity: 0.6 },
-          !visible && { opacity: 0 },
-        ]}
-      >
-        {activating ? (
-          <ActivityIndicator color={colors.text} size="small" />
-        ) : (
-          <Text style={styles.headerSaveText}>{ctaLabel}</Text>
-        )}
-      </Pressable>
-    );
-  };
+  // Save button v headeru jen když je co uložit (nové výběry) nebo právě běží
+  // aktivace. Jinak headerRight = undefined → žádné prázdné tlačítko.
+  const showSave = newSelections.length > 0 || activating;
+  const headerSave = () => (
+    <Pressable
+      onPress={activate}
+      disabled={activating}
+      hitSlop={8}
+      style={({ pressed }) => [styles.headerSaveBtn, (pressed || activating) && { opacity: 0.6 }]}
+    >
+      {activating ? (
+        <ActivityIndicator color={colors.text} size="small" />
+      ) : (
+        <Text style={styles.headerSaveText}>{ctaLabel}</Text>
+      )}
+    </Pressable>
+  );
 
   function metaForActive(code: string): string | null {
     const row = rowByScope.get(code);
     if (!row) return null;
+    // Zrušená (cancelAtPeriodEnd) — běží do konce období, pak končí bez účtování.
+    if (row.cancelAtPeriodEnd) {
+      const dateIso = row.paidUntil ?? row.trialEndsAt ?? null;
+      return dateIso
+        ? t("onboardingCountries", "removeUntil", { date: fmtDate(dateIso, dateLocale) })
+        : t("onboardingCountries", "removeScheduled");
+    }
     return serviceStateMeta(row, t, dateLocale);
   }
 
@@ -316,7 +394,7 @@ export default function CountriesManager({ mode }: { mode: "onboarding" | "setti
     <SafeAreaView style={styles.screen} edges={[]}>
       <Stack.Screen
         options={{
-          headerRight: headerSave,
+          headerRight: showSave ? headerSave : undefined,
           ...(mode === "onboarding"
             ? {
                 // Returning user (přes router.push) má swipe-back; first-time
@@ -418,7 +496,9 @@ export default function CountriesManager({ mode }: { mode: "onboarding" | "setti
           const isSelected = selected.has(c.code);
           const label = c.labels[locale] ?? c.labels.en;
           const flagUrl = `https://flagcdn.com/24x18/${c.code.toLowerCase()}.png`;
+          const row = isActive ? rowByScope.get(c.code) : null;
           const activeMeta = isActive ? metaForActive(c.code) : null;
+          const scopeBusy = busyScope === c.code;
           return (
             <Pressable
               onPress={() => c.available && toggle(c.code)}
@@ -450,9 +530,31 @@ export default function CountriesManager({ mode }: { mode: "onboarding" | "setti
                 )}
               </View>
               {isActive ? (
-                <View style={styles.activeBadge}>
-                  <Text style={styles.activeBadgeText}>{t("onboardingCountries", "alreadyActive")}</Text>
-                </View>
+                canManage ? (
+                  scopeBusy ? (
+                    <ActivityIndicator color={colors.textSubtle} size="small" style={styles.rowAction} />
+                  ) : row?.cancelAtPeriodEnd ? (
+                    <Pressable
+                      onPress={() => void doReactivate(c.code)}
+                      hitSlop={8}
+                      style={({ pressed }) => [styles.rowAction, pressed && { opacity: 0.6 }]}
+                    >
+                      <Text style={styles.reactivateText}>{t("onboardingCountries", "reactivate")}</Text>
+                    </Pressable>
+                  ) : (
+                    <Pressable
+                      onPress={() => confirmRemove(c.code)}
+                      hitSlop={8}
+                      style={({ pressed }) => [styles.rowAction, pressed && { opacity: 0.6 }]}
+                    >
+                      <Text style={styles.removeText}>{t("onboardingCountries", "remove")}</Text>
+                    </Pressable>
+                  )
+                ) : (
+                  <View style={styles.activeBadge}>
+                    <Text style={styles.activeBadgeText}>{t("onboardingCountries", "alreadyActive")}</Text>
+                  </View>
+                )
               ) : c.available ? (
                 <View style={[styles.checkbox, isSelected && styles.checkboxOn]}>
                   {isSelected && <Text style={styles.checkmark}>✓</Text>}
@@ -559,6 +661,9 @@ function makeStyles(c: Colors) {
     coverageText: { fontSize: fontSize.xs, color: c.textMuted, marginTop: 2 },
     activeBadge: { backgroundColor: c.successBg, paddingHorizontal: spacing.sm, paddingVertical: 4, borderRadius: radius.sm },
     activeBadgeText: { fontSize: 10, fontWeight: "700", color: c.success, textTransform: "uppercase", letterSpacing: 0.5 },
+    rowAction: { paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, minWidth: 64, alignItems: "flex-end" },
+    removeText: { fontSize: fontSize.xs, color: c.textSubtle, fontWeight: "500", textDecorationLine: "underline" },
+    reactivateText: { fontSize: fontSize.xs, color: c.link, fontWeight: "600", textDecorationLine: "underline" },
     partialTag: { alignSelf: "flex-start", marginTop: 4, backgroundColor: c.warningBg, borderWidth: 1, borderColor: c.warning, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
     partialTagText: { fontSize: 10, color: c.warning, fontWeight: "500" },
     checkbox: { width: 24, height: 24, borderRadius: radius.sm, borderWidth: 2, borderColor: c.border, alignItems: "center", justifyContent: "center" },
