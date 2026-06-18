@@ -18,7 +18,6 @@
       "supportsTablet": false,
       "bundleIdentifier": "cz.mrickwood.veritra",
       "buildNumber": "1",
-      "usesAppleSignIn": true,
       "config": {
         "usesNonExemptEncryption": false
       },
@@ -30,7 +29,6 @@
       "expo-router",
       "expo-secure-store",
       "expo-web-browser",
-      "expo-apple-authentication",
       [
         "expo-notifications",
         {

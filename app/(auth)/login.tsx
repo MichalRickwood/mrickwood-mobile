@@ -1,57 +1,49 @@
 import { useMemo, useState } from "react";
-import {
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
 import { useAuth } from "@/lib/auth-context";
-import { ApiError } from "@/lib/api";
 import { APP_NAME } from "@/lib/config";
+import { startWebAuth, WebAuthCancelled, type WebAuthMode } from "@/lib/web-auth";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 import { useTheme } from "@/lib/theme-context";
-import OauthButtons from "@/components/OauthButtons";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
 import AppearanceSwitcher from "@/components/AppearanceSwitcher";
 import { useI18n } from "@/lib/i18n";
 
+/**
+ * Auth landing — žádné nativní formuláře. Přihlášení i registrace probíhá na
+ * auth.mrickwood.cz (ASWebAuthenticationSession). Dvě tlačítka se liší jen
+ * parametrem `mode`. Apple compliance: viz lib/web-auth.ts.
+ */
 export default function LoginScreen() {
-  const router = useRouter();
-  const { signIn } = useAuth();
-  const { t } = useI18n();
+  const { applySession } = useAuth();
+  const { t, locale } = useI18n();
   const { colors, isDark } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const logoSrc = isDark
     ? require("@/assets/logo-dark.png")
     : require("@/assets/logo.png");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
+  const [busy, setBusy] = useState<WebAuthMode | null>(null);
 
-  async function onSubmit() {
+  async function onPress(mode: WebAuthMode) {
     if (busy) return;
-    setBusy(true);
+    setBusy(mode);
     setError(null);
     try {
-      await signIn(email.trim().toLowerCase(), password);
+      const user = await startWebAuth(mode, locale);
+      applySession(user);
+      // RouterGuard přesměruje na onboarding/tabs dle stavu subscription.
     } catch (err) {
-      if (err instanceof ApiError) {
-        if (err.status === 401) setError(t("login", "errorInvalid"));
-        else if (err.status === 403) setError(err.message || t("login", "errorAccount"));
-        else setError(err.message || t("login", "errorGeneric"));
+      if (err instanceof WebAuthCancelled) {
+        // user zavřel prohlížeč — žádná chyba
+      } else if (err instanceof Error && err.message.startsWith("Fetch fail")) {
+        setError(t("authLanding", "errorNetwork"));
       } else {
-        setError(t("login", "errorNetwork"));
+        setError(t("authLanding", "errorGeneric"));
       }
     } finally {
-      setBusy(false);
+      setBusy(null);
     }
   }
 
@@ -62,85 +54,42 @@ export default function LoginScreen() {
         <View style={styles.pillGap} />
         <AppearanceSwitcher />
       </View>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        style={styles.flex}
-      >
-        <ScrollView
-          contentContainerStyle={styles.scroll}
-          keyboardShouldPersistTaps="handled"
-          bounces={false}
-          showsVerticalScrollIndicator={false}
+
+      <View style={styles.content}>
+        <View style={styles.brand}>
+          <Image source={logoSrc} style={styles.brandIcon} resizeMode="contain" />
+          <Text style={styles.brandText}>{APP_NAME}</Text>
+          <Text style={styles.brandSub}>{t("brand", "tagline")}</Text>
+        </View>
+
+        <Text style={styles.subtitle}>{t("authLanding", "subtitle")}</Text>
+
+        {error && <Text style={styles.error}>{error}</Text>}
+
+        <Pressable
+          onPress={() => onPress("login")}
+          disabled={!!busy}
+          style={({ pressed }) => [
+            styles.button,
+            !!busy && styles.buttonDisabled,
+            pressed && styles.buttonPressed,
+          ]}
         >
-          <View style={styles.brand}>
-            <Image source={logoSrc} style={styles.brandIcon} resizeMode="contain" />
-            <Text style={styles.brandText}>{APP_NAME}</Text>
-            <Text style={styles.brandSub}>{t("brand", "tagline")}</Text>
-          </View>
+          <Text style={styles.buttonText}>{t("authLanding", "loginBtn")}</Text>
+        </Pressable>
 
-          <View style={styles.form}>
-            <Text style={styles.label}>{t("login", "emailLabel")}</Text>
-            <TextInput
-              value={email}
-              onChangeText={setEmail}
-              autoCapitalize="none"
-              autoCorrect={false}
-              autoComplete="email"
-              keyboardType="email-address"
-              placeholder={t("login", "emailPlaceholder")}
-              placeholderTextColor={colors.textFaint}
-              style={styles.input}
-              returnKeyType="next"
-            />
-
-            <Text style={[styles.label, styles.mt]}>{t("login", "passwordLabel")}</Text>
-            <TextInput
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-              autoComplete="password"
-              placeholder={t("login", "passwordPlaceholder")}
-              placeholderTextColor={colors.textFaint}
-              style={styles.input}
-              returnKeyType="done"
-              onSubmitEditing={onSubmit}
-            />
-
-            <Pressable
-              onPress={() => router.push("/(auth)/forgot-password")}
-              style={styles.forgotLink}
-              hitSlop={6}
-            >
-              <Text style={styles.forgotLinkText}>{t("login", "forgotPassword")}</Text>
-            </Pressable>
-
-            {error && <Text style={styles.error}>{error}</Text>}
-
-            <Pressable
-              onPress={onSubmit}
-              disabled={busy || !email || !password}
-              style={({ pressed }) => [
-                styles.button,
-                (busy || !email || !password) && styles.buttonDisabled,
-                pressed && styles.buttonPressed,
-              ]}
-            >
-              <Text style={styles.buttonText}>
-                {busy ? t("login", "submitting") : t("login", "submit")}
-              </Text>
-            </Pressable>
-
-            <OauthButtons onError={(msg) => setError(msg)} />
-
-            <Pressable onPress={() => router.push("/(auth)/register")} style={styles.bottomLink}>
-              <Text style={styles.bottomLinkText}>
-                {t("login", "noAccount")}{" "}
-                <Text style={styles.bottomLinkAccent}>{t("login", "register")}</Text>
-              </Text>
-            </Pressable>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+        <Pressable
+          onPress={() => onPress("register")}
+          disabled={!!busy}
+          style={({ pressed }) => [
+            styles.buttonSecondary,
+            !!busy && styles.buttonDisabled,
+            pressed && styles.buttonSecondaryPressed,
+          ]}
+        >
+          <Text style={styles.buttonSecondaryText}>{t("authLanding", "registerBtn")}</Text>
+        </Pressable>
+      </View>
     </SafeAreaView>
   );
 }
@@ -148,7 +97,6 @@ export default function LoginScreen() {
 const makeStyles = (colors: Colors) =>
   StyleSheet.create({
     safe: { flex: 1, backgroundColor: colors.bg },
-    flex: { flex: 1 },
     topBar: {
       flexDirection: "row",
       justifyContent: "flex-end",
@@ -157,46 +105,45 @@ const makeStyles = (colors: Colors) =>
       paddingTop: spacing.sm,
     },
     pillGap: { width: spacing.sm },
-    scroll: { flexGrow: 1, justifyContent: "center", padding: spacing.xl },
+    content: { flex: 1, justifyContent: "center", padding: spacing.xl },
     brand: { marginBottom: spacing.lg, alignItems: "center" },
     brandIcon: { width: 72, height: 72, marginBottom: spacing.xs },
     brandText: { fontSize: 32, fontWeight: "700", color: colors.text, letterSpacing: -0.5 },
     brandSub: { fontSize: fontSize.sm, color: colors.textSubtle, marginTop: spacing.xs },
-    form: {},
-    label: { fontSize: fontSize.xs, fontWeight: "600", color: colors.text, marginBottom: spacing.sm },
-    mt: { marginTop: spacing.lg },
-    input: {
-      backgroundColor: colors.card,
-      borderWidth: 1,
-      borderColor: colors.border,
-      borderRadius: radius.md,
-      paddingHorizontal: spacing.md,
-      paddingVertical: spacing.md,
+    subtitle: {
       fontSize: fontSize.base,
-      color: colors.text,
+      color: colors.textMuted,
+      textAlign: "center",
+      marginBottom: spacing.xl,
     },
     error: {
       color: colors.danger,
       fontSize: fontSize.sm,
-      marginTop: spacing.lg,
+      marginBottom: spacing.lg,
       backgroundColor: colors.dangerBg,
       paddingHorizontal: spacing.md,
       paddingVertical: spacing.sm,
       borderRadius: radius.sm,
+      textAlign: "center",
     },
     button: {
-      marginTop: spacing.xl,
       backgroundColor: colors.accent,
       borderRadius: radius.md,
       paddingVertical: spacing.md,
       alignItems: "center",
     },
-    buttonDisabled: { opacity: 0.4 },
     buttonPressed: { backgroundColor: colors.accentHover },
     buttonText: { color: colors.accentForeground, fontSize: fontSize.base, fontWeight: "600" },
-    forgotLink: { alignSelf: "flex-end", marginTop: spacing.sm },
-    forgotLinkText: { fontSize: fontSize.xs, color: colors.link, fontWeight: "500" },
-    bottomLink: { marginTop: spacing.xl, alignItems: "center" },
-    bottomLinkText: { fontSize: fontSize.sm, color: colors.textSubtle },
-    bottomLinkAccent: { color: colors.text, fontWeight: "600" },
+    buttonSecondary: {
+      marginTop: spacing.md,
+      backgroundColor: colors.card,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.md,
+      paddingVertical: spacing.md,
+      alignItems: "center",
+    },
+    buttonSecondaryPressed: { borderColor: colors.text },
+    buttonSecondaryText: { color: colors.text, fontSize: fontSize.base, fontWeight: "600" },
+    buttonDisabled: { opacity: 0.4 },
   });

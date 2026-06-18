@@ -14,4 +14,11 @@ export const API_BASE_URL =
   ((Constants.expoConfig?.extra as Record<string, unknown> | undefined)?.apiBaseUrl as string | undefined) ||
   PROD;
 
+/**
+ * Web pro přihlášení/registraci (ASWebAuthenticationSession redirect).
+ * Override přes EXPO_PUBLIC_AUTH_BASE_URL pro lokální/test web.
+ */
+export const AUTH_BASE_URL =
+  process.env.EXPO_PUBLIC_AUTH_BASE_URL || "https://auth.mrickwood.cz";
+
 export const APP_NAME = "Veritra";

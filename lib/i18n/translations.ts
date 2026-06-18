@@ -13,6 +13,13 @@ export interface Dict {
   brand: {
     tagline: string;
   };
+  authLanding: {
+    subtitle: string;
+    loginBtn: string;
+    registerBtn: string;
+    errorGeneric: string;
+    errorNetwork: string;
+  };
   login: {
     title: string;
     emailLabel: string;
@@ -555,6 +562,13 @@ export interface Dict {
 
 const cs: Dict = {
   brand: { tagline: "Vyhledávání veřejných zakázek" },
+  authLanding: {
+    subtitle: "Přihlaste se nebo si vytvořte účet.",
+    loginBtn: "Přihlásit se",
+    registerBtn: "Registrovat se",
+    errorGeneric: "Přihlášení se nezdařilo. Zkuste to prosím znovu.",
+    errorNetwork: "Nepodařilo se připojit k serveru.",
+  },
   login: {
     title: "Přihlášení",
     emailLabel: "Email",
@@ -1095,6 +1109,13 @@ const cs: Dict = {
 
 const en: Dict = {
   brand: { tagline: "Public tender search" },
+  authLanding: {
+    subtitle: "Sign in or create an account.",
+    loginBtn: "Sign in",
+    registerBtn: "Sign up",
+    errorGeneric: "Sign-in failed. Please try again.",
+    errorNetwork: "Could not connect to the server.",
+  },
   login: {
     title: "Sign in",
     emailLabel: "Email",
@@ -1634,6 +1655,13 @@ const en: Dict = {
 
 const de: Dict = {
   brand: { tagline: "Ausschreibungssuche" },
+  authLanding: {
+    subtitle: "Melden Sie sich an oder erstellen Sie ein Konto.",
+    loginBtn: "Anmelden",
+    registerBtn: "Registrieren",
+    errorGeneric: "Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.",
+    errorNetwork: "Verbindung zum Server fehlgeschlagen.",
+  },
   login: {
     title: "Anmelden",
     emailLabel: "E-Mail",

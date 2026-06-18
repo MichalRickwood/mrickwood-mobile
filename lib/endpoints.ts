@@ -84,15 +84,6 @@ export interface LeadFilterInput {
   active?: boolean;
 }
 
-export interface MobileRegisterInput {
-  email: string;
-  password: string;
-  name: string;
-  locale: string;
-  consentVop: boolean;
-  consentGdpr: boolean;
-}
-
 export interface ProfileView {
   name: string | null;
   phone: string | null;
@@ -132,19 +123,11 @@ function legacyFilterShape(f: V2Filter): LeadFilterRow {
 }
 
 export const endpoints = {
-  // Auth
-  login: (email: string, password: string) =>
-    api.post<MobileLoginResponse>("/api/auth/mobile/login", { email, password }, { noAuth: true }),
-
-  // Mobile-specific register — minimální (name, email, password, consents).
-  // Firemní údaje + telefon se doplňují v Settings → Profil / Předplatné.
-  register: (input: MobileRegisterInput) =>
-    api.post<{ success: boolean; userId: string }>("/api/auth/mobile/register", input, { noAuth: true }),
-
-  // Zapomenuté heslo — pošle email s reset linkem (vede na web /reset-password).
-  // Backend vždy vrací 200 (i pro neexistující email) kvůli email-enumeration prevenci.
-  requestPasswordReset: (email: string) =>
-    api.post<{ ok: true }>("/api/auth/forgot-password", { email }, { noAuth: true }),
+  // Auth — výměna jednorázového kódu z auth.mrickwood.cz redirectu za mobilní
+  // session (JWT + user). Přihlášení/registrace probíhá na webu, appka jen
+  // dokončí handoff. Stejný tvar odpovědi jako dřívější OAuth exchange.
+  exchangeWebAuthCode: (code: string) =>
+    api.post<MobileLoginResponse>("/api/auth/mobile/session/exchange", { code }, { noAuth: true }),
 
   // Profile read — používáme po loginu pro detekci jestli je profil kompletní
   profile: () => api.get<ProfileView>("/api/account/profile"),

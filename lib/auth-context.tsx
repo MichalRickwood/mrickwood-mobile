@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
-import { clearSession, getToken, getUser, saveToken, saveUser, type StoredUser } from "./auth-storage";
+import { clearSession, getToken, getUser, saveUser, type StoredUser } from "./auth-storage";
 import { endpoints } from "./endpoints";
 import { ApiError } from "./api";
 import { registerForPushNotifications, unregisterPushNotifications } from "./notifications";
@@ -7,9 +7,8 @@ import { registerForPushNotifications, unregisterPushNotifications } from "./not
 interface AuthState {
   status: "loading" | "anonymous" | "authenticated";
   user: StoredUser | null;
-  signIn: (email: string, password: string) => Promise<void>;
-  /** Voláno OAuth helpers po úspěšném sign-in — token už je v SecureStore. */
-  applyOauthSession: (user: StoredUser) => void;
+  /** Voláno po úspěšném web-auth handoffu — token už je v SecureStore. */
+  applySession: (user: StoredUser) => void;
   signOut: () => Promise<void>;
 }
 
@@ -66,19 +65,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const signIn = useCallback(async (email: string, password: string) => {
-    const { token, user: serverUser } = await endpoints.login(email, password);
-    await saveToken(token);
-    await saveUser(serverUser);
-    setUser(serverUser);
-    setStatus("authenticated");
-    void registerForPushNotifications().then((t) => {
-      pushTokenRef.current = t;
-    });
-  }, []);
-
-  const applyOauthSession = useCallback((oauthUser: StoredUser) => {
-    setUser(oauthUser);
+  const applySession = useCallback((sessionUser: StoredUser) => {
+    setUser(sessionUser);
     setStatus("authenticated");
     void registerForPushNotifications().then((t) => {
       pushTokenRef.current = t;
@@ -94,7 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ status, user, signIn, applyOauthSession, signOut }}>
+    <AuthContext.Provider value={{ status, user, applySession, signOut }}>
       {children}
     </AuthContext.Provider>
   );
