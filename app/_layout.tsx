@@ -27,7 +27,11 @@ function RouterGuard() {
   const { status } = useAuth();
   const segments = useSegments();
   const router = useRouter();
-  const [onboardingChecked, setOnboardingChecked] = useState(false);
+  // Cíl po subscription checku: null = ještě nezjištěno. Ukládáme KAM patří
+  // (ne jen bool „checked") — jinak po router.replace("/(onboarding)") re-render
+  // se segments ještě v (auth) spustil (auth)→(tabs) a přepsal onboarding redirect
+  // na tabs ("Zatím žádné země"). S cílem routujeme konzistentně.
+  const [destination, setDestination] = useState<"onboarding" | "tabs" | null>(null);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -36,7 +40,7 @@ function RouterGuard() {
 
     if (status === "anonymous") {
       if (!inAuth) router.replace("/(auth)/login");
-      setOnboardingChecked(false);
+      setDestination(null);
       return;
     }
 
@@ -48,10 +52,13 @@ function RouterGuard() {
     // Store flow). Jméno i souhlasy řeší backend (registrace / OAuth clickwrap
     // + backfill při loginu), country se derivuje tiše v countries.tsx.
 
-    // Pokud check už proběhl, jen řešíme přechod z (auth) do (tabs).
-    // POZOR: žádný fallback na (tabs) v dalších branchích — race s async
-    // checkem dřív vyhazoval OAuth usery rovnou do matches "Zatím žádné země".
-    if (onboardingChecked) {
+    // Cíl už známe → posouváme jen z (auth) na správné místo. Z onboardingu na
+    // tabs (po aktivaci v CountriesManager) NEpřepisujeme zpět — proto jen `inAuth`.
+    if (destination === "onboarding") {
+      if (inAuth) router.replace("/(onboarding)/countries");
+      return;
+    }
+    if (destination === "tabs") {
       if (inAuth) router.replace("/(tabs)");
       return;
     }
@@ -70,27 +77,18 @@ function RouterGuard() {
             s.state !== "CANCELED" &&
             s.state !== "SUSPENDED",
         );
-        if (!hasActiveLeads) {
-          // Navigaci spouštíme DŘÍV než state update — jinak useEffect re-run
-          // s onboardingChecked=true + segments ještě v (auth) by spustil
-          // (auth)→(tabs) přesměrování dřív, než se router.replace propagne.
-          router.replace("/(onboarding)/countries");
-        } else if (inAuth) {
-          router.replace("/(tabs)");
-        }
-        setOnboardingChecked(true);
+        // Jen nastavíme cíl — navigaci provede re-run efektu výše dle `destination`.
+        // Tím se onboarding redirect nikdy nepřepíše tabs větví (původní bug).
+        setDestination(hasActiveLeads ? "tabs" : "onboarding");
       } catch {
-        // Nečekaný throw v guardu — bezpečný fallback je countries, ne tabs.
-        if (!cancelled) {
-          router.replace("/(onboarding)/countries");
-          setOnboardingChecked(true);
-        }
+        // Nečekaný throw v guardu — bezpečný fallback je onboarding, ne tabs.
+        if (!cancelled) setDestination("onboarding");
       }
     })();
     return () => {
       cancelled = true;
     };
-  }, [status, segments, router, onboardingChecked]);
+  }, [status, segments, router, destination]);
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
