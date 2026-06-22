@@ -111,10 +111,36 @@ export default function MatchesScreen() {
     },
   });
 
+  // Subscriptions — cache sdílená s RouterGuardem (ten ji naplní fetchQuery před
+  // navigací sem), takže pro post-trial usera známe stav OKAMŽITĚ a ukážeme
+  // paywall bez problikávání matches loadingu. staleTime 30s.
+  const subsQuery = useQuery({
+    queryKey: ["account-subscriptions"],
+    queryFn: () => endpoints.listSubscriptions(),
+    staleTime: 30 * 1000,
+  });
+  // LEADS neaktivní = má řádek(y), ale žádný ACTIVE ani běžící TRIAL (= po trialu
+  // SUSPENDED/CANCELED/expired) → paywall. Žádný LEADS řádek = neřešíme tady
+  // (RouterGuard takového usera pošle do onboardingu).
+  const leadsInactive = useMemo(() => {
+    const rows = (subsQuery.data ?? []).filter((s) => s.service === "LEADS");
+    if (rows.length === 0) return false;
+    const now = Date.now();
+    const anyActive = rows.some(
+      (s) =>
+        s.state === "ACTIVE" ||
+        (s.state === "TRIAL" && !!s.trialEndsAt && new Date(s.trialEndsAt).getTime() > now),
+    );
+    return !anyActive;
+  }, [subsQuery.data]);
+
   // Při aktivním search / ad-hoc rozšiřujeme page size — in-memory filter
   // by jinak vrátil málo výsledků z 50-item page (i když celkově match je více).
   const hasNarrowingFilter = !!searchDebounced || isAdHocActive(adHoc);
   const matchesQuery = useInfiniteQuery({
+    // Neaktivní LEADS → nestřílíme matches (vrátilo by 402); paywall se ukáže z
+    // subsQuery rovnou.
+    enabled: !leadsInactive,
     queryKey: ["matches", activeFilterId, searchDebounced, adHoc, sort],
     initialPageParam: null as string | null,
     queryFn: ({ pageParam }) =>
@@ -182,7 +208,7 @@ export default function MatchesScreen() {
   // Paywall „aktivuj předplatné" → web (App Store 3.1.1, externí nákup).
   // Úplně nový user (žádný LEADS řádek) se sem nedostane — RouterGuard ho pošle
   // do onboardingu; sem chodí jen post-trial, kde paywall dává smysl.
-  if (paymentRequired) {
+  if (paymentRequired || leadsInactive) {
     return (
       <SafeAreaView style={styles.safe} edges={["top"]}>
         <LeadsPaywall />

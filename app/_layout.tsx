@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider, useAuth } from "@/lib/auth-context";
 import { I18nProvider } from "@/lib/i18n";
@@ -27,6 +27,7 @@ function RouterGuard() {
   const { status } = useAuth();
   const segments = useSegments();
   const router = useRouter();
+  const qc = useQueryClient();
   // Cíl po subscription checku: null = ještě nezjištěno. Ukládáme KAM patří
   // (ne jen bool „checked") — jinak po router.replace("/(onboarding)") re-render
   // se segments ještě v (auth) spustil (auth)→(tabs) a přepsal onboarding redirect
@@ -69,7 +70,16 @@ function RouterGuard() {
     let cancelled = false;
     (async () => {
       try {
-        const subs = await endpoints.listSubscriptions().catch(() => []);
+        // fetchQuery (ne raw call) → naplní react-query cache pod
+        // ["account-subscriptions"], kterou tabs/index přečte SYNCHRONNĚ a ukáže
+        // paywall hned (bez round-tripu navíc / problikávání matches loadingu).
+        const subs = await qc
+          .fetchQuery({
+            queryKey: ["account-subscriptions"],
+            queryFn: () => endpoints.listSubscriptions(),
+            staleTime: 30 * 1000,
+          })
+          .catch(() => []);
         if (cancelled) return;
         // hasAnyLeads = měl někdy LEADS (i SUSPENDED/CANCELED po vypršení trialu).
         // Onboarding je JEN pro úplně nové (žádný LEADS řádek). Post-trial uživatel
@@ -87,7 +97,7 @@ function RouterGuard() {
     return () => {
       cancelled = true;
     };
-  }, [status, segments, router, destination]);
+  }, [status, segments, router, destination, qc]);
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
