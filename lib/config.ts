@@ -26,4 +26,12 @@ export const API_BASE_URL =
 export const AUTH_BASE_URL =
   process.env.EXPO_PUBLIC_AUTH_BASE_URL || PROD;
 
+/**
+ * Web pro aktivaci/správu předplatného (paywall po vypršení trialu). Předplatné
+ * řešíme na webu (App Store 3.1.1 — externí nákup), ne v appce. Otevírá se
+ * v prohlížeči; po web loginu uživatel spravuje předplatné v dashboardu.
+ */
+export const WEB_SUBSCRIBE_URL =
+  process.env.EXPO_PUBLIC_WEB_SUBSCRIBE_URL || `${PROD}/dashboard`;
+
 export const APP_NAME = "Veritra";

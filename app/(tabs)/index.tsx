@@ -15,6 +15,7 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tansta
 import { endpoints, type LeadMatchRow } from "@/lib/endpoints";
 import { ApiError } from "@/lib/api";
 import FilterPicker from "@/components/FilterPicker";
+import LeadsPaywall from "@/components/LeadsPaywall";
 import MatchCard from "@/components/MatchCard";
 import RegionPickerModal from "@/components/RegionPickerModal";
 import ValueRangePickerModal from "@/components/ValueRangePickerModal";
@@ -177,18 +178,14 @@ export default function MatchesScreen() {
     return t("matches", "counterFilter", { filter: name, count: totalCount });
   }, [activeFilterId, filters, totalCount, t]);
 
-  // 402 = LEADS service není aktivní. Předtím jsme dělali auto-redirect na
-  // /(onboarding)/countries, což ale (a) způsobilo redirect loop kdykoli byl
-  // matches cache stale po čerstvé aktivaci, (b) Apple 3.1.1 by mohla flagnout
-  // jako "subscription gating mechanism". Nyní jen prázdný stav s pokynem
-  // jít do Nastavení (kde se země spravují bez Apple-flagged onboarding flow).
+  // 402 = LEADS entitlement není aktivní (po vypršení trialu → SUSPENDED).
+  // Paywall „aktivuj předplatné" → web (App Store 3.1.1, externí nákup).
+  // Úplně nový user (žádný LEADS řádek) se sem nedostane — RouterGuard ho pošle
+  // do onboardingu; sem chodí jen post-trial, kde paywall dává smysl.
   if (paymentRequired) {
     return (
       <SafeAreaView style={styles.safe} edges={["top"]}>
-        <View style={styles.entitlementEmpty}>
-          <Text style={styles.entitlementTitle}>{t("matches", "noCountriesTitle")}</Text>
-          <Text style={styles.entitlementBody}>{t("matches", "noCountriesBody")}</Text>
-        </View>
+        <LeadsPaywall />
       </SafeAreaView>
     );
   }

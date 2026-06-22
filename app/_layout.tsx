@@ -71,15 +71,14 @@ function RouterGuard() {
       try {
         const subs = await endpoints.listSubscriptions().catch(() => []);
         if (cancelled) return;
-        const hasActiveLeads = subs.some(
-          (s) =>
-            s.service === "LEADS" &&
-            s.state !== "CANCELED" &&
-            s.state !== "SUSPENDED",
-        );
+        // hasAnyLeads = měl někdy LEADS (i SUSPENDED/CANCELED po vypršení trialu).
+        // Onboarding je JEN pro úplně nové (žádný LEADS řádek). Post-trial uživatel
+        // → tabs, kde matches vrátí 402 a ukáže se paywall (aktivace předplatného).
+        // Dřív SUSPENDED padal do onboardingu, kde nešel znovu aktivovat trial.
+        const hasAnyLeads = subs.some((s) => s.service === "LEADS");
         // Jen nastavíme cíl — navigaci provede re-run efektu výše dle `destination`.
         // Tím se onboarding redirect nikdy nepřepíše tabs větví (původní bug).
-        setDestination(hasActiveLeads ? "tabs" : "onboarding");
+        setDestination(hasAnyLeads ? "tabs" : "onboarding");
       } catch {
         // Nečekaný throw v guardu — bezpečný fallback je onboarding, ne tabs.
         if (!cancelled) setDestination("onboarding");

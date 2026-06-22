@@ -15,6 +15,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { endpoints } from "@/lib/endpoints";
 import { ApiError } from "@/lib/api";
 import MatchCard from "@/components/MatchCard";
+import LeadsPaywall from "@/components/LeadsPaywall";
 import { useToggleTenderPreference } from "@/lib/use-tender-preference";
 import { useTheme } from "@/lib/theme-context";
 import { useI18n } from "@/lib/i18n";
@@ -64,15 +65,11 @@ export default function StarredScreen() {
     void q.refetch();
   }, [q]);
 
-  // 402 = LEADS service není aktivní. Bez auto-redirectu na onboarding —
-  // viz důvody v (tabs)/index.tsx: prevence loop a Apple 3.1.1 alignment.
+  // 402 = LEADS entitlement neaktivní (post-trial) → paywall, viz (tabs)/index.tsx.
   if (paymentRequired) {
     return (
       <SafeAreaView style={styles.safe} edges={["top"]}>
-        <View style={styles.entitlementEmpty}>
-          <Text style={styles.entitlementTitle}>{t("matches", "noCountriesTitle")}</Text>
-          <Text style={styles.entitlementBody}>{t("matches", "noCountriesBody")}</Text>
-        </View>
+        <LeadsPaywall />
       </SafeAreaView>
     );
   }

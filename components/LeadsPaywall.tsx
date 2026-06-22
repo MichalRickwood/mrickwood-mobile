@@ -9,9 +9,10 @@ import {
   View,
 } from "react-native";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "expo-router";
+import * as WebBrowser from "expo-web-browser";
 import { endpoints } from "@/lib/endpoints";
 import { ApiError } from "@/lib/api";
+import { WEB_SUBSCRIBE_URL } from "@/lib/config";
 import { useTheme } from "@/lib/theme-context";
 import { useI18n } from "@/lib/i18n";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
@@ -22,7 +23,6 @@ import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
  * aktivace, jinak → CTA do nastavení předplatného (karta/fa flow).
  */
 export default function LeadsPaywall() {
-  const router = useRouter();
   const { colors } = useTheme();
   const { t } = useI18n();
   const styles = useMemo(() => makeStyles(colors), [colors]);
@@ -144,8 +144,10 @@ export default function LeadsPaywall() {
                     ? t("filters", "paywallSuspended")
                     : t("filters", "paywallNoSubscription")}
           </Text>
+          {/* Předplatné se aktivuje na webu (App Store 3.1.1 — externí nákup),
+              stejně jako přihlášení/registrace. Otevře prohlížeč na dashboard. */}
           <Pressable
-            onPress={() => router.push("/(tabs)/settings/billing")}
+            onPress={() => void WebBrowser.openBrowserAsync(WEB_SUBSCRIBE_URL)}
             style={({ pressed }) => [styles.btnPrimary, pressed && { opacity: 0.85 }]}
           >
             <Text style={styles.btnPrimaryText}>
