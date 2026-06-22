@@ -41,7 +41,14 @@ export async function startWebAuth(mode: WebAuthMode, locale: string): Promise<S
     `&state=${encodeURIComponent(state)}` +
     `&locale=${encodeURIComponent(locale)}`;
 
-  const result = await WebBrowser.openAuthSessionAsync(authUrl, redirectUrl);
+  // preferEphemeralSession: privátní auth session bez sdílení cookies mezi
+  // spuštěními. Bez toho NextAuth session cookie na auth.mrickwood.cz přežije
+  // odhlášení v appce → server přes requireAuth() uvidí starou session a rovnou
+  // přihlásí původní účet (formulář se neukáže). Ephemeral = formulář vždy čistý,
+  // přepnutí účtu funguje. (iOS; na Androidu se ignoruje — řeší se server-side.)
+  const result = await WebBrowser.openAuthSessionAsync(authUrl, redirectUrl, {
+    preferEphemeralSession: true,
+  });
 
   if (result.type !== "success") {
     // cancel / dismiss — user zavřel prohlížeč
