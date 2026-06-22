@@ -16,9 +16,14 @@ export const API_BASE_URL =
 
 /**
  * Web pro přihlášení/registraci (ASWebAuthenticationSession redirect).
+ *
+ * MUSÍ být stejný host jako NEXTAUTH_URL na backendu (mrickwood.cz). OAuth
+ * (Google/GitHub) callback míří na NEXTAUTH_URL a session cookie se nastaví
+ * tam — kdyby auth běžel na jiné doméně (auth.mrickwood.cz), /mobile by tu
+ * cookie po OAuth neviděl a přihlášení by se nedotáhlo (cross-domain).
  * Override přes EXPO_PUBLIC_AUTH_BASE_URL pro lokální/test web.
  */
 export const AUTH_BASE_URL =
-  process.env.EXPO_PUBLIC_AUTH_BASE_URL || "https://auth.mrickwood.cz";
+  process.env.EXPO_PUBLIC_AUTH_BASE_URL || PROD;
 
 export const APP_NAME = "Veritra";

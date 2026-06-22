@@ -32,7 +32,7 @@
       },
       "env": {
         "EXPO_PUBLIC_API_BASE_URL": "https://mrickwood.cz",
-        "EXPO_PUBLIC_AUTH_BASE_URL": "https://auth.mrickwood.cz"
+        "EXPO_PUBLIC_AUTH_BASE_URL": "https://mrickwood.cz"
       }
     }
   },
