@@ -453,6 +453,7 @@ export interface Dict {
     saveCancel: string;
     saveSubmit: string;
     paywallTitle: string;
+    paywallInactiveTitle: string;
     paywallTrialBody: string;
     paywallTrialBtn: string;
     paywallReactivateBody: string;
@@ -462,6 +463,7 @@ export interface Dict {
     paywallCanceled: string;
     paywallNoSubscription: string;
     paywallGoToBillingBtn: string;
+    paywallRecheckBtn: string;
     paywallActivateFailed: string;
     paywallReactivateFailed: string;
     paywallFineprint: string;
@@ -1004,15 +1006,17 @@ const cs: Dict = {
     saveCancel: "Zrušit",
     saveSubmit: "Uložit",
     paywallTitle: "Aktivuj službu Veřejné zakázky",
+    paywallInactiveTitle: "Předplatné",
     paywallTrialBody: "Spusť si {days}denní zkušební období zdarma. Plný přístup ke všem zakázkám, filtrům a notifikacím.",
     paywallTrialBtn: "Aktivovat {days}denní trial zdarma",
     paywallReactivateBody: "Trial máš ještě platný do {date}. Obnov přístup jedním klepnutím.",
     paywallReactivateBtn: "Reaktivovat službu",
-    paywallExpiredTrial: "Tvůj trial skončil. Aktivuj plné předplatné a pokračuj v práci se zakázkami.",
-    paywallSuspended: "Tvé předplatné je pozastaveno. Obnov platbu pro plný přístup.",
-    paywallCanceled: "Předplatné bylo zrušeno. Aktivuj znovu pro přístup.",
-    paywallNoSubscription: "Pro plný přístup je potřeba aktivovat předplatné.",
+    paywallExpiredTrial: "Tvoje zkušební období skončilo. Pokyny, jak pokračovat, jsme ti poslali e-mailem — zkontroluj prosím svou schránku.",
+    paywallSuspended: "Přístup ke službě je pozastaven. Pokyny jsme ti poslali e-mailem — zkontroluj prosím svou schránku.",
+    paywallCanceled: "Pokyny k obnovení přístupu jsme ti poslali e-mailem — zkontroluj prosím svou schránku.",
+    paywallNoSubscription: "Pro přístup je potřeba aktivní předplatné. Pokyny jsme ti poslali e-mailem.",
     paywallGoToBillingBtn: "Aktivovat předplatné",
+    paywallRecheckBtn: "Zkontrolovat znovu",
     paywallActivateFailed: "Aktivace selhala.",
     paywallReactivateFailed: "Reaktivace selhala.",
     paywallFineprint: "Kdykoli můžeš spravovat předplatné v Nastavení → Předplatné.",
@@ -1550,15 +1554,17 @@ const en: Dict = {
     saveCancel: "Cancel",
     saveSubmit: "Save",
     paywallTitle: "Activate the Public Tenders service",
+    paywallInactiveTitle: "Subscription",
     paywallTrialBody: "Start a {days}-day free trial. Full access to all tenders, filters and notifications.",
     paywallTrialBtn: "Start {days}-day free trial",
     paywallReactivateBody: "Your trial is valid until {date}. Restore access with one tap.",
     paywallReactivateBtn: "Reactivate service",
-    paywallExpiredTrial: "Your trial has ended. Activate a paid subscription to keep working with tenders.",
-    paywallSuspended: "Your subscription is suspended. Renew payment for full access.",
-    paywallCanceled: "Subscription was canceled. Activate again for access.",
-    paywallNoSubscription: "Active subscription required for full access.",
+    paywallExpiredTrial: "Your trial has ended. We've emailed you instructions on how to continue — please check your inbox.",
+    paywallSuspended: "Your access is paused. We've emailed you instructions — please check your inbox.",
+    paywallCanceled: "We've emailed you instructions on how to restore access — please check your inbox.",
+    paywallNoSubscription: "An active subscription is required. We've emailed you instructions.",
     paywallGoToBillingBtn: "Activate subscription",
+    paywallRecheckBtn: "Check again",
     paywallActivateFailed: "Activation failed.",
     paywallReactivateFailed: "Reactivation failed.",
     paywallFineprint: "You can always manage your subscription in Settings → Subscription.",
@@ -2098,15 +2104,17 @@ const de: Dict = {
     saveCancel: "Abbrechen",
     saveSubmit: "Speichern",
     paywallTitle: "Dienst Öffentliche Ausschreibungen aktivieren",
+    paywallInactiveTitle: "Abonnement",
     paywallTrialBody: "Starten Sie eine {days}-tägige kostenlose Testphase. Voller Zugriff auf alle Ausschreibungen, Filter und Benachrichtigungen.",
     paywallTrialBtn: "{days}-Tage Testphase kostenlos starten",
     paywallReactivateBody: "Ihre Testphase ist gültig bis {date}. Mit einem Tipp wiederherstellen.",
     paywallReactivateBtn: "Dienst reaktivieren",
-    paywallExpiredTrial: "Ihre Testphase ist beendet. Aktivieren Sie ein bezahltes Abonnement.",
-    paywallSuspended: "Ihr Abonnement ist ausgesetzt. Zahlung erneuern für vollen Zugriff.",
-    paywallCanceled: "Abonnement wurde gekündigt. Erneut aktivieren für Zugriff.",
-    paywallNoSubscription: "Aktives Abonnement erforderlich für vollen Zugriff.",
+    paywallExpiredTrial: "Ihre Testphase ist beendet. Wir haben Ihnen eine Anleitung per E-Mail geschickt — bitte prüfen Sie Ihren Posteingang.",
+    paywallSuspended: "Ihr Zugang ist pausiert. Wir haben Ihnen eine Anleitung per E-Mail geschickt — bitte prüfen Sie Ihren Posteingang.",
+    paywallCanceled: "Wir haben Ihnen eine Anleitung zur Wiederherstellung per E-Mail geschickt — bitte prüfen Sie Ihren Posteingang.",
+    paywallNoSubscription: "Ein aktives Abonnement ist erforderlich. Wir haben Ihnen eine Anleitung per E-Mail geschickt.",
     paywallGoToBillingBtn: "Abonnement aktivieren",
+    paywallRecheckBtn: "Erneut prüfen",
     paywallActivateFailed: "Aktivierung fehlgeschlagen.",
     paywallReactivateFailed: "Reaktivierung fehlgeschlagen.",
     paywallFineprint: "Sie können Ihr Abonnement jederzeit in Einstellungen → Abonnement verwalten.",

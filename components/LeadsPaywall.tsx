@@ -9,10 +9,8 @@ import {
   View,
 } from "react-native";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import * as WebBrowser from "expo-web-browser";
 import { endpoints } from "@/lib/endpoints";
 import { ApiError } from "@/lib/api";
-import { WEB_SUBSCRIBE_URL } from "@/lib/config";
 import { useTheme } from "@/lib/theme-context";
 import { useI18n } from "@/lib/i18n";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
@@ -36,6 +34,9 @@ export default function LeadsPaywall() {
   async function invalidateAll() {
     await Promise.all([
       qc.invalidateQueries({ queryKey: ["service", "leads"] }),
+      // i subscriptions — tabs/index gating (leadsInactive) z nich čte; bez toho
+      // by paywall po obnovení nezmizel.
+      qc.invalidateQueries({ queryKey: ["account-subscriptions"] }),
       qc.invalidateQueries({ queryKey: ["matches"] }),
       qc.invalidateQueries({ queryKey: ["filters"] }),
     ]);
@@ -99,7 +100,11 @@ export default function LeadsPaywall() {
       <View style={styles.icon}>
         <Text style={styles.iconText}>🔒</Text>
       </View>
-      <Text style={styles.title}>{t("filters", "paywallTitle")}</Text>
+      <Text style={styles.title}>
+        {data.canActivateTrial
+          ? t("filters", "paywallTitle")
+          : t("filters", "paywallInactiveTitle")}
+      </Text>
 
       {data.canActivateTrial ? (
         <>
@@ -136,23 +141,19 @@ export default function LeadsPaywall() {
           <Text style={styles.body}>
             {trialExpired
               ? t("filters", "paywallExpiredTrial")
-              : data.state === "SUSPENDED"
-                ? t("filters", "paywallSuspended")
-                : data.state === "CANCELED"
-                  ? t("filters", "paywallCanceled")
-                  : data.state === "PAST_DUE"
-                    ? t("filters", "paywallSuspended")
-                    : t("filters", "paywallNoSubscription")}
+              : data.state === "CANCELED"
+                ? t("filters", "paywallCanceled")
+                : t("filters", "paywallSuspended")}
           </Text>
-          {/* Předplatné se aktivuje na webu (App Store 3.1.1 — externí nákup),
-              stejně jako přihlášení/registrace. Otevře prohlížeč na dashboard. */}
+          {/* App Store 3.1.1: ŽÁDNÉ nákupní CTA ani odkaz na web. Pokyny k
+              obnovení posíláme e-mailem; tady jen neutrální re-check stavu
+              (po obnovení paywall zmizí). */}
           <Pressable
-            onPress={() => void WebBrowser.openBrowserAsync(WEB_SUBSCRIBE_URL)}
-            style={({ pressed }) => [styles.btnPrimary, pressed && { opacity: 0.85 }]}
+            onPress={() => void invalidateAll()}
+            disabled={status.isFetching}
+            style={({ pressed }) => [styles.recheckBtn, pressed && { opacity: 0.6 }]}
           >
-            <Text style={styles.btnPrimaryText}>
-              {t("filters", "paywallGoToBillingBtn")}
-            </Text>
+            <Text style={styles.recheckText}>{t("filters", "paywallRecheckBtn")}</Text>
           </Pressable>
         </>
       )}
@@ -214,6 +215,8 @@ const makeStyles = (colors: Colors) =>
       alignItems: "center",
     },
     btnPrimaryText: { color: colors.accentForeground, fontSize: fontSize.base, fontWeight: "600" },
+    recheckBtn: { paddingVertical: spacing.md, alignItems: "center", alignSelf: "stretch" },
+    recheckText: { color: colors.link, fontSize: fontSize.base, fontWeight: "600" },
     fineprint: {
       fontSize: fontSize.xs,
       color: colors.textFaint,
