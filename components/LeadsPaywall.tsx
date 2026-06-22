@@ -158,7 +158,6 @@ export default function LeadsPaywall() {
         </>
       )}
 
-      <Text style={styles.fineprint}>{t("filters", "paywallFineprint")}</Text>
     </ScrollView>
   );
 }
