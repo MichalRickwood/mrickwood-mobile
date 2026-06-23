@@ -220,7 +220,9 @@ export default function MatchesScreen() {
     <SafeAreaView style={styles.safe} edges={["top"]}>
       <View style={styles.header}>
         <Text style={styles.title}>{t("matches", "title")}</Text>
-        <View style={styles.headerControls}>
+        <View style={styles.controlsRow}>
+          <Text style={styles.subtitle} numberOfLines={1}>{headerLabel}</Text>
+          <View style={styles.headerControls}>
             <FilterPicker
               filters={filters}
               activeId={activeFilterId}
@@ -285,7 +287,7 @@ export default function MatchesScreen() {
               </Text>
             </Pressable>
           </View>
-        <Text style={styles.subtitle}>{headerLabel}</Text>
+        </View>
         <View style={styles.searchRow}>
           <TextInput
             value={searchInput}
@@ -564,7 +566,8 @@ const makeStyles = (colors: Colors) =>
   StyleSheet.create({
     safe: { flex: 1, backgroundColor: colors.bg },
     header: { paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.md },
-    headerControls: { flexDirection: "row", alignItems: "center", gap: spacing.xs, marginTop: spacing.md },
+    controlsRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: spacing.md, gap: spacing.sm },
+    headerControls: { flexDirection: "row", alignItems: "center", gap: spacing.xs },
     adHocBtn: {
       width: 36,
       height: 36,
@@ -579,7 +582,7 @@ const makeStyles = (colors: Colors) =>
     adHocIcon: { fontSize: 18, color: colors.text, fontWeight: "700", lineHeight: 18 },
     adHocIconActive: { color: colors.accentForeground },
     title: { fontSize: fontSize.xxl, fontWeight: "700", color: colors.text, letterSpacing: -0.5, flexShrink: 1 },
-    subtitle: { fontSize: fontSize.sm, color: colors.textSubtle, marginTop: spacing.xs },
+    subtitle: { fontSize: fontSize.sm, color: colors.textSubtle, flexShrink: 1 },
     searchRow: {
       flexDirection: "row",
       alignItems: "center",
