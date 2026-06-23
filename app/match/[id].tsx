@@ -192,7 +192,7 @@ export default function MatchDetailScreen() {
               tintColor={colors.text}
               label={t("matchDetail", "back")}
               displayMode="default"
-              onPress={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)"))}
+              onPress={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)/matches"))}
             />
           ),
           headerRight: () => (

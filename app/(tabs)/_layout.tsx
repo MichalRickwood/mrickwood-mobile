@@ -4,6 +4,10 @@ import { Platform, Text } from "react-native";
 import { useTheme } from "@/lib/theme-context";
 import { useI18n } from "@/lib/i18n";
 
+// Tenders tab je "matches" (ne "index") — "/" route je app/index.tsx (auth gate),
+// aby se při startu nepro­bliklo (tabs)/index nepřihlášenému uživateli.
+export const unstable_settings = { initialRouteName: "matches" };
+
 /**
  * iOS 18+ na iPhone má nativní glass tab bar (UIKit Liquid Glass).
  * Mimo to (iPad, iOS <18, Android) fallback na klasický Tabs.
@@ -26,7 +30,7 @@ export default function TabsLayout() {
           <Icon sf="star.fill" />
           <Label>{t("matches", "starredTab")}</Label>
         </NativeTabs.Trigger>
-        <NativeTabs.Trigger name="index">
+        <NativeTabs.Trigger name="matches">
           <Icon sf="doc.text.magnifyingglass" />
           <Label>{t("matches", "title")}</Label>
         </NativeTabs.Trigger>
@@ -62,7 +66,7 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="index"
+        name="matches"
         options={{
           title: t("matches", "title"),
           tabBarIcon: ({ color }) => <TabGlyph color={color}>•</TabGlyph>,

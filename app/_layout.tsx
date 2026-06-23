@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Image, Modal, View } from "react-native";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
@@ -39,6 +38,9 @@ function RouterGuard() {
     if (status === "loading") return;
     const inAuth = segments[0] === "(auth)";
     const inOnboarding = segments[0] === "(onboarding)";
+    // atEntry = na "/" (app/index.tsx, vstupní gate) — odsud (stejně jako z auth)
+    // aktivně routujeme na cíl. Z (tabs)/(onboarding) už ne (necháme flow být).
+    const atEntry = segments[0] === undefined;
 
     if (status === "anonymous") {
       if (!inAuth) router.replace("/(auth)/login");
@@ -54,16 +56,15 @@ function RouterGuard() {
     // Store flow). Jméno i souhlasy řeší backend (registrace / OAuth clickwrap
     // + backfill při loginu), country se derivuje tiše v countries.tsx.
 
-    // Cíl už známe → posouváme jen z (auth) na správné místo. Z onboardingu na
-    // tabs (po aktivaci v CountriesManager) NEpřepisujeme zpět — proto jen `inAuth`.
-    // Onboarding začíná na profile (doplnění údajů: jméno/tel/firma+IČO), pak
-    // profile.tsx routuje na countries.
+    // Cíl už známe → routujeme jen ze vstupu (auth nebo "/"). Z onboardingu na
+    // tabs (po aktivaci v CountriesManager) NEpřepisujeme zpět — proto jen
+    // `inAuth || atEntry`. Onboarding začíná na profile, pak routuje na countries.
     if (destination === "onboarding") {
-      if (inAuth) router.replace("/(onboarding)/profile");
+      if (inAuth || atEntry) router.replace("/(onboarding)/profile");
       return;
     }
     if (destination === "tabs") {
-      if (inAuth) router.replace("/(tabs)");
+      if (inAuth || atEntry) router.replace("/(tabs)/matches");
       return;
     }
 
@@ -102,42 +103,16 @@ function RouterGuard() {
     };
   }, [status, segments, router, destination, qc]);
 
-  // Anti-flash splash: bez app/index.tsx renderuje „/" rovnou (tabs)/index
-  // (zakázky), takže anonym vidí na okamžik zakázky, než ho efekt redirectne na
-  // login. Overlay drží splash dokud:
-  //   - status === "loading" (zjišťujeme session z úložiště), nebo
-  //   - anonym ještě není na login screenu (zakázky se schovají, než redirect doběhne).
-  // Přihlášený → splash zmizí hned po zjištění session (krátký splash → tabs, dává
-  // smysl při běžném otevření appky). Navazuje na native splash (stejný icon + barva).
-  const onAuthScreen = segments[0] === "(auth)";
-  const showSplash = status === "loading" || (status === "anonymous" && !onAuthScreen);
-
+  // „/" = app/index.tsx (neutrální gate), NE tenders → nepřihlášený nikdy nevidí
+  // probliknutí zakázek. RouterGuard odsud přesměruje (efekt výše). Žádný overlay
+  // ani splash logo navíc.
   return (
-    <View style={{ flex: 1 }}>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(auth)" />
-        <Stack.Screen name="(onboarding)" />
-        <Stack.Screen name="(tabs)" />
-      </Stack>
-      {/* Modal (ne sibling View) — renderuje se nativně NAD <Stack> (react-native-
-          screens), takže spolehlivě překryje probliknutí (tabs)/index. */}
-      <Modal visible={showSplash} animationType="none" statusBarTranslucent>
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: "#FAFAF9",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Image
-            source={require("@/assets/splash-icon.png")}
-            style={{ width: "55%", height: "55%" }}
-            resizeMode="contain"
-          />
-        </View>
-      </Modal>
-    </View>
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="index" />
+      <Stack.Screen name="(auth)" />
+      <Stack.Screen name="(onboarding)" />
+      <Stack.Screen name="(tabs)" />
+    </Stack>
   );
 }
 

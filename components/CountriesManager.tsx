@@ -217,7 +217,7 @@ export default function CountriesManager({ mode }: { mode: "onboarding" | "setti
   async function activate() {
     if (newSelections.length === 0) {
       // Onboarding returning user co jen prochází → rovnou do tabs.
-      if (mode === "onboarding" && activeScopes.size > 0) router.replace("/(tabs)");
+      if (mode === "onboarding" && activeScopes.size > 0) router.replace("/(tabs)/matches");
       return;
     }
 
@@ -253,7 +253,7 @@ export default function CountriesManager({ mode }: { mode: "onboarding" | "setti
         qc.invalidateQueries({ queryKey: ["profile-v2"] }),
       ]);
       if (mode === "onboarding") {
-        router.replace("/(tabs)");
+        router.replace("/(tabs)/matches");
       } else {
         // Settings: zůstáváme — refreshnuté subs zamknou nové země jako aktivní.
         setNotice(t("onboardingCountries", "addedNotice"));
@@ -407,7 +407,7 @@ export default function CountriesManager({ mode }: { mode: "onboarding" | "setti
                         label={t("onboardingCountries", "back")}
                         displayMode="default"
                         onPress={() =>
-                          router.canGoBack() ? router.back() : router.replace("/(tabs)")
+                          router.canGoBack() ? router.back() : router.replace("/(tabs)/matches")
                         }
                       />
                     )
