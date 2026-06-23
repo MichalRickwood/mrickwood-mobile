@@ -220,7 +220,14 @@ export default function MatchesScreen() {
     <SafeAreaView style={styles.safe} edges={["top"]}>
       <View style={styles.header}>
         <View style={styles.headerTop}>
-          <Text style={styles.title}>{t("matches", "title")}</Text>
+          <Text
+            style={styles.title}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.7}
+          >
+            {t("matches", "title")}
+          </Text>
           <View style={styles.headerControls}>
             <FilterPicker
               filters={filters}
