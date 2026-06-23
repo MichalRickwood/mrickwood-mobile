@@ -541,6 +541,19 @@ export interface Dict {
     unsavedStay: string;
     unsavedDiscard: string;
   };
+  companyLookup: {
+    label: string;
+    countryLabel: string;
+    other: string;
+    manualToggle: string;
+    useLookup: string;
+    idPlaceholder: string;
+    taxIdPlaceholder: string;
+    verify: string;
+    notFound: string;
+    namePlaceholder: string;
+    addressPlaceholder: string;
+  };
   onboardingProfile: {
     title: string;
     subtitle: string;
@@ -1104,6 +1117,19 @@ const cs: Dict = {
     unsavedStay: "Zůstat",
     unsavedDiscard: "Zahodit a jít zpět",
   },
+  companyLookup: {
+    label: "Fakturační údaje (firma)",
+    countryLabel: "Vyberte zemi",
+    other: "Jiná země",
+    manualToggle: "Zadat ručně",
+    useLookup: "Vyhledat",
+    idPlaceholder: "IČO / DIČ",
+    taxIdPlaceholder: "IČO / daňové číslo",
+    verify: "Ověřit",
+    notFound: "Firma nenalezena — vyplňte ručně níže.",
+    namePlaceholder: "Název firmy",
+    addressPlaceholder: "Adresa sídla",
+  },
   onboardingProfile: {
     title: "Dokončete profil",
     subtitle: "Doplňte základní kontaktní údaje. Můžete je kdykoli upravit v nastavení.",
@@ -1661,6 +1687,19 @@ const en: Dict = {
     unsavedBody: "You have selected new countries that haven't been saved. Go back anyway?",
     unsavedStay: "Stay",
     unsavedDiscard: "Discard and go back",
+  },
+  companyLookup: {
+    label: "Billing details (company)",
+    countryLabel: "Select country",
+    other: "Other country",
+    manualToggle: "Enter manually",
+    useLookup: "Look up",
+    idPlaceholder: "Company ID / VAT",
+    taxIdPlaceholder: "Company ID / tax number",
+    verify: "Verify",
+    notFound: "Company not found — fill in manually below.",
+    namePlaceholder: "Company name",
+    addressPlaceholder: "Registered address",
   },
   onboardingProfile: {
     title: "Complete your profile",
@@ -2221,6 +2260,19 @@ const de: Dict = {
     unsavedBody: "Sie haben neue Länder ausgewählt, die noch nicht gespeichert wurden. Trotzdem zurück?",
     unsavedStay: "Bleiben",
     unsavedDiscard: "Verwerfen und zurück",
+  },
+  companyLookup: {
+    label: "Rechnungsdaten (Firma)",
+    countryLabel: "Land auswählen",
+    other: "Anderes Land",
+    manualToggle: "Manuell eingeben",
+    useLookup: "Suchen",
+    idPlaceholder: "Firmen-ID / USt-IdNr.",
+    taxIdPlaceholder: "Firmen-ID / Steuernummer",
+    verify: "Prüfen",
+    notFound: "Firma nicht gefunden — bitte unten manuell ausfüllen.",
+    namePlaceholder: "Firmenname",
+    addressPlaceholder: "Sitzadresse",
   },
   onboardingProfile: {
     title: "Profil vervollständigen",

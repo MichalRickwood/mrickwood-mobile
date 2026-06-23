@@ -14,6 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useQueryClient } from "@tanstack/react-query";
 import DialCodePicker from "@/components/DialCodePicker";
+import CompanyLookup, { type CompanyData } from "@/components/CompanyLookup";
 import { defaultDialCodeForLocale, DIAL_CODES } from "@/lib/dial-codes";
 import { endpoints } from "@/lib/endpoints";
 import { useI18n } from "@/lib/i18n";
@@ -73,52 +74,15 @@ export default function OnboardingProfile() {
   const [consentVop, setConsentVop] = useState(false);
   const [consentGdpr, setConsentGdpr] = useState(false);
 
-  // Volitelné IČO (CZ) → ARES auto-fill firmy/adresy. Potřeba pro zálohovou
-  // fakturu (proformu) v uvítacím e-mailu; bez IČO se přeskočí.
-  const [ico, setIco] = useState("");
-  const [icoCompany, setIcoCompany] = useState<string | null>(null);
-  const [icoAddress, setIcoAddress] = useState<string | null>(null);
-  const [icoDic, setIcoDic] = useState<string | null>(null);
-  const [icoLoading, setIcoLoading] = useState(false);
-
-  useEffect(() => {
-    const clean = ico.replace(/\s/g, "");
-    if (!/^\d{6,8}$/.test(clean)) {
-      setIcoCompany(null);
-      setIcoAddress(null);
-      setIcoDic(null);
-      return;
-    }
-    let cancelled = false;
-    setIcoLoading(true);
-    const id = setTimeout(async () => {
-      try {
-        const r = await endpoints.aresLookup(clean);
-        if (cancelled) return;
-        if (r.found && r.name) {
-          setIcoCompany(r.name);
-          setIcoAddress(r.address ?? null);
-          setIcoDic(r.dic ?? null);
-        } else {
-          setIcoCompany(null);
-          setIcoAddress(null);
-          setIcoDic(null);
-        }
-      } catch {
-        if (!cancelled) {
-          setIcoCompany(null);
-          setIcoAddress(null);
-          setIcoDic(null);
-        }
-      } finally {
-        if (!cancelled) setIcoLoading(false);
-      }
-    }, 500);
-    return () => {
-      cancelled = true;
-      clearTimeout(id);
-    };
-  }, [ico]);
+  // Fakturační údaje (volitelné) — výběr země + lookup firmy (ARES/VIES/…) nebo
+  // ruční zadání. Potřeba pro zálohovou fakturu (proformu) v uvítacím e-mailu.
+  const [companyData, setCompanyData] = useState<CompanyData>({
+    country: "",
+    ico: "",
+    name: "",
+    address: "",
+    dic: "",
+  });
 
   useEffect(() => {
     let cancelled = false;
@@ -131,7 +95,15 @@ export default function OnboardingProfile() {
         // RouterGuard sem pošle jen nové usery (bez aktivní LEADS sub).
         setEmail(p.email);
         setName(p.name ?? "");
-        if (p.ico) setIco(p.ico);
+        if (p.ico || p.company) {
+          setCompanyData({
+            country: p.country ?? "",
+            ico: p.ico ?? "",
+            name: p.company ?? "",
+            address: p.address ?? "",
+            dic: p.dic ?? "",
+          });
+        }
         // Dial code preferuj ze server-side country pokud uložená (matchni
         // ISO → DialCode), jinak split z phone, jinak default per locale.
         const dialFromCountry = p.country
@@ -192,14 +164,14 @@ export default function OnboardingProfile() {
       };
       const phoneDigits = phoneLocal.replace(/\D/g, "");
       if (phoneDigits) input.phone = `${dialCode} ${phoneDigits}`;
-      // Volitelné IČO → fakturační údaje (firma/adresa z ARES) pro proformu.
-      // Bez IČO se přeskočí (e-mail bez proformy).
-      const icoClean = ico.replace(/\s/g, "");
-      if (/^\d{6,8}$/.test(icoClean) && icoCompany) {
-        input.ico = icoClean;
-        input.company = icoCompany;
-        if (icoAddress) input.address = icoAddress;
-        if (icoDic) input.dic = icoDic;
+      // Volitelné fakturační údaje (firma) pro proformu. Uložíme jen když je
+      // vyplněný název firmy; fakturační země = země firmy (přebije derived z tel).
+      if (companyData.ico && companyData.name) {
+        input.ico = companyData.ico;
+        input.company = companyData.name;
+        if (companyData.address) input.address = companyData.address;
+        if (companyData.dic) input.dic = companyData.dic;
+        if (companyData.country) input.country = companyData.country;
       }
       if (consentRequired) {
         input.consentVop = consentVop;
@@ -288,25 +260,7 @@ export default function OnboardingProfile() {
           </View>
 
           <View style={styles.field}>
-            <Text style={styles.label}>{t("onboardingProfile", "icoLabel")}</Text>
-            <TextInput
-              value={ico}
-              onChangeText={setIco}
-              placeholder={t("onboardingProfile", "icoPlaceholder")}
-              placeholderTextColor={colors.textFaint}
-              style={styles.input}
-              keyboardType="number-pad"
-              maxLength={8}
-            />
-            {icoLoading ? (
-              <Text style={styles.fieldHint}>{t("onboardingProfile", "icoLoading")}</Text>
-            ) : icoCompany ? (
-              <Text style={styles.icoCompany}>✓ {icoCompany}</Text>
-            ) : ico.replace(/\s/g, "").length >= 6 ? (
-              <Text style={styles.fieldHint}>{t("onboardingProfile", "icoNotFound")}</Text>
-            ) : (
-              <Text style={styles.fieldHint}>{t("onboardingProfile", "icoHelp")}</Text>
-            )}
+            <CompanyLookup value={companyData} onChange={setCompanyData} />
           </View>
 
           {consentRequired && (
