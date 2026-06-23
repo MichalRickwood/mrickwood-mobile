@@ -137,52 +137,6 @@ export default function CountriesManager({ mode }: { mode: "onboarding" | "setti
   const [requestValue, setRequestValue] = useState("");
   const [requestSubmitting, setRequestSubmitting] = useState(false);
   const [requestSent, setRequestSent] = useState(false);
-  // Volitelné IČO (CZ) → ARES auto-fill firmy/adresy. Potřeba pro proformu
-  // v uvítacím e-mailu; bez IČO se jen přeskočí (e-mail bez proformy).
-  const [ico, setIco] = useState("");
-  const [icoCompany, setIcoCompany] = useState<string | null>(null);
-  const [icoAddress, setIcoAddress] = useState<string | null>(null);
-  const [icoDic, setIcoDic] = useState<string | null>(null);
-  const [icoLoading, setIcoLoading] = useState(false);
-
-  useEffect(() => {
-    const clean = ico.replace(/\s/g, "");
-    if (!/^\d{6,8}$/.test(clean)) {
-      setIcoCompany(null);
-      setIcoAddress(null);
-      setIcoDic(null);
-      return;
-    }
-    let cancelled = false;
-    setIcoLoading(true);
-    const id = setTimeout(async () => {
-      try {
-        const r = await endpoints.aresLookup(clean);
-        if (cancelled) return;
-        if (r.found && r.name) {
-          setIcoCompany(r.name);
-          setIcoAddress(r.address ?? null);
-          setIcoDic(r.dic ?? null);
-        } else {
-          setIcoCompany(null);
-          setIcoAddress(null);
-          setIcoDic(null);
-        }
-      } catch {
-        if (!cancelled) {
-          setIcoCompany(null);
-          setIcoAddress(null);
-          setIcoDic(null);
-        }
-      } finally {
-        if (!cancelled) setIcoLoading(false);
-      }
-    }, 500);
-    return () => {
-      cancelled = true;
-      clearTimeout(id);
-    };
-  }, [ico]);
 
   async function submitRequest() {
     const v = requestValue.trim();
@@ -279,20 +233,6 @@ export default function CountriesManager({ mode }: { mode: "onboarding" | "setti
       // Fire-and-forget by stačil, ale backend activateTrial country využívá —
       // počkáme, ať batch volání níž má profil hotový.
       await endpoints.updateProfileV2({ country: derived }).catch(() => {});
-    }
-
-    // Volitelné IČO → uložíme fakturační údaje (firma/adresa z ARES) PŘED aktivací,
-    // ať uvítací e-mail obsahuje proformu. Bez IČO se přeskočí (proforma se nepřiloží).
-    const icoClean = ico.replace(/\s/g, "");
-    if (/^\d{6,8}$/.test(icoClean) && icoCompany) {
-      await endpoints
-        .updateProfileV2({
-          ico: icoClean,
-          company: icoCompany,
-          ...(icoAddress ? { address: icoAddress } : {}),
-          ...(icoDic ? { dic: icoDic } : {}),
-        })
-        .catch(() => {});
     }
 
     setActivating(true);
@@ -486,27 +426,6 @@ export default function CountriesManager({ mode }: { mode: "onboarding" | "setti
               <>
                 <Text style={styles.subtitle}>{t("onboardingCountries", "subtitle")}</Text>
                 <Text style={styles.trialNote}>{t("onboardingCountries", "trialNote")}</Text>
-                <View style={styles.icoBox}>
-                  <Text style={styles.icoLabel}>{t("onboardingCountries", "icoLabel")}</Text>
-                  <TextInput
-                    value={ico}
-                    onChangeText={setIco}
-                    placeholder={t("onboardingCountries", "icoPlaceholder")}
-                    placeholderTextColor={colors.textFaint}
-                    keyboardType="number-pad"
-                    maxLength={8}
-                    style={styles.icoInput}
-                  />
-                  {icoLoading ? (
-                    <Text style={styles.icoHint}>{t("onboardingCountries", "icoLoading")}</Text>
-                  ) : icoCompany ? (
-                    <Text style={styles.icoCompany}>✓ {icoCompany}</Text>
-                  ) : ico.replace(/\s/g, "").length >= 6 ? (
-                    <Text style={styles.icoHint}>{t("onboardingCountries", "icoNotFound")}</Text>
-                  ) : (
-                    <Text style={styles.icoHint}>{t("onboardingCountries", "icoHelp")}</Text>
-                  )}
-                </View>
               </>
             )}
             {error && (
@@ -718,20 +637,6 @@ function makeStyles(c: Colors) {
     header: { padding: spacing.lg, paddingTop: spacing.md },
     subtitle: { fontSize: fontSize.sm, color: c.textMuted, marginBottom: spacing.md, lineHeight: 20 },
     trialNote: { fontSize: fontSize.xs, color: c.textSubtle, marginBottom: spacing.lg, fontStyle: "italic" },
-    icoBox: { marginBottom: spacing.lg },
-    icoLabel: { fontSize: fontSize.xs, fontWeight: "600", color: c.text, marginBottom: spacing.xs },
-    icoInput: {
-      backgroundColor: c.card,
-      borderWidth: 1,
-      borderColor: c.border,
-      borderRadius: radius.sm,
-      paddingHorizontal: spacing.md,
-      paddingVertical: spacing.sm,
-      fontSize: fontSize.base,
-      color: c.text,
-    },
-    icoHint: { fontSize: fontSize.xs, color: c.textSubtle, marginTop: spacing.xs },
-    icoCompany: { fontSize: fontSize.xs, color: c.success, marginTop: spacing.xs, fontWeight: "500" },
     selectAllRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: spacing.xs },
     selectAllBtn: { paddingVertical: spacing.xs, paddingHorizontal: spacing.sm },
     selectAllText: { fontSize: fontSize.xs, color: c.link, fontWeight: "500", textDecorationLine: "underline" },

@@ -550,6 +550,11 @@ export interface Dict {
     phoneLabel: string;
     phonePlaceholder: string;
     phoneOptional: string;
+    icoLabel: string;
+    icoPlaceholder: string;
+    icoLoading: string;
+    icoNotFound: string;
+    icoHelp: string;
     cta: string;
     saving: string;
     saveFailed: string;
@@ -1108,6 +1113,11 @@ const cs: Dict = {
     phoneLabel: "Telefon",
     phonePlaceholder: "+420 …",
     phoneOptional: "nepovinné",
+    icoLabel: "IČO (volitelné)",
+    icoPlaceholder: "12345678",
+    icoLoading: "Ověřuji v ARES…",
+    icoNotFound: "IČO nenalezeno v ARES.",
+    icoHelp: "Vyplňte pro zálohovou fakturu (jen ČR).",
     cta: "Pokračovat",
     saving: "Ukládám…",
     saveFailed: "Uložení selhalo. Zkuste to znovu.",
@@ -1661,6 +1671,11 @@ const en: Dict = {
     phoneLabel: "Phone",
     phonePlaceholder: "+1 …",
     phoneOptional: "optional",
+    icoLabel: "Company ID (optional)",
+    icoPlaceholder: "12345678",
+    icoLoading: "Checking ARES…",
+    icoNotFound: "Company ID not found in ARES.",
+    icoHelp: "Fill in for a proforma invoice (CZ only).",
     cta: "Continue",
     saving: "Saving…",
     saveFailed: "Save failed. Please try again.",
@@ -2216,6 +2231,11 @@ const de: Dict = {
     phoneLabel: "Telefon",
     phonePlaceholder: "+49 …",
     phoneOptional: "optional",
+    icoLabel: "IČO / Firmen-ID (optional)",
+    icoPlaceholder: "12345678",
+    icoLoading: "Prüfe in ARES…",
+    icoNotFound: "IČO in ARES nicht gefunden.",
+    icoHelp: "Für eine Proforma-Rechnung ausfüllen (nur CZ).",
     cta: "Weiter",
     saving: "Speichere…",
     saveFailed: "Speichern fehlgeschlagen. Bitte erneut versuchen.",

@@ -73,22 +73,65 @@ export default function OnboardingProfile() {
   const [consentVop, setConsentVop] = useState(false);
   const [consentGdpr, setConsentGdpr] = useState(false);
 
+  // Volitelné IČO (CZ) → ARES auto-fill firmy/adresy. Potřeba pro zálohovou
+  // fakturu (proformu) v uvítacím e-mailu; bez IČO se přeskočí.
+  const [ico, setIco] = useState("");
+  const [icoCompany, setIcoCompany] = useState<string | null>(null);
+  const [icoAddress, setIcoAddress] = useState<string | null>(null);
+  const [icoDic, setIcoDic] = useState<string | null>(null);
+  const [icoLoading, setIcoLoading] = useState(false);
+
+  useEffect(() => {
+    const clean = ico.replace(/\s/g, "");
+    if (!/^\d{6,8}$/.test(clean)) {
+      setIcoCompany(null);
+      setIcoAddress(null);
+      setIcoDic(null);
+      return;
+    }
+    let cancelled = false;
+    setIcoLoading(true);
+    const id = setTimeout(async () => {
+      try {
+        const r = await endpoints.aresLookup(clean);
+        if (cancelled) return;
+        if (r.found && r.name) {
+          setIcoCompany(r.name);
+          setIcoAddress(r.address ?? null);
+          setIcoDic(r.dic ?? null);
+        } else {
+          setIcoCompany(null);
+          setIcoAddress(null);
+          setIcoDic(null);
+        }
+      } catch {
+        if (!cancelled) {
+          setIcoCompany(null);
+          setIcoAddress(null);
+          setIcoDic(null);
+        }
+      } finally {
+        if (!cancelled) setIcoLoading(false);
+      }
+    }, 500);
+    return () => {
+      cancelled = true;
+      clearTimeout(id);
+    };
+  }, [ico]);
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
         const p = await endpoints.getProfileV2();
         if (cancelled) return;
-        // Profil kompletní (name + consent) → skip rovnou na countries.
-        // Country se nevynucuje — derivuje se tiše (countries.tsx). Bez tohoto
-        // by user s vyplněným profilem (návrat ze Settings) viděl prázdný
-        // formulář místo aby šel dál.
-        if (p.name && !p.consentRequired) {
-          router.replace("/(onboarding)/countries");
-          return;
-        }
+        // ŽÁDNÝ auto-skip — profile je teď první krok onboardingu (sbírá i firmu/
+        // IČO pro proformu), takže ho chceme ukázat i uživateli s vyplněným jménem.
+        // RouterGuard sem pošle jen nové usery (bez aktivní LEADS sub).
         setEmail(p.email);
         setName(p.name ?? "");
+        if (p.ico) setIco(p.ico);
         // Dial code preferuj ze server-side country pokud uložená (matchni
         // ISO → DialCode), jinak split z phone, jinak default per locale.
         const dialFromCountry = p.country
@@ -149,6 +192,15 @@ export default function OnboardingProfile() {
       };
       const phoneDigits = phoneLocal.replace(/\D/g, "");
       if (phoneDigits) input.phone = `${dialCode} ${phoneDigits}`;
+      // Volitelné IČO → fakturační údaje (firma/adresa z ARES) pro proformu.
+      // Bez IČO se přeskočí (e-mail bez proformy).
+      const icoClean = ico.replace(/\s/g, "");
+      if (/^\d{6,8}$/.test(icoClean) && icoCompany) {
+        input.ico = icoClean;
+        input.company = icoCompany;
+        if (icoAddress) input.address = icoAddress;
+        if (icoDic) input.dic = icoDic;
+      }
       if (consentRequired) {
         input.consentVop = consentVop;
         input.consentGdpr = consentGdpr;
@@ -235,6 +287,28 @@ export default function OnboardingProfile() {
             </View>
           </View>
 
+          <View style={styles.field}>
+            <Text style={styles.label}>{t("onboardingProfile", "icoLabel")}</Text>
+            <TextInput
+              value={ico}
+              onChangeText={setIco}
+              placeholder={t("onboardingProfile", "icoPlaceholder")}
+              placeholderTextColor={colors.textFaint}
+              style={styles.input}
+              keyboardType="number-pad"
+              maxLength={8}
+            />
+            {icoLoading ? (
+              <Text style={styles.fieldHint}>{t("onboardingProfile", "icoLoading")}</Text>
+            ) : icoCompany ? (
+              <Text style={styles.icoCompany}>✓ {icoCompany}</Text>
+            ) : ico.replace(/\s/g, "").length >= 6 ? (
+              <Text style={styles.fieldHint}>{t("onboardingProfile", "icoNotFound")}</Text>
+            ) : (
+              <Text style={styles.fieldHint}>{t("onboardingProfile", "icoHelp")}</Text>
+            )}
+          </View>
+
           {consentRequired && (
             <View style={styles.consentSection}>
               <Text style={styles.consentIntro}>{t("onboardingProfile", "consentIntro")}</Text>
@@ -303,6 +377,8 @@ function makeStyles(c: Colors) {
     },
     inputError: { borderColor: c.danger },
     fieldError: { fontSize: fontSize.xs, color: c.danger, marginTop: spacing.xs },
+    fieldHint: { fontSize: fontSize.xs, color: c.textSubtle, marginTop: spacing.xs },
+    icoCompany: { fontSize: fontSize.xs, color: c.success, marginTop: spacing.xs, fontWeight: "500" },
     phoneRow: { flexDirection: "row", gap: spacing.sm, alignItems: "center" },
     dialCodeWrap: { minWidth: 100 },
     errorText: { fontSize: fontSize.sm, color: c.danger, marginBottom: spacing.md, textAlign: "center" },

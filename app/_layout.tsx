@@ -55,8 +55,10 @@ function RouterGuard() {
 
     // Cíl už známe → posouváme jen z (auth) na správné místo. Z onboardingu na
     // tabs (po aktivaci v CountriesManager) NEpřepisujeme zpět — proto jen `inAuth`.
+    // Onboarding začíná na profile (doplnění údajů: jméno/tel/firma+IČO), pak
+    // profile.tsx routuje na countries.
     if (destination === "onboarding") {
-      if (inAuth) router.replace("/(onboarding)/countries");
+      if (inAuth) router.replace("/(onboarding)/profile");
       return;
     }
     if (destination === "tabs") {
