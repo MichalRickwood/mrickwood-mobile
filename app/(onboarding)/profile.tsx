@@ -15,6 +15,7 @@ import { useRouter } from "expo-router";
 import { useQueryClient } from "@tanstack/react-query";
 import DialCodePicker from "@/components/DialCodePicker";
 import CompanyLookup, { type CompanyData } from "@/components/CompanyLookup";
+import LocaleSwitcher from "@/components/LocaleSwitcher";
 import { defaultDialCodeForLocale, DIAL_CODES } from "@/lib/dial-codes";
 import { endpoints } from "@/lib/endpoints";
 import { useI18n } from "@/lib/i18n";
@@ -206,6 +207,9 @@ export default function OnboardingProfile() {
         style={{ flex: 1 }}
       >
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+          <View style={styles.topBar}>
+            <LocaleSwitcher />
+          </View>
           <Text style={styles.title}>{t("onboardingProfile", "title")}</Text>
           <Text style={styles.subtitle}>{t("onboardingProfile", "subtitle")}</Text>
 
@@ -314,7 +318,8 @@ function makeStyles(c: Colors) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: c.bg },
     loadingScreen: { flex: 1, backgroundColor: c.bg, alignItems: "center", justifyContent: "center" },
-    content: { padding: spacing.lg, paddingTop: spacing.xl, paddingBottom: spacing.xxl },
+    content: { padding: spacing.lg, paddingTop: spacing.md, paddingBottom: spacing.xxl },
+    topBar: { flexDirection: "row", justifyContent: "flex-end", marginBottom: spacing.sm },
     title: { fontSize: fontSize.xxl, fontWeight: "700", color: c.text, marginBottom: spacing.sm },
     subtitle: { fontSize: fontSize.sm, color: c.textMuted, marginBottom: spacing.xl, lineHeight: 20 },
     field: { marginBottom: spacing.lg },

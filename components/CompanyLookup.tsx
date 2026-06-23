@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -23,19 +23,25 @@ export interface CompanyData {
   dic: string; // DIČ / EU VAT ("CZ14235111")
 }
 
+interface SearchRow {
+  taxId: string;
+  name: string;
+  address: string;
+}
+
 /**
- * Cross-border výběr firmy — zrcadlí webový CompanyLookup. Výběr země → lookup
- * (CZ/SK/FR full přes ARES/RPO/SIRENE, ostatní EU přes VIES) přes veřejný
- * /api/public/company-lookup; GB/jiné = ruční zadání. Lze přepnout na ruční
- * v jakékoli zemi.
+ * Cross-border výběr firmy — zrcadlí webový CompanyLookup. 3 režimy dle země:
+ *  - CZ/SK/FR (full): kombinované vyhledávání podle NÁZVU i IČO + dropdown (ARES/RPO/SIRENE)
+ *  - ostatní EU: ověření DIČ (VAT) přes VIES, nebo ruční zadání
+ *  - GB/jiné: ruční zadání
+ * Lookup přes veřejný /api/public/company-lookup. Ruční lze v jakékoli zemi.
  */
 
-// Země s API lookupem (ostatní = ruční). Pořadí ~jako web.
 const LOOKUP_COUNTRIES = [
   "CZ", "SK", "DE", "AT", "PL", "HU", "BE", "BG", "CY", "DK", "EE", "ES", "FI",
   "FR", "GR", "HR", "IE", "IT", "LT", "LU", "LV", "MT", "NL", "PT", "RO", "SE", "SI",
 ];
-// Země bez free API ani VIES → vždy ruční.
+const FULL_COVERAGE = ["CZ", "SK", "FR"];
 const MANUAL_ONLY = ["GB"];
 const ALL_COUNTRIES = [...LOOKUP_COUNTRIES, ...MANUAL_ONLY, "OTHER"];
 
@@ -44,6 +50,9 @@ function defaultCountry(locale: string): string {
 }
 function flagUrl(iso: string): string {
   return `https://flagcdn.com/24x18/${iso.toLowerCase()}.png`;
+}
+function idDigitLen(c: string): number {
+  return c === "FR" ? 9 : 8; // CZ/SK IČO = 8, FR SIREN = 9
 }
 
 export default function CompanyLookup({
@@ -59,73 +68,139 @@ export default function CompanyLookup({
 
   const [country, setCountry] = useState(value.country || defaultCountry(locale));
   const [modalOpen, setModalOpen] = useState(false);
-  const [id, setId] = useState(value.ico);
-  const [looking, setLooking] = useState(false);
-  const [status, setStatus] = useState<"idle" | "found" | "notfound">(value.name ? "found" : "idle");
-  const [companyName, setCompanyName] = useState(value.name);
-  const [address, setAddress] = useState(value.address);
   const [manual, setManual] = useState(false);
 
-  const isManualCountry = country === "OTHER" || MANUAL_ONLY.includes(country) || !LOOKUP_COUNTRIES.includes(country);
-  const isLookup = !isManualCountry && !manual;
+  // Full-coverage: kombinované vyhledávání (název + IČO)
+  const [query, setQuery] = useState(
+    value.name && value.country && FULL_COVERAGE.includes(value.country)
+      ? `${value.name} (${value.ico})`
+      : "",
+  );
+  const [selected, setSelected] = useState(
+    !!value.name && FULL_COVERAGE.includes(value.country),
+  );
+  const [results, setResults] = useState<SearchRow[]>([]);
+  const [searching, setSearching] = useState(false);
+  const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // EU VIES
+  const [vat, setVat] = useState(value.dic || "");
+  const [viesStatus, setViesStatus] = useState<"idle" | "loading" | "found" | "notfound">(
+    value.name && !FULL_COVERAGE.includes(value.country) ? "found" : "idle",
+  );
+
+  // Ruční / editovatelné name+address
+  const [companyName, setCompanyName] = useState(value.name);
+  const [address, setAddress] = useState(value.address);
+  const [taxId, setTaxId] = useState(value.ico);
+
+  const isFullCoverage = FULL_COVERAGE.includes(country) && !manual;
+  const isEuVies =
+    LOOKUP_COUNTRIES.includes(country) &&
+    !FULL_COVERAGE.includes(country) &&
+    !MANUAL_ONLY.includes(country) &&
+    !manual;
+  const isManual = !isFullCoverage && !isEuVies;
 
   function pickCountry(iso: string) {
     setCountry(iso);
     setModalOpen(false);
-    setId("");
+    setManual(false);
+    setQuery("");
+    setSelected(false);
+    setResults([]);
+    setVat("");
+    setViesStatus("idle");
     setCompanyName("");
     setAddress("");
-    setStatus("idle");
-    setManual(false);
+    setTaxId("");
     onChange({ country: iso === "OTHER" ? "" : iso, ico: "", name: "", address: "", dic: "" });
   }
 
-  async function doLookup() {
-    const clean = id.replace(/\s/g, "");
-    if (!clean) return;
-    setLooking(true);
+  // ── Full-coverage: search by name / byId ──────────────────────────────────
+  async function runSearch(q: string) {
+    setSearching(true);
     try {
-      const r = await endpoints.companyLookup(country, { id: clean });
+      const r = await endpoints.companyLookup(country, { q });
+      setResults(r.results ?? []);
+    } catch {
+      setResults([]);
+    } finally {
+      setSearching(false);
+    }
+  }
+  async function runById(id: string) {
+    setSearching(true);
+    try {
+      const r = await endpoints.companyLookup(country, { id });
+      setResults(r.found && r.name ? [{ taxId: r.taxId ?? id, name: r.name, address: r.address ?? "" }] : []);
+    } catch {
+      setResults([]);
+    } finally {
+      setSearching(false);
+    }
+  }
+  function onQueryChange(v: string) {
+    setQuery(v);
+    setSelected(false);
+    onChange({ country, ico: "", name: "", address: "", dic: "" });
+    if (searchTimer.current) clearTimeout(searchTimer.current);
+    const clean = v.replace(/\s/g, "");
+    if (/^\d+$/.test(clean) && clean.length > 0) {
+      if (clean.length === idDigitLen(country)) {
+        searchTimer.current = setTimeout(() => runById(clean), 250);
+      } else {
+        setResults([]);
+      }
+    } else if (v.trim().length >= 3) {
+      searchTimer.current = setTimeout(() => runSearch(v.trim()), 350);
+    } else {
+      setResults([]);
+    }
+  }
+  function selectResult(c: SearchRow) {
+    setQuery(`${c.name} (${c.taxId})`);
+    setSelected(true);
+    setResults([]);
+    onChange({ country, ico: c.taxId, name: c.name, address: c.address, dic: "" });
+  }
+
+  // ── EU VIES ───────────────────────────────────────────────────────────────
+  async function runVies() {
+    if (!vat.trim()) return;
+    setViesStatus("loading");
+    try {
+      const r = await endpoints.companyLookup(country, { id: vat.trim() });
       if (r.found) {
-        setStatus("found");
-        // VIES (DE/AT/ES) vrací maskovaný/prázdný název ("---") kvůli ochraně
-        // dat — VAT je ověřený, ale název/adresu doplní uživatel ručně.
+        setViesStatus("found");
         const validName = r.name && r.name.replace(/[-\s]/g, "").length > 1 ? r.name : "";
         const nm = validName || companyName;
         const ad = r.address || address;
         setCompanyName(nm);
         setAddress(ad);
-        onChange({
-          country,
-          ico: r.taxId || clean,
-          name: nm,
-          address: ad,
-          dic: r.vatNumber || "",
-        });
+        onChange({ country, ico: r.taxId || vat.trim(), name: nm, address: ad, dic: r.vatNumber || vat.trim() });
       } else {
-        setStatus("notfound");
-        onChange({ country, ico: clean, name: companyName, address, dic: "" });
+        setViesStatus("notfound");
+        onChange({ country, ico: vat.trim(), name: companyName, address, dic: "" });
       }
-    } finally {
-      setLooking(false);
+    } catch {
+      setViesStatus("notfound");
     }
   }
 
-  // Ruční editace name/address (lookup found-bez-dat, notfound, nebo manuální země).
-  function setManualField(field: "name" | "address" | "id", v: string) {
+  function editField(field: "name" | "address" | "taxId", v: string) {
+    const c = country === "OTHER" ? "" : country;
     if (field === "name") {
       setCompanyName(v);
-      onChange({ ...value, country: country === "OTHER" ? "" : country, name: v });
+      onChange({ ...value, country: c, name: v });
     } else if (field === "address") {
       setAddress(v);
-      onChange({ ...value, country: country === "OTHER" ? "" : country, address: v });
+      onChange({ ...value, country: c, address: v });
     } else {
-      setId(v);
-      onChange({ ...value, country: country === "OTHER" ? "" : country, ico: v });
+      setTaxId(v);
+      onChange({ ...value, country: c, ico: v });
     }
   }
-
-  const showManualFields = isManualCountry || manual || status === "found" || status === "notfound";
 
   const CountryButton = (
     <Pressable style={styles.countryBtn} onPress={() => setModalOpen(true)}>
@@ -135,11 +210,31 @@ export default function CompanyLookup({
     </Pressable>
   );
 
+  const euManualFields = (viesStatus === "found" || viesStatus === "notfound") && (
+    <View style={styles.manualFields}>
+      <TextInput
+        value={companyName}
+        onChangeText={(v) => editField("name", v)}
+        placeholder={t("companyLookup", "namePlaceholder")}
+        placeholderTextColor={colors.textFaint}
+        style={styles.input}
+        autoCapitalize="words"
+      />
+      <TextInput
+        value={address}
+        onChangeText={(v) => editField("address", v)}
+        placeholder={t("companyLookup", "addressPlaceholder")}
+        placeholderTextColor={colors.textFaint}
+        style={[styles.input, { marginTop: spacing.sm }]}
+      />
+    </View>
+  );
+
   return (
     <View>
       <View style={styles.headerRow}>
         <Text style={styles.label}>{t("companyLookup", "label")}</Text>
-        {!isManualCountry && (
+        {!MANUAL_ONLY.includes(country) && country !== "OTHER" && (
           <Pressable onPress={() => setManual((m) => !m)} hitSlop={6}>
             <Text style={styles.manualToggle}>
               {manual ? t("companyLookup", "useLookup") : t("companyLookup", "manualToggle")}
@@ -148,75 +243,135 @@ export default function CompanyLookup({
         )}
       </View>
 
-      {/* Lookup země: země + ID/VAT + Ověřit */}
-      {isLookup ? (
-        <View style={styles.row}>
-          {CountryButton}
-          <TextInput
-            value={id}
-            onChangeText={(v) => {
-              setId(v);
-              if (status !== "idle") setStatus("idle");
-            }}
-            placeholder={t("companyLookup", "idPlaceholder")}
-            placeholderTextColor={colors.textFaint}
-            style={[styles.input, { flex: 1 }]}
-            autoCapitalize="characters"
-            autoCorrect={false}
-          />
-          <Pressable
-            onPress={doLookup}
-            disabled={looking || !id.trim()}
-            style={({ pressed }) => [styles.verifyBtn, (looking || !id.trim()) && { opacity: 0.5 }, pressed && { opacity: 0.7 }]}
-          >
-            {looking ? (
-              <ActivityIndicator color={colors.accentForeground} size="small" />
-            ) : (
-              <Text style={styles.verifyText}>{t("companyLookup", "verify")}</Text>
-            )}
-          </Pressable>
-        </View>
-      ) : (
-        // Ruční země: země + tax ID
-        <View style={styles.row}>
-          {CountryButton}
-          <TextInput
-            value={id}
-            onChangeText={(v) => setManualField("id", v)}
-            placeholder={t("companyLookup", "taxIdPlaceholder")}
-            placeholderTextColor={colors.textFaint}
-            style={[styles.input, { flex: 1 }]}
-            autoCapitalize="characters"
-            autoCorrect={false}
-          />
-        </View>
+      {/* ── CZ/SK/FR — kombinované vyhledávání (název + IČO) ── */}
+      {isFullCoverage && (
+        <>
+          <View style={styles.row}>
+            {CountryButton}
+            <View style={{ flex: 1 }}>
+              <TextInput
+                value={query}
+                onChangeText={onQueryChange}
+                editable={!selected}
+                placeholder={t("companyLookup", "searchPlaceholder")}
+                placeholderTextColor={colors.textFaint}
+                style={[styles.input, selected && styles.inputSelected]}
+                autoCorrect={false}
+              />
+              {searching && (
+                <ActivityIndicator size="small" color={colors.textSubtle} style={styles.inputSpinner} />
+              )}
+              {selected && (
+                <Pressable
+                  onPress={() => {
+                    setQuery("");
+                    setSelected(false);
+                    onChange({ country, ico: "", name: "", address: "", dic: "" });
+                  }}
+                  style={styles.clearBtn}
+                  hitSlop={8}
+                >
+                  <Text style={styles.clearX}>✕</Text>
+                </Pressable>
+              )}
+            </View>
+          </View>
+          {!selected && results.length > 0 && (
+            <View style={styles.dropdown}>
+              <FlatList
+                data={results}
+                keyExtractor={(r, i) => `${r.taxId}-${i}`}
+                keyboardShouldPersistTaps="handled"
+                style={{ maxHeight: 200 }}
+                renderItem={({ item }) => (
+                  <Pressable style={styles.resultRow} onPress={() => selectResult(item)}>
+                    <Text style={styles.resultName} numberOfLines={1}>{item.name}</Text>
+                    <Text style={styles.resultMeta} numberOfLines={1}>
+                      {item.taxId}{item.address ? ` · ${item.address}` : ""}
+                    </Text>
+                  </Pressable>
+                )}
+              />
+            </View>
+          )}
+        </>
       )}
 
-      {status === "found" && companyName ? (
-        <Text style={styles.foundText}>✓ {companyName}</Text>
-      ) : status === "notfound" ? (
-        <Text style={styles.hint}>{t("companyLookup", "notFound")}</Text>
-      ) : null}
+      {/* ── Ostatní EU — VIES (DIČ) + ručně ── */}
+      {isEuVies && (
+        <>
+          <View style={styles.row}>
+            {CountryButton}
+            <TextInput
+              value={vat}
+              onChangeText={(v) => {
+                setVat(v.toUpperCase());
+                if (viesStatus !== "idle") setViesStatus("idle");
+              }}
+              placeholder={t("companyLookup", "vatPlaceholder")}
+              placeholderTextColor={colors.textFaint}
+              style={[styles.input, { flex: 1 }]}
+              autoCapitalize="characters"
+              autoCorrect={false}
+            />
+            <Pressable
+              onPress={runVies}
+              disabled={viesStatus === "loading" || !vat.trim()}
+              style={({ pressed }) => [styles.verifyBtn, (viesStatus === "loading" || !vat.trim()) && { opacity: 0.5 }, pressed && { opacity: 0.7 }]}
+            >
+              {viesStatus === "loading" ? (
+                <ActivityIndicator color={colors.accentForeground} size="small" />
+              ) : (
+                <Text style={styles.verifyText}>{t("companyLookup", "verify")}</Text>
+              )}
+            </Pressable>
+          </View>
+          {viesStatus === "found" && companyName ? (
+            <Text style={styles.foundText}>✓ {companyName}</Text>
+          ) : viesStatus === "found" ? (
+            <Text style={styles.hint}>{t("companyLookup", "viesVerified")}</Text>
+          ) : viesStatus === "notfound" ? (
+            <Text style={styles.hint}>{t("companyLookup", "notFound")}</Text>
+          ) : (
+            <Text style={styles.hint}>{t("companyLookup", "viesHint")}</Text>
+          )}
+          {euManualFields}
+        </>
+      )}
 
-      {/* Ruční pole name/address (manuální země, override, nebo když lookup nevrátil) */}
-      {showManualFields && (
-        <View style={styles.manualFields}>
-          <TextInput
-            value={companyName}
-            onChangeText={(v) => setManualField("name", v)}
-            placeholder={t("companyLookup", "namePlaceholder")}
-            placeholderTextColor={colors.textFaint}
-            style={styles.input}
-            autoCapitalize="words"
-          />
-          <TextInput
-            value={address}
-            onChangeText={(v) => setManualField("address", v)}
-            placeholder={t("companyLookup", "addressPlaceholder")}
-            placeholderTextColor={colors.textFaint}
-            style={[styles.input, { marginTop: spacing.sm }]}
-          />
-        </View>
+      {/* ── GB / jiné / ruční ── */}
+      {isManual && (
+        <>
+          <View style={styles.row}>
+            {CountryButton}
+            <TextInput
+              value={taxId}
+              onChangeText={(v) => editField("taxId", v)}
+              placeholder={t("companyLookup", "taxIdPlaceholder")}
+              placeholderTextColor={colors.textFaint}
+              style={[styles.input, { flex: 1 }]}
+              autoCapitalize="characters"
+              autoCorrect={false}
+            />
+          </View>
+          <View style={styles.manualFields}>
+            <TextInput
+              value={companyName}
+              onChangeText={(v) => editField("name", v)}
+              placeholder={t("companyLookup", "namePlaceholder")}
+              placeholderTextColor={colors.textFaint}
+              style={styles.input}
+              autoCapitalize="words"
+            />
+            <TextInput
+              value={address}
+              onChangeText={(v) => editField("address", v)}
+              placeholder={t("companyLookup", "addressPlaceholder")}
+              placeholderTextColor={colors.textFaint}
+              style={[styles.input, { marginTop: spacing.sm }]}
+            />
+          </View>
+        </>
       )}
 
       <Modal visible={modalOpen} transparent animationType="fade" onRequestClose={() => setModalOpen(false)}>
@@ -279,6 +434,21 @@ const makeStyles = (c: Colors) =>
       fontSize: fontSize.base,
       color: c.text,
     },
+    inputSelected: { borderColor: c.success, backgroundColor: c.successBg, paddingRight: 36 },
+    inputSpinner: { position: "absolute", right: spacing.md, top: 0, bottom: 0 },
+    clearBtn: { position: "absolute", right: spacing.sm, top: 0, bottom: 0, justifyContent: "center", paddingHorizontal: spacing.xs },
+    clearX: { color: c.textSubtle, fontSize: fontSize.base },
+    dropdown: {
+      marginTop: spacing.xs,
+      backgroundColor: c.card,
+      borderWidth: 1,
+      borderColor: c.border,
+      borderRadius: radius.md,
+      overflow: "hidden",
+    },
+    resultRow: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: c.border },
+    resultName: { fontSize: fontSize.sm, color: c.text, fontWeight: "500" },
+    resultMeta: { fontSize: fontSize.xs, color: c.textSubtle, marginTop: 1 },
     verifyBtn: {
       backgroundColor: c.accent,
       borderRadius: radius.md,

@@ -547,6 +547,10 @@ export interface Dict {
     other: string;
     manualToggle: string;
     useLookup: string;
+    searchPlaceholder: string;
+    vatPlaceholder: string;
+    viesVerified: string;
+    viesHint: string;
     idPlaceholder: string;
     taxIdPlaceholder: string;
     verify: string;
@@ -1123,6 +1127,10 @@ const cs: Dict = {
     other: "Jiná země",
     manualToggle: "Zadat ručně",
     useLookup: "Vyhledat",
+    searchPlaceholder: "Název firmy nebo IČO",
+    vatPlaceholder: "DIČ (VAT) k ověření",
+    viesVerified: "DIČ ověřeno — doplňte název a adresu.",
+    viesHint: "Ověřte DIČ ve VIES, nebo přepněte na ruční zadání.",
     idPlaceholder: "IČO / DIČ",
     taxIdPlaceholder: "IČO / daňové číslo",
     verify: "Ověřit",
@@ -1694,6 +1702,10 @@ const en: Dict = {
     other: "Other country",
     manualToggle: "Enter manually",
     useLookup: "Look up",
+    searchPlaceholder: "Company name or ID",
+    vatPlaceholder: "VAT number to verify",
+    viesVerified: "VAT verified — fill in name and address.",
+    viesHint: "Verify the VAT via VIES, or switch to manual entry.",
     idPlaceholder: "Company ID / VAT",
     taxIdPlaceholder: "Company ID / tax number",
     verify: "Verify",
@@ -2267,6 +2279,10 @@ const de: Dict = {
     other: "Anderes Land",
     manualToggle: "Manuell eingeben",
     useLookup: "Suchen",
+    searchPlaceholder: "Firmenname oder ID",
+    vatPlaceholder: "USt-IdNr. zum Prüfen",
+    viesVerified: "USt-IdNr. geprüft — Name und Adresse ausfüllen.",
+    viesHint: "USt-IdNr. über VIES prüfen oder manuell eingeben.",
     idPlaceholder: "Firmen-ID / USt-IdNr.",
     taxIdPlaceholder: "Firmen-ID / Steuernummer",
     verify: "Prüfen",
