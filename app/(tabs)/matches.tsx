@@ -268,24 +268,6 @@ export default function MatchesScreen() {
                 ☰
               </Text>
             </Pressable>
-            <Pressable
-              onPress={() => setSortPickerOpen(true)}
-              hitSlop={6}
-              style={({ pressed }) => [
-                styles.adHocBtn,
-                sort !== "newest" && styles.adHocBtnActive,
-                pressed && { opacity: 0.7 },
-              ]}
-            >
-              <Text
-                style={[
-                  styles.adHocIcon,
-                  sort !== "newest" && styles.adHocIconActive,
-                ]}
-              >
-                ⇅
-              </Text>
-            </Pressable>
           </View>
         </View>
         <View style={styles.searchRow}>
@@ -310,6 +292,24 @@ export default function MatchesScreen() {
               <Text style={styles.searchClearText}>×</Text>
             </Pressable>
           )}
+          <Pressable
+            onPress={() => setSortPickerOpen(true)}
+            hitSlop={6}
+            style={({ pressed }) => [
+              styles.adHocBtn,
+              sort !== "newest" && styles.adHocBtnActive,
+              pressed && { opacity: 0.7 },
+            ]}
+          >
+            <Text
+              style={[
+                styles.adHocIcon,
+                sort !== "newest" && styles.adHocIconActive,
+              ]}
+            >
+              ⇅
+            </Text>
+          </Pressable>
         </View>
         {adHocOpen && (
           <View style={styles.adHocPanel}>
