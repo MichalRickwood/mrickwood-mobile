@@ -590,7 +590,7 @@ export interface Dict {
 }
 
 const cs: Dict = {
-  brand: { tagline: "Vyhledávání veřejných zakázek" },
+  brand: { tagline: "Evropské zakázky na jednom místě" },
   authLanding: {
     subtitle: "Přihlaste se nebo si vytvořte účet.",
     loginBtn: "Přihlásit se",
@@ -1166,7 +1166,7 @@ const cs: Dict = {
 };
 
 const en: Dict = {
-  brand: { tagline: "Public tender search" },
+  brand: { tagline: "Europe's tenders unified" },
   authLanding: {
     subtitle: "Sign in or create an account.",
     loginBtn: "Sign in",
@@ -1741,7 +1741,7 @@ const en: Dict = {
 };
 
 const de: Dict = {
-  brand: { tagline: "Ausschreibungssuche" },
+  brand: { tagline: "Europas Ausschreibungen vereint" },
   authLanding: {
     subtitle: "Melden Sie sich an oder erstellen Sie ein Konto.",
     loginBtn: "Anmelden",
