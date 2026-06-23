@@ -158,6 +158,14 @@ export const endpoints = {
   updateProfileV2: async (input: { name?: string; country?: string; phone?: string; company?: string; ico?: string; dic?: string; address?: string; consentVop?: boolean; consentGdpr?: boolean }) => {
     await api.patch("/api/v2/account/profile", input);
   },
+  // ARES lookup dle IČO (CZ) — vrátí firmu + adresu + DIČ pro auto-fill
+  // fakturačních údajů v onboardingu (potřeba pro proformu).
+  aresLookup: async (ico: string) => {
+    const r = await api.get<{
+      data: { found: boolean; name?: string; address?: string; dic?: string | null };
+    }>("/api/v2/onboarding/ares", { params: { ico } });
+    return r.data;
+  },
 
   // Aktuální user (verifikace JWT na startu)
   me: () => api.get<{ user: MobileLoginResponse["user"] }>("/api/auth/mobile/me"),

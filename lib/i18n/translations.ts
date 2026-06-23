@@ -483,6 +483,11 @@ export interface Dict {
     title: string;
     subtitle: string;
     trialNote: string;
+    icoLabel: string;
+    icoPlaceholder: string;
+    icoLoading: string;
+    icoNotFound: string;
+    icoHelp: string;
     currencyLabel: string;
     cycleLabel: string;
     cycleMonthly: string;
@@ -1036,6 +1041,11 @@ const cs: Dict = {
     title: "Vyberte země",
     subtitle: "Hlídač zakázek funguje pro 31 zemí. Vyberte ty, ze kterých chcete sledovat veřejné zakázky.",
     trialNote: "Vyberte země, ze kterých chcete sledovat zakázky. Výběr můžete kdykoli upravit v nastavení.",
+    icoLabel: "IČO (volitelné)",
+    icoPlaceholder: "12345678",
+    icoLoading: "Ověřuji v ARES…",
+    icoNotFound: "IČO nenalezeno v ARES.",
+    icoHelp: "Vyplňte pro zálohovou fakturu (jen ČR).",
     currencyLabel: "Měna",
     cycleLabel: "Cyklus",
     cycleMonthly: "Měsíčně",
@@ -1584,6 +1594,11 @@ const en: Dict = {
     title: "Select countries",
     subtitle: "Tender monitor works for 31 countries. Pick the ones to track public tenders from.",
     trialNote: "Pick the countries you want to monitor. You can change this any time in settings.",
+    icoLabel: "Company ID (optional)",
+    icoPlaceholder: "12345678",
+    icoLoading: "Checking ARES…",
+    icoNotFound: "Company ID not found in ARES.",
+    icoHelp: "Fill in for a proforma invoice (CZ only).",
     currencyLabel: "Currency",
     cycleLabel: "Cycle",
     cycleMonthly: "Monthly",
@@ -2134,6 +2149,11 @@ const de: Dict = {
     title: "Länder auswählen",
     subtitle: "Der Ausschreibungs-Monitor unterstützt 31 Länder. Wählen Sie, aus welchen Sie öffentliche Aufträge verfolgen möchten.",
     trialNote: "Wählen Sie die zu überwachenden Länder. Sie können die Auswahl jederzeit in den Einstellungen ändern.",
+    icoLabel: "IČO / Firmen-ID (optional)",
+    icoPlaceholder: "12345678",
+    icoLoading: "Prüfe in ARES…",
+    icoNotFound: "IČO in ARES nicht gefunden.",
+    icoHelp: "Für eine Proforma-Rechnung ausfüllen (nur CZ).",
     currencyLabel: "Währung",
     cycleLabel: "Zyklus",
     cycleMonthly: "Monatlich",
