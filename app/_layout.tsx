@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Image, View } from "react-native";
+import { Image, Modal, View } from "react-native";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
@@ -119,14 +119,12 @@ function RouterGuard() {
         <Stack.Screen name="(onboarding)" />
         <Stack.Screen name="(tabs)" />
       </Stack>
-      {showSplash && (
+      {/* Modal (ne sibling View) — renderuje se nativně NAD <Stack> (react-native-
+          screens), takže spolehlivě překryje probliknutí (tabs)/index. */}
+      <Modal visible={showSplash} animationType="none" statusBarTranslucent>
         <View
           style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
+            flex: 1,
             backgroundColor: "#FAFAF9",
             alignItems: "center",
             justifyContent: "center",
@@ -138,7 +136,7 @@ function RouterGuard() {
             resizeMode="contain"
           />
         </View>
-      )}
+      </Modal>
     </View>
   );
 }
