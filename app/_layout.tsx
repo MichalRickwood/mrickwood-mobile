@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Image, View } from "react-native";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
@@ -101,12 +102,44 @@ function RouterGuard() {
     };
   }, [status, segments, router, destination, qc]);
 
+  // Anti-flash splash: bez app/index.tsx renderuje „/" rovnou (tabs)/index
+  // (zakázky), takže anonym vidí na okamžik zakázky, než ho efekt redirectne na
+  // login. Overlay drží splash dokud:
+  //   - status === "loading" (zjišťujeme session z úložiště), nebo
+  //   - anonym ještě není na login screenu (zakázky se schovají, než redirect doběhne).
+  // Přihlášený → splash zmizí hned po zjištění session (krátký splash → tabs, dává
+  // smysl při běžném otevření appky). Navazuje na native splash (stejný icon + barva).
+  const onAuthScreen = segments[0] === "(auth)";
+  const showSplash = status === "loading" || (status === "anonymous" && !onAuthScreen);
+
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="(auth)" />
-      <Stack.Screen name="(onboarding)" />
-      <Stack.Screen name="(tabs)" />
-    </Stack>
+    <View style={{ flex: 1 }}>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(auth)" />
+        <Stack.Screen name="(onboarding)" />
+        <Stack.Screen name="(tabs)" />
+      </Stack>
+      {showSplash && (
+        <View
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "#FAFAF9",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Image
+            source={require("@/assets/splash-icon.png")}
+            style={{ width: "55%", height: "55%" }}
+            resizeMode="contain"
+          />
+        </View>
+      )}
+    </View>
   );
 }
 
