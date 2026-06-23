@@ -6,16 +6,16 @@ import { Image, View } from "react-native";
  * tohoto by „/" renderovalo (tabs)/index a nepřihlášený by na okamžik viděl
  * zakázky.
  *
- * Vizuál = shodný s native splashem (stejný splash-icon + barva #FAFAF9,
- * resizeMode contain), takže native splash → tento gate → cíl je plynulé, žádná
- * prázdná bílá ani skákání loga (i během načítání subscriptions u přihlášeného).
+ * Pozadí #F4F0E4 = barva pozadí splash-icon.png (krémová), takže contain pásy
+ * nahoře/dole splynou s obrázkem → jednolitá plocha s logem, žádné „bílé sekce"
+ * (předtím View #FAFAF9 ≠ krémové pozadí obrázku → viditelné pásy nahoře/dole).
  */
 export default function Index() {
   return (
     <View
       style={{
         flex: 1,
-        backgroundColor: "#FAFAF9",
+        backgroundColor: "#F4F0E4",
         alignItems: "center",
         justifyContent: "center",
       }}
