@@ -219,16 +219,8 @@ export default function MatchesScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
       <View style={styles.header}>
-        <View style={styles.headerTop}>
-          <Text
-            style={styles.title}
-            numberOfLines={1}
-            adjustsFontSizeToFit
-            minimumFontScale={0.7}
-          >
-            {t("matches", "title")}
-          </Text>
-          <View style={styles.headerControls}>
+        <Text style={styles.title}>{t("matches", "title")}</Text>
+        <View style={styles.headerControls}>
             <FilterPicker
               filters={filters}
               activeId={activeFilterId}
@@ -293,7 +285,6 @@ export default function MatchesScreen() {
               </Text>
             </Pressable>
           </View>
-        </View>
         <Text style={styles.subtitle}>{headerLabel}</Text>
         <View style={styles.searchRow}>
           <TextInput
@@ -573,8 +564,7 @@ const makeStyles = (colors: Colors) =>
   StyleSheet.create({
     safe: { flex: 1, backgroundColor: colors.bg },
     header: { paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.md },
-    headerTop: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: spacing.sm },
-    headerControls: { flexDirection: "row", alignItems: "center", gap: spacing.xs },
+    headerControls: { flexDirection: "row", alignItems: "center", gap: spacing.xs, marginTop: spacing.md },
     adHocBtn: {
       width: 36,
       height: 36,
