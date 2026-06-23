@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, ImageBackground, Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "@/lib/auth-context";
 import { APP_NAME } from "@/lib/config";
@@ -11,18 +11,16 @@ import AppearanceSwitcher from "@/components/AppearanceSwitcher";
 import { useI18n } from "@/lib/i18n";
 
 /**
- * Auth landing — žádné nativní formuláře. Přihlášení i registrace probíhá na
- * auth.mrickwood.cz (ASWebAuthenticationSession). Dvě tlačítka se liší jen
- * parametrem `mode`. Apple compliance: viz lib/web-auth.ts.
+ * Auth landing — full-bleed handshake pozadí (uzavření dealu) + tmavý overlay.
+ * Žádné nativní formuláře. Přihlášení i registrace probíhá na auth.mrickwood.cz
+ * (ASWebAuthenticationSession). Dvě tlačítka se liší jen parametrem `mode`.
+ * Apple compliance: viz lib/web-auth.ts.
  */
 export default function LoginScreen() {
   const { applySession } = useAuth();
   const { t, locale } = useI18n();
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
-  const logoSrc = isDark
-    ? require("@/assets/logo-dark.png")
-    : require("@/assets/logo.png");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<WebAuthMode | null>(null);
 
@@ -48,55 +46,74 @@ export default function LoginScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
-      <View style={styles.topBar}>
-        <LocaleSwitcher />
-        <View style={styles.pillGap} />
-        <AppearanceSwitcher />
-      </View>
+    <ImageBackground
+      source={require("@/assets/login-bg.png")}
+      resizeMode="cover"
+      style={styles.bg}
+    >
+      <View style={styles.overlay} />
+      <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
+        <View style={styles.topBar}>
+          <LocaleSwitcher />
+          <View style={styles.pillGap} />
+          <AppearanceSwitcher />
+        </View>
 
-      <View style={styles.content}>
         <View style={styles.brand}>
-          <Image source={logoSrc} style={styles.brandIcon} resizeMode="contain" />
+          <Image
+            source={require("@/assets/logo-dark.png")}
+            style={styles.brandIcon}
+            resizeMode="contain"
+          />
           <Text style={styles.brandText}>{APP_NAME}</Text>
           <Text style={styles.brandSub}>{t("brand", "tagline")}</Text>
         </View>
 
-        <Text style={styles.subtitle}>{t("authLanding", "subtitle")}</Text>
+        <View style={styles.spacer} />
 
-        {error && <Text style={styles.error}>{error}</Text>}
+        <View style={styles.footer}>
+          <Text style={styles.subtitle}>{t("authLanding", "subtitle")}</Text>
 
-        <Pressable
-          onPress={() => onPress("login")}
-          disabled={!!busy}
-          style={({ pressed }) => [
-            styles.button,
-            !!busy && styles.buttonDisabled,
-            pressed && styles.buttonPressed,
-          ]}
-        >
-          <Text style={styles.buttonText}>{t("authLanding", "loginBtn")}</Text>
-        </Pressable>
+          {error && <Text style={styles.error}>{error}</Text>}
 
-        <Pressable
-          onPress={() => onPress("register")}
-          disabled={!!busy}
-          style={({ pressed }) => [
-            styles.buttonSecondary,
-            !!busy && styles.buttonDisabled,
-            pressed && styles.buttonSecondaryPressed,
-          ]}
-        >
-          <Text style={styles.buttonSecondaryText}>{t("authLanding", "registerBtn")}</Text>
-        </Pressable>
-      </View>
-    </SafeAreaView>
+          <Pressable
+            onPress={() => onPress("login")}
+            disabled={!!busy}
+            style={({ pressed }) => [
+              styles.button,
+              !!busy && styles.buttonDisabled,
+              pressed && styles.buttonPressed,
+            ]}
+          >
+            <Text style={styles.buttonText}>{t("authLanding", "loginBtn")}</Text>
+          </Pressable>
+
+          <Pressable
+            onPress={() => onPress("register")}
+            disabled={!!busy}
+            style={({ pressed }) => [
+              styles.buttonSecondary,
+              !!busy && styles.buttonDisabled,
+              pressed && styles.buttonSecondaryPressed,
+            ]}
+          >
+            <Text style={styles.buttonSecondaryText}>{t("authLanding", "registerBtn")}</Text>
+          </Pressable>
+        </View>
+      </SafeAreaView>
+    </ImageBackground>
   );
 }
 
 const makeStyles = (colors: Colors) =>
   StyleSheet.create({
-    safe: { flex: 1, backgroundColor: colors.bg },
+    bg: { flex: 1, backgroundColor: "#0B1220" },
+    // Tmavý scrim přes foto pro čitelnost bílého textu (silnější dole u tlačítek).
+    overlay: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: "rgba(8,12,24,0.55)",
+    },
+    safe: { flex: 1 },
     topBar: {
       flexDirection: "row",
       justifyContent: "flex-end",
@@ -105,26 +122,49 @@ const makeStyles = (colors: Colors) =>
       paddingTop: spacing.sm,
     },
     pillGap: { width: spacing.sm },
-    content: { flex: 1, justifyContent: "center", padding: spacing.xl },
-    brand: { marginBottom: spacing.lg, alignItems: "center" },
-    brandIcon: { width: 72, height: 72, marginBottom: spacing.xs },
-    brandText: { fontSize: 32, fontWeight: "700", color: colors.text, letterSpacing: -0.5 },
-    brandSub: { fontSize: fontSize.sm, color: colors.textSubtle, marginTop: spacing.xs },
+    brand: { marginTop: spacing.xl, alignItems: "center" },
+    brandIcon: { width: 76, height: 76, marginBottom: spacing.xs },
+    brandText: {
+      fontSize: 36,
+      fontWeight: "700",
+      color: "#FFFFFF",
+      letterSpacing: -0.5,
+      textShadowColor: "rgba(0,0,0,0.45)",
+      textShadowOffset: { width: 0, height: 1 },
+      textShadowRadius: 8,
+    },
+    brandSub: {
+      fontSize: fontSize.sm,
+      color: "rgba(255,255,255,0.88)",
+      marginTop: spacing.xs,
+      textShadowColor: "rgba(0,0,0,0.4)",
+      textShadowOffset: { width: 0, height: 1 },
+      textShadowRadius: 6,
+    },
+    spacer: { flex: 1 },
+    footer: {
+      padding: spacing.xl,
+      paddingBottom: spacing.lg,
+    },
     subtitle: {
       fontSize: fontSize.base,
-      color: colors.textMuted,
+      color: "rgba(255,255,255,0.92)",
       textAlign: "center",
-      marginBottom: spacing.xl,
+      marginBottom: spacing.lg,
+      textShadowColor: "rgba(0,0,0,0.5)",
+      textShadowOffset: { width: 0, height: 1 },
+      textShadowRadius: 8,
     },
     error: {
-      color: colors.danger,
+      color: "#FFFFFF",
       fontSize: fontSize.sm,
       marginBottom: spacing.lg,
-      backgroundColor: colors.dangerBg,
+      backgroundColor: "rgba(220,38,38,0.85)",
       paddingHorizontal: spacing.md,
       paddingVertical: spacing.sm,
       borderRadius: radius.sm,
       textAlign: "center",
+      overflow: "hidden",
     },
     button: {
       backgroundColor: colors.accent,
@@ -136,14 +176,14 @@ const makeStyles = (colors: Colors) =>
     buttonText: { color: colors.accentForeground, fontSize: fontSize.base, fontWeight: "600" },
     buttonSecondary: {
       marginTop: spacing.md,
-      backgroundColor: colors.card,
+      backgroundColor: "rgba(255,255,255,0.12)",
       borderWidth: 1,
-      borderColor: colors.border,
+      borderColor: "rgba(255,255,255,0.55)",
       borderRadius: radius.md,
       paddingVertical: spacing.md,
       alignItems: "center",
     },
-    buttonSecondaryPressed: { borderColor: colors.text },
-    buttonSecondaryText: { color: colors.text, fontSize: fontSize.base, fontWeight: "600" },
+    buttonSecondaryPressed: { backgroundColor: "rgba(255,255,255,0.22)" },
+    buttonSecondaryText: { color: "#FFFFFF", fontSize: fontSize.base, fontWeight: "600" },
     buttonDisabled: { opacity: 0.4 },
   });
