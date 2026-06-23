@@ -329,9 +329,9 @@ export default function CompanyLookup({
           {viesStatus === "found" && companyName ? (
             <Text style={styles.foundText}>✓ {companyName}</Text>
           ) : viesStatus === "found" ? (
-            <Text style={styles.hint}>{t("companyLookup", "viesVerified")}</Text>
+            <Text style={styles.foundText}>✓ {t("companyLookup", "viesVerified")}</Text>
           ) : viesStatus === "notfound" ? (
-            <Text style={styles.hint}>{t("companyLookup", "notFound")}</Text>
+            <Text style={styles.notFoundText}>{t("companyLookup", "notFound")}</Text>
           ) : (
             <Text style={styles.hint}>{t("companyLookup", "viesHint")}</Text>
           )}
@@ -460,6 +460,7 @@ const makeStyles = (c: Colors) =>
     },
     verifyText: { color: c.accentForeground, fontSize: fontSize.sm, fontWeight: "600" },
     foundText: { fontSize: fontSize.xs, color: c.success, marginTop: spacing.xs, fontWeight: "500" },
+    notFoundText: { fontSize: fontSize.xs, color: c.warning, marginTop: spacing.xs },
     hint: { fontSize: fontSize.xs, color: c.textSubtle, marginTop: spacing.xs },
     manualFields: { marginTop: spacing.sm },
     modalBackdrop: { flex: 1, backgroundColor: "rgba(0,0,0,0.4)", justifyContent: "center", padding: spacing.xl },
