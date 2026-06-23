@@ -109,9 +109,12 @@ function RouterGuard() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
-      <Stack.Screen name="(auth)" />
-      <Stack.Screen name="(onboarding)" />
-      <Stack.Screen name="(tabs)" />
+      {/* Auth-flow přechody (gate → login/tabs/onboarding) fade, ne slide —
+          jinak to z „/" na login „swipe-ne". Detail screeny (match/filter)
+          si nechávají default slide. */}
+      <Stack.Screen name="(auth)" options={{ animation: "fade" }} />
+      <Stack.Screen name="(onboarding)" options={{ animation: "fade" }} />
+      <Stack.Screen name="(tabs)" options={{ animation: "fade" }} />
     </Stack>
   );
 }
