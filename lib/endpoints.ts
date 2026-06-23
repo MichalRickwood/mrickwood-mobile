@@ -155,7 +155,7 @@ export const endpoints = {
     }>("/api/v2/account/profile");
     return r.data;
   },
-  updateProfileV2: async (input: { name?: string; country?: string; phone?: string; company?: string; ico?: string; dic?: string; address?: string; consentVop?: boolean; consentGdpr?: boolean }) => {
+  updateProfileV2: async (input: { name?: string; country?: string; phone?: string; company?: string; ico?: string; dic?: string; address?: string; locale?: string; consentVop?: boolean; consentGdpr?: boolean }) => {
     await api.patch("/api/v2/account/profile", input);
   },
   // Cross-border company lookup (veřejný endpoint, dispatch dle země):

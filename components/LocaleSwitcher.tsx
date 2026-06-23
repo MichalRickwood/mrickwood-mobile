@@ -3,7 +3,21 @@ import { Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from "reac
 import { LOCALES, type Locale } from "@/lib/i18n/translations";
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme-context";
+import { getToken } from "@/lib/auth-storage";
+import { endpoints } from "@/lib/endpoints";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
+
+/** Uloží zvolený jazyk do user.locale (řídí jazyk e-mailů) — jen pokud je
+ * uživatel přihlášený. Best-effort: chyby (401 před loginem, validace) spolkneme,
+ * UI jazyk už přepnul setLocale lokálně. */
+async function persistLocale(code: string): Promise<void> {
+  try {
+    const token = await getToken();
+    if (token) await endpoints.updateProfileV2({ locale: code });
+  } catch {
+    // ignore — perzistence je nice-to-have, lokální přepnutí proběhlo vždy
+  }
+}
 
 /**
  * Pill button + modal s flag + native name + check — adaptováno z eprotokol-mobile
@@ -58,6 +72,7 @@ export default function LocaleSwitcher() {
                   onPress={() => {
                     setLocale(code as Locale);
                     setOpen(false);
+                    void persistLocale(code);
                   }}
                   style={[styles.row, isActive && styles.rowActive]}
                   activeOpacity={0.7}

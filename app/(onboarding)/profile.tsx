@@ -162,6 +162,9 @@ export default function OnboardingProfile() {
       const input: Parameters<typeof endpoints.updateProfileV2>[0] = {
         name: trimmedName,
         country: derivedCountry,
+        // Zvolený jazyk → user.locale, aby e-maily (proforma atd.) chodily ve
+        // správné řeči. Bez tohoto by zůstal registrační jazyk.
+        locale,
       };
       const phoneDigits = phoneLocal.replace(/\D/g, "");
       if (phoneDigits) input.phone = `${dialCode} ${phoneDigits}`;
