@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -8,9 +8,9 @@ import {
   Text,
   View,
 } from "react-native";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "expo-router";
 import { endpoints } from "@/lib/endpoints";
-import { ApiError } from "@/lib/api";
 import { useTheme } from "@/lib/theme-context";
 import { useI18n } from "@/lib/i18n";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
@@ -23,6 +23,7 @@ import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 export default function LeadsPaywall() {
   const { colors } = useTheme();
   const { t } = useI18n();
+  const router = useRouter();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const qc = useQueryClient();
 
@@ -42,10 +43,13 @@ export default function LeadsPaywall() {
     ]);
   }
 
-  const activate = useMutation({
-    mutationFn: () => endpoints.activateLeadsTrial(),
-    onSuccess: invalidateAll,
-  });
+  // Uživatel bez trialu (canActivateTrial) = neprošel onboardingem → pošli ho na
+  // profil (NE aktivovat CZ trial napřímo z paywallu — to obchází výběr zemí +
+  // fakturační údaje). Paywall je jen pro post-trial (suspended/canceled/expired).
+  const canActivate = !!status.data?.canActivateTrial;
+  useEffect(() => {
+    if (canActivate) router.replace("/(onboarding)/profile");
+  }, [canActivate, router]);
 
   if (status.isLoading) {
     return (
@@ -82,6 +86,15 @@ export default function LeadsPaywall() {
   // Pokud je vše OK, paywall nemá co zobrazit (caller by neměl vůbec rendrovat)
   if (trialActive || subscriptionActive) return null;
 
+  // canActivateTrial → probíhá redirect na onboarding (viz useEffect), mezitím spinner.
+  if (data.canActivateTrial) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator color={colors.textSubtle} />
+      </View>
+    );
+  }
+
   return (
     <ScrollView
       style={styles.flex}
@@ -100,64 +113,23 @@ export default function LeadsPaywall() {
       <View style={styles.icon}>
         <Text style={styles.iconText}>🔒</Text>
       </View>
-      <Text style={styles.title}>
-        {data.canActivateTrial
-          ? t("filters", "paywallTitle")
-          : t("filters", "paywallInactiveTitle")}
+      <Text style={styles.title}>{t("filters", "paywallInactiveTitle")}</Text>
+      <Text style={styles.body}>
+        {trialExpired
+          ? t("filters", "paywallExpiredTrial")
+          : data.state === "CANCELED"
+            ? t("filters", "paywallCanceled")
+            : t("filters", "paywallSuspended")}
       </Text>
-
-      {data.canActivateTrial ? (
-        <>
-          <Text style={styles.body}>
-            {t("filters", "paywallTrialBody", { days: String(data.trialDays) })}
-          </Text>
-          {activate.isError && (
-            <Text style={styles.errorBox}>
-              {activate.error instanceof ApiError
-                ? activate.error.message
-                : t("filters", "paywallActivateFailed")}
-            </Text>
-          )}
-          <Pressable
-            onPress={() => activate.mutate()}
-            disabled={activate.isPending}
-            style={({ pressed }) => [
-              styles.btnPrimary,
-              activate.isPending && { opacity: 0.6 },
-              pressed && !activate.isPending && { opacity: 0.85 },
-            ]}
-          >
-            {activate.isPending ? (
-              <ActivityIndicator color={colors.accentForeground} />
-            ) : (
-              <Text style={styles.btnPrimaryText}>
-                {t("filters", "paywallTrialBtn", { days: String(data.trialDays) })}
-              </Text>
-            )}
-          </Pressable>
-        </>
-      ) : (
-        <>
-          <Text style={styles.body}>
-            {trialExpired
-              ? t("filters", "paywallExpiredTrial")
-              : data.state === "CANCELED"
-                ? t("filters", "paywallCanceled")
-                : t("filters", "paywallSuspended")}
-          </Text>
-          {/* App Store 3.1.1: ŽÁDNÉ nákupní CTA ani odkaz na web. Pokyny k
-              obnovení posíláme e-mailem; tady jen neutrální re-check stavu
-              (po obnovení paywall zmizí). */}
-          <Pressable
-            onPress={() => void invalidateAll()}
-            disabled={status.isFetching}
-            style={({ pressed }) => [styles.recheckBtn, pressed && { opacity: 0.6 }]}
-          >
-            <Text style={styles.recheckText}>{t("filters", "paywallRecheckBtn")}</Text>
-          </Pressable>
-        </>
-      )}
-
+      {/* App Store 3.1.1: ŽÁDNÉ nákupní CTA ani odkaz na web. Pokyny k obnovení
+          posíláme e-mailem; tady jen neutrální re-check stavu. */}
+      <Pressable
+        onPress={() => void invalidateAll()}
+        disabled={status.isFetching}
+        style={({ pressed }) => [styles.recheckBtn, pressed && { opacity: 0.6 }]}
+      >
+        <Text style={styles.recheckText}>{t("filters", "paywallRecheckBtn")}</Text>
+      </Pressable>
     </ScrollView>
   );
 }
