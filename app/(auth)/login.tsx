@@ -3,7 +3,7 @@ import { Image, ImageBackground, Pressable, StyleSheet, Text, View } from "react
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "@/lib/auth-context";
 import { APP_NAME } from "@/lib/config";
-import { startWebAuth, WebAuthCancelled, type WebAuthMode } from "@/lib/web-auth";
+import { startWebAuth, WebAuthCancelled } from "@/lib/web-auth";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 import { useTheme } from "@/lib/theme-context";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
@@ -12,9 +12,14 @@ import { useI18n } from "@/lib/i18n";
 
 /**
  * Auth landing — full-bleed handshake pozadí (uzavření dealu) + tmavý overlay.
- * Žádné nativní formuláře. Přihlášení i registrace probíhá na auth.mrickwood.cz
- * (ASWebAuthenticationSession). Dvě tlačítka se liší jen parametrem `mode`.
- * Apple compliance: viz lib/web-auth.ts.
+ * Žádné nativní formuláře. Pouze PŘIHLÁŠENÍ existujícího účtu na veritra.io
+ * (ASWebAuthenticationSession).
+ *
+ * Apple compliance (3.1.1): appka VĚDOMĚ nenabízí registraci nového účtu.
+ * Nový business účet vede k placenému tarifu prodávanému mimo IAP → in-app
+ * registrace = "external mechanism for purchases", což Apple zamítl. Nový účet
+ * se zakládá výhradně na webu a appka na to ani neodkazuje. Nepřidávej zpět
+ * tlačítko Registrovat / Sign up. Viz lib/web-auth.ts.
  */
 export default function LoginScreen() {
   const { applySession } = useAuth();
@@ -22,14 +27,14 @@ export default function LoginScreen() {
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState<WebAuthMode | null>(null);
+  const [busy, setBusy] = useState(false);
 
-  async function onPress(mode: WebAuthMode) {
+  async function onLogin() {
     if (busy) return;
-    setBusy(mode);
+    setBusy(true);
     setError(null);
     try {
-      const user = await startWebAuth(mode, locale);
+      const user = await startWebAuth(locale);
       applySession(user);
       // RouterGuard přesměruje na onboarding/tabs dle stavu subscription.
     } catch (err) {
@@ -41,7 +46,7 @@ export default function LoginScreen() {
         setError(t("authLanding", "errorGeneric"));
       }
     } finally {
-      setBusy(null);
+      setBusy(false);
     }
   }
 
@@ -77,27 +82,15 @@ export default function LoginScreen() {
           {error && <Text style={styles.error}>{error}</Text>}
 
           <Pressable
-            onPress={() => onPress("login")}
-            disabled={!!busy}
+            onPress={onLogin}
+            disabled={busy}
             style={({ pressed }) => [
               styles.button,
-              !!busy && styles.buttonDisabled,
+              busy && styles.buttonDisabled,
               pressed && styles.buttonPressed,
             ]}
           >
             <Text style={styles.buttonText}>{t("authLanding", "loginBtn")}</Text>
-          </Pressable>
-
-          <Pressable
-            onPress={() => onPress("register")}
-            disabled={!!busy}
-            style={({ pressed }) => [
-              styles.buttonSecondary,
-              !!busy && styles.buttonDisabled,
-              pressed && styles.buttonSecondaryPressed,
-            ]}
-          >
-            <Text style={styles.buttonSecondaryText}>{t("authLanding", "registerBtn")}</Text>
           </Pressable>
         </View>
       </SafeAreaView>
@@ -174,16 +167,5 @@ const makeStyles = (colors: Colors) =>
     },
     buttonPressed: { backgroundColor: colors.accentHover },
     buttonText: { color: colors.accentForeground, fontSize: fontSize.base, fontWeight: "600" },
-    buttonSecondary: {
-      marginTop: spacing.md,
-      backgroundColor: "rgba(255,255,255,0.12)",
-      borderWidth: 1,
-      borderColor: "rgba(255,255,255,0.55)",
-      borderRadius: radius.md,
-      paddingVertical: spacing.md,
-      alignItems: "center",
-    },
-    buttonSecondaryPressed: { backgroundColor: "rgba(255,255,255,0.22)" },
-    buttonSecondaryText: { color: "#FFFFFF", fontSize: fontSize.base, fontWeight: "600" },
     buttonDisabled: { opacity: 0.4 },
   });

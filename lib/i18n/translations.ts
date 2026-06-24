@@ -16,7 +16,6 @@ export interface Dict {
   authLanding: {
     subtitle: string;
     loginBtn: string;
-    registerBtn: string;
     errorGeneric: string;
     errorNetwork: string;
   };
@@ -592,9 +591,8 @@ export interface Dict {
 const cs: Dict = {
   brand: { tagline: "Evropské zakázky na jednom místě" },
   authLanding: {
-    subtitle: "Přihlaste se nebo si vytvořte účet.",
+    subtitle: "Přihlaste se ke svému účtu.",
     loginBtn: "Přihlásit se",
-    registerBtn: "Registrovat se",
     errorGeneric: "Přihlášení se nezdařilo. Zkuste to prosím znovu.",
     errorNetwork: "Nepodařilo se připojit k serveru.",
   },
@@ -1168,9 +1166,8 @@ const cs: Dict = {
 const en: Dict = {
   brand: { tagline: "Europe's tenders unified" },
   authLanding: {
-    subtitle: "Sign in or create an account.",
+    subtitle: "Sign in to your account.",
     loginBtn: "Sign in",
-    registerBtn: "Sign up",
     errorGeneric: "Sign-in failed. Please try again.",
     errorNetwork: "Could not connect to the server.",
   },
@@ -1743,9 +1740,8 @@ const en: Dict = {
 const de: Dict = {
   brand: { tagline: "Europas Ausschreibungen vereint" },
   authLanding: {
-    subtitle: "Melden Sie sich an oder erstellen Sie ein Konto.",
+    subtitle: "Melden Sie sich bei Ihrem Konto an.",
     loginBtn: "Anmelden",
-    registerBtn: "Registrieren",
     errorGeneric: "Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.",
     errorNetwork: "Verbindung zum Server fehlgeschlagen.",
   },

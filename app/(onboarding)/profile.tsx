@@ -14,7 +14,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useQueryClient } from "@tanstack/react-query";
 import DialCodePicker from "@/components/DialCodePicker";
-import CompanyLookup, { type CompanyData } from "@/components/CompanyLookup";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
 import { defaultDialCodeForLocale, DIAL_CODES } from "@/lib/dial-codes";
 import { endpoints } from "@/lib/endpoints";
@@ -58,9 +57,10 @@ export default function OnboardingProfile() {
   const [phoneLocal, setPhoneLocal] = useState("");
 
   // App Store 3.1.1: company / IČO / DIČ / address (business identifikátory)
-  // se v mobile vědomě nesbírají — Apple zamítl "registration features for
-  // businesses and organizations". Pokud user potřebuje vyplnit fakturační
-  // údaje (B2B), udělá to na webu v mrickwood.cz/dashboard/settings/billing.
+  // se v mobile VĚDOMĚ nesbírají — Apple zamítl "registration features for
+  // businesses and organizations". Žádný CompanyLookup ani fakturační pole.
+  // Pokud user potřebuje vyplnit fakturační údaje (B2B), udělá to na webu na
+  // veritra.io/dashboard/settings/billing. Nepřidávej je sem zpět.
   //
   // Country se taky neptáme přímo — derivujeme ho z předvolby telefonu
   // (DialCode.iso). User vybírá +420/+49/+33 v phone fieldu, server dostane
@@ -75,36 +75,17 @@ export default function OnboardingProfile() {
   const [consentVop, setConsentVop] = useState(false);
   const [consentGdpr, setConsentGdpr] = useState(false);
 
-  // Fakturační údaje (volitelné) — výběr země + lookup firmy (ARES/VIES/…) nebo
-  // ruční zadání. Potřeba pro zálohovou fakturu (proformu) v uvítacím e-mailu.
-  const [companyData, setCompanyData] = useState<CompanyData>({
-    country: "",
-    ico: "",
-    name: "",
-    address: "",
-    dic: "",
-  });
-
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
         const p = await endpoints.getProfileV2();
         if (cancelled) return;
-        // ŽÁDNÝ auto-skip — profile je teď první krok onboardingu (sbírá i firmu/
-        // IČO pro proformu), takže ho chceme ukázat i uživateli s vyplněným jménem.
+        // ŽÁDNÝ auto-skip — profile je první krok onboardingu (osobní kontaktní
+        // údaje), takže ho chceme ukázat i uživateli s vyplněným jménem.
         // RouterGuard sem pošle jen nové usery (bez aktivní LEADS sub).
         setEmail(p.email);
         setName(p.name ?? "");
-        if (p.ico || p.company) {
-          setCompanyData({
-            country: p.country ?? "",
-            ico: p.ico ?? "",
-            name: p.company ?? "",
-            address: p.address ?? "",
-            dic: p.dic ?? "",
-          });
-        }
         // Dial code preferuj ze server-side country pokud uložená (matchni
         // ISO → DialCode), jinak split z phone, jinak default per locale.
         const dialFromCountry = p.country
@@ -145,7 +126,7 @@ export default function OnboardingProfile() {
 
     // Žádné business fields (firma/IČO/DIČ/adresa) — Apple 3.1.1 zakazuje
     // mobile "registration features for businesses and organizations". User je
-    // vyplní na webu (mrickwood.cz/dashboard/settings/billing) pokud chce B2B
+    // vyplní na webu (veritra.io/dashboard/settings/billing) pokud chce B2B
     // billing. Mobile profile = osobní kontaktní údaje.
     if (email.trim() && !EMAIL_RE.test(email.trim())) {
       setEmailError(t("onboardingProfile", "emailInvalid"));
@@ -168,15 +149,6 @@ export default function OnboardingProfile() {
       };
       const phoneDigits = phoneLocal.replace(/\D/g, "");
       if (phoneDigits) input.phone = `${dialCode} ${phoneDigits}`;
-      // Volitelné fakturační údaje (firma) pro proformu. Uložíme jen když je
-      // vyplněný název firmy; fakturační země = země firmy (přebije derived z tel).
-      if (companyData.ico && companyData.name) {
-        input.ico = companyData.ico;
-        input.company = companyData.name;
-        if (companyData.address) input.address = companyData.address;
-        if (companyData.dic) input.dic = companyData.dic;
-        if (companyData.country) input.country = companyData.country;
-      }
       if (consentRequired) {
         input.consentVop = consentVop;
         input.consentGdpr = consentGdpr;
@@ -264,10 +236,6 @@ export default function OnboardingProfile() {
                 maxLength={20}
               />
             </View>
-          </View>
-
-          <View style={styles.field}>
-            <CompanyLookup value={companyData} onChange={setCompanyData} />
           </View>
 
           {consentRequired && (
