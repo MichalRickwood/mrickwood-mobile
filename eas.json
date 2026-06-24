@@ -31,8 +31,8 @@
         "buildType": "app-bundle"
       },
       "env": {
-        "EXPO_PUBLIC_API_BASE_URL": "https://mrickwood.cz",
-        "EXPO_PUBLIC_AUTH_BASE_URL": "https://mrickwood.cz"
+        "EXPO_PUBLIC_API_BASE_URL": "https://veritra.io",
+        "EXPO_PUBLIC_AUTH_BASE_URL": "https://veritra.io"
       }
     }
   },

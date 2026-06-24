@@ -123,7 +123,7 @@ function legacyFilterShape(f: V2Filter): LeadFilterRow {
 }
 
 export const endpoints = {
-  // Auth — výměna jednorázového kódu z auth.mrickwood.cz redirectu za mobilní
+  // Auth — výměna jednorázového kódu z veritra.io redirectu za mobilní
   // session (JWT + user). Přihlášení/registrace probíhá na webu, appka jen
   // dokončí handoff. Stejný tvar odpovědi jako dřívější OAuth exchange.
   exchangeWebAuthCode: (code: string) =>
