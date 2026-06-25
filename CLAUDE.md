@@ -1,4 +1,4 @@
-# Tendero mobile — engineering rules
+# Veritra mobile — engineering rules
 
 ## i18n is non-negotiable
 

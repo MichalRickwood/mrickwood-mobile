@@ -5,8 +5,8 @@ import * as SecureStore from "expo-secure-store";
  * Hodnota je uložená do iOS Keychain / Android Keystore — chráněná OS.
  */
 
-const TOKEN_KEY = "tendero.session.token";
-const USER_KEY = "tendero.session.user";
+const TOKEN_KEY = "veritra.session.token";
+const USER_KEY = "veritra.session.user";
 
 export interface StoredUser {
   id: string;

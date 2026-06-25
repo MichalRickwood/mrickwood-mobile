@@ -14,7 +14,7 @@ import { darkColors, lightColors, type Colors } from "@/constants/theme";
 /**
  * Theme context — mode (system/light/dark) → resolved colors.
  *
- * Persistence: AsyncStorage `tendero.theme` (default "system").
+ * Persistence: AsyncStorage `veritra.theme` (default "system").
  * Při mode = "system" sleduje iOS system preference přes `useColorScheme()`.
  */
 
@@ -27,7 +27,7 @@ interface ThemeState {
   colors: Colors;
 }
 
-const STORAGE_KEY = "tendero.theme";
+const STORAGE_KEY = "veritra.theme";
 const ThemeContext = createContext<ThemeState | null>(null);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {

@@ -1,4 +1,4 @@
-# Tendero — mobile
+# Veritra — mobile
 
 iOS aplikace pro vyhledávání veřejných zakázek. Frontend Expo (React Native + TypeScript) napojený na backend mrickwood.cz přes `/api/auth/mobile/*` a `/api/mobile/*`.
 
@@ -23,7 +23,7 @@ Defaultně appka tlačí na `https://mrickwood.cz`. Pro lokální vývoj nastav 
 
 1. User zadá email+heslo → POST `/api/auth/mobile/login`
 2. Server vrátí HS256 JWT (30d TTL) + user info
-3. Token uložen v SecureStore (`tendero.session.token`)
+3. Token uložen v SecureStore (`veritra.session.token`)
 4. Každý request přidává `Authorization: Bearer <token>`
 5. Při startu appka volá `/api/auth/mobile/me` pro verifikaci; 401 → odhlášení
 

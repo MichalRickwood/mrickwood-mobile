@@ -2,7 +2,7 @@
   "expo": {
     "name": "Veritra",
     "slug": "tendero",
-    "scheme": "tendero",
+    "scheme": "veritra",
     "owner": "michalrickwood",
     "version": "1.0.0",
     "orientation": "portrait",

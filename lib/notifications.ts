@@ -5,7 +5,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Platform } from "react-native";
 import { endpoints } from "./endpoints";
 
-const PUSH_TOKEN_STORAGE_KEY = "tendero.pushToken";
+const PUSH_TOKEN_STORAGE_KEY = "veritra.pushToken";
 
 /** EAS projectId z app.json extra.eas.projectId nebo env. Bez něj Expo SDK 50+
  *  nedovolí getExpoPushTokenAsync — vrátíme `need-build`. */

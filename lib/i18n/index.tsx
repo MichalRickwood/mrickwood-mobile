@@ -17,7 +17,7 @@ import { dicts, type Dict, type Locale, LOCALES } from "./translations";
  * Interpolace přes `{name}` placeholders (např. `{email}`).
  */
 
-const STORAGE_KEY = "tendero.locale";
+const STORAGE_KEY = "veritra.locale";
 
 interface I18nState {
   locale: Locale;

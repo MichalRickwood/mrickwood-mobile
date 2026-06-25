@@ -31,7 +31,7 @@ export class WebAuthCancelled extends Error {
 }
 
 export async function startWebAuth(locale: string): Promise<StoredUser> {
-  // V EAS buildu → "tendero://auth/callback" (scheme z app.json). createURL ho
+  // V EAS buildu → "veritra://auth/callback" (scheme z app.json). createURL ho
   // vyřeší správně i v dev clientu.
   const redirectUrl = Linking.createURL("auth/callback");
   // state = ochrana proti záměně/útoku; web ho vrací beze změny.

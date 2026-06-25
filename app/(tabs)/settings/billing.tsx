@@ -106,7 +106,7 @@ function BillingLegacy() {
   // Deep link handler — Stripe Checkout success/cancel.
   useEffect(() => {
     const sub = Linking.addEventListener("url", ({ url }) => {
-      if (!url.startsWith("tendero://billing/")) return;
+      if (!url.startsWith("veritra://billing/")) return;
       if (url.includes("/success")) {
         setError(null);
         void refresh();
@@ -224,7 +224,7 @@ function BillingLegacy() {
     try {
       const r = await endpoints.createBillingCheckout();
       await WebBrowser.openBrowserAsync(r.url);
-      // Při návratu deep linkem (tendero://billing/success) refresh proběhne v
+      // Při návratu deep linkem (veritra://billing/success) refresh proběhne v
       // Linking listeneru. Bezpečnostní pojistka — refresh po close.
       await refresh();
     } catch (e) {
