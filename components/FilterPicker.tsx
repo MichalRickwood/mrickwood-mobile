@@ -22,13 +22,14 @@ import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 interface Props {
   filters: LeadFilterRow[];
   activeId: string | null;
+  count: number;
   onPick: (id: string | null) => void;
   onAdd: () => void;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
 }
 
-export default function FilterPicker({ filters, activeId, onPick, onAdd, onEdit, onDelete }: Props) {
+export default function FilterPicker({ filters, activeId, count, onPick, onAdd, onEdit, onDelete }: Props) {
   const { t } = useI18n();
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
@@ -60,7 +61,7 @@ export default function FilterPicker({ filters, activeId, onPick, onAdd, onEdit,
           style={({ pressed }) => [styles.pillTouch, pressed && { opacity: 0.7 }]}
         >
           <Text style={styles.pillLabel} numberOfLines={1}>
-            {label}
+            {label} <Text style={styles.pillCount}>· {count}</Text>
           </Text>
         </Pressable>
         {active && (
@@ -173,6 +174,7 @@ const makeStyles = (colors: Colors) =>
     },
     pillTouch: { paddingVertical: spacing.xs, paddingRight: spacing.xs },
     pillLabel: { fontSize: fontSize.sm, color: colors.text, fontWeight: "500" },
+    pillCount: { color: colors.textSubtle, fontWeight: "600" },
     clearBtn: {
       width: 24,
       height: 24,

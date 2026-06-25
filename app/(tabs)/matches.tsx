@@ -195,15 +195,6 @@ export default function MatchesScreen() {
   const paymentRequired =
     matchesQuery.error instanceof ApiError && matchesQuery.error.status === 402;
 
-  const headerLabel = useMemo(() => {
-    if (!activeFilterId) {
-      return t("matches", "counterAll", { count: totalCount });
-    }
-    const f = filters.find((x) => x.id === activeFilterId);
-    const name = f?.name ?? t("matches", "title");
-    return t("matches", "counterFilter", { filter: name, count: totalCount });
-  }, [activeFilterId, filters, totalCount, t]);
-
   // 402 = LEADS entitlement není aktivní (po vypršení trialu → SUSPENDED).
   // Paywall „aktivuj předplatné" → web (App Store 3.1.1, externí nákup).
   // Úplně nový user (žádný LEADS řádek) se sem nedostane — RouterGuard ho pošle
@@ -221,11 +212,11 @@ export default function MatchesScreen() {
       <View style={styles.header}>
         <Text style={styles.title}>{t("matches", "title")}</Text>
         <View style={styles.controlsRow}>
-          <Text style={styles.subtitle} numberOfLines={1}>{headerLabel}</Text>
           <View style={styles.headerControls}>
             <FilterPicker
               filters={filters}
               activeId={activeFilterId}
+              count={totalCount}
               onPick={setActiveFilterId}
               onAdd={() => router.push("/filter/new")}
               onEdit={(fid) => router.push({ pathname: "/filter/[id]", params: { id: fid } })}
@@ -566,7 +557,7 @@ const makeStyles = (colors: Colors) =>
   StyleSheet.create({
     safe: { flex: 1, backgroundColor: colors.bg },
     header: { paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.md },
-    controlsRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: spacing.md, gap: spacing.sm },
+    controlsRow: { flexDirection: "row", alignItems: "center", justifyContent: "flex-end", marginTop: spacing.md, gap: spacing.sm },
     headerControls: { flexDirection: "row", alignItems: "center", gap: spacing.xs },
     adHocBtn: {
       width: 36,
