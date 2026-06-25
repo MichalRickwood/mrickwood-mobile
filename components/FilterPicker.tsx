@@ -61,8 +61,9 @@ export default function FilterPicker({ filters, activeId, count, onPick, onAdd, 
           style={({ pressed }) => [styles.pillTouch, pressed && { opacity: 0.7 }]}
         >
           <Text style={styles.pillLabel} numberOfLines={1}>
-            {label} <Text style={styles.pillCount}>· {count}</Text>
+            {label}
           </Text>
+          <Text style={styles.pillCount}>· {count}</Text>
         </Pressable>
         {active && (
           <Pressable
@@ -171,10 +172,18 @@ const makeStyles = (colors: Colors) =>
       borderWidth: 1,
       borderColor: colors.border,
       maxWidth: 220,
+      flexShrink: 1,
     },
-    pillTouch: { paddingVertical: spacing.xs, paddingRight: spacing.xs },
-    pillLabel: { fontSize: fontSize.sm, color: colors.text, fontWeight: "500" },
-    pillCount: { color: colors.textSubtle, fontWeight: "600" },
+    pillTouch: {
+      flexDirection: "row",
+      alignItems: "center",
+      flexShrink: 1,
+      gap: 4,
+      paddingVertical: spacing.xs,
+      paddingRight: spacing.xs,
+    },
+    pillLabel: { fontSize: fontSize.sm, color: colors.text, fontWeight: "500", flexShrink: 1 },
+    pillCount: { fontSize: fontSize.sm, color: colors.textSubtle, fontWeight: "600", flexShrink: 0 },
     clearBtn: {
       width: 24,
       height: 24,

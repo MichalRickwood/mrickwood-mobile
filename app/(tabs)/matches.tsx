@@ -210,8 +210,8 @@ export default function MatchesScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
       <View style={styles.header}>
-        <Text style={styles.title}>{t("matches", "title")}</Text>
-        <View style={styles.controlsRow}>
+        <View style={styles.headerTopRow}>
+          <Text style={styles.title}>{t("matches", "title")}</Text>
           <View style={styles.headerControls}>
             <FilterPicker
               filters={filters}
@@ -557,8 +557,11 @@ const makeStyles = (colors: Colors) =>
   StyleSheet.create({
     safe: { flex: 1, backgroundColor: colors.bg },
     header: { paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.md },
-    controlsRow: { flexDirection: "row", alignItems: "center", justifyContent: "flex-end", marginTop: spacing.md, gap: spacing.sm },
-    headerControls: { flexDirection: "row", alignItems: "center", gap: spacing.xs },
+    // Title + filter picker na jednom řádku; když se nevejdou (např. DE
+    // "Ausschreibungen" + "Alle Ausschreibungen · N"), picker se zalomí pod
+    // nadpis a marginLeft:auto ho drží zarovnaný doprava.
+    headerTopRow: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", columnGap: spacing.sm, rowGap: spacing.sm },
+    headerControls: { flexDirection: "row", alignItems: "center", gap: spacing.xs, marginLeft: "auto" },
     adHocBtn: {
       width: 36,
       height: 36,
@@ -573,7 +576,6 @@ const makeStyles = (colors: Colors) =>
     adHocIcon: { fontSize: 18, color: colors.text, fontWeight: "700", lineHeight: 18 },
     adHocIconActive: { color: colors.accentForeground },
     title: { fontSize: fontSize.xxl, fontWeight: "700", color: colors.text, letterSpacing: -0.5, flexShrink: 1 },
-    subtitle: { fontSize: fontSize.sm, color: colors.textSubtle, flexShrink: 1 },
     searchRow: {
       flexDirection: "row",
       alignItems: "center",
