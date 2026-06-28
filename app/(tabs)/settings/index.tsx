@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Image, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/lib/auth-context";
@@ -73,19 +73,24 @@ export default function SettingsIndexScreen() {
           />
         </View>
 
-        <View style={styles.group}>
-          <SectionRow
-            styles={styles}
-            label={t("settings", "sectionFeedback")}
-            hint={t("settings", "sectionFeedbackHint")}
+        <View style={[styles.group, styles.feedbackGroup]}>
+          <Pressable
             onPress={() => router.push("/(tabs)/settings/feedback")}
-          />
-          <SectionRow
-            styles={styles}
-            label={t("settings", "sectionWhatsapp")}
-            hint={t("settings", "sectionWhatsappHint")}
+            style={({ pressed }) => [styles.feedbackPress, pressed && styles.rowPressed]}
+          >
+            <View style={{ flex: 1 }}>
+              <Text style={styles.rowLabel}>{t("settings", "sectionFeedback")}</Text>
+              <Text style={styles.rowHint}>{t("settings", "sectionFeedbackHint")}</Text>
+            </View>
+            <Text style={styles.rowChevron}>›</Text>
+          </Pressable>
+          <Pressable
             onPress={() => Linking.openURL(SUPPORT_WHATSAPP_URL)}
-          />
+            accessibilityLabel={t("settings", "sectionWhatsapp")}
+            style={({ pressed }) => [styles.waButton, pressed && styles.rowPressed]}
+          >
+            <Image source={require("@/assets/whatsapp.png")} style={styles.waIcon} />
+          </Pressable>
         </View>
 
         <View style={styles.group}>
@@ -179,6 +184,22 @@ const makeStyles = (colors: Colors) =>
       paddingVertical: spacing.lg,
     },
     rowPressed: { backgroundColor: colors.bg },
+    feedbackGroup: { flexDirection: "row", alignItems: "stretch" },
+    feedbackPress: {
+      flex: 1,
+      flexDirection: "row",
+      alignItems: "center",
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.lg,
+    },
+    waButton: {
+      justifyContent: "center",
+      alignItems: "center",
+      paddingHorizontal: spacing.lg,
+      borderLeftWidth: 1,
+      borderLeftColor: colors.border,
+    },
+    waIcon: { width: 40, height: 40, borderRadius: 10 },
     rowLabel: { fontSize: fontSize.base, color: colors.text, fontWeight: "500" },
     rowHint: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: 2 },
     rowChevron: { fontSize: 22, color: colors.textFaint, marginLeft: spacing.md },
