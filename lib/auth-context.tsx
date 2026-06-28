@@ -3,6 +3,7 @@ import { clearSession, getToken, getUser, saveUser, type StoredUser } from "./au
 import { endpoints } from "./endpoints";
 import { ApiError } from "./api";
 import { registerForPushNotifications, unregisterPushNotifications } from "./notifications";
+import { iapLogIn, iapLogOut } from "./iap";
 
 interface AuthState {
   status: "loading" | "anonymous" | "authenticated";
@@ -65,6 +66,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  // RevenueCat login na náš user.id (appUserID) — kdykoli máme usera (iOS IAP).
+  useEffect(() => {
+    if (user?.id) void iapLogIn(user.id);
+  }, [user?.id]);
+
   const applySession = useCallback((sessionUser: StoredUser) => {
     setUser(sessionUser);
     setStatus("authenticated");
@@ -76,6 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = useCallback(async () => {
     await unregisterPushNotifications(pushTokenRef.current);
     pushTokenRef.current = null;
+    await iapLogOut();
     await clearSession();
     setUser(null);
     setStatus("anonymous");

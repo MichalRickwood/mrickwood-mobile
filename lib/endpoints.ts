@@ -281,6 +281,11 @@ export const endpoints = {
       trialDays: 14, // backend default; není teď exposed v listu — UI ho zná z translations
     };
   },
+  // Po Apple IAP nákupu / restore — backend ověří přes RevenueCat a aktivuje země.
+  iapSync: async () => {
+    const r = await api.post<{ data: unknown[] }>("/api/v2/account/iap/sync", {});
+    return r.data;
+  },
   activateLeadsTrial: async () => {
     // Default scope=CZ pro back-compat (starší mobile builds). Pro multi-country
     // onboarding používej activateLeadsScope(scope) přímo.

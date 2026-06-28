@@ -480,6 +480,19 @@ export interface Dict {
     consentAnd: string;
     consentGdprLink: string;
   };
+  purchase: {
+    title: string;
+    subtitle: string;
+    monthlyOpt: string;
+    yearlyOpt: string;
+    cancel: string;
+    success: string;
+    failed: string;
+    unavailable: string;
+    restore: string;
+    restoreDone: string;
+    manage: string;
+  };
   onboardingCountries: {
     title: string;
     subtitle: string;
@@ -501,6 +514,7 @@ export interface Dict {
     activeTendersCount: string;
     requestCountry: string;
     requestSubmitted: string;
+    subscribe: string;
     requestToggle: string;
     requestHelper: string;
     requestPlaceholder: string;
@@ -1061,6 +1075,19 @@ const cs: Dict = {
     consentAnd: "a",
     consentGdprLink: "zásadami zpracování osobních údajů",
   },
+  purchase: {
+    title: "Předplatit {country}",
+    subtitle: "Vyberte období. Platba přes App Store.",
+    monthlyOpt: "Měsíčně — {price}",
+    yearlyOpt: "Ročně — {price}",
+    cancel: "Zrušit",
+    success: "{country} aktivováno ✓",
+    failed: "Nákup se nezdařil, zkuste to znovu.",
+    unavailable: "Produkt teď není dostupný.",
+    restore: "Obnovit nákupy",
+    restoreDone: "Nákupy obnoveny",
+    manage: "Spravovat předplatné",
+  },
   onboardingCountries: {
     title: "Vyberte země",
     subtitle: "Hlídač zakázek funguje pro 31 zemí. Vyberte ty, ze kterých chcete sledovat veřejné zakázky.",
@@ -1082,6 +1109,7 @@ const cs: Dict = {
     activeTendersCount: "{count} aktivních zakázek",
     requestCountry: "Požádat o přidání",
     requestSubmitted: "✓ Žádost odeslána, ozveme se",
+    subscribe: "Předplatit",
     requestToggle: "Nevidíte svou zemi? Požádejte o její přidání →",
     requestHelper: "Napište nám zemi (případně i poznámku) a my zvážíme rozšíření.",
     requestPlaceholder: "např. Moldavsko, Albánie, Srbsko…",
@@ -1637,6 +1665,19 @@ const en: Dict = {
     consentAnd: "and the",
     consentGdprLink: "Privacy Policy",
   },
+  purchase: {
+    title: "Subscribe to {country}",
+    subtitle: "Choose a period. Payment via App Store.",
+    monthlyOpt: "Monthly — {price}",
+    yearlyOpt: "Yearly — {price}",
+    cancel: "Cancel",
+    success: "{country} activated ✓",
+    failed: "Purchase failed, please try again.",
+    unavailable: "Product not available right now.",
+    restore: "Restore purchases",
+    restoreDone: "Purchases restored",
+    manage: "Manage subscription",
+  },
   onboardingCountries: {
     title: "Select countries",
     subtitle: "Tender monitor works for 31 countries. Pick the ones to track public tenders from.",
@@ -1658,6 +1699,7 @@ const en: Dict = {
     activeTendersCount: "{count} active tenders",
     requestCountry: "Request country",
     requestSubmitted: "✓ Request sent, we'll get back to you",
+    subscribe: "Subscribe",
     requestToggle: "Don't see your country? Request to add it →",
     requestHelper: "Tell us which country (and a note if you wish) — we'll consider it.",
     requestPlaceholder: "e.g. Moldova, Albania, Serbia…",
@@ -2215,6 +2257,19 @@ const de: Dict = {
     consentAnd: "und der",
     consentGdprLink: "Datenschutzerklärung zu",
   },
+  purchase: {
+    title: "{country} abonnieren",
+    subtitle: "Zeitraum wählen. Zahlung über App Store.",
+    monthlyOpt: "Monatlich — {price}",
+    yearlyOpt: "Jährlich — {price}",
+    cancel: "Abbrechen",
+    success: "{country} aktiviert ✓",
+    failed: "Kauf fehlgeschlagen, bitte erneut versuchen.",
+    unavailable: "Produkt derzeit nicht verfügbar.",
+    restore: "Käufe wiederherstellen",
+    restoreDone: "Käufe wiederhergestellt",
+    manage: "Abo verwalten",
+  },
   onboardingCountries: {
     title: "Länder auswählen",
     subtitle: "Der Ausschreibungs-Monitor unterstützt 31 Länder. Wählen Sie, aus welchen Sie öffentliche Aufträge verfolgen möchten.",
@@ -2236,6 +2291,7 @@ const de: Dict = {
     activeTendersCount: "{count} aktive Ausschreibungen",
     requestCountry: "Land anfragen",
     requestSubmitted: "✓ Anfrage gesendet, wir melden uns",
+    subscribe: "Abonnieren",
     requestToggle: "Ihr Land fehlt? Anfragen zur Hinzufügung →",
     requestHelper: "Schreiben Sie uns das Land (gerne mit Notiz) — wir prüfen es.",
     requestPlaceholder: "z. B. Moldau, Albanien, Serbien…",

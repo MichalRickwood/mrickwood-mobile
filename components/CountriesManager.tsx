@@ -21,12 +21,15 @@ import {
   Alert,
   FlatList,
   Image,
+  Linking,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from "react-native";
+import { isIapAvailable, getCountryProducts, purchaseProduct, restorePurchases } from "@/lib/iap";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import * as Localization from "expo-localization";
@@ -270,6 +273,73 @@ export default function CountriesManager({ mode }: { mode: "onboarding" | "setti
     return c ? c.labels[locale] ?? c.labels.en : code;
   }
 
+  // iOS Apple IAP: přímý nákup země v Nastavení (placené předplatné přes StoreKit).
+  const iapEnabled = Platform.OS === "ios" && isIapAvailable() && mode === "settings";
+
+  async function invalidateAfterIap() {
+    await Promise.all([
+      qc.invalidateQueries({ queryKey: ["account-subscriptions"] }),
+      qc.invalidateQueries({ queryKey: ["service", "leads"] }),
+      qc.invalidateQueries({ queryKey: ["matches"] }),
+      qc.invalidateQueries({ queryKey: ["billing"] }),
+    ]);
+  }
+
+  async function purchaseCountry(code: string) {
+    setError(null);
+    setNotice(null);
+    setBusyScope(code);
+    let products;
+    try {
+      products = await getCountryProducts(
+        `veritra_leads_${code.toLowerCase()}_monthly`,
+        `veritra_leads_${code.toLowerCase()}_yearly`,
+      );
+    } finally {
+      setBusyScope(null);
+    }
+    const { monthly, yearly } = products;
+    if (!monthly && !yearly) {
+      setError(t("purchase", "unavailable"));
+      return;
+    }
+    const doBuy = async (product: NonNullable<typeof monthly>) => {
+      setBusyScope(code);
+      try {
+        const ok = await purchaseProduct(product);
+        if (!ok) return; // uživatel zrušil
+        await endpoints.iapSync();
+        await invalidateAfterIap();
+        setNotice(t("purchase", "success", { country: countryLabel(code) }));
+      } catch (e) {
+        setError(e instanceof Error ? e.message : t("purchase", "failed"));
+      } finally {
+        setBusyScope(null);
+      }
+    };
+    const opts: { text: string; onPress?: () => void; style?: "cancel" }[] = [];
+    if (monthly) opts.push({ text: t("purchase", "monthlyOpt", { price: monthly.priceString }), onPress: () => void doBuy(monthly) });
+    if (yearly) opts.push({ text: t("purchase", "yearlyOpt", { price: yearly.priceString }), onPress: () => void doBuy(yearly) });
+    opts.push({ text: t("purchase", "cancel"), style: "cancel" });
+    Alert.alert(t("purchase", "title", { country: countryLabel(code) }), t("purchase", "subtitle"), opts);
+  }
+
+  async function doRestore() {
+    setError(null);
+    setNotice(null);
+    setActivating(true);
+    try {
+      await restorePurchases();
+      await endpoints.iapSync();
+      await invalidateAfterIap();
+      setNotice(t("purchase", "restoreDone"));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : t("purchase", "failed"));
+    } finally {
+      setActivating(false);
+    }
+  }
+
   async function refreshSubs() {
     await Promise.all([
       qc.invalidateQueries({ queryKey: ["account-subscriptions"] }),
@@ -501,7 +571,11 @@ export default function CountriesManager({ mode }: { mode: "onboarding" | "setti
           const scopeBusy = busyScope === c.code;
           return (
             <Pressable
-              onPress={() => c.available && toggle(c.code)}
+              onPress={() => {
+                if (!c.available || isActive) return;
+                if (iapEnabled) void purchaseCountry(c.code);
+                else toggle(c.code);
+              }}
               disabled={!c.available || isActive}
               style={[
                 styles.countryCard,
@@ -556,9 +630,23 @@ export default function CountriesManager({ mode }: { mode: "onboarding" | "setti
                   </View>
                 )
               ) : c.available ? (
-                <View style={[styles.checkbox, isSelected && styles.checkboxOn]}>
-                  {isSelected && <Text style={styles.checkmark}>✓</Text>}
-                </View>
+                iapEnabled ? (
+                  scopeBusy ? (
+                    <ActivityIndicator color={colors.textSubtle} size="small" style={styles.rowAction} />
+                  ) : (
+                    <Pressable
+                      onPress={() => void purchaseCountry(c.code)}
+                      hitSlop={8}
+                      style={({ pressed }) => [styles.rowAction, pressed && { opacity: 0.6 }]}
+                    >
+                      <Text style={styles.subscribeText}>{t("onboardingCountries", "subscribe")}</Text>
+                    </Pressable>
+                  )
+                ) : (
+                  <View style={[styles.checkbox, isSelected && styles.checkboxOn]}>
+                    {isSelected && <Text style={styles.checkmark}>✓</Text>}
+                  </View>
+                )
               ) : null}
             </Pressable>
           );
@@ -575,6 +663,20 @@ export default function CountriesManager({ mode }: { mode: "onboarding" | "setti
                     <Text style={styles.otherServiceMeta}>{serviceStateMeta(s, t, dateLocale)}</Text>
                   </View>
                 ))}
+              </View>
+            )}
+            {iapEnabled && (
+              <View style={styles.iapFooter}>
+                <Pressable onPress={() => void doRestore()} hitSlop={8} style={({ pressed }) => pressed && { opacity: 0.6 }}>
+                  <Text style={styles.iapFooterLink}>{t("purchase", "restore")}</Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => void Linking.openURL("https://apps.apple.com/account/subscriptions")}
+                  hitSlop={8}
+                  style={({ pressed }) => pressed && { opacity: 0.6 }}
+                >
+                  <Text style={styles.iapFooterLink}>{t("purchase", "manage")}</Text>
+                </Pressable>
               </View>
             )}
             {error && <Text style={styles.errorText}>{error}</Text>}
@@ -664,6 +766,9 @@ function makeStyles(c: Colors) {
     rowAction: { paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, minWidth: 64, alignItems: "flex-end" },
     removeText: { fontSize: fontSize.xs, color: c.textSubtle, fontWeight: "500", textDecorationLine: "underline" },
     reactivateText: { fontSize: fontSize.xs, color: c.link, fontWeight: "600", textDecorationLine: "underline" },
+    subscribeText: { fontSize: fontSize.sm, color: c.link, fontWeight: "700" },
+    iapFooter: { flexDirection: "row", justifyContent: "center", gap: spacing.xl, marginTop: spacing.lg },
+    iapFooterLink: { fontSize: fontSize.sm, color: c.textSubtle, fontWeight: "500", textDecorationLine: "underline" },
     partialTag: { alignSelf: "flex-start", marginTop: 4, backgroundColor: c.warningBg, borderWidth: 1, borderColor: c.warning, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
     partialTagText: { fontSize: 10, color: c.warning, fontWeight: "500" },
     checkbox: { width: 24, height: 24, borderRadius: radius.sm, borderWidth: 2, borderColor: c.border, alignItems: "center", justifyContent: "center" },

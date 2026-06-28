@@ -13,6 +13,7 @@ import { useRouter } from "expo-router";
 import { endpoints } from "@/lib/endpoints";
 import { useTheme } from "@/lib/theme-context";
 import { useI18n } from "@/lib/i18n";
+import { isIapAvailable } from "@/lib/iap";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 
 /**
@@ -121,8 +122,16 @@ export default function LeadsPaywall() {
             ? t("filters", "paywallCanceled")
             : t("filters", "paywallSuspended")}
       </Text>
-      {/* App Store 3.1.1: ŽÁDNÉ nákupní CTA ani odkaz na web. Pokyny k obnovení
-          posíláme e-mailem; tady jen neutrální re-check stavu. */}
+      {/* iOS: Apple IAP — CTA do Nastavení → Sledované země, kde se předplácí
+          per země přes StoreKit. (Android/web platí mimo appku, viz 3.1.1.) */}
+      {isIapAvailable() && (
+        <Pressable
+          onPress={() => router.push("/(tabs)/settings/billing")}
+          style={({ pressed }) => [styles.btnPrimary, pressed && { opacity: 0.85 }]}
+        >
+          <Text style={styles.btnPrimaryText}>{t("onboardingCountries", "subscribe")}</Text>
+        </Pressable>
+      )}
       <Pressable
         onPress={() => void invalidateAll()}
         disabled={status.isFetching}
