@@ -223,6 +223,8 @@ export interface Dict {
     countriesTitle: string;
     sectionFeedback: string;
     sectionFeedbackHint: string;
+    sectionWhatsapp: string;
+    sectionWhatsappHint: string;
     exportTitle: string;
     exportSubtitle: string;
     exportButton: string;
@@ -802,6 +804,8 @@ const cs: Dict = {
     countriesTitle: "Sledované země",
     sectionFeedback: "Zpětná vazba",
     sectionFeedbackHint: "Nahlásit chybu, návrh vylepšení, chybějící zakázka",
+    sectionWhatsapp: "WhatsApp",
+    sectionWhatsappHint: "Napište nám přímo na WhatsApp",
     exportTitle: "Poslat moje data emailem",
     exportSubtitle: "Pošleme JSON snapshot vašeho účtu (GDPR čl. 15/20) jako přílohu na váš email.",
     exportButton: "Odeslat email s daty",
@@ -1376,6 +1380,8 @@ const en: Dict = {
     countriesTitle: "Monitored countries",
     sectionFeedback: "Feedback",
     sectionFeedbackHint: "Report a bug, suggest improvement, missing tender",
+    sectionWhatsapp: "WhatsApp",
+    sectionWhatsappHint: "Message us directly on WhatsApp",
     exportTitle: "Email my data",
     exportSubtitle: "We'll send a JSON snapshot of your account (GDPR art. 15/20) as an attachment to your email.",
     exportButton: "Send data email",
@@ -1952,6 +1958,8 @@ const de: Dict = {
     countriesTitle: "Überwachte Länder",
     sectionFeedback: "Feedback",
     sectionFeedbackHint: "Fehler melden, Verbesserungsvorschlag, fehlende Ausschreibung",
+    sectionWhatsapp: "WhatsApp",
+    sectionWhatsappHint: "Schreiben Sie uns direkt auf WhatsApp",
     exportTitle: "Meine Daten per E-Mail senden",
     exportSubtitle: "Wir senden einen JSON-Snapshot Ihres Kontos (DSGVO Art. 15/20) als Anhang an Ihre E-Mail.",
     exportButton: "Daten-E-Mail senden",

@@ -1,12 +1,12 @@
 import { useMemo } from "react";
-import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/lib/auth-context";
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme-context";
 import Constants from "expo-constants";
-import { APP_NAME } from "@/lib/config";
+import { APP_NAME, SUPPORT_WHATSAPP_URL } from "@/lib/config";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
 import AppearanceSwitcher from "@/components/AppearanceSwitcher";
@@ -79,6 +79,12 @@ export default function SettingsIndexScreen() {
             label={t("settings", "sectionFeedback")}
             hint={t("settings", "sectionFeedbackHint")}
             onPress={() => router.push("/(tabs)/settings/feedback")}
+          />
+          <SectionRow
+            styles={styles}
+            label={t("settings", "sectionWhatsapp")}
+            hint={t("settings", "sectionWhatsappHint")}
+            onPress={() => Linking.openURL(SUPPORT_WHATSAPP_URL)}
           />
         </View>
 

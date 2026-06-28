@@ -28,3 +28,6 @@ export const AUTH_BASE_URL =
   process.env.EXPO_PUBLIC_AUTH_BASE_URL || PROD;
 
 export const APP_NAME = "Veritra";
+
+/** WhatsApp click-to-chat na podporu Veritra (settings → řádek vedle Zpětné vazby). */
+export const SUPPORT_WHATSAPP_URL = "https://wa.me/420608379273";
