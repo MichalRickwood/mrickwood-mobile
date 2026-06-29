@@ -34,9 +34,7 @@ const I18nContext = createContext<I18nState | null>(null);
 
 function detectDefaultLocale(): Locale {
   const tag = Localization.getLocales()[0]?.languageCode ?? "cs";
-  if (tag === "en") return "en";
-  if (tag === "de") return "de";
-  return "cs";
+  return (LOCALES as readonly string[]).includes(tag) ? (tag as Locale) : "cs";
 }
 
 function interpolate(template: string, params?: Record<string, string | number>): string {

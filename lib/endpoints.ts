@@ -326,7 +326,7 @@ export const endpoints = {
       data: Array<{
         code: string;
         flag: string;
-        labels: { cs: string; en: string; de: string };
+        labels: { cs: string; en: string; de: string; sk: string; fr: string; it: string };
         sources: string[];
         price: {
           czk: { monthly: number; yearly: number };
