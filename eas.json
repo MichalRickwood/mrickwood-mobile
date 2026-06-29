@@ -12,6 +12,9 @@
       },
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_REVENUECAT_IOS_KEY": "appl_eMnInoFFFamPcfcEzUTRnyHXtUE"
       }
     },
     "preview": {
@@ -22,6 +25,9 @@
       },
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_REVENUECAT_IOS_KEY": "appl_eMnInoFFFamPcfcEzUTRnyHXtUE"
       }
     },
     "production": {
