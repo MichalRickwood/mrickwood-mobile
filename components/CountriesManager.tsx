@@ -597,11 +597,6 @@ export default function CountriesManager({ mode }: { mode: "onboarding" | "setti
                 {!c.available && (
                   <Text style={styles.countryBadge}>{t("onboardingCountries", "notAvailable")}</Text>
                 )}
-                {c.available && c.code !== "CZ" && !isActive && (
-                  <View style={styles.partialTag}>
-                    <Text style={styles.partialTagText}>{t("onboardingCountries", "partialCoverage")}</Text>
-                  </View>
-                )}
               </View>
               {isActive ? (
                 canManage ? (
