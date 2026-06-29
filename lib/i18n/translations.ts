@@ -186,6 +186,25 @@ export interface Dict {
     reportInvalidConfirmNo: string;
     reportInvalidSent: string;
     reportInvalidFailed: string;
+    btnAiAnalysis: string;
+    btnAiDocPrep: string;
+    aiSectionLabel: string;
+  };
+  aiAnalysis: {
+    title: string;
+    errorTitle: string;
+    balance: string;
+    firstFree: string;
+    profileRequiredTitle: string;
+    profileRequiredBody: string;
+    profileRequiredCta: string;
+    emptyHint: string;
+    inputPlaceholder: string;
+    send: string;
+    reportBtn: string;
+    insufficientTitle: string;
+    insufficientBody: string;
+    topUpWeb: string;
   };
   settings: {
     title: string;
@@ -825,6 +844,25 @@ const cs: Dict = {
     reportInvalidConfirmNo: "Zrušit",
     reportInvalidSent: "Hlášení odesláno. Díky!",
     reportInvalidFailed: "Hlášení selhalo. Zkus to později.",
+    btnAiAnalysis: "AI analýza",
+    btnAiDocPrep: "AI dokumentace",
+    aiSectionLabel: "AI nástroje",
+  },
+  aiAnalysis: {
+    title: "AI analýza zakázky",
+    errorTitle: "Chyba",
+    balance: "Kredit: {amount} {currency}",
+    firstFree: "První analýza zdarma",
+    profileRequiredTitle: "Nejdřív firemní profil",
+    profileRequiredBody: "Pro AI analýzu je potřeba mít vyplněný firemní profil. Nastavíte ho v Nastavení.",
+    profileRequiredCta: "Nastavit firemní profil",
+    emptyHint: "Zeptejte se AI na vhodnost zakázky, rizika nebo požadavky. Po konverzaci vygenerujete PDF zhodnocení.",
+    inputPlaceholder: "Napište zprávu…",
+    send: "Odeslat",
+    reportBtn: "Vygenerovat PDF zhodnocení",
+    insufficientTitle: "Nedostatek kreditu",
+    insufficientBody: "Dobijte si AI kredit na veritra.io a zkuste to znovu.",
+    topUpWeb: "Dobít kredit na veritra.io",
   },
   settings: {
     title: "Nastavení",
@@ -1456,6 +1494,25 @@ const en: Dict = {
     reportInvalidConfirmNo: "Cancel",
     reportInvalidSent: "Report sent. Thanks!",
     reportInvalidFailed: "Report failed. Try again later.",
+    btnAiAnalysis: "AI analysis",
+    btnAiDocPrep: "AI documents",
+    aiSectionLabel: "AI tools",
+  },
+  aiAnalysis: {
+    title: "AI tender analysis",
+    errorTitle: "Error",
+    balance: "Credit: {amount} {currency}",
+    firstFree: "First analysis free",
+    profileRequiredTitle: "Company profile needed",
+    profileRequiredBody: "AI analysis requires a completed company profile. Set it up in Settings.",
+    profileRequiredCta: "Set up company profile",
+    emptyHint: "Ask the AI about fit, risks or requirements. After the chat you can generate a PDF assessment.",
+    inputPlaceholder: "Type a message…",
+    send: "Send",
+    reportBtn: "Generate PDF assessment",
+    insufficientTitle: "Insufficient credit",
+    insufficientBody: "Top up your AI credit on veritra.io and try again.",
+    topUpWeb: "Top up credit on veritra.io",
   },
   settings: {
     title: "Settings",
@@ -2089,6 +2146,25 @@ const de: Dict = {
     reportInvalidConfirmNo: "Abbrechen",
     reportInvalidSent: "Meldung gesendet. Danke!",
     reportInvalidFailed: "Meldung fehlgeschlagen. Bitte später erneut versuchen.",
+    btnAiAnalysis: "KI-Analyse",
+    btnAiDocPrep: "KI-Unterlagen",
+    aiSectionLabel: "KI-Werkzeuge",
+  },
+  aiAnalysis: {
+    title: "KI-Analyse der Ausschreibung",
+    errorTitle: "Fehler",
+    balance: "Guthaben: {amount} {currency}",
+    firstFree: "Erste Analyse kostenlos",
+    profileRequiredTitle: "Zuerst Firmenprofil",
+    profileRequiredBody: "Die KI-Analyse erfordert ein ausgefülltes Firmenprofil. Richten Sie es in den Einstellungen ein.",
+    profileRequiredCta: "Firmenprofil einrichten",
+    emptyHint: "Fragen Sie die KI nach Eignung, Risiken oder Anforderungen. Nach dem Chat erzeugen Sie eine PDF-Bewertung.",
+    inputPlaceholder: "Nachricht schreiben…",
+    send: "Senden",
+    reportBtn: "PDF-Bewertung erstellen",
+    insufficientTitle: "Nicht genug Guthaben",
+    insufficientBody: "Laden Sie Ihr KI-Guthaben auf veritra.io auf und versuchen Sie es erneut.",
+    topUpWeb: "Guthaben auf veritra.io aufladen",
   },
   settings: {
     title: "Einstellungen",
@@ -2720,6 +2796,25 @@ const sk: Dict = {
     reportInvalidConfirmNo: "Zrušiť",
     reportInvalidSent: "Hlásenie odoslané. Ďakujeme!",
     reportInvalidFailed: "Hlásenie zlyhalo. Skúste to neskôr.",
+    btnAiAnalysis: "AI analýza",
+    btnAiDocPrep: "AI dokumentácia",
+    aiSectionLabel: "AI nástroje",
+  },
+  aiAnalysis: {
+    title: "AI analýza zákazky",
+    errorTitle: "Chyba",
+    balance: "Kredit: {amount} {currency}",
+    firstFree: "Prvá analýza zadarmo",
+    profileRequiredTitle: "Najprv firemný profil",
+    profileRequiredBody: "Pre AI analýzu je potrebné mať vyplnený firemný profil. Nastavíte ho v Nastaveniach.",
+    profileRequiredCta: "Nastaviť firemný profil",
+    emptyHint: "Spýtajte sa AI na vhodnosť zákazky, riziká alebo požiadavky. Po konverzácii vygenerujete PDF zhodnotenie.",
+    inputPlaceholder: "Napíšte správu…",
+    send: "Odoslať",
+    reportBtn: "Vygenerovať PDF zhodnotenie",
+    insufficientTitle: "Nedostatok kreditu",
+    insufficientBody: "Dobite si AI kredit na veritra.io a skúste to znova.",
+    topUpWeb: "Dobiť kredit na veritra.io",
   },
   settings: {
     title: "Nastavenia",
@@ -3351,6 +3446,25 @@ const fr: Dict = {
     reportInvalidConfirmNo: "Annuler",
     reportInvalidSent: "Signalement envoyé. Merci !",
     reportInvalidFailed: "Échec du signalement. Réessayez plus tard.",
+    btnAiAnalysis: "Analyse IA",
+    btnAiDocPrep: "Documents IA",
+    aiSectionLabel: "Outils IA",
+  },
+  aiAnalysis: {
+    title: "Analyse IA de l'appel d'offres",
+    errorTitle: "Erreur",
+    balance: "Crédit : {amount} {currency}",
+    firstFree: "Première analyse gratuite",
+    profileRequiredTitle: "Profil d'entreprise requis",
+    profileRequiredBody: "L'analyse IA nécessite un profil d'entreprise complété. Configurez-le dans les Réglages.",
+    profileRequiredCta: "Configurer le profil",
+    emptyHint: "Demandez à l'IA la pertinence, les risques ou les exigences. Après l'échange, générez une évaluation PDF.",
+    inputPlaceholder: "Écrire un message…",
+    send: "Envoyer",
+    reportBtn: "Générer l'évaluation PDF",
+    insufficientTitle: "Crédit insuffisant",
+    insufficientBody: "Rechargez votre crédit IA sur veritra.io et réessayez.",
+    topUpWeb: "Recharger sur veritra.io",
   },
   settings: {
     title: "Paramètres",
@@ -3982,6 +4096,25 @@ const it: Dict = {
     reportInvalidConfirmNo: "Annulla",
     reportInvalidSent: "Segnalazione inviata. Grazie!",
     reportInvalidFailed: "Segnalazione non riuscita. Riprova più tardi.",
+    btnAiAnalysis: "Analisi IA",
+    btnAiDocPrep: "Documenti IA",
+    aiSectionLabel: "Strumenti IA",
+  },
+  aiAnalysis: {
+    title: "Analisi IA della gara",
+    errorTitle: "Errore",
+    balance: "Credito: {amount} {currency}",
+    firstFree: "Prima analisi gratis",
+    profileRequiredTitle: "Serve il profilo aziendale",
+    profileRequiredBody: "L'analisi IA richiede un profilo aziendale completo. Impostalo nelle Impostazioni.",
+    profileRequiredCta: "Imposta profilo aziendale",
+    emptyHint: "Chiedi all'IA idoneità, rischi o requisiti. Dopo la conversazione generi una valutazione PDF.",
+    inputPlaceholder: "Scrivi un messaggio…",
+    send: "Invia",
+    reportBtn: "Genera valutazione PDF",
+    insufficientTitle: "Credito insufficiente",
+    insufficientBody: "Ricarica il credito IA su veritra.io e riprova.",
+    topUpWeb: "Ricarica su veritra.io",
   },
   settings: {
     title: "Impostazioni",

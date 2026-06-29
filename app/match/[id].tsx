@@ -285,6 +285,20 @@ export default function MatchDetailScreen() {
           ) : null}
         </View>
 
+        <View style={styles.aiSection}>
+          <Text style={styles.sectionLabel}>{t("matchDetail", "aiSectionLabel")}</Text>
+          <Pressable
+            onPress={() =>
+              router.push({ pathname: "/tender/[id]/analysis", params: { id: String(tender.id), title: tender.title } })
+            }
+            style={({ pressed }) => [styles.aiBtn, pressed && { opacity: 0.85 }]}
+          >
+            <Text style={styles.aiBtnIcon}>🤖</Text>
+            <Text style={styles.aiBtnText}>{t("matchDetail", "btnAiAnalysis")}</Text>
+            <Text style={styles.docChevron}>›</Text>
+          </Pressable>
+        </View>
+
         {(() => {
           const docs = tender.documents ?? [];
           if (docs.length === 0) return null;
@@ -436,6 +450,19 @@ const makeStyles = (colors: Colors) =>
     borderColor: colors.border,
   },
   descText: { fontSize: fontSize.sm, color: colors.text, marginTop: spacing.sm, lineHeight: 20 },
+  aiSection: { marginTop: spacing.xl },
+  aiBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginTop: spacing.sm,
+  },
+  aiBtnIcon: { fontSize: 18, marginRight: spacing.md },
+  aiBtnText: { flex: 1, fontSize: fontSize.sm, color: colors.text, fontWeight: "600" },
   docsSection: { marginTop: spacing.xl },
   docRow: {
     flexDirection: "row",

@@ -122,6 +122,128 @@ function legacyFilterShape(f: V2Filter): LeadFilterRow {
   return { ...rest, isActive: active };
 }
 
+// ── AI analýza / doc-prep / profil / kredit (reuse web v2 backendu) ──
+export type Currency = "CZK" | "EUR";
+
+export interface AnalysisMessage {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  createdAt: string;
+}
+export interface AnalysisSession {
+  id: string;
+  tenderId: number;
+  status: "ACTIVE" | "COMPLETED" | "INSUFFICIENT_CREDIT";
+  freeTier: boolean;
+  reportMd: string | null;
+  messages: AnalysisMessage[];
+}
+export interface AnalysisState {
+  hasDocuments: boolean;
+  hasCompanyProfile: boolean;
+  balance: number;
+  currency: Currency;
+  session: AnalysisSession | null;
+}
+/** SSE eventy z POST …/analysis */
+export type AnalysisStreamEvent =
+  | { type: "delta"; text: string }
+  | { type: "done"; messageId?: string; charged?: number; insufficient?: boolean; balance?: number; currency?: Currency; replay?: boolean }
+  | { type: "error"; message: string };
+
+export type DocClassification = "GENERATE_OWN" | "FILL_VENDOR" | "USER_UPLOAD" | "EXTRA_REQUIRED";
+export interface DocPrepRequiredDoc {
+  name: string;
+  classification: DocClassification;
+  ownType?: string | null;
+  note: string;
+  mandatory: boolean;
+  vendorDoc?: { name: string; url: string } | null;
+}
+export interface DocPrepPlan {
+  summary: string;
+  deadline: string | null;
+  submissionMethod: string | null;
+  signatureMode: string | null;
+  cpAllowed: boolean | null;
+  cpAllowedNote: string | null;
+  vatRegime: string | null;
+  evaluation: string | null;
+  requiredDocs: DocPrepRequiredDoc[];
+  warnings: string[];
+}
+export interface DocPrepView {
+  id: string;
+  tenderId: number;
+  status: "ANALYZING" | "READY" | "GENERATING" | "DONE" | "FAILED" | "INSUFFICIENT_CREDIT";
+  freeTier: boolean;
+  plan: DocPrepPlan | null;
+  result: { prefix: string; files: { name: string; key: string }[]; pending: { name: string }[]; generatedAt: string } | null;
+  uploads: { name: string; key: string }[];
+  createdAt: string;
+  updatedAt: string;
+}
+export interface DocPrepState {
+  hasDocuments: boolean;
+  identity: { complete: boolean; missing: string[] };
+  docPrep: DocPrepView | null;
+  balance: number;
+  currency: Currency;
+}
+export type DocPrepStreamEvent =
+  | { type: "status"; phase: string; name?: string; detail?: string }
+  | { type: "done"; docPrep: DocPrepView }
+  | { type: "error"; message: string };
+export interface DocPrepGenerateInput {
+  priceMode: "amount" | "placeholder";
+  priceNoVat?: number;
+  qualificationMode: "gcp" | "own";
+  selected?: number[];
+  note?: string;
+}
+
+export interface CompanyProfileView {
+  companyMd: string | null;
+  companyMdAt: string | null;
+  ico: string | null;
+  companyName: string | null;
+  freeAvailable: boolean;
+  researchReady: boolean;
+}
+export interface BidIdentityView {
+  complete: boolean;
+  missing: string[];
+  ico?: string | null;
+  name?: string | null;
+  address?: string | null;
+  dic?: string | null;
+  vatPayer?: boolean;
+  bankAccount?: string | null;
+  dataBox?: string | null;
+  contactPerson?: { name?: string; email?: string; phone?: string } | null;
+  signatory?: { name: string; function: string; mode: "sole" | "joint" } | null;
+  jednatele?: { name: string }[] | null;
+}
+export interface BidIdentitySaveInput {
+  bankAccount?: string;
+  dataBox?: string;
+  contactPerson?: { name?: string; email?: string; phone?: string };
+  signatory?: { name: string; function: string; mode: "sole" | "joint" };
+}
+export interface AiCreditTxn {
+  id: string;
+  type: "TOPUP" | "USAGE";
+  amount: number;
+  balanceAfter: number;
+  createdAt: string;
+}
+export interface AiCreditView {
+  balance: number;
+  currency: Currency;
+  transactions: AiCreditTxn[];
+}
+
 export const endpoints = {
   // Auth — výměna jednorázového kódu z veritra.io redirectu za mobilní
   // session (JWT + user). Přihlášení/registrace probíhá na webu, appka jen
@@ -640,6 +762,49 @@ export const endpoints = {
     );
     return r.data;
   },
+
+  // ── AI analýza zakázky (chat → PDF) — SSE turn jde přes lib/sse.ts ──
+  analysisGet: (tenderId: number, opts?: { fresh?: boolean }) =>
+    api.get<{ data: AnalysisState }>(
+      `/api/v2/leads/tenders/${tenderId}/analysis`,
+      opts?.fresh ? { params: { new: 1 } } : undefined,
+    ),
+  analysisReport: (tenderId: number) =>
+    api.post<{ data: { reportMd: string; charged: number; insufficient: boolean; balance: number; currency: Currency } }>(
+      `/api/v2/leads/tenders/${tenderId}/analysis/report`,
+      {},
+    ),
+
+  // ── AI příprava dokumentace ──
+  docPrepGet: (tenderId: number) =>
+    api.get<{ data: DocPrepState }>(`/api/v2/leads/tenders/${tenderId}/doc-prep`),
+  docPrepGenerate: (tenderId: number, body: DocPrepGenerateInput) =>
+    api.post<{ data: { docPrep: DocPrepView; charged: number; balance: number; currency: Currency } }>(
+      `/api/v2/leads/tenders/${tenderId}/doc-prep/generate`,
+      body,
+    ),
+  docPrepUpload: (tenderId: number, form: FormData) =>
+    api.post<{ data: { uploads: { name: string; key: string }[] } }>(
+      `/api/v2/leads/tenders/${tenderId}/doc-prep/upload`,
+      form,
+    ),
+
+  // ── Firemní profil (AI) ──
+  companyProfileGet: () => api.get<{ data: CompanyProfileView }>("/api/v2/account/company-profile"),
+  companyProfileBuild: (questionnaire?: unknown) =>
+    api.post<{ data: CompanyProfileView }>("/api/v2/account/company-profile", questionnaire ? { questionnaire } : {}),
+  companyProfileSaveMd: (companyMd: string) =>
+    api.patch<{ data: CompanyProfileView }>("/api/v2/account/company-profile", { companyMd }),
+  companyProfileFinalize: () => api.put<{ data: CompanyProfileView }>("/api/v2/account/company-profile", {}),
+
+  // ── Bid identita ──
+  bidIdentityGet: () => api.get<{ data: BidIdentityView }>("/api/v2/account/bid-identity"),
+  bidIdentityEnrich: () => api.post<{ data: BidIdentityView }>("/api/v2/account/bid-identity", {}),
+  bidIdentitySave: (body: BidIdentitySaveInput) =>
+    api.put<{ data: BidIdentityView }>("/api/v2/account/bid-identity", body),
+
+  // ── AI kredit (jen zobrazení; dobití na webu) ──
+  aiCreditGet: () => api.get<{ data: AiCreditView }>("/api/v2/account/ai-credit"),
 };
 
 export type FeedbackKind = "BUG" | "IMPROVEMENT" | "OTHER" | "MISSING_TENDER";
