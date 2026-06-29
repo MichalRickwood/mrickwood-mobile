@@ -297,6 +297,16 @@ export default function MatchDetailScreen() {
             <Text style={styles.aiBtnText}>{t("matchDetail", "btnAiAnalysis")}</Text>
             <Text style={styles.docChevron}>›</Text>
           </Pressable>
+          <Pressable
+            onPress={() =>
+              router.push({ pathname: "/tender/[id]/doc-prep", params: { id: String(tender.id), title: tender.title } })
+            }
+            style={({ pressed }) => [styles.aiBtn, pressed && { opacity: 0.85 }]}
+          >
+            <Text style={styles.aiBtnIcon}>📄</Text>
+            <Text style={styles.aiBtnText}>{t("matchDetail", "btnAiDocPrep")}</Text>
+            <Text style={styles.docChevron}>›</Text>
+          </Pressable>
         </View>
 
         {(() => {
