@@ -492,6 +492,12 @@ export interface Dict {
     restore: string;
     restoreDone: string;
     manage: string;
+    valueLine: string;
+    monthly: string;
+    yearly: string;
+    autoRenew: string;
+    terms: string;
+    privacy: string;
   };
   onboardingCountries: {
     title: string;
@@ -1125,6 +1131,12 @@ const cs: Dict = {
     restore: "Obnovit nákupy",
     restoreDone: "Nákupy obnoveny",
     manage: "Spravovat předplatné",
+    valueLine: "Sledování veřejných zakázek pro {country} — upozornění ihned po vypsání.",
+    monthly: "Měsíčně",
+    yearly: "Ročně",
+    autoRenew: "Předplatné se automaticky obnovuje, dokud ho nezrušíte. Spravovat nebo zrušit můžete v Nastavení App Store.",
+    terms: "Obchodní podmínky (EULA)",
+    privacy: "Ochrana osobních údajů",
   },
   onboardingCountries: {
     title: "Vyberte země",
@@ -1750,6 +1762,12 @@ const en: Dict = {
     restore: "Restore purchases",
     restoreDone: "Purchases restored",
     manage: "Manage subscription",
+    valueLine: "Public tender alerts for {country} — the moment they're published.",
+    monthly: "Monthly",
+    yearly: "Yearly",
+    autoRenew: "Subscription auto-renews until canceled. Manage or cancel anytime in App Store settings.",
+    terms: "Terms of Use (EULA)",
+    privacy: "Privacy Policy",
   },
   onboardingCountries: {
     title: "Select countries",
@@ -2377,6 +2395,12 @@ const de: Dict = {
     restore: "Käufe wiederherstellen",
     restoreDone: "Käufe wiederhergestellt",
     manage: "Abo verwalten",
+    valueLine: "Ausschreibungs-Benachrichtigungen für {country} — sofort nach Veröffentlichung.",
+    monthly: "Monatlich",
+    yearly: "Jährlich",
+    autoRenew: "Das Abo verlängert sich automatisch, bis es gekündigt wird. Verwaltung und Kündigung in den App-Store-Einstellungen.",
+    terms: "Nutzungsbedingungen (EULA)",
+    privacy: "Datenschutz",
   },
   onboardingCountries: {
     title: "Länder auswählen",
@@ -3002,6 +3026,12 @@ const sk: Dict = {
     restore: "Obnoviť nákupy",
     restoreDone: "Nákupy obnovené",
     manage: "Spravovať predplatné",
+    valueLine: "Upozornenia na verejné zákazky pre {country} — ihneď po vyhlásení.",
+    monthly: "Mesačne",
+    yearly: "Ročne",
+    autoRenew: "Predplatné sa automaticky obnovuje, kým ho nezrušíte. Spravovať alebo zrušiť môžete v nastaveniach App Store.",
+    terms: "Obchodné podmienky (EULA)",
+    privacy: "Ochrana osobných údajov",
   },
   onboardingCountries: {
     title: "Vyberte krajiny",
@@ -3627,6 +3657,12 @@ const fr: Dict = {
     restore: "Restaurer les achats",
     restoreDone: "Achats restaurés",
     manage: "Gérer l'abonnement",
+    valueLine: "Alertes d'appels d'offres pour {country} — dès leur publication.",
+    monthly: "Mensuel",
+    yearly: "Annuel",
+    autoRenew: "L'abonnement se renouvelle automatiquement jusqu'à résiliation. Gérez ou résiliez dans les réglages de l'App Store.",
+    terms: "Conditions d'utilisation (EULA)",
+    privacy: "Confidentialité",
   },
   onboardingCountries: {
     title: "Sélectionnez des pays",
@@ -4252,6 +4288,12 @@ const it: Dict = {
     restore: "Ripristina acquisti",
     restoreDone: "Acquisti ripristinati",
     manage: "Gestisci abbonamento",
+    valueLine: "Avvisi sulle gare d'appalto per {country} — appena pubblicate.",
+    monthly: "Mensile",
+    yearly: "Annuale",
+    autoRenew: "L'abbonamento si rinnova automaticamente fino all'annullamento. Gestisci o annulla nelle impostazioni dell'App Store.",
+    terms: "Termini d'uso (EULA)",
+    privacy: "Privacy",
   },
   onboardingCountries: {
     title: "Seleziona i paesi",

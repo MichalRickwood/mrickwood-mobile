@@ -7,8 +7,9 @@
  *   zemí stav (zkušební období do / aktivní do), po aktivaci se zůstává na
  *   obrazovce. Save button v headeru settings stacku.
  *
- * App Store 3.1.1: žádné ceny, žádné platební CTA — picker je čistě výběr
- * sledovaných zemí (trial zdarma). Konverze na placené probíhá mimo aplikaci.
+ * iOS (mode=settings): plné Apple IAP — u dostupných zemí tlačítko Předplatit
+ * otevře PurchaseModal (název/období/cena + odkazy EULA/Privacy + auto-renew,
+ * App Store 3.1.2c). Onboarding/Android: výběr sledovaných zemí (trial zdarma).
  *
  * Obsahuje i žádost o doplnění chybějící země (feedback endpoint).
  */
@@ -29,7 +30,9 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { isIapAvailable, getCountryProducts, purchaseProduct, restorePurchases } from "@/lib/iap";
+import { isIapAvailable, getCountryProducts, purchaseProduct, restorePurchases, type CountryProducts } from "@/lib/iap";
+import type { PurchasesStoreProduct } from "react-native-purchases";
+import PurchaseModal from "@/components/PurchaseModal";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import * as Localization from "expo-localization";
@@ -134,6 +137,7 @@ export default function CountriesManager({ mode }: { mode: "onboarding" | "setti
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [activating, setActivating] = useState(false);
   const [busyScope, setBusyScope] = useState<string | null>(null);
+  const [purchaseModal, setPurchaseModal] = useState<{ code: string; products: CountryProducts } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [requestOpen, setRequestOpen] = useState(false);
@@ -285,11 +289,13 @@ export default function CountriesManager({ mode }: { mode: "onboarding" | "setti
     ]);
   }
 
+  // Načte StoreKit produkty země a otevře nákupní modal (App Store 3.1.2c:
+  // název/období/cena + odkazy EULA/Privacy + auto-renew disclosure).
   async function purchaseCountry(code: string) {
     setError(null);
     setNotice(null);
     setBusyScope(code);
-    let products;
+    let products: CountryProducts;
     try {
       products = await getCountryProducts(
         `veritra_leads_${code.toLowerCase()}_monthly`,
@@ -298,30 +304,31 @@ export default function CountriesManager({ mode }: { mode: "onboarding" | "setti
     } finally {
       setBusyScope(null);
     }
-    const { monthly, yearly } = products;
-    if (!monthly && !yearly) {
+    if (!products.monthly && !products.yearly) {
       setError(t("purchase", "unavailable"));
       return;
     }
-    const doBuy = async (product: NonNullable<typeof monthly>) => {
-      setBusyScope(code);
-      try {
-        const ok = await purchaseProduct(product);
-        if (!ok) return; // uživatel zrušil
-        await endpoints.iapSync();
-        await invalidateAfterIap();
-        setNotice(t("purchase", "success", { country: countryLabel(code) }));
-      } catch (e) {
-        setError(e instanceof Error ? e.message : t("purchase", "failed"));
-      } finally {
-        setBusyScope(null);
-      }
-    };
-    const opts: { text: string; onPress?: () => void; style?: "cancel" }[] = [];
-    if (monthly) opts.push({ text: t("purchase", "monthlyOpt", { price: monthly.priceString }), onPress: () => void doBuy(monthly) });
-    if (yearly) opts.push({ text: t("purchase", "yearlyOpt", { price: yearly.priceString }), onPress: () => void doBuy(yearly) });
-    opts.push({ text: t("purchase", "cancel"), style: "cancel" });
-    Alert.alert(t("purchase", "title", { country: countryLabel(code) }), t("purchase", "subtitle"), opts);
+    setPurchaseModal({ code, products });
+  }
+
+  // Nákup zvoleného produktu z modalu.
+  async function buyFromModal(product: PurchasesStoreProduct) {
+    const code = purchaseModal?.code;
+    if (!code) return;
+    setBusyScope(code);
+    try {
+      const ok = await purchaseProduct(product);
+      if (!ok) return; // uživatel zrušil (modal zůstává otevřený)
+      await endpoints.iapSync();
+      await invalidateAfterIap();
+      setPurchaseModal(null);
+      setNotice(t("purchase", "success", { country: countryLabel(code) }));
+    } catch (e) {
+      setPurchaseModal(null);
+      setError(e instanceof Error ? e.message : t("purchase", "failed"));
+    } finally {
+      setBusyScope(null);
+    }
   }
 
   async function doRestore() {
@@ -677,6 +684,15 @@ export default function CountriesManager({ mode }: { mode: "onboarding" | "setti
             {error && <Text style={styles.errorText}>{error}</Text>}
           </View>
         }
+      />
+      <PurchaseModal
+        visible={!!purchaseModal}
+        countryLabel={purchaseModal ? countryLabel(purchaseModal.code) : ""}
+        monthly={purchaseModal?.products.monthly ?? null}
+        yearly={purchaseModal?.products.yearly ?? null}
+        busy={!!purchaseModal && busyScope === purchaseModal.code}
+        onBuy={(p) => void buyFromModal(p)}
+        onClose={() => setPurchaseModal(null)}
       />
     </SafeAreaView>
   );
