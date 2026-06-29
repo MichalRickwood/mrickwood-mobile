@@ -18,11 +18,19 @@
       "supportsTablet": false,
       "bundleIdentifier": "cz.mrickwood.veritra",
       "buildNumber": "1",
+      "usesAppleSignIn": true,
       "config": {
         "usesNonExemptEncryption": false
       },
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": [
+              "com.googleusercontent.apps.513591543173-5g22haim45u2v0u6a1ffvtdprdeicbsl"
+            ]
+          }
+        ]
       }
     },
     "plugins": [
@@ -43,7 +51,8 @@
           "photosPermission": "Aplikace potřebuje přístup k fotkám pro přiložení screenshotu k feedbacku."
         }
       ],
-      "expo-font"
+      "expo-font",
+      "expo-apple-authentication"
     ],
     "extra": {
       "router": {},

@@ -146,6 +146,16 @@ export const endpoints = {
   mobileLogin: (input: { email: string; password: string }) =>
     api.post<MobileLoginResponse>("/api/auth/mobile/login", input, { noAuth: true }),
 
+  // Nativní OAuth (Apple/Google idToken, GitHub code). Server ověří token,
+  // najde/vytvoří usera (emailVerified hned, souhlasy clickwrap), vrátí session.
+  mobileOauth: (input: {
+    provider: "apple" | "google" | "github";
+    idToken?: string;
+    name?: string;
+    code?: string;
+    redirectUri?: string;
+  }) => api.post<MobileLoginResponse>("/api/auth/mobile/oauth", input, { noAuth: true }),
+
   // Profile read — používáme po loginu pro detekci jestli je profil kompletní
   profile: () => api.get<ProfileView>("/api/account/profile"),
 

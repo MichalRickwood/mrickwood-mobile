@@ -627,6 +627,10 @@ export interface Dict {
     errNotVerified: string;
     errNetwork: string;
     errGeneric: string;
+    orContinue: string;
+    googleBtn: string;
+    clickwrapPrefix: string;
+    clickwrapAnd: string;
   };
   locale: {
     cs: string;
@@ -1256,6 +1260,10 @@ const cs: Dict = {
     errNotVerified: "Nejdřív ověř e-mail (zkontroluj schránku).",
     errNetwork: "Chyba sítě. Zkus to znovu.",
     errGeneric: "Něco se pokazilo. Zkus to znovu.",
+    orContinue: "nebo pokračuj přes",
+    googleBtn: "Pokračovat s Google",
+    clickwrapPrefix: "Pokračováním souhlasíš s",
+    clickwrapAnd: "a",
   },
   locale: { cs: "Čeština", en: "English", de: "Deutsch", sk: "Slovenčina", fr: "Français", it: "Italiano" },
 };
@@ -1877,6 +1885,10 @@ const en: Dict = {
     errNotVerified: "Verify your email first (check your inbox).",
     errNetwork: "Network error. Try again.",
     errGeneric: "Something went wrong. Try again.",
+    orContinue: "or continue with",
+    googleBtn: "Continue with Google",
+    clickwrapPrefix: "By continuing you agree to the",
+    clickwrapAnd: "and",
   },
   locale: { cs: "Čeština", en: "English", de: "Deutsch", sk: "Slovenčina", fr: "Français", it: "Italiano" },
 };
@@ -2500,6 +2512,10 @@ const de: Dict = {
     errNotVerified: "Bestätige zuerst deine E-Mail (prüfe dein Postfach).",
     errNetwork: "Netzwerkfehler. Versuche es erneut.",
     errGeneric: "Etwas ist schiefgelaufen. Versuche es erneut.",
+    orContinue: "oder weiter mit",
+    googleBtn: "Mit Google fortfahren",
+    clickwrapPrefix: "Mit der Fortsetzung stimmst du den",
+    clickwrapAnd: "und",
   },
   locale: { cs: "Čeština", en: "English", de: "Deutsch", sk: "Slovenčina", fr: "Français", it: "Italiano" },
 };
@@ -3121,6 +3137,10 @@ const sk: Dict = {
     errNotVerified: "Najprv over e-mail (skontroluj schránku).",
     errNetwork: "Chyba siete. Skús to znova.",
     errGeneric: "Niečo sa pokazilo. Skús to znova.",
+    orContinue: "alebo pokračuj cez",
+    googleBtn: "Pokračovať s Google",
+    clickwrapPrefix: "Pokračovaním súhlasíš s",
+    clickwrapAnd: "a",
   },
   locale: { cs: "Čeština", en: "English", de: "Deutsch", sk: "Slovenčina", fr: "Français", it: "Italiano" },
 };
@@ -3742,6 +3762,10 @@ const fr: Dict = {
     errNotVerified: "Vérifiez d'abord votre e-mail (consultez votre boîte de réception).",
     errNetwork: "Erreur réseau. Réessayez.",
     errGeneric: "Une erreur s'est produite. Réessayez.",
+    orContinue: "ou continuer avec",
+    googleBtn: "Continuer avec Google",
+    clickwrapPrefix: "En continuant, vous acceptez les",
+    clickwrapAnd: "et",
   },
   locale: { cs: "Čeština", en: "English", de: "Deutsch", sk: "Slovenčina", fr: "Français", it: "Italiano" },
 };
@@ -4363,6 +4387,10 @@ const it: Dict = {
     errNotVerified: "Verifica prima la tua e-mail (controlla la posta in arrivo).",
     errNetwork: "Errore di rete. Riprova.",
     errGeneric: "Qualcosa è andato storto. Riprova.",
+    orContinue: "oppure continua con",
+    googleBtn: "Continua con Google",
+    clickwrapPrefix: "Continuando accetti i",
+    clickwrapAnd: "e",
   },
   locale: { cs: "Čeština", en: "English", de: "Deutsch", sk: "Slovenčina", fr: "Français", it: "Italiano" },
 };
