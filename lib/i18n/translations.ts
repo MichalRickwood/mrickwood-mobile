@@ -597,6 +597,37 @@ export interface Dict {
     consentGdprLabel: string;
     consentRequiredError: string;
   };
+  auth: {
+    registerTitle: string;
+    registerSubtitle: string;
+    loginBtn: string;
+    registerBtn: string;
+    name: string;
+    namePh: string;
+    email: string;
+    emailPh: string;
+    password: string;
+    passwordPh: string;
+    consentVop: string;
+    termsLink: string;
+    consentGdpr: string;
+    privacyLink: string;
+    toLogin: string;
+    toRegister: string;
+    verifyTitle: string;
+    verifyBody: string;
+    verifyGotIt: string;
+    webBtn: string;
+    webLoading: string;
+    errEmailInvalid: string;
+    errPasswordShort: string;
+    errConsent: string;
+    errExists: string;
+    errInvalid: string;
+    errNotVerified: string;
+    errNetwork: string;
+    errGeneric: string;
+  };
   locale: {
     cs: string;
     en: string;
@@ -1195,6 +1226,37 @@ const cs: Dict = {
     consentGdprLabel: "Souhlasím se zpracováním osobních údajů (GDPR).",
     consentRequiredError: "Pro pokračování zaškrtněte oba souhlasy.",
   },
+  auth: {
+    registerTitle: "Vytvořit účet",
+    registerSubtitle: "Začni sledovat veřejné zakázky",
+    loginBtn: "Přihlásit se",
+    registerBtn: "Vytvořit účet",
+    name: "Jméno",
+    namePh: "Jan Novák",
+    email: "E-mail",
+    emailPh: "tvuj@email.cz",
+    password: "Heslo",
+    passwordPh: "Min. 8 znaků",
+    consentVop: "Souhlasím s",
+    termsLink: "obchodními podmínkami",
+    consentGdpr: "Souhlasím se",
+    privacyLink: "zpracováním osobních údajů",
+    toLogin: "Už máš účet? Přihlásit se",
+    toRegister: "Nemáš účet? Vytvořit",
+    verifyTitle: "Ověř svůj e-mail",
+    verifyBody: "Poslali jsme ověřovací odkaz na {email}. Klikni na něj a pak se přihlas.",
+    verifyGotIt: "Přejít na přihlášení",
+    webBtn: "Přihlásit přes web (Google/Apple)",
+    webLoading: "Otevírám…",
+    errEmailInvalid: "Neplatný e-mail.",
+    errPasswordShort: "Heslo musí mít aspoň 8 znaků.",
+    errConsent: "Musíš souhlasit s podmínkami.",
+    errExists: "Účet s tímto e-mailem už existuje.",
+    errInvalid: "Neplatný e-mail nebo heslo.",
+    errNotVerified: "Nejdřív ověř e-mail (zkontroluj schránku).",
+    errNetwork: "Chyba sítě. Zkus to znovu.",
+    errGeneric: "Něco se pokazilo. Zkus to znovu.",
+  },
   locale: { cs: "Čeština", en: "English", de: "Deutsch", sk: "Slovenčina", fr: "Français", it: "Italiano" },
 };
 
@@ -1784,6 +1846,37 @@ const en: Dict = {
     consentVopLabel: "I agree to the Terms of Service.",
     consentGdprLabel: "I agree to the processing of personal data (GDPR).",
     consentRequiredError: "Please tick both consents to continue.",
+  },
+  auth: {
+    registerTitle: "Create account",
+    registerSubtitle: "Start monitoring public tenders",
+    loginBtn: "Sign in",
+    registerBtn: "Create account",
+    name: "Name",
+    namePh: "John Smith",
+    email: "Email",
+    emailPh: "you@email.com",
+    password: "Password",
+    passwordPh: "At least 8 characters",
+    consentVop: "I agree to the",
+    termsLink: "Terms of Service",
+    consentGdpr: "I agree to the",
+    privacyLink: "Privacy Policy",
+    toLogin: "Already have an account? Sign in",
+    toRegister: "No account? Create one",
+    verifyTitle: "Verify your email",
+    verifyBody: "We sent a verification link to {email}. Click it, then sign in.",
+    verifyGotIt: "Go to sign in",
+    webBtn: "Sign in via web (Google/Apple)",
+    webLoading: "Opening…",
+    errEmailInvalid: "Invalid email.",
+    errPasswordShort: "Password must be at least 8 characters.",
+    errConsent: "You must accept the terms.",
+    errExists: "An account with this email already exists.",
+    errInvalid: "Invalid email or password.",
+    errNotVerified: "Verify your email first (check your inbox).",
+    errNetwork: "Network error. Try again.",
+    errGeneric: "Something went wrong. Try again.",
   },
   locale: { cs: "Čeština", en: "English", de: "Deutsch", sk: "Slovenčina", fr: "Français", it: "Italiano" },
 };
@@ -2377,6 +2470,37 @@ const de: Dict = {
     consentGdprLabel: "Ich stimme der Verarbeitung personenbezogener Daten (DSGVO) zu.",
     consentRequiredError: "Bitte aktivieren Sie beide Zustimmungen, um fortzufahren.",
   },
+  auth: {
+    registerTitle: "Konto erstellen",
+    registerSubtitle: "Beginne, öffentliche Ausschreibungen zu überwachen",
+    loginBtn: "Anmelden",
+    registerBtn: "Konto erstellen",
+    name: "Name",
+    namePh: "Max Mustermann",
+    email: "E-Mail",
+    emailPh: "du@email.de",
+    password: "Passwort",
+    passwordPh: "Mind. 8 Zeichen",
+    consentVop: "Ich stimme den",
+    termsLink: "Allgemeinen Geschäftsbedingungen zu",
+    consentGdpr: "Ich stimme der",
+    privacyLink: "Verarbeitung personenbezogener Daten zu",
+    toLogin: "Schon ein Konto? Anmelden",
+    toRegister: "Kein Konto? Erstellen",
+    verifyTitle: "Bestätige deine E-Mail",
+    verifyBody: "Wir haben einen Bestätigungslink an {email} gesendet. Klicke darauf und melde dich dann an.",
+    verifyGotIt: "Zur Anmeldung",
+    webBtn: "Über Web anmelden (Google/Apple)",
+    webLoading: "Wird geöffnet…",
+    errEmailInvalid: "Ungültige E-Mail.",
+    errPasswordShort: "Das Passwort muss mindestens 8 Zeichen lang sein.",
+    errConsent: "Du musst den Bedingungen zustimmen.",
+    errExists: "Ein Konto mit dieser E-Mail existiert bereits.",
+    errInvalid: "Ungültige E-Mail oder ungültiges Passwort.",
+    errNotVerified: "Bestätige zuerst deine E-Mail (prüfe dein Postfach).",
+    errNetwork: "Netzwerkfehler. Versuche es erneut.",
+    errGeneric: "Etwas ist schiefgelaufen. Versuche es erneut.",
+  },
   locale: { cs: "Čeština", en: "English", de: "Deutsch", sk: "Slovenčina", fr: "Français", it: "Italiano" },
 };
 
@@ -2966,6 +3090,37 @@ const sk: Dict = {
     consentVopLabel: "Súhlasím s obchodnými podmienkami.",
     consentGdprLabel: "Súhlasím so spracovaním osobných údajov (GDPR).",
     consentRequiredError: "Pre pokračovanie zaškrtnite oba súhlasy.",
+  },
+  auth: {
+    registerTitle: "Vytvoriť účet",
+    registerSubtitle: "Začni sledovať verejné zákazky",
+    loginBtn: "Prihlásiť sa",
+    registerBtn: "Vytvoriť účet",
+    name: "Meno",
+    namePh: "Ján Novák",
+    email: "E-mail",
+    emailPh: "tvoj@email.sk",
+    password: "Heslo",
+    passwordPh: "Min. 8 znakov",
+    consentVop: "Súhlasím s",
+    termsLink: "obchodnými podmienkami",
+    consentGdpr: "Súhlasím so",
+    privacyLink: "spracovaním osobných údajov",
+    toLogin: "Už máš účet? Prihlásiť sa",
+    toRegister: "Nemáš účet? Vytvoriť",
+    verifyTitle: "Over svoj e-mail",
+    verifyBody: "Poslali sme overovací odkaz na {email}. Klikni naň a potom sa prihlás.",
+    verifyGotIt: "Prejsť na prihlásenie",
+    webBtn: "Prihlásiť cez web (Google/Apple)",
+    webLoading: "Otváram…",
+    errEmailInvalid: "Neplatný e-mail.",
+    errPasswordShort: "Heslo musí mať aspoň 8 znakov.",
+    errConsent: "Musíš súhlasiť s podmienkami.",
+    errExists: "Účet s týmto e-mailom už existuje.",
+    errInvalid: "Neplatný e-mail alebo heslo.",
+    errNotVerified: "Najprv over e-mail (skontroluj schránku).",
+    errNetwork: "Chyba siete. Skús to znova.",
+    errGeneric: "Niečo sa pokazilo. Skús to znova.",
   },
   locale: { cs: "Čeština", en: "English", de: "Deutsch", sk: "Slovenčina", fr: "Français", it: "Italiano" },
 };
@@ -3557,6 +3712,37 @@ const fr: Dict = {
     consentGdprLabel: "J'accepte le traitement des données personnelles (RGPD).",
     consentRequiredError: "Veuillez cocher les deux consentements pour continuer.",
   },
+  auth: {
+    registerTitle: "Créer un compte",
+    registerSubtitle: "Commencez à surveiller les marchés publics",
+    loginBtn: "Se connecter",
+    registerBtn: "Créer un compte",
+    name: "Nom",
+    namePh: "Jean Dupont",
+    email: "E-mail",
+    emailPh: "vous@email.fr",
+    password: "Mot de passe",
+    passwordPh: "Au moins 8 caractères",
+    consentVop: "J'accepte les",
+    termsLink: "conditions générales",
+    consentGdpr: "J'accepte le",
+    privacyLink: "traitement des données personnelles",
+    toLogin: "Vous avez déjà un compte ? Se connecter",
+    toRegister: "Pas de compte ? En créer un",
+    verifyTitle: "Vérifiez votre e-mail",
+    verifyBody: "Nous avons envoyé un lien de vérification à {email}. Cliquez dessus, puis connectez-vous.",
+    verifyGotIt: "Aller à la connexion",
+    webBtn: "Se connecter via le web (Google/Apple)",
+    webLoading: "Ouverture…",
+    errEmailInvalid: "E-mail invalide.",
+    errPasswordShort: "Le mot de passe doit comporter au moins 8 caractères.",
+    errConsent: "Vous devez accepter les conditions.",
+    errExists: "Un compte avec cet e-mail existe déjà.",
+    errInvalid: "E-mail ou mot de passe invalide.",
+    errNotVerified: "Vérifiez d'abord votre e-mail (consultez votre boîte de réception).",
+    errNetwork: "Erreur réseau. Réessayez.",
+    errGeneric: "Une erreur s'est produite. Réessayez.",
+  },
   locale: { cs: "Čeština", en: "English", de: "Deutsch", sk: "Slovenčina", fr: "Français", it: "Italiano" },
 };
 
@@ -4146,6 +4332,37 @@ const it: Dict = {
     consentVopLabel: "Accetto le Condizioni di servizio.",
     consentGdprLabel: "Acconsento al trattamento dei dati personali (GDPR).",
     consentRequiredError: "Spunta entrambi i consensi per continuare.",
+  },
+  auth: {
+    registerTitle: "Crea un account",
+    registerSubtitle: "Inizia a monitorare le gare d'appalto pubbliche",
+    loginBtn: "Accedi",
+    registerBtn: "Crea un account",
+    name: "Nome",
+    namePh: "Mario Rossi",
+    email: "E-mail",
+    emailPh: "tu@email.it",
+    password: "Password",
+    passwordPh: "Almeno 8 caratteri",
+    consentVop: "Accetto i",
+    termsLink: "termini e condizioni",
+    consentGdpr: "Accetto il",
+    privacyLink: "trattamento dei dati personali",
+    toLogin: "Hai già un account? Accedi",
+    toRegister: "Non hai un account? Crealo",
+    verifyTitle: "Verifica la tua e-mail",
+    verifyBody: "Abbiamo inviato un link di verifica a {email}. Cliccaci sopra e poi accedi.",
+    verifyGotIt: "Vai all'accesso",
+    webBtn: "Accedi tramite web (Google/Apple)",
+    webLoading: "Apertura…",
+    errEmailInvalid: "E-mail non valida.",
+    errPasswordShort: "La password deve contenere almeno 8 caratteri.",
+    errConsent: "Devi accettare i termini.",
+    errExists: "Esiste già un account con questa e-mail.",
+    errInvalid: "E-mail o password non validi.",
+    errNotVerified: "Verifica prima la tua e-mail (controlla la posta in arrivo).",
+    errNetwork: "Errore di rete. Riprova.",
+    errGeneric: "Qualcosa è andato storto. Riprova.",
   },
   locale: { cs: "Čeština", en: "English", de: "Deutsch", sk: "Slovenčina", fr: "Français", it: "Italiano" },
 };

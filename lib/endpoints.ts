@@ -129,6 +129,23 @@ export const endpoints = {
   exchangeWebAuthCode: (code: string) =>
     api.post<MobileLoginResponse>("/api/auth/mobile/session/exchange", { code }, { noAuth: true }),
 
+  // Nativní registrace (email/heslo/jméno + souhlasy). IAP je v appce, takže
+  // 3.1.1 je splněno (placené přes IAP, ne mimo). Vytvoří účet + pošle ověřovací
+  // e-mail; vrací jen userId (login projde až po ověření e-mailu).
+  mobileRegister: (input: {
+    email: string;
+    password: string;
+    name: string;
+    locale: string;
+    consentVop: boolean;
+    consentGdpr: boolean;
+  }) => api.post<{ success: boolean; userId: string }>("/api/auth/mobile/register", input, { noAuth: true }),
+
+  // Nativní login (email/heslo) → mobilní session (JWT + user). 403 když e-mail
+  // není ověřený (EMAIL_NOT_VERIFIED), 401 neplatné údaje.
+  mobileLogin: (input: { email: string; password: string }) =>
+    api.post<MobileLoginResponse>("/api/auth/mobile/login", input, { noAuth: true }),
+
   // Profile read — používáme po loginu pro detekci jestli je profil kompletní
   profile: () => api.get<ProfileView>("/api/account/profile"),
 
