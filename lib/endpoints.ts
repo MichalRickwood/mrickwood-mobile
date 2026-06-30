@@ -68,6 +68,7 @@ export interface LeadFilterRow {
   keywords: string[];
   categories: string[];
   industryTags: string[];
+  zadavatelIcos: string[];
   minValue: number | null;
   maxValue: number | null;
 }
@@ -78,10 +79,18 @@ export interface LeadFilterInput {
   keywords?: string[];
   categories?: string[];
   industryTags?: string[];
+  zadavatelIcos?: string[];
   minValue?: number | null;
   maxValue?: number | null;
   emailDigest?: boolean;
   active?: boolean;
+}
+
+/** Zadavatel pro filtr (autocomplete z /leads/zadavatele). */
+export interface ZadavatelOption {
+  ico: string;
+  nazev: string;
+  country?: string;
 }
 
 export interface ProfileView {
@@ -498,6 +507,15 @@ export const endpoints = {
     const r = await api.get<{
       data: Record<string, Array<{ region: string; count: number }>>;
     }>("/api/v2/leads/regions", { params: country ? { region: country } : {} });
+    return r.data;
+  },
+  // Autocomplete zadavatelů pro filtr. `q` = hledaný text (název/IČO),
+  // `include` = IČO, která chceme vrátit i mimo top match (uložené z filtru).
+  searchZadavatele: async (q?: string, includeIcos?: string[]) => {
+    const params: Record<string, string> = {};
+    if (q && q.trim()) params.q = q.trim();
+    if (includeIcos?.length) params.include = includeIcos.join(",");
+    const r = await api.get<{ data: ZadavatelOption[] }>("/api/v2/leads/zadavatele", { params });
     return r.data;
   },
   // Primary NUTS regions catalog per LEADS země + labels v daném locale.

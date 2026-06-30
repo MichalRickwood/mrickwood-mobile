@@ -16,12 +16,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiError } from "@/lib/api";
-import { endpoints, type LeadFilterInput } from "@/lib/endpoints";
+import { endpoints, type LeadFilterInput, type ZadavatelOption } from "@/lib/endpoints";
 import { regionLabel } from "@/lib/nuts-cz";
 import RegionPickerModal from "@/components/RegionPickerModal";
 import ValueRangePickerModal from "@/components/ValueRangePickerModal";
 import CategoryPickerModal from "@/components/CategoryPickerModal";
 import CpvPickerModal from "@/components/CpvPickerModal";
+import ZadavatelPickerModal from "@/components/ZadavatelPickerModal";
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme-context";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
@@ -71,6 +72,7 @@ export default function FilterFormScreen() {
   const [industryTags, setIndustryTags] = useState<string[]>([]);
   const [cpvPrefixes, setCpvPrefixes] = useState<string[]>([]);
   const [regions, setRegions] = useState<string[]>([]);
+  const [zadavatele, setZadavatele] = useState<ZadavatelOption[]>([]);
   const [minValue, setMinValue] = useState<number | null>(null);
   const [maxValue, setMaxValue] = useState<number | null>(null);
   const [emailDigest, setEmailDigest] = useState(true);
@@ -79,6 +81,7 @@ export default function FilterFormScreen() {
   const [valuePickerOpen, setValuePickerOpen] = useState(false);
   const [categoryPickerOpen, setCategoryPickerOpen] = useState(false);
   const [cpvPickerOpen, setCpvPickerOpen] = useState(false);
+  const [zadavatelPickerOpen, setZadavatelPickerOpen] = useState(false);
 
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -98,6 +101,15 @@ export default function FilterFormScreen() {
       setMinValue(existing.minValue);
       setMaxValue(existing.maxValue);
       setEmailDigest(existing.emailDigest);
+      const icos = existing.zadavatelIcos ?? [];
+      if (icos.length) {
+        // Placeholder hned, názvy dotáhneme z API (include = uložená IČO).
+        setZadavatele(icos.map((ico) => ({ ico, nazev: ico })));
+        endpoints
+          .searchZadavatele(undefined, icos)
+          .then((rows) => setZadavatele(icos.map((ico) => rows.find((r) => r.ico === ico) ?? { ico, nazev: ico })))
+          .catch(() => {});
+      }
       if (existing.industryTags?.length) setMode("industry");
       else if (existing.categories?.length) setMode("cpv");
       else if (existing.keywords?.length) setMode("keywords");
@@ -133,6 +145,7 @@ export default function FilterFormScreen() {
       industryTags: mode === "industry" ? industryTags : [],
       categories: mode === "cpv" ? cpvPrefixes : [],
       regions,
+      zadavatelIcos: zadavatele.map((z) => z.ico),
       minValue,
       maxValue,
       emailDigest,
@@ -224,6 +237,13 @@ export default function FilterFormScreen() {
         : t("matches", "filterFormPickCount", { count: String(regions.length) });
 
   const valueSummary = valueRangeLabel(minValue, maxValue, t("matches", "filterFormValueAny"));
+
+  const zadavatelSummary =
+    zadavatele.length === 0
+      ? t("matches", "filterFormZadavatelAll")
+      : zadavatele.length === 1
+        ? zadavatele[0].nazev
+        : t("matches", "filterFormPickCount", { count: String(zadavatele.length) });
 
   const industrySummary =
     industryTags.length === 0
@@ -376,6 +396,20 @@ export default function FilterFormScreen() {
             </Pressable>
           </View>
 
+          {/* Step 5: Zadavatel (volitelné) */}
+          <View style={styles.field}>
+            <Text style={styles.stepLabel}>{t("matches", "filterFormStep5")}</Text>
+            <Pressable
+              onPress={() => setZadavatelPickerOpen(true)}
+              style={({ pressed }) => [styles.pickerRow, pressed && { opacity: 0.7 }]}
+            >
+              <Text style={[styles.pickerRowText, zadavatele.length === 0 && styles.pickerRowEmpty]}>
+                {zadavatelSummary}
+              </Text>
+              <Text style={styles.pickerRowChevron}>›</Text>
+            </Pressable>
+          </View>
+
           <View style={styles.toggleRow}>
             <View style={{ flex: 1 }}>
               <Text style={styles.label}>{t("matches", "filterFormEmailDigest")}</Text>
@@ -455,6 +489,12 @@ export default function FilterFormScreen() {
         initial={cpvPrefixes}
         onClose={() => setCpvPickerOpen(false)}
         onApply={setCpvPrefixes}
+      />
+      <ZadavatelPickerModal
+        visible={zadavatelPickerOpen}
+        initial={zadavatele}
+        onClose={() => setZadavatelPickerOpen(false)}
+        onApply={setZadavatele}
       />
     </SafeAreaView>
   );

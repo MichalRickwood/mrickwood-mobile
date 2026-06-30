@@ -123,6 +123,11 @@ export interface Dict {
     filterFormStep2: string;
     filterFormStep3: string;
     filterFormStep4: string;
+    filterFormStep5: string;
+    filterFormZadavatelAll: string;
+    filterFormZadavatelSearch: string;
+    filterFormZadavatelEmpty: string;
+    filterFormZadavatelNoResults: string;
     filterFormModeKeywords: string;
     filterFormModeIndustry: string;
     filterFormModeCpv: string;
@@ -543,6 +548,7 @@ export interface Dict {
     deadlineSelectStart: string;
     deadlineSelected: string;
     categoryTitle: string;
+    zadavatelTitle: string;
     cpvTitle: string;
     cpvSearchPlaceholder: string;
     cpvAll: string;
@@ -872,6 +878,11 @@ const cs: Dict = {
     filterFormStep2: "Co hledáme?",
     filterFormStep3: "Hodnota zakázky",
     filterFormStep4: "Regiony",
+    filterFormStep5: "Zadavatel (volitelné)",
+    filterFormZadavatelAll: "Všichni zadavatelé",
+    filterFormZadavatelSearch: "Hledat název nebo IČO…",
+    filterFormZadavatelEmpty: "Začněte psát název nebo IČO (min. 2 znaky)",
+    filterFormZadavatelNoResults: "Žádný zadavatel nenalezen",
     filterFormModeKeywords: "Slova",
     filterFormModeIndustry: "Kategorie",
     filterFormModeCpv: "CPV",
@@ -1293,6 +1304,7 @@ const cs: Dict = {
     deadlineSelectStart: "Do {date}",
     deadlineSelected: "{from} – {to}",
     categoryTitle: "Kategorie",
+    zadavatelTitle: "Vyberte zadavatele",
     cpvTitle: "CPV kódy",
     cpvSearchPlaceholder: "Hledat (kód nebo název)…",
     cpvAll: "Vše",
@@ -1615,6 +1627,11 @@ const en: Dict = {
     filterFormStep2: "What to match?",
     filterFormStep3: "Tender value",
     filterFormStep4: "Regions",
+    filterFormStep5: "Contracting authority (optional)",
+    filterFormZadavatelAll: "All authorities",
+    filterFormZadavatelSearch: "Search by name or company ID…",
+    filterFormZadavatelEmpty: "Start typing a name or company ID (min. 2 chars)",
+    filterFormZadavatelNoResults: "No authority found",
     filterFormModeKeywords: "Words",
     filterFormModeIndustry: "Categories",
     filterFormModeCpv: "CPV",
@@ -2035,6 +2052,7 @@ const en: Dict = {
     deadlineSelectStart: "Until {date}",
     deadlineSelected: "{from} – {to}",
     categoryTitle: "Categories",
+    zadavatelTitle: "Select authority",
     cpvTitle: "CPV codes",
     cpvSearchPlaceholder: "Search (code or name)…",
     cpvAll: "All",
@@ -2357,6 +2375,11 @@ const de: Dict = {
     filterFormStep2: "Wonach suchen wir?",
     filterFormStep3: "Auftragswert",
     filterFormStep4: "Regionen",
+    filterFormStep5: "Auftraggeber (optional)",
+    filterFormZadavatelAll: "Alle Auftraggeber",
+    filterFormZadavatelSearch: "Nach Name oder IČO suchen…",
+    filterFormZadavatelEmpty: "Name oder IČO eingeben (min. 2 Zeichen)",
+    filterFormZadavatelNoResults: "Kein Auftraggeber gefunden",
     filterFormModeKeywords: "Wörter",
     filterFormModeIndustry: "Kategorien",
     filterFormModeCpv: "CPV",
@@ -2779,6 +2802,7 @@ const de: Dict = {
     deadlineSelectStart: "Bis {date}",
     deadlineSelected: "{from} – {to}",
     categoryTitle: "Kategorien",
+    zadavatelTitle: "Auftraggeber wählen",
     cpvTitle: "CPV-Codes",
     cpvSearchPlaceholder: "Suchen (Code oder Name)…",
     cpvAll: "Alle",
@@ -3101,6 +3125,11 @@ const sk: Dict = {
     filterFormStep2: "Čo hľadať?",
     filterFormStep3: "Hodnota zákazky",
     filterFormStep4: "Regióny",
+    filterFormStep5: "Zadávateľ (voliteľné)",
+    filterFormZadavatelAll: "Všetci zadávatelia",
+    filterFormZadavatelSearch: "Hľadať názov alebo IČO…",
+    filterFormZadavatelEmpty: "Začnite písať názov alebo IČO (min. 2 znaky)",
+    filterFormZadavatelNoResults: "Žiadny zadávateľ nenájdený",
     filterFormModeKeywords: "Slová",
     filterFormModeIndustry: "Kategórie",
     filterFormModeCpv: "CPV",
@@ -3521,6 +3550,7 @@ const sk: Dict = {
     deadlineSelectStart: "Do {date}",
     deadlineSelected: "{from} – {to}",
     categoryTitle: "Kategórie",
+    zadavatelTitle: "Vyberte zadávateľa",
     cpvTitle: "Kódy CPV",
     cpvSearchPlaceholder: "Hľadať (kód alebo názov)…",
     cpvAll: "Všetky",
@@ -3843,6 +3873,11 @@ const fr: Dict = {
     filterFormStep2: "Que faut-il rechercher ?",
     filterFormStep3: "Valeur de l'appel d'offres",
     filterFormStep4: "Régions",
+    filterFormStep5: "Pouvoir adjudicateur (optionnel)",
+    filterFormZadavatelAll: "Tous les pouvoirs adjudicateurs",
+    filterFormZadavatelSearch: "Rechercher par nom ou IČO…",
+    filterFormZadavatelEmpty: "Saisissez un nom ou un IČO (min. 2 car.)",
+    filterFormZadavatelNoResults: "Aucun pouvoir adjudicateur trouvé",
     filterFormModeKeywords: "Mots",
     filterFormModeIndustry: "Catégories",
     filterFormModeCpv: "CPV",
@@ -4263,6 +4298,7 @@ const fr: Dict = {
     deadlineSelectStart: "Jusqu'au {date}",
     deadlineSelected: "{from} – {to}",
     categoryTitle: "Catégories",
+    zadavatelTitle: "Choisir le pouvoir adjudicateur",
     cpvTitle: "Codes CPV",
     cpvSearchPlaceholder: "Rechercher (code ou nom)…",
     cpvAll: "Tous",
@@ -4585,6 +4621,11 @@ const it: Dict = {
     filterFormStep2: "Cosa cercare?",
     filterFormStep3: "Valore della gara",
     filterFormStep4: "Regioni",
+    filterFormStep5: "Stazione appaltante (opzionale)",
+    filterFormZadavatelAll: "Tutte le stazioni appaltanti",
+    filterFormZadavatelSearch: "Cerca per nome o IČO…",
+    filterFormZadavatelEmpty: "Inizia a digitare nome o IČO (min. 2 caratteri)",
+    filterFormZadavatelNoResults: "Nessuna stazione appaltante trovata",
     filterFormModeKeywords: "Parole",
     filterFormModeIndustry: "Categorie",
     filterFormModeCpv: "CPV",
@@ -5005,6 +5046,7 @@ const it: Dict = {
     deadlineSelectStart: "Fino al {date}",
     deadlineSelected: "{from} – {to}",
     categoryTitle: "Categorie",
+    zadavatelTitle: "Seleziona stazione appaltante",
     cpvTitle: "Codici CPV",
     cpvSearchPlaceholder: "Cerca (codice o nome)…",
     cpvAll: "Tutti",
