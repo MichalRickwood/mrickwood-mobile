@@ -55,6 +55,7 @@ export default function CompanyProfileScreen() {
 
   async function generate() {
     if (generating) return;
+    if (!view?.ico?.trim()) return; // bez IČO nelze generovat (podmínka)
     setGenerating(true);
     setPhase("dump");
     setProgress({ months: 0, found: 0 });
@@ -111,7 +112,7 @@ export default function CompanyProfileScreen() {
     );
   }
 
-  if (!view?.ico) {
+  if (!view?.ico?.trim()) {
     return (
       <SafeAreaView style={styles.safe} edges={["bottom"]}>
         <View style={styles.center}>
@@ -201,5 +202,4 @@ const makeStyles = (c: Colors) =>
     mdInput: { minHeight: 240, backgroundColor: c.card, borderWidth: 1, borderColor: c.border, borderRadius: radius.md, padding: spacing.md, fontSize: fontSize.sm, color: c.text, lineHeight: 20 },
     primaryBtn: { backgroundColor: c.accent, paddingVertical: spacing.md, borderRadius: radius.md, alignItems: "center", marginTop: spacing.lg },
     primaryBtnText: { color: c.accentForeground, fontWeight: "600", fontSize: fontSize.sm },
-    webLink: { color: c.link, fontSize: fontSize.xs, textAlign: "center", marginTop: spacing.lg, textDecorationLine: "underline" },
   });
