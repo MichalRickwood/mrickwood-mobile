@@ -67,10 +67,12 @@ export default function CompanyProfileScreen() {
           if (evt.step === "dump") {
             setPhase("dump");
             setProgress((p) => ({ months: p.months + 1, found: p.found + (evt.found ?? 0) }));
-            // Do logu jen měsíce, kde jsme něco našli — s názvy smluv.
-            if ((evt.found ?? 0) > 0 && Array.isArray(evt.sample) && evt.sample.length) {
-              setLog((l) => [...l, `${evt.month} · ${evt.sample!.join(" · ")}`]);
-            }
+            // Logujeme KAŽDÝ projitý měsíc — ať je vidět průběh; u měsíců s nálezem
+            // přidáme názvy smluv, jinak „—".
+            const names = (evt.found ?? 0) > 0 && Array.isArray(evt.sample) && evt.sample.length
+              ? evt.sample.join(" · ")
+              : "—";
+            setLog((l) => [...l, `${evt.month} · ${names}`]);
           } else if (evt.step === "explore") {
             setPhase("explore");
           }
@@ -148,7 +150,7 @@ export default function CompanyProfileScreen() {
             </Text>
             {log.length > 0 && (
               <View style={styles.logBox}>
-                {log.slice(-6).map((l, i) => (
+                {log.slice(-8).map((l, i) => (
                   <Text key={i} style={styles.logLine} numberOfLines={1}>{l}</Text>
                 ))}
               </View>
