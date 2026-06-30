@@ -2,13 +2,11 @@ import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import * as WebBrowser from "expo-web-browser";
 import { useTheme } from "@/lib/theme-context";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 import { useI18n } from "@/lib/i18n";
 import { endpoints, type CompanyProfileView } from "@/lib/endpoints";
 import { ssePost } from "@/lib/sse";
-import { AUTH_BASE_URL } from "@/lib/config";
 
 type BuildEvent = {
   type: "status" | "done" | "error";
@@ -159,24 +157,26 @@ export default function CompanyProfileScreen() {
           <Text style={styles.hint}>{t("companyProfile", "generateHint")}</Text>
         )}
 
-        <Text style={styles.sectionLabel}>{t("companyProfile", "mdLabel")}</Text>
-        <TextInput
-          style={styles.mdInput}
-          value={md}
-          onChangeText={setMd}
-          placeholder={t("companyProfile", "mdPlaceholder")}
-          placeholderTextColor={colors.textFaint}
-          multiline
-          textAlignVertical="top"
-        />
+        {/* Editace + uložení až když profil existuje (po vygenerování). Dokud
+            není nastavený, ukazujeme jen tlačítko Vygenerovat výše. */}
+        {view.companyMd ? (
+          <>
+            <Text style={styles.sectionLabel}>{t("companyProfile", "mdLabel")}</Text>
+            <TextInput
+              style={styles.mdInput}
+              value={md}
+              onChangeText={setMd}
+              placeholder={t("companyProfile", "mdPlaceholder")}
+              placeholderTextColor={colors.textFaint}
+              multiline
+              textAlignVertical="top"
+            />
 
-        <Pressable style={[styles.primaryBtn, (saving || !md.trim()) && { opacity: 0.5 }]} disabled={saving || !md.trim()} onPress={save}>
-          {saving ? <ActivityIndicator size="small" color={colors.accentForeground} /> : <Text style={styles.primaryBtnText}>{t("companyProfile", "saveBtn")}</Text>}
-        </Pressable>
-
-        <Pressable onPress={() => WebBrowser.openBrowserAsync(`${AUTH_BASE_URL}/dashboard/settings?tab=ai`)}>
-          <Text style={styles.webLink}>{t("companyProfile", "advancedWeb")}</Text>
-        </Pressable>
+            <Pressable style={[styles.primaryBtn, (saving || !md.trim()) && { opacity: 0.5 }]} disabled={saving || !md.trim()} onPress={save}>
+              {saving ? <ActivityIndicator size="small" color={colors.accentForeground} /> : <Text style={styles.primaryBtnText}>{t("companyProfile", "saveBtn")}</Text>}
+            </Pressable>
+          </>
+        ) : null}
       </ScrollView>
     </SafeAreaView>
   );
