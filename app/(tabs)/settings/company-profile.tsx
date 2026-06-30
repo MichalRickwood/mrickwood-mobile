@@ -67,12 +67,13 @@ export default function CompanyProfileScreen() {
           if (evt.step === "dump") {
             setPhase("dump");
             setProgress((p) => ({ months: p.months + 1, found: p.found + (evt.found ?? 0) }));
-            // Logujeme KAŽDÝ projitý měsíc — ať je vidět průběh; u měsíců s nálezem
-            // přidáme názvy smluv, jinak „—".
-            const names = (evt.found ?? 0) > 0 && Array.isArray(evt.sample) && evt.sample.length
-              ? evt.sample.join(" · ")
-              : "—";
-            setLog((l) => [...l, `${evt.month} · ${names}`]);
+            // Do logu jen měsíce s nálezem — s názvy smluv. Počítadlo nahoře
+            // ukazuje průběh (kolik měsíců projito). Prázdné měsíce nezahlcují log.
+            if ((evt.found ?? 0) > 0 && Array.isArray(evt.sample) && evt.sample.length) {
+              for (const name of evt.sample) {
+                setLog((l) => [...l, `${evt.month} · ${name}`]);
+              }
+            }
           } else if (evt.step === "explore") {
             setPhase("explore");
           }
