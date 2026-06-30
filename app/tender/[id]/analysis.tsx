@@ -27,14 +27,14 @@ type Msg = AnalysisMessage & { streaming?: boolean };
 
 // Skrytá úvodní zpráva, která analýzu spustí hned po otevření (nezobrazuje se).
 const KICKOFF =
-  "Spusť analýzu této zakázky: posuď její vhodnost pro naši firmu a projdi povinné požadavky (kvalifikace, jistota, prohlídka, harmonogram, technická specifikace, lhůty).";
+  "Proveď rozbor této zakázky: shrň předmět a klíčové podmínky; vypiš, co zakázka vyžaduje (kvalifikace, autorizace, jistota, prohlídka, harmonogram, technická specifikace, lhůty) formou „vyžaduje X — ověřte/máte?\"; vhodnost posuď jen podle dostupných informací (BEZ tvrdého verdiktu a NEpředpokládej, že naše firma něco nemá); na konci mi polož konkrétní doplňující otázky.";
 
 export default function TenderAnalysisScreen() {
   const { id, title } = useLocalSearchParams<{ id: string; title?: string }>();
   const tenderId = Number(id);
   const router = useRouter();
   const { colors } = useTheme();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const styles = useMemo(() => makeStyles(colors), [colors]);
 
   const [loading, setLoading] = useState(true);
@@ -48,6 +48,9 @@ export default function TenderAnalysisScreen() {
   const [sending, setSending] = useState(false);
   const [reporting, setReporting] = useState(false);
   const listRef = useRef<FlatList<Msg>>(null);
+  // Auto-scroll jen když je uživatel u dna; když odscrolluje nahoru, necháme ho číst.
+  const stickToBottomRef = useRef(true);
+  const [atBottom, setAtBottom] = useState(true);
 
   useEffect(() => {
     let alive = true;
@@ -81,6 +84,16 @@ export default function TenderAnalysisScreen() {
   }, [tenderId]);
 
   const scrollEnd = () => setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50);
+  // Scrollnout na konec jen když je uživatel u dna (jinak ho neruš při čtení).
+  const maybeScrollEnd = () => { if (stickToBottomRef.current) scrollEnd(); };
+  const onScroll = (e: { nativeEvent: { contentOffset: { y: number }; contentSize: { height: number }; layoutMeasurement: { height: number } } }) => {
+    const { contentOffset, contentSize, layoutMeasurement } = e.nativeEvent;
+    const distance = contentSize.height - (contentOffset.y + layoutMeasurement.height);
+    const near = distance < 80;
+    stickToBottomRef.current = near;
+    setAtBottom(near);
+  };
+  const jumpToEnd = () => { stickToBottomRef.current = true; setAtBottom(true); scrollEnd(); };
 
   // Jeden tah konverzace. `sid` umožní předat aktuální sessionId i když ho stav
   // ještě nestihl zapsat (auto-start hned po loadu).
@@ -91,15 +104,18 @@ export default function TenderAnalysisScreen() {
     const userMsg: Msg = { id: turnKey, role: "user", content: text, createdAt: new Date().toISOString() };
     const asstId = `a-${turnKey}`;
     setMessages((m) => [...m, userMsg, { id: asstId, role: "assistant", content: "", createdAt: "", streaming: true }]);
+    // Nový tah uživatele → vrať ho k dnu, ať vidí svou zprávu i začátek odpovědi.
+    stickToBottomRef.current = true;
+    setAtBottom(true);
     scrollEnd();
     try {
       await ssePost<AnalysisStreamEvent>(
         `/api/v2/leads/tenders/${tenderId}/analysis`,
-        { turnKey, message: text, sessionId: sid ?? sessionId ?? undefined },
+        { turnKey, message: text, sessionId: sid ?? sessionId ?? undefined, locale },
         (evt) => {
           if (evt.type === "delta") {
             setMessages((m) => m.map((x) => (x.id === asstId ? { ...x, content: x.content + evt.text } : x)));
-            scrollEnd();
+            maybeScrollEnd();
           } else if (evt.type === "done") {
             setMessages((m) => m.map((x) => (x.id === asstId ? { ...x, streaming: false } : x)));
             if (evt.sessionId) setSessionId(evt.sessionId);
@@ -119,7 +135,7 @@ export default function TenderAnalysisScreen() {
     } finally {
       setMessages((m) => m.map((x) => (x.id === asstId ? { ...x, streaming: false } : x)));
       setSending(false);
-      scrollEnd();
+      maybeScrollEnd();
     }
   }
 
@@ -134,7 +150,7 @@ export default function TenderAnalysisScreen() {
     if (reporting) return;
     setReporting(true);
     try {
-      const { data } = await endpoints.analysisReport(tenderId);
+      const { data } = await endpoints.analysisReport(tenderId, locale);
       if (typeof data.balance === "number") setBalance(data.balance);
       if (data.insufficient) {
         Alert.alert(t("aiAnalysis", "insufficientTitle"), t("aiAnalysis", "insufficientBody"));
@@ -201,6 +217,8 @@ export default function TenderAnalysisScreen() {
           data={messages.filter((m) => !(m.role === "user" && m.content === KICKOFF))}
           keyExtractor={(m) => m.id}
           contentContainerStyle={styles.list}
+          onScroll={onScroll}
+          scrollEventThrottle={16}
           ListEmptyComponent={<Text style={styles.emptyHint}>{t("aiAnalysis", "analyzing")}</Text>}
           renderItem={({ item }) => (
             <View style={[styles.bubble, item.role === "user" ? styles.bubbleUser : styles.bubbleAsst]}>
@@ -212,6 +230,11 @@ export default function TenderAnalysisScreen() {
             </View>
           )}
         />
+        {!atBottom && messages.length > 0 && (
+          <Pressable style={styles.jumpBtn} onPress={jumpToEnd} accessibilityLabel={t("aiAnalysis", "jumpToLatest")}>
+            <Text style={styles.jumpBtnText}>↓</Text>
+          </Pressable>
+        )}
         {messages.some((m) => m.role === "assistant" && !m.streaming) && (
           <Pressable style={[styles.reportBtn, reporting && { opacity: 0.5 }]} disabled={reporting} onPress={generateReport}>
             {reporting ? (
@@ -262,6 +285,8 @@ const makeStyles = (c: Colors) =>
     bubbleAsst: { alignSelf: "flex-start", backgroundColor: c.card, borderWidth: 1, borderColor: c.border },
     bubbleUserText: { color: c.accentForeground, fontSize: fontSize.sm, lineHeight: 20 },
     bubbleAsstText: { color: c.text, fontSize: fontSize.sm, lineHeight: 20 },
+    jumpBtn: { position: "absolute", right: spacing.lg, bottom: 76, width: 40, height: 40, borderRadius: 20, backgroundColor: c.accent, alignItems: "center", justifyContent: "center", shadowColor: "#000", shadowOpacity: 0.2, shadowRadius: 4, shadowOffset: { width: 0, height: 2 }, elevation: 4 },
+    jumpBtnText: { color: c.accentForeground, fontSize: 20, fontWeight: "700", lineHeight: 22 },
     reportBtn: { marginHorizontal: spacing.lg, marginBottom: spacing.sm, backgroundColor: c.accent, paddingVertical: spacing.md, borderRadius: radius.md, alignItems: "center" },
     reportBtnText: { color: c.accentForeground, fontWeight: "600", fontSize: fontSize.sm },
     inputRow: { flexDirection: "row", alignItems: "flex-end", gap: spacing.sm, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm, borderTopWidth: 1, borderTopColor: c.border, backgroundColor: c.bg },

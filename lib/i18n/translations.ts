@@ -205,6 +205,7 @@ export interface Dict {
     profileRequiredCta: string;
     emptyHint: string;
     analyzing: string;
+    jumpToLatest: string;
     inputPlaceholder: string;
     send: string;
     reportBtn: string;
@@ -964,6 +965,7 @@ const cs: Dict = {
     profileRequiredCta: "Nastavit firemní profil",
     emptyHint: "Zeptejte se AI na vhodnost zakázky, rizika nebo požadavky. Po konverzaci vygenerujete PDF zhodnocení.",
     analyzing: "Analyzuji zakázku…",
+    jumpToLatest: "Skočit na konec",
     inputPlaceholder: "Napište zprávu…",
     send: "Odeslat",
     reportBtn: "Vygenerovat PDF zhodnocení",
@@ -1715,6 +1717,7 @@ const en: Dict = {
     profileRequiredCta: "Set up company profile",
     emptyHint: "Ask the AI about fit, risks or requirements. After the chat you can generate a PDF assessment.",
     analyzing: "Analyzing the tender…",
+    jumpToLatest: "Jump to latest",
     inputPlaceholder: "Type a message…",
     send: "Send",
     reportBtn: "Generate PDF assessment",
@@ -2468,6 +2471,7 @@ const de: Dict = {
     profileRequiredCta: "Firmenprofil einrichten",
     emptyHint: "Fragen Sie die KI nach Eignung, Risiken oder Anforderungen. Nach dem Chat erzeugen Sie eine PDF-Bewertung.",
     analyzing: "Analysiere die Ausschreibung…",
+    jumpToLatest: "Zum Ende springen",
     inputPlaceholder: "Nachricht schreiben…",
     send: "Senden",
     reportBtn: "PDF-Bewertung erstellen",
@@ -3219,6 +3223,7 @@ const sk: Dict = {
     profileRequiredCta: "Nastaviť firemný profil",
     emptyHint: "Spýtajte sa AI na vhodnosť zákazky, riziká alebo požiadavky. Po konverzácii vygenerujete PDF zhodnotenie.",
     analyzing: "Analyzujem zákazku…",
+    jumpToLatest: "Skočiť na koniec",
     inputPlaceholder: "Napíšte správu…",
     send: "Odoslať",
     reportBtn: "Vygenerovať PDF zhodnotenie",
@@ -3970,6 +3975,7 @@ const fr: Dict = {
     profileRequiredCta: "Configurer le profil",
     emptyHint: "Demandez à l'IA la pertinence, les risques ou les exigences. Après l'échange, générez une évaluation PDF.",
     analyzing: "Analyse du marché…",
+    jumpToLatest: "Aller à la fin",
     inputPlaceholder: "Écrire un message…",
     send: "Envoyer",
     reportBtn: "Générer l'évaluation PDF",
@@ -4721,6 +4727,7 @@ const it: Dict = {
     profileRequiredCta: "Imposta profilo aziendale",
     emptyHint: "Chiedi all'IA idoneità, rischi o requisiti. Dopo la conversazione generi una valutazione PDF.",
     analyzing: "Analisi della gara…",
+    jumpToLatest: "Vai alla fine",
     inputPlaceholder: "Scrivi un messaggio…",
     send: "Invia",
     reportBtn: "Genera valutazione PDF",
