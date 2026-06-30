@@ -28,6 +28,8 @@ export default function SettingsLayout() {
           title: Platform.OS === "ios" ? t("settings", "countriesTitle") : t("settings", "billingTitle"),
         }}
       />
+      <Stack.Screen name="company-profile" options={{ title: t("companyProfile", "screenTitle") }} />
+      <Stack.Screen name="bid-identity" options={{ title: t("bidIdentity", "screenTitle") }} />
       <Stack.Screen name="invoice-pdf" options={{ title: t("settings", "billingInvoicesSection") }} />
       <Stack.Screen name="feedback" options={{ title: t("feedback", "title") }} />
       <Stack.Screen name="account" options={{ title: t("settings", "accountTitle") }} />

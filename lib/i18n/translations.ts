@@ -245,6 +245,53 @@ export interface Dict {
     insufficientBody: string;
     topUpWeb: string;
   };
+  companyProfile: {
+    menuLabel: string;
+    menuHint: string;
+    screenTitle: string;
+    errorTitle: string;
+    noIcoTitle: string;
+    noIcoBody: string;
+    noIcoCta: string;
+    intro: string;
+    generateBtn: string;
+    regenerate: string;
+    generating: string;
+    generateHint: string;
+    mdLabel: string;
+    mdPlaceholder: string;
+    saveBtn: string;
+    savedTitle: string;
+    savedBody: string;
+    advancedWeb: string;
+  };
+  bidIdentity: {
+    menuLabel: string;
+    menuHint: string;
+    screenTitle: string;
+    errorTitle: string;
+    savedTitle: string;
+    savedBody: string;
+    noIcoTitle: string;
+    noIcoBody: string;
+    noIcoCta: string;
+    complete: string;
+    incomplete: string;
+    aresBtn: string;
+    aresHint: string;
+    bankLabel: string;
+    dataBoxLabel: string;
+    contactLabel: string;
+    contactName: string;
+    contactEmail: string;
+    contactPhone: string;
+    signatoryLabel: string;
+    signatoryName: string;
+    signatoryFunction: string;
+    modeSole: string;
+    modeJoint: string;
+    saveBtn: string;
+  };
   settings: {
     title: string;
     signedInAs: string;
@@ -942,6 +989,53 @@ const cs: Dict = {
     insufficientBody: "Dobijte si AI kredit na veritra.io a zkuste to znovu.",
     topUpWeb: "Dobít kredit na veritra.io",
   },
+  companyProfile: {
+    menuLabel: "Firemní profil (AI)",
+    menuHint: "Podklad pro AI analýzu zakázek",
+    screenTitle: "Firemní profil",
+    errorTitle: "Chyba",
+    noIcoTitle: "Nejdřív IČO",
+    noIcoBody: "Pro firemní profil nejdřív vyplňte IČO firmy ve fakturačních údajích.",
+    noIcoCta: "Vyplnit IČO",
+    intro: "Firemní profil (popis firmy, reference, zaměření) slouží AI při hodnocení vhodnosti zakázek. Vygenerujte ho automaticky a upravte podle potřeby.",
+    generateBtn: "Vygenerovat profil",
+    regenerate: "Přegenerovat profil",
+    generating: "Generuji…",
+    generateHint: "AI sestaví profil z IČO a veřejných zdrojů. Můžete ho pak upravit.",
+    mdLabel: "Profil firmy",
+    mdPlaceholder: "Popis firmy, obory, reference…",
+    saveBtn: "Uložit profil",
+    savedTitle: "Uloženo",
+    savedBody: "Firemní profil byl uložen.",
+    advancedWeb: "Pokročilé (chat, research) na veritra.io",
+  },
+  bidIdentity: {
+    menuLabel: "Identita pro nabídky",
+    menuHint: "Údaje do krycího listu a dokumentace",
+    screenTitle: "Identita firmy",
+    errorTitle: "Chyba",
+    savedTitle: "Uloženo",
+    savedBody: "Identita firmy byla uložena.",
+    noIcoTitle: "Nejdřív IČO",
+    noIcoBody: "Pro identitu firmy nejdřív vyplňte IČO ve fakturačních údajích.",
+    noIcoCta: "Vyplnit IČO",
+    complete: "Kompletní",
+    incomplete: "Nekompletní",
+    aresBtn: "Načíst z ARES",
+    aresHint: "Doplní název, adresu, DIČ, jednatele a způsob jednání z rejstříku.",
+    bankLabel: "Bankovní účet",
+    dataBoxLabel: "Datová schránka",
+    contactLabel: "Kontaktní osoba",
+    contactName: "Jméno",
+    contactEmail: "E-mail",
+    contactPhone: "Telefon",
+    signatoryLabel: "Podepisující osoba",
+    signatoryName: "Jméno",
+    signatoryFunction: "Funkce",
+    modeSole: "Samostatně",
+    modeJoint: "Společně",
+    saveBtn: "Uložit identitu",
+  },
   settings: {
     title: "Nastavení",
     signedInAs: "Přihlášen jako",
@@ -1630,6 +1724,53 @@ const en: Dict = {
     insufficientTitle: "Insufficient credit",
     insufficientBody: "Top up your AI credit on veritra.io and try again.",
     topUpWeb: "Top up credit on veritra.io",
+  },
+  companyProfile: {
+    menuLabel: "Company profile (AI)",
+    menuHint: "Basis for AI tender analysis",
+    screenTitle: "Company profile",
+    errorTitle: "Error",
+    noIcoTitle: "Company ID needed first",
+    noIcoBody: "To build a company profile, first fill in your company ID in billing details.",
+    noIcoCta: "Fill in company ID",
+    intro: "The company profile (description, references, focus) helps the AI assess tender fit. Generate it automatically and edit as needed.",
+    generateBtn: "Generate profile",
+    regenerate: "Regenerate profile",
+    generating: "Generating…",
+    generateHint: "The AI builds the profile from your company ID and public sources. You can edit it afterwards.",
+    mdLabel: "Company profile",
+    mdPlaceholder: "Company description, fields, references…",
+    saveBtn: "Save profile",
+    savedTitle: "Saved",
+    savedBody: "Company profile saved.",
+    advancedWeb: "Advanced (chat, research) on veritra.io",
+  },
+  bidIdentity: {
+    menuLabel: "Bid identity",
+    menuHint: "Details for cover sheet & documents",
+    screenTitle: "Company identity",
+    errorTitle: "Error",
+    savedTitle: "Saved",
+    savedBody: "Company identity saved.",
+    noIcoTitle: "Company ID needed first",
+    noIcoBody: "To set up company identity, first fill in your company ID in billing details.",
+    noIcoCta: "Fill in company ID",
+    complete: "Complete",
+    incomplete: "Incomplete",
+    aresBtn: "Load from ARES",
+    aresHint: "Fills name, address, VAT ID, directors and signing rules from the register.",
+    bankLabel: "Bank account",
+    dataBoxLabel: "Data box",
+    contactLabel: "Contact person",
+    contactName: "Name",
+    contactEmail: "Email",
+    contactPhone: "Phone",
+    signatoryLabel: "Signatory",
+    signatoryName: "Name",
+    signatoryFunction: "Role",
+    modeSole: "Sole",
+    modeJoint: "Joint",
+    saveBtn: "Save identity",
   },
   settings: {
     title: "Settings",
@@ -2322,6 +2463,53 @@ const de: Dict = {
     insufficientBody: "Laden Sie Ihr KI-Guthaben auf veritra.io auf und versuchen Sie es erneut.",
     topUpWeb: "Guthaben auf veritra.io aufladen",
   },
+  companyProfile: {
+    menuLabel: "Firmenprofil (KI)",
+    menuHint: "Grundlage für KI-Ausschreibungsanalyse",
+    screenTitle: "Firmenprofil",
+    errorTitle: "Fehler",
+    noIcoTitle: "Zuerst IČO",
+    noIcoBody: "Für das Firmenprofil zuerst die IČO in den Rechnungsdaten ausfüllen.",
+    noIcoCta: "IČO ausfüllen",
+    intro: "Das Firmenprofil (Beschreibung, Referenzen, Fokus) hilft der KI bei der Eignungsbewertung. Automatisch erzeugen und bei Bedarf bearbeiten.",
+    generateBtn: "Profil erzeugen",
+    regenerate: "Profil neu erzeugen",
+    generating: "Erzeuge…",
+    generateHint: "Die KI erstellt das Profil aus IČO und öffentlichen Quellen. Sie können es danach bearbeiten.",
+    mdLabel: "Firmenprofil",
+    mdPlaceholder: "Firmenbeschreibung, Bereiche, Referenzen…",
+    saveBtn: "Profil speichern",
+    savedTitle: "Gespeichert",
+    savedBody: "Firmenprofil gespeichert.",
+    advancedWeb: "Erweitert (Chat, Recherche) auf veritra.io",
+  },
+  bidIdentity: {
+    menuLabel: "Angebotsidentität",
+    menuHint: "Daten für Deckblatt & Unterlagen",
+    screenTitle: "Firmenidentität",
+    errorTitle: "Fehler",
+    savedTitle: "Gespeichert",
+    savedBody: "Firmenidentität gespeichert.",
+    noIcoTitle: "Zuerst IČO",
+    noIcoBody: "Für die Firmenidentität zuerst die IČO in den Rechnungsdaten ausfüllen.",
+    noIcoCta: "IČO ausfüllen",
+    complete: "Vollständig",
+    incomplete: "Unvollständig",
+    aresBtn: "Aus ARES laden",
+    aresHint: "Füllt Name, Adresse, USt-ID, Geschäftsführer und Vertretungsregel aus dem Register.",
+    bankLabel: "Bankkonto",
+    dataBoxLabel: "Datenbox",
+    contactLabel: "Kontaktperson",
+    contactName: "Name",
+    contactEmail: "E-Mail",
+    contactPhone: "Telefon",
+    signatoryLabel: "Unterzeichner",
+    signatoryName: "Name",
+    signatoryFunction: "Funktion",
+    modeSole: "Allein",
+    modeJoint: "Gemeinsam",
+    saveBtn: "Identität speichern",
+  },
   settings: {
     title: "Einstellungen",
     signedInAs: "Angemeldet als",
@@ -3010,6 +3198,53 @@ const sk: Dict = {
     insufficientTitle: "Nedostatok kreditu",
     insufficientBody: "Dobite si AI kredit na veritra.io a skúste to znova.",
     topUpWeb: "Dobiť kredit na veritra.io",
+  },
+  companyProfile: {
+    menuLabel: "Firemný profil (AI)",
+    menuHint: "Podklad pre AI analýzu zákaziek",
+    screenTitle: "Firemný profil",
+    errorTitle: "Chyba",
+    noIcoTitle: "Najprv IČO",
+    noIcoBody: "Pre firemný profil najprv vyplňte IČO firmy vo fakturačných údajoch.",
+    noIcoCta: "Vyplniť IČO",
+    intro: "Firemný profil (popis firmy, referencie, zameranie) slúži AI pri hodnotení vhodnosti zákaziek. Vygenerujte ho automaticky a upravte podľa potreby.",
+    generateBtn: "Vygenerovať profil",
+    regenerate: "Pregenerovať profil",
+    generating: "Generujem…",
+    generateHint: "AI zostaví profil z IČO a verejných zdrojov. Potom ho môžete upraviť.",
+    mdLabel: "Profil firmy",
+    mdPlaceholder: "Popis firmy, odbory, referencie…",
+    saveBtn: "Uložiť profil",
+    savedTitle: "Uložené",
+    savedBody: "Firemný profil bol uložený.",
+    advancedWeb: "Pokročilé (chat, research) na veritra.io",
+  },
+  bidIdentity: {
+    menuLabel: "Identita pre ponuky",
+    menuHint: "Údaje do krycieho listu a dokumentácie",
+    screenTitle: "Identita firmy",
+    errorTitle: "Chyba",
+    savedTitle: "Uložené",
+    savedBody: "Identita firmy bola uložená.",
+    noIcoTitle: "Najprv IČO",
+    noIcoBody: "Pre identitu firmy najprv vyplňte IČO vo fakturačných údajoch.",
+    noIcoCta: "Vyplniť IČO",
+    complete: "Kompletné",
+    incomplete: "Nekompletné",
+    aresBtn: "Načítať z ARES",
+    aresHint: "Doplní názov, adresu, DIČ, konateľov a spôsob konania z registra.",
+    bankLabel: "Bankový účet",
+    dataBoxLabel: "Dátová schránka",
+    contactLabel: "Kontaktná osoba",
+    contactName: "Meno",
+    contactEmail: "E-mail",
+    contactPhone: "Telefón",
+    signatoryLabel: "Podpisujúca osoba",
+    signatoryName: "Meno",
+    signatoryFunction: "Funkcia",
+    modeSole: "Samostatne",
+    modeJoint: "Spoločne",
+    saveBtn: "Uložiť identitu",
   },
   settings: {
     title: "Nastavenia",
@@ -3700,6 +3935,53 @@ const fr: Dict = {
     insufficientBody: "Rechargez votre crédit IA sur veritra.io et réessayez.",
     topUpWeb: "Recharger sur veritra.io",
   },
+  companyProfile: {
+    menuLabel: "Profil d'entreprise (IA)",
+    menuHint: "Base pour l'analyse IA des offres",
+    screenTitle: "Profil d'entreprise",
+    errorTitle: "Erreur",
+    noIcoTitle: "IČO requise d'abord",
+    noIcoBody: "Pour le profil d'entreprise, renseignez d'abord l'IČO dans les informations de facturation.",
+    noIcoCta: "Renseigner l'IČO",
+    intro: "Le profil d'entreprise (description, références, domaines) aide l'IA à évaluer la pertinence des offres. Générez-le automatiquement et modifiez-le si besoin.",
+    generateBtn: "Générer le profil",
+    regenerate: "Régénérer le profil",
+    generating: "Génération…",
+    generateHint: "L'IA construit le profil à partir de l'IČO et de sources publiques. Vous pouvez le modifier ensuite.",
+    mdLabel: "Profil d'entreprise",
+    mdPlaceholder: "Description, domaines, références…",
+    saveBtn: "Enregistrer le profil",
+    savedTitle: "Enregistré",
+    savedBody: "Profil d'entreprise enregistré.",
+    advancedWeb: "Avancé (chat, recherche) sur veritra.io",
+  },
+  bidIdentity: {
+    menuLabel: "Identité pour les offres",
+    menuHint: "Données pour la page de garde et les documents",
+    screenTitle: "Identité de l'entreprise",
+    errorTitle: "Erreur",
+    savedTitle: "Enregistré",
+    savedBody: "Identité de l'entreprise enregistrée.",
+    noIcoTitle: "IČO requise d'abord",
+    noIcoBody: "Pour l'identité, renseignez d'abord l'IČO dans les informations de facturation.",
+    noIcoCta: "Renseigner l'IČO",
+    complete: "Complète",
+    incomplete: "Incomplète",
+    aresBtn: "Charger depuis ARES",
+    aresHint: "Remplit le nom, l'adresse, le n° de TVA, les dirigeants et le mode de représentation depuis le registre.",
+    bankLabel: "Compte bancaire",
+    dataBoxLabel: "Boîte de données",
+    contactLabel: "Personne de contact",
+    contactName: "Nom",
+    contactEmail: "E-mail",
+    contactPhone: "Téléphone",
+    signatoryLabel: "Signataire",
+    signatoryName: "Nom",
+    signatoryFunction: "Fonction",
+    modeSole: "Seul",
+    modeJoint: "Conjoint",
+    saveBtn: "Enregistrer l'identité",
+  },
   settings: {
     title: "Paramètres",
     signedInAs: "Connecté en tant que",
@@ -4388,6 +4670,53 @@ const it: Dict = {
     insufficientTitle: "Credito insufficiente",
     insufficientBody: "Ricarica il credito IA su veritra.io e riprova.",
     topUpWeb: "Ricarica su veritra.io",
+  },
+  companyProfile: {
+    menuLabel: "Profilo aziendale (IA)",
+    menuHint: "Base per l'analisi IA delle gare",
+    screenTitle: "Profilo aziendale",
+    errorTitle: "Errore",
+    noIcoTitle: "Prima l'IČO",
+    noIcoBody: "Per il profilo aziendale, inserisci prima l'IČO nei dati di fatturazione.",
+    noIcoCta: "Inserisci IČO",
+    intro: "Il profilo aziendale (descrizione, referenze, settori) aiuta l'IA a valutare l'idoneità alle gare. Generalo automaticamente e modificalo se necessario.",
+    generateBtn: "Genera profilo",
+    regenerate: "Rigenera profilo",
+    generating: "Generazione…",
+    generateHint: "L'IA costruisce il profilo da IČO e fonti pubbliche. Puoi modificarlo dopo.",
+    mdLabel: "Profilo aziendale",
+    mdPlaceholder: "Descrizione, settori, referenze…",
+    saveBtn: "Salva profilo",
+    savedTitle: "Salvato",
+    savedBody: "Profilo aziendale salvato.",
+    advancedWeb: "Avanzato (chat, ricerca) su veritra.io",
+  },
+  bidIdentity: {
+    menuLabel: "Identità per le offerte",
+    menuHint: "Dati per frontespizio e documenti",
+    screenTitle: "Identità aziendale",
+    errorTitle: "Errore",
+    savedTitle: "Salvato",
+    savedBody: "Identità aziendale salvata.",
+    noIcoTitle: "Prima l'IČO",
+    noIcoBody: "Per l'identità, inserisci prima l'IČO nei dati di fatturazione.",
+    noIcoCta: "Inserisci IČO",
+    complete: "Completa",
+    incomplete: "Incompleta",
+    aresBtn: "Carica da ARES",
+    aresHint: "Compila nome, indirizzo, P.IVA, amministratori e modalità di rappresentanza dal registro.",
+    bankLabel: "Conto bancario",
+    dataBoxLabel: "Casella dati",
+    contactLabel: "Persona di contatto",
+    contactName: "Nome",
+    contactEmail: "Email",
+    contactPhone: "Telefono",
+    signatoryLabel: "Firmatario",
+    signatoryName: "Nome",
+    signatoryFunction: "Funzione",
+    modeSole: "Singolo",
+    modeJoint: "Congiunto",
+    saveBtn: "Salva identità",
   },
   settings: {
     title: "Impostazioni",

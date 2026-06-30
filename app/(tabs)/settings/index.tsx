@@ -62,6 +62,22 @@ export default function SettingsIndexScreen() {
           />
         </View>
 
+        {/* AI nástroje — předpoklady pro analýzu / přípravu dokumentace */}
+        <View style={styles.group}>
+          <SectionRow
+            styles={styles}
+            label={t("companyProfile", "menuLabel")}
+            hint={t("companyProfile", "menuHint")}
+            onPress={() => router.push("/(tabs)/settings/company-profile")}
+          />
+          <SectionRow
+            styles={styles}
+            label={t("bidIdentity", "menuLabel")}
+            hint={t("bidIdentity", "menuHint")}
+            onPress={() => router.push("/(tabs)/settings/bid-identity")}
+          />
+        </View>
+
         <View style={styles.group}>
           {/* iOS: „Sledované země" — žádná platební terminologie (3.1.1).
               Android: legacy billing s fakturací. */}

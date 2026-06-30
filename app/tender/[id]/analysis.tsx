@@ -12,7 +12,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import * as Crypto from "expo-crypto";
 import * as WebBrowser from "expo-web-browser";
 import { useTheme } from "@/lib/theme-context";
@@ -28,6 +28,7 @@ type Msg = AnalysisMessage & { streaming?: boolean };
 export default function TenderAnalysisScreen() {
   const { id, title } = useLocalSearchParams<{ id: string; title?: string }>();
   const tenderId = Number(id);
+  const router = useRouter();
   const { colors } = useTheme();
   const { t } = useI18n();
   const styles = useMemo(() => makeStyles(colors), [colors]);
@@ -157,7 +158,7 @@ export default function TenderAnalysisScreen() {
         <View style={styles.center}>
           <Text style={styles.gateTitle}>{t("aiAnalysis", "profileRequiredTitle")}</Text>
           <Text style={styles.gateBody}>{t("aiAnalysis", "profileRequiredBody")}</Text>
-          <Pressable style={styles.primaryBtn} onPress={() => WebBrowser.openBrowserAsync(`${AUTH_BASE_URL}/dashboard/settings?tab=ai`)}>
+          <Pressable style={styles.primaryBtn} onPress={() => router.push("/(tabs)/settings/company-profile")}>
             <Text style={styles.primaryBtnText}>{t("aiAnalysis", "profileRequiredCta")}</Text>
           </Pressable>
         </View>

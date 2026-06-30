@@ -10,7 +10,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import { useTheme } from "@/lib/theme-context";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
@@ -29,6 +29,7 @@ import { AUTH_BASE_URL } from "@/lib/config";
 export default function TenderDocPrepScreen() {
   const { id, title } = useLocalSearchParams<{ id: string; title?: string }>();
   const tenderId = Number(id);
+  const router = useRouter();
   const { colors } = useTheme();
   const { t } = useI18n();
   const styles = useMemo(() => makeStyles(colors), [colors]);
@@ -174,7 +175,7 @@ export default function TenderDocPrepScreen() {
         <View style={styles.center}>
           <Text style={styles.gateTitle}>{t("docPrep", "identityRequiredTitle")}</Text>
           <Text style={styles.gateBody}>{t("docPrep", "identityRequiredBody")}</Text>
-          <Pressable style={styles.primaryBtn} onPress={() => WebBrowser.openBrowserAsync(`${AUTH_BASE_URL}/dashboard/settings?tab=ai`)}>
+          <Pressable style={styles.primaryBtn} onPress={() => router.push("/(tabs)/settings/bid-identity")}>
             <Text style={styles.primaryBtnText}>{t("docPrep", "identityRequiredCta")}</Text>
           </Pressable>
         </View>
