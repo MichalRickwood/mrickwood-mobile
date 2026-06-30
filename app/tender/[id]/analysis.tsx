@@ -25,6 +25,10 @@ import { AUTH_BASE_URL } from "@/lib/config";
 
 type Msg = AnalysisMessage & { streaming?: boolean };
 
+// Skrytá úvodní zpráva, která analýzu spustí hned po otevření (nezobrazuje se).
+const KICKOFF =
+  "Spusť analýzu této zakázky: posuď její vhodnost pro naši firmu a projdi povinné požadavky (kvalifikace, jistota, prohlídka, harmonogram, technická specifikace, lhůty).";
+
 export default function TenderAnalysisScreen() {
   const { id, title } = useLocalSearchParams<{ id: string; title?: string }>();
   const tenderId = Number(id);
@@ -59,6 +63,12 @@ export default function TenderAnalysisScreen() {
           setFreeTier(data.session.freeTier);
           setMessages(data.session.messages);
         }
+        // Auto-spuštění: když je profil hotový a ještě nic neproběhlo, spustíme
+        // analýzu rovnou (skrytá kickoff zpráva) — uživatel nemusí nic psát.
+        const hasMsgs = (data.session?.messages?.length ?? 0) > 0;
+        if (data.hasCompanyProfile && !hasMsgs) {
+          void runTurn(KICKOFF, data.session?.id ?? null);
+        }
       } catch (e) {
         Alert.alert(t("aiAnalysis", "errorTitle"), e instanceof Error ? e.message : "");
       } finally {
@@ -72,10 +82,10 @@ export default function TenderAnalysisScreen() {
 
   const scrollEnd = () => setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50);
 
-  async function send() {
-    const text = input.trim();
+  // Jeden tah konverzace. `sid` umožní předat aktuální sessionId i když ho stav
+  // ještě nestihl zapsat (auto-start hned po loadu).
+  async function runTurn(text: string, sid?: string | null) {
     if (!text || sending) return;
-    setInput("");
     setSending(true);
     const turnKey = Crypto.randomUUID();
     const userMsg: Msg = { id: turnKey, role: "user", content: text, createdAt: new Date().toISOString() };
@@ -85,13 +95,14 @@ export default function TenderAnalysisScreen() {
     try {
       await ssePost<AnalysisStreamEvent>(
         `/api/v2/leads/tenders/${tenderId}/analysis`,
-        { turnKey, message: text, sessionId: sessionId ?? undefined },
+        { turnKey, message: text, sessionId: sid ?? sessionId ?? undefined },
         (evt) => {
           if (evt.type === "delta") {
             setMessages((m) => m.map((x) => (x.id === asstId ? { ...x, content: x.content + evt.text } : x)));
             scrollEnd();
           } else if (evt.type === "done") {
             setMessages((m) => m.map((x) => (x.id === asstId ? { ...x, streaming: false } : x)));
+            if (evt.sessionId) setSessionId(evt.sessionId);
             if (typeof evt.balance === "number") setBalance(evt.balance);
             if (evt.currency) setCurrency(evt.currency);
             if (evt.insufficient) {
@@ -110,6 +121,13 @@ export default function TenderAnalysisScreen() {
       setSending(false);
       scrollEnd();
     }
+  }
+
+  function send() {
+    const text = input.trim();
+    if (!text || sending) return;
+    setInput("");
+    void runTurn(text);
   }
 
   async function generateReport() {
@@ -180,10 +198,10 @@ export default function TenderAnalysisScreen() {
         </Text>
         <FlatList
           ref={listRef}
-          data={messages}
+          data={messages.filter((m) => !(m.role === "user" && m.content === KICKOFF))}
           keyExtractor={(m) => m.id}
           contentContainerStyle={styles.list}
-          ListEmptyComponent={<Text style={styles.emptyHint}>{t("aiAnalysis", "emptyHint")}</Text>}
+          ListEmptyComponent={<Text style={styles.emptyHint}>{t("aiAnalysis", "analyzing")}</Text>}
           renderItem={({ item }) => (
             <View style={[styles.bubble, item.role === "user" ? styles.bubbleUser : styles.bubbleAsst]}>
               {item.streaming && item.content.length === 0 ? (

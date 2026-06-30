@@ -158,7 +158,7 @@ export interface AnalysisState {
 /** SSE eventy z POST …/analysis */
 export type AnalysisStreamEvent =
   | { type: "delta"; text: string }
-  | { type: "done"; messageId?: string; charged?: number; insufficient?: boolean; balance?: number; currency?: Currency; replay?: boolean }
+  | { type: "done"; sessionId?: string; messageId?: string; charged?: number; insufficient?: boolean; balance?: number; currency?: Currency; replay?: boolean }
   | { type: "error"; message: string };
 
 export type DocClassification = "GENERATE_OWN" | "FILL_VENDOR" | "USER_UPLOAD" | "EXTRA_REQUIRED";

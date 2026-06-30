@@ -204,6 +204,7 @@ export interface Dict {
     profileRequiredBody: string;
     profileRequiredCta: string;
     emptyHint: string;
+    analyzing: string;
     inputPlaceholder: string;
     send: string;
     reportBtn: string;
@@ -962,6 +963,7 @@ const cs: Dict = {
     profileRequiredBody: "Pro AI analýzu je potřeba mít vyplněný firemní profil. Nastavíte ho v Nastavení.",
     profileRequiredCta: "Nastavit firemní profil",
     emptyHint: "Zeptejte se AI na vhodnost zakázky, rizika nebo požadavky. Po konverzaci vygenerujete PDF zhodnocení.",
+    analyzing: "Analyzuji zakázku…",
     inputPlaceholder: "Napište zprávu…",
     send: "Odeslat",
     reportBtn: "Vygenerovat PDF zhodnocení",
@@ -1712,6 +1714,7 @@ const en: Dict = {
     profileRequiredBody: "AI analysis requires a completed company profile. Set it up in Settings.",
     profileRequiredCta: "Set up company profile",
     emptyHint: "Ask the AI about fit, risks or requirements. After the chat you can generate a PDF assessment.",
+    analyzing: "Analyzing the tender…",
     inputPlaceholder: "Type a message…",
     send: "Send",
     reportBtn: "Generate PDF assessment",
@@ -2464,6 +2467,7 @@ const de: Dict = {
     profileRequiredBody: "Die KI-Analyse erfordert ein ausgefülltes Firmenprofil. Richten Sie es in den Einstellungen ein.",
     profileRequiredCta: "Firmenprofil einrichten",
     emptyHint: "Fragen Sie die KI nach Eignung, Risiken oder Anforderungen. Nach dem Chat erzeugen Sie eine PDF-Bewertung.",
+    analyzing: "Analysiere die Ausschreibung…",
     inputPlaceholder: "Nachricht schreiben…",
     send: "Senden",
     reportBtn: "PDF-Bewertung erstellen",
@@ -3214,6 +3218,7 @@ const sk: Dict = {
     profileRequiredBody: "Pre AI analýzu je potrebné mať vyplnený firemný profil. Nastavíte ho v Nastaveniach.",
     profileRequiredCta: "Nastaviť firemný profil",
     emptyHint: "Spýtajte sa AI na vhodnosť zákazky, riziká alebo požiadavky. Po konverzácii vygenerujete PDF zhodnotenie.",
+    analyzing: "Analyzujem zákazku…",
     inputPlaceholder: "Napíšte správu…",
     send: "Odoslať",
     reportBtn: "Vygenerovať PDF zhodnotenie",
@@ -3964,6 +3969,7 @@ const fr: Dict = {
     profileRequiredBody: "L'analyse IA nécessite un profil d'entreprise complété. Configurez-le dans les Réglages.",
     profileRequiredCta: "Configurer le profil",
     emptyHint: "Demandez à l'IA la pertinence, les risques ou les exigences. Après l'échange, générez une évaluation PDF.",
+    analyzing: "Analyse du marché…",
     inputPlaceholder: "Écrire un message…",
     send: "Envoyer",
     reportBtn: "Générer l'évaluation PDF",
@@ -4714,6 +4720,7 @@ const it: Dict = {
     profileRequiredBody: "L'analisi IA richiede un profilo aziendale completo. Impostalo nelle Impostazioni.",
     profileRequiredCta: "Imposta profilo aziendale",
     emptyHint: "Chiedi all'IA idoneità, rischi o requisiti. Dopo la conversazione generi una valutazione PDF.",
+    analyzing: "Analisi della gara…",
     inputPlaceholder: "Scrivi un messaggio…",
     send: "Invia",
     reportBtn: "Genera valutazione PDF",
