@@ -7,7 +7,19 @@ import { useTheme } from "@/lib/theme-context";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 import { useI18n } from "@/lib/i18n";
 import { endpoints, type CompanyProfileView } from "@/lib/endpoints";
+import { ssePost } from "@/lib/sse";
 import { AUTH_BASE_URL } from "@/lib/config";
+
+type BuildEvent = {
+  type: "status" | "done" | "error";
+  step?: "dump" | "explore";
+  month?: string;
+  found?: number;
+  matchedTotal?: number;
+  sample?: string[];
+  view?: CompanyProfileView;
+  message?: string;
+};
 
 export default function CompanyProfileScreen() {
   const router = useRouter();
@@ -19,6 +31,9 @@ export default function CompanyProfileScreen() {
   const [view, setView] = useState<CompanyProfileView | null>(null);
   const [md, setMd] = useState("");
   const [generating, setGenerating] = useState(false);
+  const [phase, setPhase] = useState<"dump" | "explore" | null>(null);
+  const [progress, setProgress] = useState<{ months: number; found: number }>({ months: 0, found: 0 });
+  const [log, setLog] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -43,14 +58,36 @@ export default function CompanyProfileScreen() {
   async function generate() {
     if (generating) return;
     setGenerating(true);
+    setPhase("dump");
+    setProgress({ months: 0, found: 0 });
+    setLog([]);
+    let errMsg: string | null = null;
     try {
-      const { data } = await endpoints.companyProfileBuild();
-      setView(data);
-      setMd(data.companyMd ?? "");
+      await ssePost<BuildEvent>("/api/v2/account/company-profile/build", {}, (evt) => {
+        if (evt.type === "status") {
+          if (evt.step === "dump") {
+            setPhase("dump");
+            setProgress((p) => ({ months: p.months + 1, found: p.found + (evt.found ?? 0) }));
+            // Do logu jen měsíce, kde jsme něco našli — s názvy smluv.
+            if ((evt.found ?? 0) > 0 && Array.isArray(evt.sample) && evt.sample.length) {
+              setLog((l) => [...l, `${evt.month} · ${evt.sample!.join(" · ")}`]);
+            }
+          } else if (evt.step === "explore") {
+            setPhase("explore");
+          }
+        } else if (evt.type === "done" && evt.view) {
+          setView(evt.view);
+          setMd(evt.view.companyMd ?? "");
+        } else if (evt.type === "error") {
+          errMsg = evt.message || t("companyProfile", "errorTitle");
+        }
+      });
+      if (errMsg) Alert.alert(t("companyProfile", "errorTitle"), errMsg);
     } catch (e) {
       Alert.alert(t("companyProfile", "errorTitle"), e instanceof Error ? e.message : "");
     } finally {
       setGenerating(false);
+      setPhase(null);
     }
   }
 
@@ -102,7 +139,25 @@ export default function CompanyProfileScreen() {
             <Text style={styles.secondaryBtnText}>{view.companyMd ? t("companyProfile", "regenerate") : t("companyProfile", "generateBtn")}</Text>
           )}
         </Pressable>
-        <Text style={styles.hint}>{t("companyProfile", "generateHint")}</Text>
+
+        {generating ? (
+          <View style={styles.progressBox}>
+            <Text style={styles.progressText}>
+              {phase === "explore"
+                ? t("companyProfile", "analyzing")
+                : t("companyProfile", "scanProgress", { months: progress.months, found: progress.found })}
+            </Text>
+            {log.length > 0 && (
+              <View style={styles.logBox}>
+                {log.slice(-6).map((l, i) => (
+                  <Text key={i} style={styles.logLine} numberOfLines={1}>{l}</Text>
+                ))}
+              </View>
+            )}
+          </View>
+        ) : (
+          <Text style={styles.hint}>{t("companyProfile", "generateHint")}</Text>
+        )}
 
         <Text style={styles.sectionLabel}>{t("companyProfile", "mdLabel")}</Text>
         <TextInput
@@ -138,6 +193,10 @@ const makeStyles = (c: Colors) =>
     secondaryBtn: { borderWidth: 1, borderColor: c.border, borderRadius: radius.md, paddingVertical: spacing.sm, alignItems: "center", backgroundColor: c.card },
     secondaryBtnText: { fontSize: fontSize.sm, color: c.text, fontWeight: "600" },
     hint: { fontSize: fontSize.xs, color: c.textSubtle, marginTop: spacing.xs, lineHeight: 16 },
+    progressBox: { marginTop: spacing.sm, padding: spacing.md, backgroundColor: c.card, borderWidth: 1, borderColor: c.border, borderRadius: radius.md },
+    progressText: { fontSize: fontSize.xs, color: c.text, fontWeight: "600" },
+    logBox: { marginTop: spacing.sm, gap: 2 },
+    logLine: { fontSize: fontSize.xs, color: c.textSubtle, lineHeight: 16 },
     sectionLabel: { fontSize: fontSize.xs, color: c.textSubtle, fontWeight: "600", textTransform: "uppercase", letterSpacing: 0.5, marginTop: spacing.lg, marginBottom: spacing.xs },
     mdInput: { minHeight: 240, backgroundColor: c.card, borderWidth: 1, borderColor: c.border, borderRadius: radius.md, padding: spacing.md, fontSize: fontSize.sm, color: c.text, lineHeight: 20 },
     primaryBtn: { backgroundColor: c.accent, paddingVertical: spacing.md, borderRadius: radius.md, alignItems: "center", marginTop: spacing.lg },

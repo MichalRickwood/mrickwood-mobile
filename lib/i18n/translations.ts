@@ -257,6 +257,8 @@ export interface Dict {
     generateBtn: string;
     regenerate: string;
     generating: string;
+    scanProgress: string;
+    analyzing: string;
     generateHint: string;
     mdLabel: string;
     mdPlaceholder: string;
@@ -1001,6 +1003,8 @@ const cs: Dict = {
     generateBtn: "Vygenerovat profil",
     regenerate: "Přegenerovat profil",
     generating: "Generuji…",
+    scanProgress: "Prohledávám registr smluv — {months} měsíců · nalezeno {found} smluv",
+    analyzing: "Analyzuji smlouvy a veřejné zdroje, sestavuji profil…",
     generateHint: "AI sestaví profil z IČO a veřejných zdrojů. Můžete ho pak upravit.",
     mdLabel: "Profil firmy",
     mdPlaceholder: "Popis firmy, obory, reference…",
@@ -1737,6 +1741,8 @@ const en: Dict = {
     generateBtn: "Generate profile",
     regenerate: "Regenerate profile",
     generating: "Generating…",
+    scanProgress: "Searching the contracts registry — {months} months · {found} contracts found",
+    analyzing: "Analyzing contracts and public sources, building the profile…",
     generateHint: "The AI builds the profile from your company ID and public sources. You can edit it afterwards.",
     mdLabel: "Company profile",
     mdPlaceholder: "Company description, fields, references…",
@@ -2475,6 +2481,8 @@ const de: Dict = {
     generateBtn: "Profil erzeugen",
     regenerate: "Profil neu erzeugen",
     generating: "Erzeuge…",
+    scanProgress: "Durchsuche das Vertragsregister — {months} Monate · {found} Verträge gefunden",
+    analyzing: "Analysiere Verträge und öffentliche Quellen, erstelle das Profil…",
     generateHint: "Die KI erstellt das Profil aus IČO und öffentlichen Quellen. Sie können es danach bearbeiten.",
     mdLabel: "Firmenprofil",
     mdPlaceholder: "Firmenbeschreibung, Bereiche, Referenzen…",
@@ -3211,6 +3219,8 @@ const sk: Dict = {
     generateBtn: "Vygenerovať profil",
     regenerate: "Pregenerovať profil",
     generating: "Generujem…",
+    scanProgress: "Prehľadávam register zmlúv — {months} mesiacov · nájdených {found} zmlúv",
+    analyzing: "Analyzujem zmluvy a verejné zdroje, zostavujem profil…",
     generateHint: "AI zostaví profil z IČO a verejných zdrojov. Potom ho môžete upraviť.",
     mdLabel: "Profil firmy",
     mdPlaceholder: "Popis firmy, odbory, referencie…",
@@ -3947,6 +3957,8 @@ const fr: Dict = {
     generateBtn: "Générer le profil",
     regenerate: "Régénérer le profil",
     generating: "Génération…",
+    scanProgress: "Recherche dans le registre des contrats — {months} mois · {found} contrats trouvés",
+    analyzing: "Analyse des contrats et des sources publiques, création du profil…",
     generateHint: "L'IA construit le profil à partir de l'IČO et de sources publiques. Vous pouvez le modifier ensuite.",
     mdLabel: "Profil d'entreprise",
     mdPlaceholder: "Description, domaines, références…",
@@ -4683,6 +4695,8 @@ const it: Dict = {
     generateBtn: "Genera profilo",
     regenerate: "Rigenera profilo",
     generating: "Generazione…",
+    scanProgress: "Ricerca nel registro dei contratti — {months} mesi · {found} contratti trovati",
+    analyzing: "Analisi dei contratti e delle fonti pubbliche, creazione del profilo…",
     generateHint: "L'IA costruisce il profilo da IČO e fonti pubbliche. Puoi modificarlo dopo.",
     mdLabel: "Profilo aziendale",
     mdPlaceholder: "Descrizione, settori, referenze…",
