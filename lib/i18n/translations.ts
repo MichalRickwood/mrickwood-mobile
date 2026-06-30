@@ -535,6 +535,8 @@ export interface Dict {
     chipCategoryN: string;
     chipCpv: string;
     chipCpvN: string;
+    chipZadavatel: string;
+    chipZadavatelN: string;
     chipSave: string;
     sortTitle: string;
     sortNewest: string;
@@ -1291,6 +1293,8 @@ const cs: Dict = {
     chipCategoryN: "Kategorie ({count})",
     chipCpv: "CPV",
     chipCpvN: "CPV ({count})",
+    chipZadavatel: "Zadavatel",
+    chipZadavatelN: "Zadavatel ({count})",
     chipSave: "＋ Uložit",
     sortTitle: "Řazení",
     sortNewest: "Nejnovější",
@@ -2039,6 +2043,8 @@ const en: Dict = {
     chipCategoryN: "Categories ({count})",
     chipCpv: "CPV",
     chipCpvN: "CPV ({count})",
+    chipZadavatel: "Authority",
+    chipZadavatelN: "Authority ({count})",
     chipSave: "＋ Save",
     sortTitle: "Sort by",
     sortNewest: "Newest",
@@ -2789,6 +2795,8 @@ const de: Dict = {
     chipCategoryN: "Kategorien ({count})",
     chipCpv: "CPV",
     chipCpvN: "CPV ({count})",
+    chipZadavatel: "Auftraggeber",
+    chipZadavatelN: "Auftraggeber ({count})",
     chipSave: "＋ Speichern",
     sortTitle: "Sortierung",
     sortNewest: "Neueste",
@@ -3537,6 +3545,8 @@ const sk: Dict = {
     chipCategoryN: "Kategórie ({count})",
     chipCpv: "CPV",
     chipCpvN: "CPV ({count})",
+    chipZadavatel: "Zadávateľ",
+    chipZadavatelN: "Zadávateľ ({count})",
     chipSave: "＋ Uložiť",
     sortTitle: "Zoradiť podľa",
     sortNewest: "Najnovšie",
@@ -4285,6 +4295,8 @@ const fr: Dict = {
     chipCategoryN: "Catégories ({count})",
     chipCpv: "CPV",
     chipCpvN: "CPV ({count})",
+    chipZadavatel: "Pouvoir adj.",
+    chipZadavatelN: "Pouvoir adj. ({count})",
     chipSave: "＋ Enregistrer",
     sortTitle: "Trier par",
     sortNewest: "Plus récents",
@@ -5033,6 +5045,8 @@ const it: Dict = {
     chipCategoryN: "Categorie ({count})",
     chipCpv: "CPV",
     chipCpvN: "CPV ({count})",
+    chipZadavatel: "Stazione app.",
+    chipZadavatelN: "Stazione app. ({count})",
     chipSave: "＋ Salva",
     sortTitle: "Ordina per",
     sortNewest: "Più recenti",

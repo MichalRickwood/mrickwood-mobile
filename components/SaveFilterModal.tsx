@@ -73,6 +73,7 @@ export default function SaveFilterModal({ visible, adHoc, onClose, onSaved }: Pr
       regions: adHoc.regions,
       categories: adHoc.cpvPrefixes,
       industryTags: adHoc.industryTags,
+      zadavatelIcos: adHoc.zadavatele.map((z) => z.ico),
       minValue: adHoc.minValue,
       maxValue: adHoc.maxValue,
       emailDigest: true,

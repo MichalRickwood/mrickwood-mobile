@@ -369,6 +369,8 @@ export const endpoints = {
     cpvPrefixes?: string;
     /** Comma-separated industry tag IDs (např. "con_buildings,it_development"). */
     industryTags?: string;
+    /** Comma-separated IČO zadavatelů. */
+    zadavatelIcos?: string;
   }) => {
     // v2 paramy: ?qText (ne ?q), ?view jen "starred"|"excluded" (ne "all")
     const v2Params: Record<string, string | number | boolean | null | undefined> = {};
@@ -384,6 +386,7 @@ export const endpoints = {
     if (params?.deadlineTo) v2Params.deadlineTo = params.deadlineTo;
     if (params?.cpvPrefixes) v2Params.cpvPrefixes = params.cpvPrefixes;
     if (params?.industryTags) v2Params.industryTags = params.industryTags;
+    if (params?.zadavatelIcos) v2Params.zadavatelIcos = params.zadavatelIcos;
     if (params?.view === "starred" || params?.view === "excluded") v2Params.view = params.view;
 
     const r = await api.get<{

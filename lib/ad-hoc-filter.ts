@@ -1,8 +1,10 @@
 /**
  * Sdílený typ pro jednorázový (nepersistovaný) filtr v listu zakázek.
  * Picker komponenty modifikují tenhle state, /api/v2/leads/matches ho čte
- * jako query params (regions=…, minValue, maxValue).
+ * jako query params (regions=…, minValue, maxValue, zadavatelIcos).
  */
+import type { ZadavatelOption } from "./endpoints";
+
 export interface AdHocFilter {
   regions: string[];
   minValue: number | null;
@@ -15,6 +17,8 @@ export interface AdHocFilter {
   cpvPrefixes: string[];
   /** ID tagů z industry-taxonomy. */
   industryTags: string[];
+  /** Vybraní zadavatelé (s názvy pro zobrazení); do API jdou jejich IČO. */
+  zadavatele: ZadavatelOption[];
 }
 
 export const EMPTY_AD_HOC: AdHocFilter = {
@@ -25,6 +29,7 @@ export const EMPTY_AD_HOC: AdHocFilter = {
   deadlineTo: null,
   cpvPrefixes: [],
   industryTags: [],
+  zadavatele: [],
 };
 
 export function isAdHocActive(f: AdHocFilter): boolean {
@@ -35,6 +40,7 @@ export function isAdHocActive(f: AdHocFilter): boolean {
     f.deadlineFrom != null ||
     f.deadlineTo != null ||
     f.cpvPrefixes.length > 0 ||
-    f.industryTags.length > 0
+    f.industryTags.length > 0 ||
+    f.zadavatele.length > 0
   );
 }

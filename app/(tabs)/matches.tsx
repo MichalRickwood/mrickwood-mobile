@@ -22,6 +22,7 @@ import ValueRangePickerModal from "@/components/ValueRangePickerModal";
 import DeadlinePickerModal from "@/components/DeadlinePickerModal";
 import CategoryPickerModal from "@/components/CategoryPickerModal";
 import CpvPickerModal from "@/components/CpvPickerModal";
+import ZadavatelPickerModal from "@/components/ZadavatelPickerModal";
 import SaveFilterModal from "@/components/SaveFilterModal";
 import SortPickerModal, { type SortKey } from "@/components/SortPickerModal";
 import { CZ_REGIONS, regionLabel } from "@/lib/nuts-cz";
@@ -86,6 +87,7 @@ export default function MatchesScreen() {
   const [deadlinePickerOpen, setDeadlinePickerOpen] = useState(false);
   const [categoryPickerOpen, setCategoryPickerOpen] = useState(false);
   const [cpvPickerOpen, setCpvPickerOpen] = useState(false);
+  const [zadavatelPickerOpen, setZadavatelPickerOpen] = useState(false);
   const [saveFilterOpen, setSaveFilterOpen] = useState(false);
   const [sort, setSort] = useState<SortKey>("newest");
   const [sortPickerOpen, setSortPickerOpen] = useState(false);
@@ -158,6 +160,9 @@ export default function MatchesScreen() {
           : {}),
         ...(adHoc.industryTags.length > 0
           ? { industryTags: adHoc.industryTags.join(",") }
+          : {}),
+        ...(adHoc.zadavatele.length > 0
+          ? { zadavatelIcos: adHoc.zadavatele.map((z) => z.ico).join(",") }
           : {}),
         ...(sort !== "newest" ? { sort } : {}),
         ...(hasNarrowingFilter ? { limit: 200 } : {}),
@@ -238,6 +243,7 @@ export default function MatchesScreen() {
                       deadlineTo: null,
                       cpvPrefixes: f.categories ?? [],
                       industryTags: f.industryTags ?? [],
+                      zadavatele: (f.zadavatelIcos ?? []).map((ico) => ({ ico, nazev: ico })),
                     });
                   }
                 }
@@ -394,6 +400,27 @@ export default function MatchesScreen() {
                   : t("filters", "chipCpv")}
               </Text>
             </Pressable>
+            <Pressable
+              onPress={() => setZadavatelPickerOpen(true)}
+              style={({ pressed }) => [
+                styles.adHocChip,
+                adHoc.zadavatele.length > 0 && styles.adHocChipActive,
+                pressed && { opacity: 0.7 },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.adHocChipText,
+                  adHoc.zadavatele.length > 0 && styles.adHocChipTextActive,
+                ]}
+              >
+                {adHoc.zadavatele.length === 1
+                  ? adHoc.zadavatele[0].nazev
+                  : adHoc.zadavatele.length > 1
+                    ? t("filters", "chipZadavatelN", { count: String(adHoc.zadavatele.length) })
+                    : t("filters", "chipZadavatel")}
+              </Text>
+            </Pressable>
             {isAdHocActive(adHoc) && (
               <>
                 <Pressable
@@ -451,6 +478,12 @@ export default function MatchesScreen() {
         initial={adHoc.cpvPrefixes}
         onClose={() => setCpvPickerOpen(false)}
         onApply={(p) => setAdHoc((prev) => ({ ...prev, cpvPrefixes: p }))}
+      />
+      <ZadavatelPickerModal
+        visible={zadavatelPickerOpen}
+        initial={adHoc.zadavatele}
+        onClose={() => setZadavatelPickerOpen(false)}
+        onApply={(z) => setAdHoc((prev) => ({ ...prev, zadavatele: z }))}
       />
       <SortPickerModal
         visible={sortPickerOpen}
