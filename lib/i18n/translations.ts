@@ -290,6 +290,10 @@ export interface Dict {
     signatoryLabel: string;
     signatoryName: string;
     signatoryFunction: string;
+    signatoryEmpty: string;
+    signatoryPerson: string;
+    addSignatory: string;
+    remove: string;
     modeSole: string;
     modeJoint: string;
     saveBtn: string;
@@ -1036,6 +1040,10 @@ const cs: Dict = {
     signatoryLabel: "Podepisující osoba",
     signatoryName: "Jméno",
     signatoryFunction: "Funkce",
+    signatoryEmpty: "Načtěte z ARES nebo přidejte osoby ručně.",
+    signatoryPerson: "Osoba",
+    addSignatory: "Přidat osobu",
+    remove: "Smazat",
     modeSole: "Samostatně",
     modeJoint: "Společně",
     saveBtn: "Uložit identitu",
@@ -1774,6 +1782,10 @@ const en: Dict = {
     signatoryLabel: "Signatory",
     signatoryName: "Name",
     signatoryFunction: "Role",
+    signatoryEmpty: "Load from ARES or add people manually.",
+    signatoryPerson: "Person",
+    addSignatory: "Add person",
+    remove: "Remove",
     modeSole: "Sole",
     modeJoint: "Joint",
     saveBtn: "Save identity",
@@ -2514,6 +2526,10 @@ const de: Dict = {
     signatoryLabel: "Unterzeichner",
     signatoryName: "Name",
     signatoryFunction: "Funktion",
+    signatoryEmpty: "Aus ARES laden oder Personen manuell hinzufügen.",
+    signatoryPerson: "Person",
+    addSignatory: "Person hinzufügen",
+    remove: "Entfernen",
     modeSole: "Allein",
     modeJoint: "Gemeinsam",
     saveBtn: "Identität speichern",
@@ -3252,6 +3268,10 @@ const sk: Dict = {
     signatoryLabel: "Podpisujúca osoba",
     signatoryName: "Meno",
     signatoryFunction: "Funkcia",
+    signatoryEmpty: "Načítajte z ARES alebo pridajte osoby ručne.",
+    signatoryPerson: "Osoba",
+    addSignatory: "Pridať osobu",
+    remove: "Zmazať",
     modeSole: "Samostatne",
     modeJoint: "Spoločne",
     saveBtn: "Uložiť identitu",
@@ -3990,6 +4010,10 @@ const fr: Dict = {
     signatoryLabel: "Signataire",
     signatoryName: "Nom",
     signatoryFunction: "Fonction",
+    signatoryEmpty: "Chargez depuis ARES ou ajoutez des personnes manuellement.",
+    signatoryPerson: "Personne",
+    addSignatory: "Ajouter une personne",
+    remove: "Supprimer",
     modeSole: "Seul",
     modeJoint: "Conjoint",
     saveBtn: "Enregistrer l'identité",
@@ -4728,6 +4752,10 @@ const it: Dict = {
     signatoryLabel: "Firmatario",
     signatoryName: "Nome",
     signatoryFunction: "Funzione",
+    signatoryEmpty: "Carica da ARES o aggiungi persone manualmente.",
+    signatoryPerson: "Persona",
+    addSignatory: "Aggiungi persona",
+    remove: "Rimuovi",
     modeSole: "Singolo",
     modeJoint: "Congiunto",
     saveBtn: "Salva identità",

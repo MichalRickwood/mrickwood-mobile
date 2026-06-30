@@ -23,9 +23,7 @@ export default function BidIdentityScreen() {
   const [cName, setCName] = useState("");
   const [cEmail, setCEmail] = useState("");
   const [cPhone, setCPhone] = useState("");
-  const [sName, setSName] = useState("");
-  const [sFunc, setSFunc] = useState("");
-  const [sMode, setSMode] = useState<"sole" | "joint">("sole");
+  const [signatories, setSignatories] = useState<{ name: string; function: string }[]>([]);
 
   function hydrate(v: BidIdentityView) {
     setView(v);
@@ -34,10 +32,19 @@ export default function BidIdentityScreen() {
     setCName(v.contactPerson?.name ?? "");
     setCEmail(v.contactPerson?.email ?? "");
     setCPhone(v.contactPerson?.phone ?? "");
-    setSName(v.signatory?.name ?? "");
-    setSFunc(v.signatory?.function ?? "");
-    setSMode(v.signatory?.mode ?? "sole");
+    // Migrace ze starého `signatory` (single) na pole.
+    const sigs = v.signatories?.length
+      ? v.signatories
+      : v.signatory?.name
+        ? [{ name: v.signatory.name, function: v.signatory.function }]
+        : [];
+    setSignatories(sigs.map((s) => ({ name: s.name, function: s.function })));
   }
+
+  const updateSig = (i: number, patch: Partial<{ name: string; function: string }>) =>
+    setSignatories((arr) => arr.map((s, idx) => (idx === i ? { ...s, ...patch } : s)));
+  const addSig = () => setSignatories((arr) => [...arr, { name: "", function: "jednatel" }]);
+  const removeSig = (i: number) => setSignatories((arr) => arr.filter((_, idx) => idx !== i));
 
   useEffect(() => {
     let alive = true;
@@ -77,7 +84,9 @@ export default function BidIdentityScreen() {
         bankAccount: bank.trim() || undefined,
         dataBox: dataBox.trim() || undefined,
         contactPerson: { name: cName.trim(), email: cEmail.trim(), phone: cPhone.trim() },
-        signatory: sName.trim() ? { name: sName.trim(), function: sFunc.trim(), mode: sMode } : undefined,
+        signatories: signatories
+          .map((s) => ({ name: s.name.trim(), function: s.function.trim() || "jednatel" }))
+          .filter((s) => s.name),
       });
       hydrate(data);
       Alert.alert(t("bidIdentity", "savedTitle"), t("bidIdentity", "savedBody"));
@@ -138,16 +147,22 @@ export default function BidIdentityScreen() {
         <Field styles={styles} label={t("bidIdentity", "contactPhone")} value={cPhone} onChange={setCPhone} keyboardType="phone-pad" colors={colors} />
 
         <Text style={styles.sectionLabel}>{t("bidIdentity", "signatoryLabel")}</Text>
-        <Field styles={styles} label={t("bidIdentity", "signatoryName")} value={sName} onChange={setSName} colors={colors} />
-        <Field styles={styles} label={t("bidIdentity", "signatoryFunction")} value={sFunc} onChange={setSFunc} colors={colors} />
-        <View style={styles.toggleRow}>
-          <Pressable onPress={() => setSMode("sole")} style={[styles.toggle, sMode === "sole" && styles.toggleActive]}>
-            <Text style={[styles.toggleText, sMode === "sole" && styles.toggleTextActive]}>{t("bidIdentity", "modeSole")}</Text>
-          </Pressable>
-          <Pressable onPress={() => setSMode("joint")} style={[styles.toggle, sMode === "joint" && styles.toggleActive]}>
-            <Text style={[styles.toggleText, sMode === "joint" && styles.toggleTextActive]}>{t("bidIdentity", "modeJoint")}</Text>
-          </Pressable>
-        </View>
+        {signatories.length === 0 && <Text style={styles.hint}>{t("bidIdentity", "signatoryEmpty")}</Text>}
+        {signatories.map((s, i) => (
+          <View key={i} style={styles.sigCard}>
+            <View style={styles.sigHead}>
+              <Text style={styles.sigIndex}>{t("bidIdentity", "signatoryPerson")} {i + 1}</Text>
+              <Pressable onPress={() => removeSig(i)} hitSlop={8}>
+                <Text style={styles.sigRemove}>{t("bidIdentity", "remove")}</Text>
+              </Pressable>
+            </View>
+            <Field styles={styles} label={t("bidIdentity", "signatoryName")} value={s.name} onChange={(v) => updateSig(i, { name: v })} colors={colors} />
+            <Field styles={styles} label={t("bidIdentity", "signatoryFunction")} value={s.function} onChange={(v) => updateSig(i, { function: v })} colors={colors} />
+          </View>
+        ))}
+        <Pressable style={styles.addBtn} onPress={addSig}>
+          <Text style={styles.addBtnText}>＋ {t("bidIdentity", "addSignatory")}</Text>
+        </Pressable>
 
         <Pressable style={[styles.primaryBtn, saving && { opacity: 0.6 }]} disabled={saving} onPress={save}>
           {saving ? <ActivityIndicator size="small" color={colors.accentForeground} /> : <Text style={styles.primaryBtnText}>{t("bidIdentity", "saveBtn")}</Text>}
@@ -212,11 +227,12 @@ const makeStyles = (c: Colors) =>
     field: { marginTop: spacing.sm },
     fieldLabel: { fontSize: fontSize.xs, color: c.textMuted, marginBottom: spacing.xs },
     input: { backgroundColor: c.card, borderWidth: 1, borderColor: c.border, borderRadius: radius.md, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, fontSize: fontSize.sm, color: c.text },
-    toggleRow: { flexDirection: "row", gap: spacing.sm, marginTop: spacing.sm },
-    toggle: { flex: 1, borderWidth: 1, borderColor: c.border, borderRadius: radius.md, paddingVertical: spacing.sm, alignItems: "center", backgroundColor: c.card },
-    toggleActive: { borderColor: c.accent, backgroundColor: c.accent },
-    toggleText: { fontSize: fontSize.xs, color: c.text, fontWeight: "600" },
-    toggleTextActive: { color: c.accentForeground },
+    sigCard: { marginTop: spacing.sm, padding: spacing.md, borderWidth: 1, borderColor: c.border, borderRadius: radius.md, backgroundColor: c.card },
+    sigHead: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+    sigIndex: { fontSize: fontSize.xs, color: c.textSubtle, fontWeight: "700", textTransform: "uppercase", letterSpacing: 0.5 },
+    sigRemove: { fontSize: fontSize.xs, color: c.danger ?? c.warning, fontWeight: "600" },
+    addBtn: { marginTop: spacing.sm, borderWidth: 1, borderStyle: "dashed", borderColor: c.border, borderRadius: radius.md, paddingVertical: spacing.sm, alignItems: "center" },
+    addBtnText: { fontSize: fontSize.sm, color: c.accent, fontWeight: "600" },
     primaryBtn: { backgroundColor: c.accent, paddingVertical: spacing.md, borderRadius: radius.md, alignItems: "center", marginTop: spacing.xl },
     primaryBtnText: { color: c.accentForeground, fontWeight: "600", fontSize: fontSize.sm },
   });

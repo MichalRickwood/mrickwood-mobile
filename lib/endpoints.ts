@@ -222,14 +222,16 @@ export interface BidIdentityView {
   bankAccount?: string | null;
   dataBox?: string | null;
   contactPerson?: { name?: string; email?: string; phone?: string } | null;
-  signatory?: { name: string; function: string; mode: "sole" | "joint" } | null;
-  jednatele?: { name: string }[] | null;
+  signatories?: { name: string; function: string }[] | null;
+  /** @deprecated nahrazeno `signatories` */
+  signatory?: { name: string; function: string; mode?: "sole" | "joint" } | null;
+  jednatele?: { name: string; function?: string }[] | null;
 }
 export interface BidIdentitySaveInput {
   bankAccount?: string;
   dataBox?: string;
   contactPerson?: { name?: string; email?: string; phone?: string };
-  signatory?: { name: string; function: string; mode: "sole" | "joint" };
+  signatories?: { name: string; function: string }[];
 }
 export interface AiCreditTxn {
   id: string;
