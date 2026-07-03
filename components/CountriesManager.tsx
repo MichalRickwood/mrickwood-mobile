@@ -112,12 +112,21 @@ export default function CountriesManager({ mode }: { mode: "onboarding" | "setti
   });
   const countries: Country[] | null = countriesQuery.data ?? null;
   const subRows = (subsQuery.data ?? []) as SubRow[];
+  // „Aktivní" = zamčená země (Odebrat, nejde koupit). MUSÍ být reálně LIVE —
+  // vypršelý trial (state zůstává TRIAL) ani vypršelé paid NEJSOU aktivní, jinak
+  // by je nešlo znovu předplatit (viděl by ses jen "Odebrat"). Mirror backend
+  // classifyEntitlement.
   const activeScopes = useMemo(() => {
+    const now = Date.now();
+    const isLive = (s: SubRow): boolean => {
+      if (s.state === "CANCELED" || s.state === "SUSPENDED") return false;
+      if (s.state === "TRIAL") return !s.trialEndsAt || new Date(s.trialEndsAt).getTime() >= now;
+      if (s.state === "ACTIVE") return !s.paidUntil || new Date(s.paidUntil).getTime() >= now;
+      return true; // PAST_DUE = grace period
+    };
     const set = new Set<string>();
     for (const s of subRows) {
-      if (s.service === "LEADS" && s.scope && s.state !== "CANCELED" && s.state !== "SUSPENDED") {
-        set.add(s.scope);
-      }
+      if (s.service === "LEADS" && s.scope && isLive(s)) set.add(s.scope);
     }
     return set;
   }, [subRows]);
