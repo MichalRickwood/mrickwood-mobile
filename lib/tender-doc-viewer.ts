@@ -88,6 +88,15 @@ export async function openTenderDocument(
     });
     return;
   }
+  // Starší binární formáty (.doc/.rtf/.ppt/.pptx/.odt/.ods/.odp), které neumíme
+  // renderovat in-house (docx-preview/SheetJS je nezvládnou, LibreOffice běží jen
+  // na externím workeru). Zakázkové dokumenty jsou veřejné → otevřeme je přes
+  // Microsoft Office web viewer (plná věrnost, bez vlastní infra). Vyžaduje
+  // veřejně dostupnou URL (resolver i portály jsou public).
+  if (ext && OFFICE_VIEWER_EXTS.includes(ext)) {
+    await WebBrowser.openBrowserAsync(officeViewerUrl(doc.url));
+    return;
+  }
   // PDF přes RWX resolver (vasedio.cz) chodí s `Content-Disposition: attachment`,
   // takže in-app prohlížeč soubor stáhne místo zobrazení. Protáhneme ho naším
   // inline-proxy endpointem (uloží do Spaces jako application/pdf bez attachment)
@@ -102,6 +111,14 @@ export async function openTenderDocument(
   }
   // PDF i ostatní typy přes SFSafariViewController.
   await WebBrowser.openBrowserAsync(doc.url);
+}
+
+/** Legacy Office formáty, které renderujeme přes Microsoft Office web viewer. */
+const OFFICE_VIEWER_EXTS = ["doc", "rtf", "ppt", "pptx", "odt", "ods", "odp"];
+
+/** Microsoft Office online viewer pro veřejné dokumenty (plná věrnost). */
+function officeViewerUrl(url: string): string {
+  return `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(url)}`;
 }
 
 /** True pro dokumenty servírované přes RWX resolver (potřebují inline-proxy). */
