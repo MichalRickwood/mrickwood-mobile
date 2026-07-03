@@ -185,6 +185,10 @@ export default function CountriesManager({ mode }: { mode: "onboarding" | "setti
       setSelected(new Set(activeScopes));
       return;
     }
+    // iOS Nastavení (IAP): NEpředvybírat default zemi — jinak by naskočil batch
+    // free-trial button ("Přidat vybrané") a šlo omylem aktivovat trial místo
+    // IAP nákupu (i re-aktivovat vypršelý). Placené na iOS jede jen per-country IAP.
+    if (Platform.OS === "ios" && isIapAvailable() && mode === "settings") return;
     if (profileQuery.isPending) return;
     const profileCountry = profileQuery.data?.country?.toUpperCase() ?? null;
     const inCatalog = (code: string) =>
@@ -447,7 +451,9 @@ export default function CountriesManager({ mode }: { mode: "onboarding" | "setti
 
   // Save button v headeru jen když je co uložit (nové výběry) nebo právě běží
   // aktivace. Jinak headerRight = undefined → žádné prázdné tlačítko.
-  const showSave = newSelections.length > 0 || activating;
+  // iOS Nastavení (IAP): žádný batch free-trial button — placené jen per-country
+  // přes IAP "Předplatit". Batch trial zůstává onboardingu (první průchod) / Androidu.
+  const showSave = !iapEnabled && (newSelections.length > 0 || activating);
   const headerSave = () => (
     <Pressable
       onPress={activate}
