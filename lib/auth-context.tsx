@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { clearSession, getToken, getUser, saveUser, type StoredUser } from "./auth-storage";
 import { endpoints } from "./endpoints";
 import { ApiError } from "./api";
@@ -19,6 +20,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<AuthState["status"]>("loading");
   const [user, setUser] = useState<StoredUser | null>(null);
   const pushTokenRef = useRef<string | null>(null);
+  const queryClient = useQueryClient();
+  const prevUserIdRef = useRef<string | null>(null);
 
   // On mount: ověříme uložený token přes /api/auth/mobile/me. 401 → anon.
   // Cached user nastavíme optimisticky z storage *před* network call, ať UI
@@ -33,6 +36,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       const stored = await getUser();
       if (stored && !cancelled) {
+        prevUserIdRef.current = stored.id;
         setUser(stored);
         setStatus("authenticated");
       }
@@ -40,6 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const { user: serverUser } = await endpoints.me();
         if (cancelled) return;
         await saveUser(serverUser);
+        prevUserIdRef.current = serverUser.id;
         setUser(serverUser);
         setStatus("authenticated");
         void registerForPushNotifications().then((t) => {
@@ -72,21 +77,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user?.id]);
 
   const applySession = useCallback((sessionUser: StoredUser) => {
+    // Přihlášení (i přepnutí účtu) → zahoď cache předchozího uživatele, jinak
+    // by nový účet viděl cizí data (sledované zakázky, matches, filtry…).
+    if (prevUserIdRef.current && prevUserIdRef.current !== sessionUser.id) {
+      queryClient.clear();
+    }
+    prevUserIdRef.current = sessionUser.id;
     setUser(sessionUser);
     setStatus("authenticated");
     void registerForPushNotifications().then((t) => {
       pushTokenRef.current = t;
     });
-  }, []);
+  }, [queryClient]);
 
   const signOut = useCallback(async () => {
     await unregisterPushNotifications(pushTokenRef.current);
     pushTokenRef.current = null;
     await iapLogOut();
     await clearSession();
+    // Vyčisti veškerou cache serverových dat, ať další účet nezdědí sledované
+    // zakázky / matches / filtry po odhlášeném uživateli.
+    queryClient.clear();
+    prevUserIdRef.current = null;
     setUser(null);
     setStatus("anonymous");
-  }, []);
+  }, [queryClient]);
 
   return (
     <AuthContext.Provider value={{ status, user, applySession, signOut }}>
