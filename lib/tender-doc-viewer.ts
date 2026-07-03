@@ -1,6 +1,8 @@
 import * as WebBrowser from "expo-web-browser";
 import type { Router } from "expo-router";
 import type { TenderDocument } from "./endpoints";
+import { API_BASE_URL } from "./config";
+import { getToken } from "./auth-storage";
 
 /**
  * Klasifikace tender attachmentu pro výběr in-app vieweru. Postupně rozšiřujeme:
@@ -86,6 +88,45 @@ export async function openTenderDocument(
     });
     return;
   }
-  // PDF i ostatní typy zatím přes SFSafariViewController.
+  // PDF přes RWX resolver (vasedio.cz) chodí s `Content-Disposition: attachment`,
+  // takže in-app prohlížeč soubor stáhne místo zobrazení. Protáhneme ho naším
+  // inline-proxy endpointem (uloží do Spaces jako application/pdf bez attachment)
+  // a otevřeme výslednou signed URL — SFSafari/Chrome Custom Tab ji vykreslí inline.
+  if (kind === "pdf" && isResolverHost(doc.url)) {
+    const inlineUrl = await resolveInlinePdfUrl(doc.url);
+    if (inlineUrl) {
+      await WebBrowser.openBrowserAsync(inlineUrl);
+      return;
+    }
+    // fallthrough: kdyby proxy selhala, otevři aspoň původní URL
+  }
+  // PDF i ostatní typy přes SFSafariViewController.
   await WebBrowser.openBrowserAsync(doc.url);
+}
+
+/** True pro dokumenty servírované přes RWX resolver (potřebují inline-proxy). */
+function isResolverHost(url: string): boolean {
+  try {
+    return new URL(url).host.toLowerCase().endsWith("vasedio.cz");
+  } catch {
+    return false;
+  }
+}
+
+/** Získá signed inline URL z preview endpointu (Bearer auth), nebo null při chybě. */
+async function resolveInlinePdfUrl(url: string): Promise<string | null> {
+  try {
+    const token = await getToken();
+    const endpoint = `${API_BASE_URL}/api/v2/leads/documents/preview?url=${encodeURIComponent(
+      url,
+    )}&kind=pdf&redirect=json`;
+    const res = await fetch(endpoint, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { url?: string };
+    return data?.url ?? null;
+  } catch {
+    return null;
+  }
 }
