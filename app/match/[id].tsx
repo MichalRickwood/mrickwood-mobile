@@ -355,15 +355,31 @@ function DocumentRow({
   doc: TenderDocument;
   router: Router;
 }) {
+  const { colors } = useTheme();
   const kind = inferDocKind(doc);
   const ext = inferDocExt(doc);
   const meta = [ext?.toUpperCase(), formatFileSize(doc.fileSizeBytes)]
     .filter(Boolean)
     .join(" · ");
+  const [opening, setOpening] = useState(false);
+
+  async function handlePress() {
+    if (opening) return;
+    setOpening(true);
+    try {
+      // Náhled/proxy může chvíli trvat (server stahuje + cachuje) — spinner drží
+      // vizuální odezvu, ať uživatel nemačká opakovaně.
+      await openTenderDocument(doc, router);
+    } finally {
+      setOpening(false);
+    }
+  }
+
   return (
     <Pressable
-      onPress={() => void openTenderDocument(doc, router)}
-      style={({ pressed }) => [styles.docRow, pressed && { opacity: 0.6 }]}
+      onPress={handlePress}
+      disabled={opening}
+      style={({ pressed }) => [styles.docRow, (pressed || opening) && { opacity: 0.6 }]}
     >
       <View style={styles.docIcon}>
         <Text style={styles.docIconText}>{iconForKind(kind)}</Text>
@@ -374,7 +390,11 @@ function DocumentRow({
         </Text>
         {meta && <Text style={styles.docMeta}>{meta}</Text>}
       </View>
-      <Text style={styles.docChevron}>›</Text>
+      {opening ? (
+        <ActivityIndicator size="small" color={colors.textFaint} style={styles.docChevron} />
+      ) : (
+        <Text style={styles.docChevron}>›</Text>
+      )}
     </Pressable>
   );
 }
