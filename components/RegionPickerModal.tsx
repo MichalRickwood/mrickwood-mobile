@@ -58,6 +58,7 @@ export default function RegionPickerModal({ visible, initial, onClose, onApply }
   const [selected, setSelected] = useState<string[]>(initial);
   const [activeCountries, setActiveCountries] = useState<string[]>([]);
   const [regionsCatalog, setRegionsCatalog] = useState<Record<string, Array<{ code: string; label: string }>>>({});
+  const [countryLabels, setCountryLabels] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -68,7 +69,9 @@ export default function RegionPickerModal({ visible, initial, onClose, onApply }
       try {
         const [subs, catalog] = await Promise.all([
           endpoints.listSubscriptions(),
-          endpoints.getLeadsRegionsCatalog(locale).catch(() => ({})),
+          endpoints
+            .getLeadsRegionsCatalog(locale)
+            .catch(() => ({ regions: {}, countries: {} })),
         ]);
         const codes = subs
           .filter((s) => s.service === "LEADS" && s.scope && s.state !== "CANCELED" && s.state !== "SUSPENDED")
@@ -76,7 +79,8 @@ export default function RegionPickerModal({ visible, initial, onClose, onApply }
         const unique = Array.from(new Set(codes));
         unique.sort((a, b) => (a === "CZ" ? -1 : b === "CZ" ? 1 : a.localeCompare(b)));
         setActiveCountries(unique.length > 0 ? unique : ["CZ"]);
-        setRegionsCatalog(catalog);
+        setRegionsCatalog(catalog.regions);
+        setCountryLabels(catalog.countries);
       } catch {
         setActiveCountries(["CZ"]);
       } finally {
@@ -84,6 +88,10 @@ export default function RegionPickerModal({ visible, initial, onClose, onApply }
       }
     })();
   }, [visible, initial, locale]);
+
+  // Název země: primárně z backend katalogu (všech 32 zemí × 6 jazyků),
+  // fallback lokální mapa (offline), pak ISO kód.
+  const resolveCountryName = (iso: string) => countryLabels[iso] ?? countryName(iso, locale);
 
   function toggle(code: string) {
     setSelected((prev) => (prev.includes(code) ? prev.filter((x) => x !== code) : [...prev, code]));
@@ -160,7 +168,7 @@ export default function RegionPickerModal({ visible, initial, onClose, onApply }
                         style={styles.flag}
                       />
                       <Text style={styles.areaLabel}>
-                        {countryName(country, locale)}
+                        {resolveCountryName(country)}
                         {selectedCountHere > 0 ? ` (${selectedCountHere}/${codes.length})` : ""}
                       </Text>
                       <Text style={styles.areaCheck}>
@@ -183,6 +191,11 @@ export default function RegionPickerModal({ visible, initial, onClose, onApply }
                         );
                       })}
                     </View>
+                    {chips.length === 1 && (
+                      <Text style={styles.noRegionsHint}>
+                        {t("matches", "filterRegionsWholeCountryOnly")}
+                      </Text>
+                    )}
                   </Pressable>
                 );
               })}
@@ -232,6 +245,7 @@ const makeStyles = (colors: Colors) =>
     areaLabel: { flex: 1, fontSize: fontSize.sm, color: colors.text, fontWeight: "600" },
     areaCheck: { fontSize: 16, color: colors.text, fontWeight: "700" },
     grid: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
+    noRegionsHint: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: spacing.sm, lineHeight: fontSize.xs * 1.4 },
     chip: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: radius.full, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card },
     chipActive: { backgroundColor: colors.accent, borderColor: colors.accent },
     chipText: { fontSize: fontSize.xs, color: colors.text, fontWeight: "500" },

@@ -526,9 +526,10 @@ export const endpoints = {
   getLeadsRegionsCatalog: async (locale: string) => {
     const r = await api.get<{
       data: Record<string, Array<{ code: string; label: string }>>;
+      countries?: Record<string, string>;
       generatedAt: string;
     }>("/api/v2/leads/regions/catalog", { params: { locale } });
-    return r.data;
+    return { regions: r.data, countries: r.countries ?? {} };
   },
   // List všech subscriptions usera (per scope). Mobile detekuje aktivní LEADS scopes
   // pro onboarding pre-fill + post-auth routing decision.

@@ -138,6 +138,7 @@ export interface Dict {
     filterFormKeywordsPlaceholder: string;
     filterFormRegions: string;
     filterFormAllRegions: string;
+    filterRegionsWholeCountryOnly: string;
     filterFormValueRange: string;
     filterFormValueAny: string;
     filterFormMinPlaceholder: string;
@@ -897,6 +898,7 @@ const cs: Dict = {
     filterFormKeywordsPlaceholder: "Přidat klíčové slovo…",
     filterFormRegions: "Regiony",
     filterFormAllRegions: "Celá země",
+    filterRegionsWholeCountryOnly: "Tento zdroj neposkytuje regiony — sledujete celou zemi.",
     filterFormValueRange: "Předpokládaná hodnota (Kč)",
     filterFormValueAny: "Bez omezení",
     filterFormMinPlaceholder: "Od",
@@ -1650,6 +1652,7 @@ const en: Dict = {
     filterFormKeywordsPlaceholder: "Add a keyword…",
     filterFormRegions: "Regions",
     filterFormAllRegions: "All regions",
+    filterRegionsWholeCountryOnly: "This source provides no regions — you're monitoring the whole country.",
     filterFormValueRange: "Estimated value (CZK)",
     filterFormValueAny: "Any",
     filterFormMinPlaceholder: "From",
@@ -2402,6 +2405,7 @@ const de: Dict = {
     filterFormKeywordsPlaceholder: "Schlüsselwort hinzufügen…",
     filterFormRegions: "Regionen",
     filterFormAllRegions: "Alle Regionen",
+    filterRegionsWholeCountryOnly: "Diese Quelle liefert keine Regionen — Sie überwachen das ganze Land.",
     filterFormValueRange: "Geschätzter Wert (CZK)",
     filterFormValueAny: "Beliebig",
     filterFormMinPlaceholder: "Von",
@@ -3156,6 +3160,7 @@ const sk: Dict = {
     filterFormKeywordsPlaceholder: "Pridať kľúčové slovo…",
     filterFormRegions: "Regióny",
     filterFormAllRegions: "Všetky regióny",
+    filterRegionsWholeCountryOnly: "Tento zdroj neposkytuje regióny — sledujete celú krajinu.",
     filterFormValueRange: "Predpokladaná hodnota (CZK)",
     filterFormValueAny: "Ľubovoľná",
     filterFormMinPlaceholder: "Od",
@@ -3908,6 +3913,7 @@ const fr: Dict = {
     filterFormKeywordsPlaceholder: "Ajouter un mot-clé…",
     filterFormRegions: "Régions",
     filterFormAllRegions: "Toutes les régions",
+    filterRegionsWholeCountryOnly: "Cette source ne fournit pas de régions — vous surveillez tout le pays.",
     filterFormValueRange: "Valeur estimée (CZK)",
     filterFormValueAny: "Indifférent",
     filterFormMinPlaceholder: "De",
@@ -4660,6 +4666,7 @@ const it: Dict = {
     filterFormKeywordsPlaceholder: "Aggiungi una parola chiave…",
     filterFormRegions: "Regioni",
     filterFormAllRegions: "Tutte le regioni",
+    filterRegionsWholeCountryOnly: "Questa fonte non fornisce regioni — monitori l'intero paese.",
     filterFormValueRange: "Valore stimato (CZK)",
     filterFormValueAny: "Qualsiasi",
     filterFormMinPlaceholder: "Da",
