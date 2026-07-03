@@ -371,7 +371,7 @@ export const endpoints = {
     industryTags?: string;
     /** Comma-separated IČO zadavatelů. */
     zadavatelIcos?: string;
-  }) => {
+  }, opts?: { signal?: AbortSignal }) => {
     // v2 paramy: ?qText (ne ?q), ?view jen "starred"|"excluded" (ne "all")
     const v2Params: Record<string, string | number | boolean | null | undefined> = {};
     if (params?.filterId) v2Params.filterId = params.filterId;
@@ -392,7 +392,7 @@ export const endpoints = {
     const r = await api.get<{
       data: LeadMatchRow[];
       pagination: { nextCursor: string | null; totalCount: number };
-    }>("/api/v2/leads/matches", { params: v2Params });
+    }>("/api/v2/leads/matches", { params: v2Params, signal: opts?.signal });
     return { matches: r.data, nextCursor: r.pagination.nextCursor, totalCount: r.pagination.totalCount };
   },
 

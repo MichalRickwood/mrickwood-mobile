@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { endpoints, type LeadMatchRow } from "@/lib/endpoints";
 import { ApiError } from "@/lib/api";
 import FilterPicker from "@/components/FilterPicker";
@@ -93,9 +93,14 @@ export default function MatchesScreen() {
   const [sortPickerOpen, setSortPickerOpen] = useState(false);
   const setPreference = useToggleTenderPreference();
 
-  // Debounce search input → odložený query refetch.
+  // Debounce search input → odložený query refetch. FULLTEXT (standard parser)
+  // má min. token 3 znaky, takže hledáme až od 3 znaků (kratší = pomalý LIKE
+  // fallback bez užitku); prázdné pole search vypne.
   useEffect(() => {
-    const id = setTimeout(() => setSearchDebounced(searchInput.trim()), 300);
+    const id = setTimeout(() => {
+      const q = searchInput.trim();
+      setSearchDebounced(q.length >= 3 ? q : "");
+    }, 300);
     return () => clearTimeout(id);
   }, [searchInput]);
 
@@ -144,8 +149,11 @@ export default function MatchesScreen() {
     // subsQuery rovnou.
     enabled: !leadsInactive,
     queryKey: ["matches", activeFilterId, searchDebounced, adHoc, sort],
+    // Při změně dotazu neklesni na prázdno — drž předchozí výsledky, dokud
+    // nedorazí nové (jinak seznam problikne na 0).
+    placeholderData: keepPreviousData,
     initialPageParam: null as string | null,
-    queryFn: ({ pageParam }) =>
+    queryFn: ({ pageParam, signal }) =>
       endpoints.myMatches({
         ...(activeFilterId ? { filterId: activeFilterId } : {}),
         ...(pageParam ? { cursor: pageParam } : {}),
@@ -166,7 +174,7 @@ export default function MatchesScreen() {
           : {}),
         ...(sort !== "newest" ? { sort } : {}),
         ...(hasNarrowingFilter ? { limit: 200 } : {}),
-      }),
+      }, { signal }),
     getNextPageParam: (last) => last.nextCursor ?? undefined,
   });
 
