@@ -69,13 +69,17 @@ export function iconForKind(kind: DocKind): string {
 export async function openTenderDocument(
   doc: TenderDocument,
   router: Router,
+  locale?: string,
 ): Promise<void> {
   const kind = inferDocKind(doc);
   const ext = inferDocExt(doc);
+  // TED oznámení existují ve všech jazycích EU → přepiš URL na locale uživatele
+  // (fallback en). Non-TED URL vrací beze změny.
+  const url = localizeTedUrl(doc.url, locale ?? "en");
   if (kind === "image") {
     router.push({
       pathname: "/doc-image",
-      params: { url: doc.url, name: doc.name },
+      params: { url, name: doc.name },
     });
     return;
   }
@@ -84,7 +88,7 @@ export async function openTenderDocument(
   if (ext === "docx" || ext === "xlsx" || ext === "xls" || ext === "xlsm") {
     router.push({
       pathname: "/doc-html",
-      params: { url: doc.url, name: doc.name, kind: ext },
+      params: { url, name: doc.name, kind: ext },
     });
     return;
   }
@@ -94,15 +98,15 @@ export async function openTenderDocument(
   // Microsoft Office web viewer (plná věrnost, bez vlastní infra). Vyžaduje
   // veřejně dostupnou URL (resolver i portály jsou public).
   if (ext && OFFICE_VIEWER_EXTS.includes(ext)) {
-    await WebBrowser.openBrowserAsync(officeViewerUrl(doc.url));
+    await WebBrowser.openBrowserAsync(officeViewerUrl(url));
     return;
   }
   // PDF přes RWX resolver (vasedio.cz) chodí s `Content-Disposition: attachment`,
   // takže in-app prohlížeč soubor stáhne místo zobrazení. Protáhneme ho naším
   // inline-proxy endpointem (uloží do Spaces jako application/pdf bez attachment)
   // a otevřeme výslednou signed URL — SFSafari/Chrome Custom Tab ji vykreslí inline.
-  if (kind === "pdf" && isResolverHost(doc.url)) {
-    const inlineUrl = await resolveInlinePdfUrl(doc.url);
+  if (kind === "pdf" && isResolverHost(url)) {
+    const inlineUrl = await resolveInlinePdfUrl(url);
     if (inlineUrl) {
       await WebBrowser.openBrowserAsync(inlineUrl);
       return;
@@ -110,7 +114,34 @@ export async function openTenderDocument(
     // fallthrough: kdyby proxy selhala, otevři aspoň původní URL
   }
   // PDF i ostatní typy přes SFSafariViewController.
-  await WebBrowser.openBrowserAsync(doc.url);
+  await WebBrowser.openBrowserAsync(url);
+}
+
+const TED_LANGS = new Set([
+  "bg", "cs", "da", "de", "el", "en", "es", "et", "fi", "fr", "ga", "hr",
+  "hu", "it", "lt", "lv", "mt", "nl", "pl", "pt", "ro", "sk", "sl", "sv",
+]);
+
+/** TED oznámení jsou ve všech 24 jazycích EU (ted.europa.eu/{lang}/notice/{id}/…).
+ *  Přepíše jazykový segment na locale uživatele (fallback en). Non-TED beze změny. */
+export function localizeTedUrl(rawUrl: string, locale: string): string {
+  try {
+    const u = new URL(rawUrl);
+    if (u.hostname !== "ted.europa.eu" && !u.hostname.endsWith(".ted.europa.eu")) return rawUrl;
+    const m = u.pathname.match(/^\/[a-z]{2}(\/notice\/.+)$/i);
+    if (!m) return rawUrl;
+    const lang = TED_LANGS.has(locale) ? locale : "en";
+    u.pathname = `/${lang}${m[1]}`;
+    return u.toString();
+  } catch {
+    return rawUrl;
+  }
+}
+
+/** "TED 321887-2026 — MLT (PDF)" → "TED 321887-2026 (PDF)" (zbav zavádějícího kódu jazyka). */
+export function cleanTedDocName(name: string, url: string): string {
+  if (!url.includes("ted.europa.eu")) return name;
+  return name.replace(/\s+—\s+[A-Z]{3}\s+\(/, " (");
 }
 
 /** Legacy Office formáty, které renderujeme přes Microsoft Office web viewer. */

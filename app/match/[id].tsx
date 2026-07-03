@@ -10,6 +10,7 @@ import { useTheme } from "@/lib/theme-context";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 import {
   iconForKind,
+  cleanTedDocName,
   inferDocExt,
   inferDocKind,
   openTenderDocument,
@@ -22,7 +23,7 @@ export default function MatchDetailScreen() {
   const router = useRouter();
   const qc = useQueryClient();
   const { colors } = useTheme();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const styles = useMemo(() => makeStyles(colors), [colors]);
 
   // Primárně tahá z cache /matches. Pokud cache nemá řádek (deep link z push
@@ -318,7 +319,7 @@ export default function MatchDetailScreen() {
                 {t("matchDetail", "documentsLabel", { count: docs.length })}
               </Text>
               {docs.map((d, i) => (
-                <DocumentRow key={`${d.url}-${i}`} styles={styles} doc={d} router={router} />
+                <DocumentRow key={`${d.url}-${i}`} styles={styles} doc={d} router={router} locale={locale} />
               ))}
             </View>
           );
@@ -350,10 +351,12 @@ function DocumentRow({
   styles,
   doc,
   router,
+  locale,
 }: {
   styles: ReturnType<typeof makeStyles>;
   doc: TenderDocument;
   router: Router;
+  locale: string;
 }) {
   const { colors } = useTheme();
   const kind = inferDocKind(doc);
@@ -369,7 +372,7 @@ function DocumentRow({
     try {
       // Náhled/proxy může chvíli trvat (server stahuje + cachuje) — spinner drží
       // vizuální odezvu, ať uživatel nemačká opakovaně.
-      await openTenderDocument(doc, router);
+      await openTenderDocument(doc, router, locale);
     } finally {
       setOpening(false);
     }
@@ -386,7 +389,7 @@ function DocumentRow({
       </View>
       <View style={styles.docText}>
         <Text style={styles.docName} numberOfLines={2}>
-          {doc.name}
+          {cleanTedDocName(doc.name, doc.url)}
         </Text>
         {meta && <Text style={styles.docMeta}>{meta}</Text>}
       </View>
