@@ -31,6 +31,7 @@ const LANG_INFO: Record<string, { flag: string; native: string }> = {
   sk: { flag: "🇸🇰", native: "Slovenčina" },
   fr: { flag: "🇫🇷", native: "Français" },
   it: { flag: "🇮🇹", native: "Italiano" },
+  ja: { flag: "🇯🇵", native: "日本語" },
 };
 
 export default function LocaleSwitcher() {

@@ -5,9 +5,12 @@
  * Pro nové stringy přidej do všech 3 jazyků, jinak fallback na cs.
  */
 
-export type Locale = "cs" | "en" | "de" | "sk" | "fr" | "it";
+// Japonský slovník je generovaný (scripts/translate-mobile-dict.mts) → JSON.
+import jaDict from "./dict-ja.json";
 
-export const LOCALES: Locale[] = ["cs", "en", "de", "sk", "fr", "it"];
+export type Locale = "cs" | "en" | "de" | "sk" | "fr" | "it" | "ja";
+
+export const LOCALES: Locale[] = ["cs", "en", "de", "sk", "fr", "it", "ja"];
 
 export interface Dict {
   brand: {
@@ -5291,4 +5294,4 @@ const it: Dict = {
   locale: { cs: "Čeština", en: "English", de: "Deutsch", sk: "Slovenčina", fr: "Français", it: "Italiano" },
 };
 
-export const dicts: Record<Locale, Dict> = { cs, en, de, sk, fr, it };
+export const dicts: Record<Locale, Dict> = { cs, en, de, sk, fr, it, ja: jaDict as unknown as Dict };

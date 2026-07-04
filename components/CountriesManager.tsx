@@ -63,7 +63,7 @@ function fmtCoverage(n: number, locale: string): string {
 interface Country {
   code: string;
   flag: string;
-  labels: { cs: string; en: string; de: string; sk: string; fr: string; it: string };
+  labels: { cs: string; en: string; de: string; sk: string; fr: string; it: string; ja: string };
   price: {
     czk: { monthly: number; yearly: number };
     eur: { monthly: number; yearly: number };
