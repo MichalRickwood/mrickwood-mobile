@@ -3,6 +3,7 @@ import { NativeTabs, Icon, Label } from "expo-router/unstable-native-tabs";
 import { Platform, Text } from "react-native";
 import { useTheme } from "@/lib/theme-context";
 import { useI18n } from "@/lib/i18n";
+import { useAuth } from "@/lib/auth-context";
 
 // Tenders tab je "matches" (ne "index") — "/" route je app/index.tsx (auth gate),
 // aby se při startu nepro­bliklo (tabs)/index nepřihlášenému uživateli.
@@ -22,6 +23,7 @@ function supportsNativeTabs(): boolean {
 export default function TabsLayout() {
   const { colors } = useTheme();
   const { t } = useI18n();
+  const isAdmin = useAuth().user?.role === "ADMIN";
 
   if (supportsNativeTabs()) {
     return (
@@ -38,6 +40,12 @@ export default function TabsLayout() {
           <Icon sf="gearshape" />
           <Label>{t("settings", "title")}</Label>
         </NativeTabs.Trigger>
+        {isAdmin ? (
+          <NativeTabs.Trigger name="admin">
+            <Icon sf="shield.lefthalf.filled" />
+            <Label>{t("admin", "title")}</Label>
+          </NativeTabs.Trigger>
+        ) : null}
       </NativeTabs>
     );
   }
@@ -77,6 +85,14 @@ export default function TabsLayout() {
         options={{
           title: t("settings", "title"),
           tabBarIcon: ({ color }) => <TabGlyph color={color}>•</TabGlyph>,
+        }}
+      />
+      <Tabs.Screen
+        name="admin"
+        options={{
+          href: isAdmin ? undefined : null,
+          title: t("admin", "title"),
+          tabBarIcon: ({ color }) => <TabGlyph color={color}>⚙</TabGlyph>,
         }}
       />
     </Tabs>

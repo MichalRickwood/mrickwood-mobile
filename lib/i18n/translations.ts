@@ -771,9 +771,540 @@ export interface Dict {
     fr: string;
     it: string;
   };
+  admin: {
+    // common
+    title: string;
+    back: string;
+    loading: string;
+    errorTitle: string;
+    errorBody: string;
+    retry: string;
+    empty: string;
+    save: string;
+    saving: string;
+    cancel: string;
+    delete: string;
+    confirm: string;
+    close: string;
+    add: string;
+    done: string;
+    actionFailed: string;
+    // index rozcestník
+    usersRow: string;
+    usersRowHint: string;
+    invoicesRow: string;
+    invoicesRowHint: string;
+    feedbackRow: string;
+    feedbackRowHint: string;
+    commsRow: string;
+    commsRowHint: string;
+    socialRow: string;
+    socialRowHint: string;
+    payoutsRow: string;
+    payoutsRowHint: string;
+    payoutPromptTitle: string;
+    payoutPromptMsg: string;
+    // users list
+    usersTitle: string;
+    searchUsers: string;
+    statusActive: string;
+    statusInactive: string;
+    statusAll: string;
+    usersEmpty: string;
+    unnamed: string;
+    bandCritical: string;
+    bandAtRisk: string;
+    bandOk: string;
+    bandHealthy: string;
+    bandChampion: string;
+    // user detail
+    userDetailTitle: string;
+    secProfile: string;
+    secSubscriptions: string;
+    secHealth: string;
+    secActivity: string;
+    secInvoices: string;
+    secComments: string;
+    secActions: string;
+    lblEmail: string;
+    lblName: string;
+    lblCompany: string;
+    lblPhone: string;
+    lblRole: string;
+    lblCreated: string;
+    lblLastSeen: string;
+    lblVerified: string;
+    yes: string;
+    no: string;
+    roleUser: string;
+    roleAdmin: string;
+    makeAdmin: string;
+    makeUser: string;
+    changeRoleTitle: string;
+    changeRoleMsg: string;
+    deleteUser: string;
+    deleteUserTitle: string;
+    deleteUserMsg: string;
+    pause: string;
+    resume: string;
+    pausedBadge: string;
+    healthScore: string;
+    noSubs: string;
+    noActivity: string;
+    noInvoices: string;
+    noComments: string;
+    addComment: string;
+    commentPlaceholder: string;
+    deleteCommentTitle: string;
+    deleteCommentMsg: string;
+    paidUntil: string;
+    trialEnds: string;
+    // invoices
+    invoicesTitle: string;
+    searchInvoices: string;
+    invoicesEmpty: string;
+    openPdf: string;
+    markPaid: string;
+    markPaidTitle: string;
+    markPaidMsg: string;
+    paymentRefPlaceholder: string;
+    kindProforma: string;
+    kindTaxDoc: string;
+    // feedback
+    feedbackTitle: string;
+    feedbackEmpty: string;
+    feedbackDetailTitle: string;
+    kindBug: string;
+    kindImprovement: string;
+    kindOther: string;
+    kindMissingTender: string;
+    fbNew: string;
+    fbInProgress: string;
+    fbResolved: string;
+    fbWontFix: string;
+    fbDuplicate: string;
+    filterAll: string;
+    adminNote: string;
+    adminNotePlaceholder: string;
+    saveNote: string;
+    grantMonth: string;
+    grantMonthTitle: string;
+    grantMonthMsg: string;
+    deleteFeedbackTitle: string;
+    deleteFeedbackMsg: string;
+    attachments: string;
+    changeStatus: string;
+    secMessage: string;
+    secUser: string;
+    anonymous: string;
+    // communications
+    commsTitle: string;
+    commsEmpty: string;
+    searchEmails: string;
+    emailDetailTitle: string;
+    dirAll: string;
+    dirIn: string;
+    dirOut: string;
+    allStatuses: string;
+    allCategories: string;
+    emailFrom: string;
+    emailTo: string;
+    emailSubject: string;
+    emailBody: string;
+    noBody: string;
+    // social
+    socialTitle: string;
+    socialEmpty: string;
+    socialDetailTitle: string;
+    kindPost: string;
+    kindAd: string;
+    generate: string;
+    generateTitle: string;
+    generateMsg: string;
+    generating: string;
+    approve: string;
+    reject: string;
+    rejectTitle: string;
+    rejectMsg: string;
+    editCaption: string;
+    saveCaption: string;
+    deletePostTitle: string;
+    deletePostMsg: string;
+    repliesTitle: string;
+    repliesBtn: string;
+    repliesEmpty: string;
+    replyApprove: string;
+    replyReject: string;
+    replyDelete: string;
+    withLink: string;
+    replyDeleteTitle: string;
+    replyDeleteMsg: string;
+    replyRejectTitle: string;
+    cycleApprove: string;
+    cycleReject: string;
+    cycleApproveTitle: string;
+    cycleApproveMsg: string;
+    cycleRejectTitle: string;
+    cycleRejectMsg: string;
+    relevance: string;
+    scheduledFor: string;
+    country: string;
+    allCountries: string;
+    draftReply: string;
+  };
 }
 
+// Admin sekce je owner-only interní nástroj → reálné cs+en, jinde EN fallback.
+const ADMIN_CS: Dict["admin"] = {
+  title: "Admin",
+  back: "Zpět",
+  loading: "Načítám…",
+  errorTitle: "Něco se pokazilo",
+  errorBody: "Nepodařilo se načíst data. Zkus to znovu.",
+  retry: "Zkusit znovu",
+  empty: "Nic tu není.",
+  save: "Uložit",
+  saving: "Ukládám…",
+  cancel: "Zrušit",
+  delete: "Smazat",
+  confirm: "Potvrdit",
+  close: "Zavřít",
+  add: "Přidat",
+  done: "Hotovo",
+  actionFailed: "Akce selhala.",
+  usersRow: "Uživatelé",
+  usersRowHint: "Účty, předplatná, zdraví, komentáře",
+  invoicesRow: "Faktury",
+  invoicesRowHint: "Vyhledávání, PDF, označit zaplaceno",
+  feedbackRow: "Zpětná vazba",
+  feedbackRowHint: "Bugy, návrhy, chybějící zakázky",
+  commsRow: "Komunikace",
+  commsRowHint: "Log e-mailů",
+  socialRow: "Sociální sítě",
+  socialRowHint: "Fronta příspěvků a odpovědí",
+  payoutsRow: "Výplaty provizí",
+  payoutsRowHint: "Souhrn referral výplat za rok",
+  payoutPromptTitle: "Výplaty provizí",
+  payoutPromptMsg: "Zadej rok",
+  usersTitle: "Uživatelé",
+  searchUsers: "Hledat e-mail / jméno / firmu",
+  statusActive: "Aktivní",
+  statusInactive: "Neaktivní",
+  statusAll: "Vše",
+  usersEmpty: "Žádní uživatelé.",
+  unnamed: "(bez jména)",
+  bandCritical: "Kritický",
+  bandAtRisk: "Ohrožený",
+  bandOk: "OK",
+  bandHealthy: "Zdravý",
+  bandChampion: "Šampion",
+  userDetailTitle: "Uživatel",
+  secProfile: "Profil",
+  secSubscriptions: "Předplatná",
+  secHealth: "Zdraví účtu",
+  secActivity: "Aktivita",
+  secInvoices: "Faktury",
+  secComments: "Komentáře",
+  secActions: "Akce",
+  lblEmail: "E-mail",
+  lblName: "Jméno",
+  lblCompany: "Firma",
+  lblPhone: "Telefon",
+  lblRole: "Role",
+  lblCreated: "Vytvořeno",
+  lblLastSeen: "Naposledy viděn",
+  lblVerified: "Ověřený e-mail",
+  yes: "Ano",
+  no: "Ne",
+  roleUser: "USER",
+  roleAdmin: "ADMIN",
+  makeAdmin: "Povýšit na ADMIN",
+  makeUser: "Změnit na USER",
+  changeRoleTitle: "Změnit roli",
+  changeRoleMsg: "Opravdu změnit roli tohoto uživatele?",
+  deleteUser: "Smazat uživatele",
+  deleteUserTitle: "Smazat uživatele",
+  deleteUserMsg: "Trvale smaže účet i data. Tuto akci nelze vzít zpět.",
+  pause: "Pozastavit",
+  resume: "Obnovit",
+  pausedBadge: "Pozastaveno",
+  healthScore: "Skóre",
+  noSubs: "Žádná předplatná.",
+  noActivity: "Žádná aktivita.",
+  noInvoices: "Žádné faktury.",
+  noComments: "Žádné komentáře.",
+  addComment: "Přidat komentář",
+  commentPlaceholder: "Napiš interní poznámku…",
+  deleteCommentTitle: "Smazat komentář",
+  deleteCommentMsg: "Opravdu smazat tento komentář?",
+  paidUntil: "Zaplaceno do",
+  trialEnds: "Trial do",
+  invoicesTitle: "Faktury",
+  searchInvoices: "Hledat číslo / odběratel / IČO / e-mail",
+  invoicesEmpty: "Žádné faktury.",
+  openPdf: "Otevřít PDF",
+  markPaid: "Označit zaplaceno",
+  markPaidTitle: "Označit zaplaceno",
+  markPaidMsg: "Označit tuto proformu jako zaplacenou a vystavit daňový doklad?",
+  paymentRefPlaceholder: "Reference platby (volitelné)",
+  kindProforma: "Proforma",
+  kindTaxDoc: "Daňový doklad",
+  feedbackTitle: "Zpětná vazba",
+  feedbackEmpty: "Žádná zpětná vazba.",
+  feedbackDetailTitle: "Detail",
+  kindBug: "Bug",
+  kindImprovement: "Návrh",
+  kindOther: "Jiné",
+  kindMissingTender: "Chybějící zakázka",
+  fbNew: "Nový",
+  fbInProgress: "V řešení",
+  fbResolved: "Vyřešeno",
+  fbWontFix: "Neřeší se",
+  fbDuplicate: "Duplicita",
+  filterAll: "Vše",
+  adminNote: "Interní poznámka",
+  adminNotePlaceholder: "Poznámka adminů…",
+  saveNote: "Uložit poznámku",
+  grantMonth: "Přidat měsíc zdarma",
+  grantMonthTitle: "Přidat měsíc",
+  grantMonthMsg: "Prodloužit předplatné o měsíc jako poděkování?",
+  deleteFeedbackTitle: "Smazat zpětnou vazbu",
+  deleteFeedbackMsg: "Opravdu smazat tento záznam?",
+  attachments: "Přílohy",
+  changeStatus: "Změnit stav",
+  secMessage: "Zpráva",
+  secUser: "Uživatel",
+  anonymous: "Anonym",
+  commsTitle: "Komunikace",
+  commsEmpty: "Žádné e-maily.",
+  searchEmails: "Hledat příjemce / předmět",
+  emailDetailTitle: "E-mail",
+  dirAll: "Vše",
+  dirIn: "Příchozí",
+  dirOut: "Odchozí",
+  allStatuses: "Všechny stavy",
+  allCategories: "Všechny kategorie",
+  emailFrom: "Od",
+  emailTo: "Komu",
+  emailSubject: "Předmět",
+  emailBody: "Obsah",
+  noBody: "Bez obsahu.",
+  socialTitle: "Sociální sítě",
+  socialEmpty: "Žádné příspěvky.",
+  socialDetailTitle: "Příspěvek",
+  kindPost: "Post",
+  kindAd: "Reklama",
+  generate: "Vygenerovat příspěvek",
+  generateTitle: "Vygenerovat",
+  generateMsg: "Vygenerovat nový příspěvek?",
+  generating: "Generuji…",
+  approve: "Schválit",
+  reject: "Odmítnout",
+  rejectTitle: "Odmítnout",
+  rejectMsg: "Zadej důvod (volitelné)",
+  editCaption: "Upravit text",
+  saveCaption: "Uložit text",
+  deletePostTitle: "Smazat příspěvek",
+  deletePostMsg: "Opravdu smazat tento příspěvek?",
+  repliesTitle: "Odpovědi (X)",
+  repliesBtn: "Odpovědi",
+  repliesEmpty: "Žádné odpovědi ke schválení.",
+  replyApprove: "Schválit a odeslat",
+  replyReject: "Odmítnout",
+  replyDelete: "Smazat",
+  withLink: "S odkazem",
+  replyDeleteTitle: "Smazat odpověď",
+  replyDeleteMsg: "Opravdu smazat tuto odpověď?",
+  replyRejectTitle: "Odmítnout odpověď",
+  cycleApprove: "Schválit várku",
+  cycleReject: "Odmítnout várku",
+  cycleApproveTitle: "Schválit várku",
+  cycleApproveMsg: "Schválit všechny čekající příspěvky v cyklu?",
+  cycleRejectTitle: "Odmítnout várku",
+  cycleRejectMsg: "Odmítnout všechny čekající příspěvky v cyklu?",
+  relevance: "Relevance",
+  scheduledFor: "Naplánováno",
+  country: "Země",
+  allCountries: "Všechny země",
+  draftReply: "Návrh odpovědi",
+};
+
+const ADMIN_EN: Dict["admin"] = {
+  title: "Admin",
+  back: "Back",
+  loading: "Loading…",
+  errorTitle: "Something went wrong",
+  errorBody: "Failed to load data. Try again.",
+  retry: "Retry",
+  empty: "Nothing here.",
+  save: "Save",
+  saving: "Saving…",
+  cancel: "Cancel",
+  delete: "Delete",
+  confirm: "Confirm",
+  close: "Close",
+  add: "Add",
+  done: "Done",
+  actionFailed: "Action failed.",
+  usersRow: "Users",
+  usersRowHint: "Accounts, subscriptions, health, comments",
+  invoicesRow: "Invoices",
+  invoicesRowHint: "Search, PDF, mark paid",
+  feedbackRow: "Feedback",
+  feedbackRowHint: "Bugs, ideas, missing tenders",
+  commsRow: "Communications",
+  commsRowHint: "Email log",
+  socialRow: "Social",
+  socialRowHint: "Post and reply queue",
+  payoutsRow: "Referral payouts",
+  payoutsRowHint: "Payout summary for a year",
+  payoutPromptTitle: "Referral payouts",
+  payoutPromptMsg: "Enter year",
+  usersTitle: "Users",
+  searchUsers: "Search email / name / company",
+  statusActive: "Active",
+  statusInactive: "Inactive",
+  statusAll: "All",
+  usersEmpty: "No users.",
+  unnamed: "(no name)",
+  bandCritical: "Critical",
+  bandAtRisk: "At risk",
+  bandOk: "OK",
+  bandHealthy: "Healthy",
+  bandChampion: "Champion",
+  userDetailTitle: "User",
+  secProfile: "Profile",
+  secSubscriptions: "Subscriptions",
+  secHealth: "Account health",
+  secActivity: "Activity",
+  secInvoices: "Invoices",
+  secComments: "Comments",
+  secActions: "Actions",
+  lblEmail: "Email",
+  lblName: "Name",
+  lblCompany: "Company",
+  lblPhone: "Phone",
+  lblRole: "Role",
+  lblCreated: "Created",
+  lblLastSeen: "Last seen",
+  lblVerified: "Email verified",
+  yes: "Yes",
+  no: "No",
+  roleUser: "USER",
+  roleAdmin: "ADMIN",
+  makeAdmin: "Promote to ADMIN",
+  makeUser: "Change to USER",
+  changeRoleTitle: "Change role",
+  changeRoleMsg: "Really change this user's role?",
+  deleteUser: "Delete user",
+  deleteUserTitle: "Delete user",
+  deleteUserMsg: "Permanently deletes the account and data. This cannot be undone.",
+  pause: "Pause",
+  resume: "Resume",
+  pausedBadge: "Paused",
+  healthScore: "Score",
+  noSubs: "No subscriptions.",
+  noActivity: "No activity.",
+  noInvoices: "No invoices.",
+  noComments: "No comments.",
+  addComment: "Add comment",
+  commentPlaceholder: "Write an internal note…",
+  deleteCommentTitle: "Delete comment",
+  deleteCommentMsg: "Really delete this comment?",
+  paidUntil: "Paid until",
+  trialEnds: "Trial until",
+  invoicesTitle: "Invoices",
+  searchInvoices: "Search number / buyer / ICO / email",
+  invoicesEmpty: "No invoices.",
+  openPdf: "Open PDF",
+  markPaid: "Mark paid",
+  markPaidTitle: "Mark paid",
+  markPaidMsg: "Mark this proforma as paid and issue a tax document?",
+  paymentRefPlaceholder: "Payment reference (optional)",
+  kindProforma: "Proforma",
+  kindTaxDoc: "Tax document",
+  feedbackTitle: "Feedback",
+  feedbackEmpty: "No feedback.",
+  feedbackDetailTitle: "Detail",
+  kindBug: "Bug",
+  kindImprovement: "Idea",
+  kindOther: "Other",
+  kindMissingTender: "Missing tender",
+  fbNew: "New",
+  fbInProgress: "In progress",
+  fbResolved: "Resolved",
+  fbWontFix: "Won't fix",
+  fbDuplicate: "Duplicate",
+  filterAll: "All",
+  adminNote: "Internal note",
+  adminNotePlaceholder: "Admin note…",
+  saveNote: "Save note",
+  grantMonth: "Grant free month",
+  grantMonthTitle: "Grant month",
+  grantMonthMsg: "Extend subscription by a month as a thank-you?",
+  deleteFeedbackTitle: "Delete feedback",
+  deleteFeedbackMsg: "Really delete this record?",
+  attachments: "Attachments",
+  changeStatus: "Change status",
+  secMessage: "Message",
+  secUser: "User",
+  anonymous: "Anonymous",
+  commsTitle: "Communications",
+  commsEmpty: "No emails.",
+  searchEmails: "Search recipient / subject",
+  emailDetailTitle: "Email",
+  dirAll: "All",
+  dirIn: "Inbound",
+  dirOut: "Outbound",
+  allStatuses: "All statuses",
+  allCategories: "All categories",
+  emailFrom: "From",
+  emailTo: "To",
+  emailSubject: "Subject",
+  emailBody: "Body",
+  noBody: "No body.",
+  socialTitle: "Social",
+  socialEmpty: "No posts.",
+  socialDetailTitle: "Post",
+  kindPost: "Post",
+  kindAd: "Ad",
+  generate: "Generate post",
+  generateTitle: "Generate",
+  generateMsg: "Generate a new post?",
+  generating: "Generating…",
+  approve: "Approve",
+  reject: "Reject",
+  rejectTitle: "Reject",
+  rejectMsg: "Enter a reason (optional)",
+  editCaption: "Edit caption",
+  saveCaption: "Save caption",
+  deletePostTitle: "Delete post",
+  deletePostMsg: "Really delete this post?",
+  repliesTitle: "Replies (X)",
+  repliesBtn: "Replies",
+  repliesEmpty: "No replies to review.",
+  replyApprove: "Approve & send",
+  replyReject: "Reject",
+  replyDelete: "Delete",
+  withLink: "With link",
+  replyDeleteTitle: "Delete reply",
+  replyDeleteMsg: "Really delete this reply?",
+  replyRejectTitle: "Reject reply",
+  cycleApprove: "Approve batch",
+  cycleReject: "Reject batch",
+  cycleApproveTitle: "Approve batch",
+  cycleApproveMsg: "Approve all pending posts in the cycle?",
+  cycleRejectTitle: "Reject batch",
+  cycleRejectMsg: "Reject all pending posts in the cycle?",
+  relevance: "Relevance",
+  scheduledFor: "Scheduled",
+  country: "Country",
+  allCountries: "All countries",
+  draftReply: "Draft reply",
+};
+
 const cs: Dict = {
+  admin: ADMIN_CS,
   brand: { tagline: "Evropské zakázky na jednom místě" },
   authLanding: {
     subtitle: "Přihlaste se ke svému účtu.",
@@ -1528,6 +2059,7 @@ const cs: Dict = {
 };
 
 const en: Dict = {
+  admin: ADMIN_EN,
   brand: { tagline: "Europe's tenders unified" },
   authLanding: {
     subtitle: "Sign in to your account.",
@@ -2281,6 +2813,7 @@ const en: Dict = {
 };
 
 const de: Dict = {
+  admin: ADMIN_EN,
   brand: { tagline: "Europas Ausschreibungen vereint" },
   authLanding: {
     subtitle: "Melden Sie sich bei Ihrem Konto an.",
@@ -3036,6 +3569,7 @@ const de: Dict = {
 };
 
 const sk: Dict = {
+  admin: ADMIN_EN,
   brand: { tagline: "Európske zákazky na jednom mieste" },
   authLanding: {
     subtitle: "Prihláste sa do svojho účtu.",
@@ -3789,6 +4323,7 @@ const sk: Dict = {
 };
 
 const fr: Dict = {
+  admin: ADMIN_EN,
   brand: { tagline: "Les appels d'offres d'Europe réunis" },
   authLanding: {
     subtitle: "Connectez-vous à votre compte.",
@@ -4542,6 +5077,7 @@ const fr: Dict = {
 };
 
 const it: Dict = {
+  admin: ADMIN_EN,
   brand: { tagline: "Le gare d'Europa, in un unico posto" },
   authLanding: {
     subtitle: "Accedi al tuo account.",
@@ -5294,4 +5830,12 @@ const it: Dict = {
   locale: { cs: "Čeština", en: "English", de: "Deutsch", sk: "Slovenčina", fr: "Français", it: "Italiano" },
 };
 
-export const dicts: Record<Locale, Dict> = { cs, en, de, sk, fr, it, ja: jaDict as unknown as Dict };
+export const dicts: Record<Locale, Dict> = {
+  cs,
+  en,
+  de,
+  sk,
+  fr,
+  it,
+  ja: { ...(jaDict as unknown as Dict), admin: ADMIN_EN },
+};
