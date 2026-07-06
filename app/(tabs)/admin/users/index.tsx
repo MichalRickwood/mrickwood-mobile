@@ -34,6 +34,12 @@ export default function AdminUsersScreen() {
     };
     return map[band];
   };
+  const sourceLabel = (src: string): string => {
+    if (src === "app") return t("admin", "srcApp");
+    if (src === "mobile_web") return t("admin", "srcMobileWeb");
+    if (src === "web") return t("admin", "srcWeb");
+    return src;
+  };
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -72,6 +78,9 @@ export default function AdminUsersScreen() {
               <AdminBadge text={`${activeSub.service} · ${activeSub.state}`} color={colors.textMuted} bg={colors.bg} />
             ) : null}
             {item.role === "ADMIN" ? <AdminBadge text="ADMIN" color={colors.accentForeground} bg={colors.accent} /> : null}
+            {item.signupSource ? (
+              <AdminBadge text={sourceLabel(item.signupSource)} color={colors.textMuted} bg={colors.bg} />
+            ) : null}
           </View>
         </View>
         <Text style={styles.chevron}>›</Text>

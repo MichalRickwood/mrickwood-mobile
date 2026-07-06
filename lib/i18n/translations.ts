@@ -848,6 +848,9 @@ export interface Dict {
     pause: string;
     resume: string;
     pausedBadge: string;
+    srcApp: string;
+    srcMobileWeb: string;
+    srcWeb: string;
     healthScore: string;
     noSubs: string;
     noActivity: string;
@@ -1028,6 +1031,9 @@ const ADMIN_CS: Dict["admin"] = {
   pause: "Pozastavit",
   resume: "Obnovit",
   pausedBadge: "Pozastaveno",
+  srcApp: "App",
+  srcMobileWeb: "Mobilní web",
+  srcWeb: "Web",
   healthScore: "Skóre",
   noSubs: "Žádná předplatná.",
   noActivity: "Žádná aktivita.",
@@ -1202,6 +1208,9 @@ const ADMIN_EN: Dict["admin"] = {
   pause: "Pause",
   resume: "Resume",
   pausedBadge: "Paused",
+  srcApp: "App",
+  srcMobileWeb: "Mobile web",
+  srcWeb: "Web",
   healthScore: "Score",
   noSubs: "No subscriptions.",
   noActivity: "No activity.",

@@ -40,6 +40,7 @@ export interface AdminUser {
   referralUnlockedAt: string | null;
   referralAgreementAt: string | null;
   referralCode: string;
+  signupSource: string | null;
   apiKeys: { id: string; requestsMonth: number; requestsLimit: number }[];
   subscriptions: AdminSubscription[];
   billing: {
