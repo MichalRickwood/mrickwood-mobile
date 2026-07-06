@@ -130,6 +130,17 @@ export default function AdminUserDetailScreen() {
           <Field label={t("admin", "lblVerified")} value={user?.emailVerified ? t("admin", "yes") : t("admin", "no")} styles={styles} />
           <Field label={t("admin", "lblCreated")} value={fmtDate(user?.createdAt)} styles={styles} />
           <Field label={t("admin", "lblLastSeen")} value={fmtDateTime(user?.lastSeenAt)} styles={styles} />
+          <Field label={t("admin", "lblSource")} value={user?.signupSource || "—"} styles={styles} />
+          {user && (user.utmSource || user.utmMedium || user.utmCampaign) ? (
+            <Field
+              label={t("admin", "lblUtm")}
+              value={[
+                [user.utmSource, user.utmMedium].filter(Boolean).join(" / "),
+                user.utmCampaign,
+              ].filter(Boolean).join(" · ")}
+              styles={styles}
+            />
+          ) : null}
         </Section>
 
         {/* Subscriptions */}

@@ -41,6 +41,11 @@ export interface AdminUser {
   referralAgreementAt: string | null;
   referralCode: string;
   signupSource: string | null;
+  utmSource: string | null;
+  utmMedium: string | null;
+  utmCampaign: string | null;
+  utmContent: string | null;
+  utmTerm: string | null;
   apiKeys: { id: string; requestsMonth: number; requestsLimit: number }[];
   subscriptions: AdminSubscription[];
   billing: {

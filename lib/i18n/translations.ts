@@ -833,6 +833,8 @@ export interface Dict {
     lblRole: string;
     lblCreated: string;
     lblLastSeen: string;
+    lblSource: string;
+    lblUtm: string;
     lblVerified: string;
     yes: string;
     no: string;
@@ -1016,6 +1018,8 @@ const ADMIN_CS: Dict["admin"] = {
   lblRole: "Role",
   lblCreated: "Vytvořeno",
   lblLastSeen: "Naposledy viděn",
+  lblSource: "Zdroj registrace",
+  lblUtm: "Marketingový zdroj (UTM)",
   lblVerified: "Ověřený e-mail",
   yes: "Ano",
   no: "Ne",
@@ -1193,6 +1197,8 @@ const ADMIN_EN: Dict["admin"] = {
   lblRole: "Role",
   lblCreated: "Created",
   lblLastSeen: "Last seen",
+  lblSource: "Signup source",
+  lblUtm: "Marketing source (UTM)",
   lblVerified: "Email verified",
   yes: "Yes",
   no: "No",
