@@ -141,6 +141,7 @@ export interface Dict {
     filterFormKeywordsPlaceholder: string;
     filterFormRegions: string;
     filterFormAllRegions: string;
+    filterRegionsWholeCountry: string;
     filterRegionsWholeCountryOnly: string;
     filterFormValueRange: string;
     filterFormValueAny: string;
@@ -1446,7 +1447,8 @@ const cs: Dict = {
     filterFormKeywordsHelp: "Hledá v názvu i popisu zakázky. Více slov — match na alespoň jedno.",
     filterFormKeywordsPlaceholder: "Přidat klíčové slovo…",
     filterFormRegions: "Regiony",
-    filterFormAllRegions: "Celá země",
+    filterFormAllRegions: "Všechny regiony",
+    filterRegionsWholeCountry: "Celá země",
     filterRegionsWholeCountryOnly: "Tento zdroj neposkytuje regiony — sledujete celou zemi.",
     filterFormValueRange: "Předpokládaná hodnota (Kč)",
     filterFormValueAny: "Bez omezení",
@@ -2202,6 +2204,7 @@ const en: Dict = {
     filterFormKeywordsPlaceholder: "Add a keyword…",
     filterFormRegions: "Regions",
     filterFormAllRegions: "All regions",
+    filterRegionsWholeCountry: "Whole country",
     filterRegionsWholeCountryOnly: "This source provides no regions — you're monitoring the whole country.",
     filterFormValueRange: "Estimated value (CZK)",
     filterFormValueAny: "Any",
@@ -2956,6 +2959,7 @@ const de: Dict = {
     filterFormKeywordsPlaceholder: "Schlüsselwort hinzufügen…",
     filterFormRegions: "Regionen",
     filterFormAllRegions: "Alle Regionen",
+    filterRegionsWholeCountry: "Ganzes Land",
     filterRegionsWholeCountryOnly: "Diese Quelle liefert keine Regionen — Sie überwachen das ganze Land.",
     filterFormValueRange: "Geschätzter Wert (CZK)",
     filterFormValueAny: "Beliebig",
@@ -3712,6 +3716,7 @@ const sk: Dict = {
     filterFormKeywordsPlaceholder: "Pridať kľúčové slovo…",
     filterFormRegions: "Regióny",
     filterFormAllRegions: "Všetky regióny",
+    filterRegionsWholeCountry: "Celá krajina",
     filterRegionsWholeCountryOnly: "Tento zdroj neposkytuje regióny — sledujete celú krajinu.",
     filterFormValueRange: "Predpokladaná hodnota (CZK)",
     filterFormValueAny: "Ľubovoľná",
@@ -4466,6 +4471,7 @@ const fr: Dict = {
     filterFormKeywordsPlaceholder: "Ajouter un mot-clé…",
     filterFormRegions: "Régions",
     filterFormAllRegions: "Toutes les régions",
+    filterRegionsWholeCountry: "Tout le pays",
     filterRegionsWholeCountryOnly: "Cette source ne fournit pas de régions — vous surveillez tout le pays.",
     filterFormValueRange: "Valeur estimée (CZK)",
     filterFormValueAny: "Indifférent",
@@ -5220,6 +5226,7 @@ const it: Dict = {
     filterFormKeywordsPlaceholder: "Aggiungi una parola chiave…",
     filterFormRegions: "Regioni",
     filterFormAllRegions: "Tutte le regioni",
+    filterRegionsWholeCountry: "Tutto il paese",
     filterRegionsWholeCountryOnly: "Questa fonte non fornisce regioni — monitori l'intero paese.",
     filterFormValueRange: "Valore stimato (CZK)",
     filterFormValueAny: "Qualsiasi",

@@ -101,7 +101,7 @@ export default function RegionPickerModal({ visible, initial, onClose, onApply }
   // (NUTS-1 pro DE, NUTS-2 pro PL/AT/FR atd.). První chip "Celá země" s ISO
   // codem — toggle všechny tendrů v zemi bez ohledu na region.
   function chipsForCountry(country: string): { code: string; label: string }[] {
-    const whole = { code: country, label: t("matches", "filterFormAllRegions") };
+    const whole = { code: country, label: t("matches", "filterRegionsWholeCountry") };
     if (country === "CZ") {
       return [whole, ...CZ_REGIONS.map((r) => ({ code: r.code, label: regionLabel(r.code, locale) }))];
     }

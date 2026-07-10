@@ -127,6 +127,7 @@
     "filterFormKeywordsPlaceholder": "キーワードを追加…",
     "filterFormRegions": "地域",
     "filterFormAllRegions": "すべての地域",
+    "filterRegionsWholeCountry": "国全体",
     "filterRegionsWholeCountryOnly": "このソースは地域情報を提供していません。国全体を監視対象としています。",
     "filterFormValueRange": "推定金額（CZK）",
     "filterFormValueAny": "指定なし",
