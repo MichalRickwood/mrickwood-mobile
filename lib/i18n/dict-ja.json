@@ -569,8 +569,6 @@
     "saveSubmit": "保存",
     "paywallTitle": "公共入札サービスを有効にする",
     "paywallInactiveTitle": "サブスクリプション",
-    "paywallTrialBody": "{days}日間の無料トライアルを開始します。すべての入札情報、フィルター、通知に完全アクセスできます。",
-    "paywallTrialBtn": "{days}日間の無料トライアルを開始する",
     "paywallReactivateBody": "トライアルは{date}まで有効です。ワンタップでアクセスを回復できます。",
     "paywallReactivateBtn": "サービスを再有効化する",
     "paywallExpiredTrial": "トライアル期間が終了しました。継続方法についてのご案内をメールでお送りしましたので、受信箱をご確認ください。",

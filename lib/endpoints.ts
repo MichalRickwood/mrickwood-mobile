@@ -441,7 +441,6 @@ export const endpoints = {
       paidUntil: leads?.paidUntil ?? null,
       cancelAtPeriodEnd: leads?.cancelAtPeriodEnd ?? false,
       canActivateTrial: !leads,
-      trialDays: 14, // backend default; není teď exposed v listu — UI ho zná z translations
     };
   },
   // Po Apple IAP nákupu / restore — backend ověří přes RevenueCat a aktivuje země.

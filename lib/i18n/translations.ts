@@ -583,8 +583,6 @@ export interface Dict {
     saveSubmit: string;
     paywallTitle: string;
     paywallInactiveTitle: string;
-    paywallTrialBody: string;
-    paywallTrialBtn: string;
     paywallReactivateBody: string;
     paywallReactivateBtn: string;
     paywallExpiredTrial: string;
@@ -1893,8 +1891,6 @@ const cs: Dict = {
     saveSubmit: "Uložit",
     paywallTitle: "Aktivuj službu Veřejné zakázky",
     paywallInactiveTitle: "Předplatné",
-    paywallTrialBody: "Spusť si {days}denní zkušební období zdarma. Plný přístup ke všem zakázkám, filtrům a notifikacím.",
-    paywallTrialBtn: "Aktivovat {days}denní trial zdarma",
     paywallReactivateBody: "Trial máš ještě platný do {date}. Obnov přístup jedním klepnutím.",
     paywallReactivateBtn: "Reaktivovat službu",
     paywallExpiredTrial: "Tvoje zkušební období skončilo. Pokyny, jak pokračovat, jsme ti poslali e-mailem — zkontroluj prosím svou schránku.",
@@ -2650,8 +2646,6 @@ const en: Dict = {
     saveSubmit: "Save",
     paywallTitle: "Activate the Public Tenders service",
     paywallInactiveTitle: "Subscription",
-    paywallTrialBody: "Start a {days}-day free trial. Full access to all tenders, filters and notifications.",
-    paywallTrialBtn: "Start {days}-day free trial",
     paywallReactivateBody: "Your trial is valid until {date}. Restore access with one tap.",
     paywallReactivateBtn: "Reactivate service",
     paywallExpiredTrial: "Your trial has ended. We've emailed you instructions on how to continue — please check your inbox.",
@@ -3409,8 +3403,6 @@ const de: Dict = {
     saveSubmit: "Speichern",
     paywallTitle: "Dienst Öffentliche Ausschreibungen aktivieren",
     paywallInactiveTitle: "Abonnement",
-    paywallTrialBody: "Starten Sie eine {days}-tägige kostenlose Testphase. Voller Zugriff auf alle Ausschreibungen, Filter und Benachrichtigungen.",
-    paywallTrialBtn: "{days}-Tage Testphase kostenlos starten",
     paywallReactivateBody: "Ihre Testphase ist gültig bis {date}. Mit einem Tipp wiederherstellen.",
     paywallReactivateBtn: "Dienst reaktivieren",
     paywallExpiredTrial: "Ihre Testphase ist beendet. Wir haben Ihnen eine Anleitung per E-Mail geschickt — bitte prüfen Sie Ihren Posteingang.",
@@ -4166,8 +4158,6 @@ const sk: Dict = {
     saveSubmit: "Uložiť",
     paywallTitle: "Aktivujte službu Verejné zákazky",
     paywallInactiveTitle: "Predplatné",
-    paywallTrialBody: "Začnite {days}-dňovú skúšobnú verziu zdarma. Plný prístup ku všetkým zákazkám, filtrom a oznámeniam.",
-    paywallTrialBtn: "Začať {days}-dňovú skúšobnú verziu zdarma",
     paywallReactivateBody: "Vaša skúšobná verzia platí do {date}. Obnovte prístup jedným ťuknutím.",
     paywallReactivateBtn: "Znovu aktivovať službu",
     paywallExpiredTrial: "Vaša skúšobná verzia skončila. Poslali sme vám e-mailom pokyny, ako pokračovať — skontrolujte si schránku.",
@@ -4923,8 +4913,6 @@ const fr: Dict = {
     saveSubmit: "Enregistrer",
     paywallTitle: "Activez le service Appels d'offres publics",
     paywallInactiveTitle: "Abonnement",
-    paywallTrialBody: "Démarrez un essai gratuit de {days} jours. Accès complet à tous les appels d'offres, filtres et notifications.",
-    paywallTrialBtn: "Démarrer l'essai gratuit de {days} jours",
     paywallReactivateBody: "Votre essai est valable jusqu'au {date}. Rétablissez l'accès en un seul appui.",
     paywallReactivateBtn: "Réactiver le service",
     paywallExpiredTrial: "Votre essai est terminé. Nous vous avons envoyé par e-mail les instructions pour continuer — veuillez vérifier votre boîte de réception.",
@@ -5680,8 +5668,6 @@ const it: Dict = {
     saveSubmit: "Salva",
     paywallTitle: "Attiva il servizio Appalti pubblici",
     paywallInactiveTitle: "Abbonamento",
-    paywallTrialBody: "Inizia una prova gratuita di {days} giorni. Accesso completo a tutte le gare, ai filtri e alle notifiche.",
-    paywallTrialBtn: "Inizia la prova gratuita di {days} giorni",
     paywallReactivateBody: "La tua prova è valida fino al {date}. Ripristina l'accesso con un tocco.",
     paywallReactivateBtn: "Riattiva il servizio",
     paywallExpiredTrial: "La tua prova è terminata. Ti abbiamo inviato per email le istruzioni su come continuare — controlla la tua casella di posta.",
