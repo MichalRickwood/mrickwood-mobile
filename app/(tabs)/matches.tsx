@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -10,7 +10,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { endpoints, type LeadMatchRow } from "@/lib/endpoints";
 import { ApiError } from "@/lib/api";
@@ -92,6 +92,10 @@ export default function MatchesScreen() {
   const [sort, setSort] = useState<SortKey>("newest");
   const [sortPickerOpen, setSortPickerOpen] = useState(false);
   const setPreference = useToggleTenderPreference();
+  // Deep-link z push notifikace „nové zakázky": otevři filtr + ukaž JEN nové z dávky.
+  const params = useLocalSearchParams<{ filterId?: string; since?: string }>();
+  const [newBatch, setNewBatch] = useState<{ filterId: string | null; since: string } | null>(null);
+  const appliedSinceRef = useRef<string | null>(null);
 
   // Debounce search input → odložený query refetch. FULLTEXT (standard parser)
   // má min. token 3 znaky, takže hledáme až od 3 znaků (kratší = pomalý LIKE
@@ -103,6 +107,18 @@ export default function MatchesScreen() {
     }, 300);
     return () => clearTimeout(id);
   }, [searchInput]);
+
+  // Deep-link z push (filterId + since) → nastav filtr + „jen nové z dávky".
+  // Každou `since` aplikuj jen jednou (po ručním „Zobrazit vše" se znovu nezapne).
+  useEffect(() => {
+    const since = typeof params.since === "string" ? params.since : null;
+    const fid = typeof params.filterId === "string" ? params.filterId : null;
+    if (since && since !== appliedSinceRef.current) {
+      appliedSinceRef.current = since;
+      if (fid) setActiveFilterId(fid);
+      setNewBatch({ filterId: fid, since });
+    }
+  }, [params.filterId, params.since]);
 
   const filtersQuery = useQuery({
     queryKey: ["filters"],
@@ -193,6 +209,14 @@ export default function MatchesScreen() {
     () => matchesQuery.data?.pages.flatMap((p) => p.matches) ?? [],
     [matchesQuery.data],
   );
+  // „Jen nové z dávky" — aktivní jen když jsme na tom filtru z notifikace a bez
+  // dalšího zúžení (search/ad-hoc). Filtruje na matchedAt >= since (dávka cronu).
+  const showNewBatch =
+    newBatch != null && activeFilterId === newBatch.filterId && !searchDebounced && !isAdHocActive(adHoc);
+  const displayMatches = useMemo(
+    () => (showNewBatch && newBatch ? matches.filter((m) => m.matchedAt >= newBatch.since) : matches),
+    [matches, showNewBatch, newBatch],
+  );
   // Server now applies all filters SQL-side a vrací accurate totalCount.
   // Fallback na matches.length jen když server nepošle (offline cache atd.).
   const totalCount = matchesQuery.data?.pages[0]?.totalCount ?? matches.length;
@@ -202,7 +226,7 @@ export default function MatchesScreen() {
     void filtersQuery.refetch();
   }, [matchesQuery, filtersQuery]);
 
-  const empty = !matchesQuery.isLoading && matches.length === 0;
+  const empty = !matchesQuery.isLoading && displayMatches.length === 0;
   const errored = matchesQuery.isError;
   // 402 = LEADS service není aktivní → paywall UI místo listu
   const paymentRequired =
@@ -511,8 +535,21 @@ export default function MatchesScreen() {
       />
 
       <FlatList
-        data={matches}
+        data={displayMatches}
         keyExtractor={(item) => item.matchId}
+        ListHeaderComponent={
+          showNewBatch ? (
+            <Pressable
+              onPress={() => setNewBatch(null)}
+              style={({ pressed }) => [styles.newBatchBanner, pressed && { opacity: 0.7 }]}
+            >
+              <Text style={styles.newBatchText}>
+                {t("matches", "newBatchBanner", { count: String(displayMatches.length) })}
+              </Text>
+              <Text style={styles.newBatchAction}>{t("matches", "newBatchShowAll")}</Text>
+            </Pressable>
+          ) : null
+        }
         renderItem={({ item }) => (
           <MatchCard
             match={item}
@@ -597,6 +634,19 @@ function EmptyState({
 const makeStyles = (colors: Colors) =>
   StyleSheet.create({
     safe: { flex: 1, backgroundColor: colors.bg },
+    newBatchBanner: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: spacing.sm,
+      backgroundColor: colors.accent,
+      borderRadius: radius.md,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      marginBottom: spacing.md,
+    },
+    newBatchText: { flex: 1, color: colors.accentForeground, fontSize: fontSize.sm, fontWeight: "600" },
+    newBatchAction: { color: colors.accentForeground, fontSize: fontSize.sm, fontWeight: "700", textDecorationLine: "underline" },
     header: { paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.md },
     // Title + filter picker na jednom řádku; když se nevejdou (např. DE
     // "Ausschreibungen" + "Alle Ausschreibungen · N"), picker se zalomí pod

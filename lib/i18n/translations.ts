@@ -160,6 +160,8 @@ export interface Dict {
     filterFormNotFound: string;
     deadline: string;
     emptyTitle: string;
+    newBatchBanner: string;
+    newBatchShowAll: string;
     emptyBody: string;
     loadingTitle: string;
     loadingBody: string;
@@ -1467,6 +1469,8 @@ const cs: Dict = {
     filterFormNotFound: "Filtr nenalezen.",
     deadline: "Lhůta {date}",
     emptyTitle: "Žádné nové zakázky",
+    newBatchBanner: "Jen nové zakázky ({count})",
+    newBatchShowAll: "Zobrazit vše",
     emptyBody:
       "Jakmile se objeví nová zakázka odpovídající vašim filtrům, uvidíte ji tady.",
     loadingTitle: "Prohledávám zakázky…",
@@ -2223,6 +2227,8 @@ const en: Dict = {
     filterFormNotFound: "Filter not found.",
     deadline: "Due {date}",
     emptyTitle: "No new tenders",
+    newBatchBanner: "New tenders only ({count})",
+    newBatchShowAll: "Show all",
     emptyBody: "When a new tender matches your filters, you'll see it here.",
     loadingTitle: "Searching tenders…",
     loadingBody: "Picking the best matches for your criteria.",
@@ -2978,6 +2984,8 @@ const de: Dict = {
     filterFormNotFound: "Filter nicht gefunden.",
     deadline: "Frist {date}",
     emptyTitle: "Keine neuen Ausschreibungen",
+    newBatchBanner: "Nur neue Ausschreibungen ({count})",
+    newBatchShowAll: "Alle anzeigen",
     emptyBody:
       "Sobald eine neue Ausschreibung Ihren Filtern entspricht, erscheint sie hier.",
     loadingTitle: "Suche Ausschreibungen…",
@@ -3735,6 +3743,8 @@ const sk: Dict = {
     filterFormNotFound: "Filter sa nenašiel.",
     deadline: "Termín {date}",
     emptyTitle: "Žiadne nové zákazky",
+    newBatchBanner: "Len nové zákazky ({count})",
+    newBatchShowAll: "Zobraziť všetky",
     emptyBody: "Keď sa nová zákazka zhoduje s vašimi filtrami, uvidíte ju tu.",
     loadingTitle: "Vyhľadávam zákazky…",
     loadingBody: "Vyberám najlepšie zhody pre vaše kritériá.",
@@ -4490,6 +4500,8 @@ const fr: Dict = {
     filterFormNotFound: "Filtre introuvable.",
     deadline: "Échéance {date}",
     emptyTitle: "Aucun nouvel appel d'offres",
+    newBatchBanner: "Nouveaux marchés uniquement ({count})",
+    newBatchShowAll: "Tout afficher",
     emptyBody: "Lorsqu'un nouvel appel d'offres correspondra à vos filtres, il apparaîtra ici.",
     loadingTitle: "Recherche d'appels d'offres…",
     loadingBody: "Sélection des meilleures correspondances pour vos critères.",
@@ -5245,6 +5257,8 @@ const it: Dict = {
     filterFormNotFound: "Filtro non trovato.",
     deadline: "Scadenza {date}",
     emptyTitle: "Nessuna nuova gara",
+    newBatchBanner: "Solo nuove gare ({count})",
+    newBatchShowAll: "Mostra tutte",
     emptyBody: "Quando una nuova gara corrisponderà ai tuoi filtri, la vedrai qui.",
     loadingTitle: "Ricerca gare in corso…",
     loadingBody: "Stiamo selezionando le migliori corrispondenze per i tuoi criteri.",

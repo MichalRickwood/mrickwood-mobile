@@ -146,6 +146,8 @@
     "filterFormNotFound": "フィルターが見つかりません。",
     "deadline": "期限：{date}",
     "emptyTitle": "新着案件はありません",
+    "newBatchBanner": "新着案件のみ（{count}）",
+    "newBatchShowAll": "すべて表示",
     "emptyBody": "フィルターに一致する新しい入札案件があると、ここに表示されます。",
     "loadingTitle": "入札案件を検索中…",
     "loadingBody": "条件に最適な案件を選定しています。",

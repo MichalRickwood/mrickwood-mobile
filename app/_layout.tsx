@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Stack, useRouter, useSegments } from "expo-router";
+import * as Notifications from "expo-notifications";
 import { StatusBar } from "expo-status-bar";
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -120,6 +121,57 @@ function RouterGuard() {
 }
 
 /**
+ * Tap na push notifikaci „nové zakázky" → otevře matches na daném filtru a ukáže
+ * JEN nové z dané dávky (params filterId + since). Řeší warm (listener) i cold
+ * start (getLastNotificationResponseAsync); cold-start naviguje až po přihlášení.
+ */
+function NotificationTapHandler() {
+  const { status } = useAuth();
+  const router = useRouter();
+  const statusRef = useRef(status);
+  const pendingRef = useRef<Record<string, string> | null>(null);
+  useEffect(() => { statusRef.current = status; }, [status]);
+
+  const navigate = useCallback(
+    (params: Record<string, string>) => router.push({ pathname: "/(tabs)/matches", params }),
+    [router],
+  );
+
+  const handle = useCallback((data: unknown) => {
+    const d = data as { type?: string; filterId?: string; since?: string } | null;
+    if (!d || d.type !== "leads.new") return;
+    const params: Record<string, string> = {};
+    if (d.filterId) params.filterId = String(d.filterId);
+    if (d.since) params.since = String(d.since);
+    if (!params.since) return;
+    if (statusRef.current === "authenticated") navigate(params);
+    else pendingRef.current = params; // cold start — počkej na přihlášení
+  }, [navigate]);
+
+  useEffect(() => {
+    let mounted = true;
+    Notifications.getLastNotificationResponseAsync()
+      .then((resp) => { if (mounted && resp) handle(resp.notification.request.content.data); })
+      .catch(() => {});
+    const sub = Notifications.addNotificationResponseReceivedListener((resp) =>
+      handle(resp.notification.request.content.data),
+    );
+    return () => { mounted = false; sub.remove(); };
+  }, [handle]);
+
+  useEffect(() => {
+    if (status === "authenticated" && pendingRef.current) {
+      const p = pendingRef.current;
+      pendingRef.current = null;
+      const id = setTimeout(() => navigate(p), 400); // nech RouterGuard dokončit redirect
+      return () => clearTimeout(id);
+    }
+  }, [status, navigate]);
+
+  return null;
+}
+
+/**
  * StatusBar follows the active theme — světlý styl pro dark mode (bílý text na tmavém),
  * tmavý styl pro light mode (černý text na světlém).
  */
@@ -136,6 +188,7 @@ export default function RootLayout() {
           <QueryClientProvider client={queryClient}>
             <AuthProvider>
               <ThemedStatusBar />
+              <NotificationTapHandler />
               <RouterGuard />
             </AuthProvider>
           </QueryClientProvider>
