@@ -31,13 +31,11 @@ export default function AdminUserDetailScreen() {
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const [comment, setComment] = useState("");
 
-  // Uživatel — z listu (najdeme v cache) i vlastní fetch fallback.
+  // Přímý fetch jednoho uživatele — dřív se kvůli detailu stahoval celý
+  // seznam (`listUsers("all")`) včetně health výpočtu pro všechny účty.
   const userQuery = useQuery({
     queryKey: ["admin-user", userId],
-    queryFn: async ({ signal }) => {
-      const list = await adminApi.listUsers("all", signal);
-      return list.find((u) => u.id === userId) ?? null;
-    },
+    queryFn: ({ signal }) => adminApi.getUser(userId, signal),
   });
   const user = userQuery.data;
 

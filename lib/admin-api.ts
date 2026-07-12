@@ -241,6 +241,10 @@ export const adminApi = {
     const r = await api.get<Env<{ users: AdminUser[] }>>(`${BASE}/users`, { params: { status }, signal });
     return r.data.users;
   },
+  getUser: async (id: string, signal?: AbortSignal) => {
+    const r = await api.get<Env<{ user: AdminUser }>>(`${BASE}/users/${id}`, { signal });
+    return r.data.user;
+  },
   getHealth: async (id: string, signal?: AbortSignal) => {
     const r = await api.get<Env<{ report: HealthReport }>>(`${BASE}/users/${id}/health`, { signal });
     return r.data.report;
