@@ -6,6 +6,7 @@ import { HeaderBackButton } from "@react-navigation/elements";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as WebBrowser from "expo-web-browser";
 import { endpoints, type LeadMatchRow, type TenderDocument } from "@/lib/endpoints";
+import { openAuthedFile } from "@/lib/file-open";
 import { useTheme } from "@/lib/theme-context";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 import {
@@ -62,6 +63,8 @@ export default function MatchDetailScreen() {
 
   const [emailing, setEmailing] = useState(false);
   const [reporting, setReporting] = useState(false);
+  // Kommersannons: přílohy za interest (prenumeration) → LAZY na klik „Zobrazit dokumenty".
+  const [kommersBusy, setKommersBusy] = useState(false);
 
   async function sendSummary() {
     if (!match || emailing) return;
@@ -312,6 +315,42 @@ export default function MatchDetailScreen() {
 
         {(() => {
           const docs = tender.documents ?? [];
+          // Kommersannons: přílohy nejsou předharvestované (za interest) → tlačítko „Zobrazit dokumenty".
+          if (docs.length === 0 && tender.portalType === "se-kommers") {
+            return (
+              <View style={styles.docsSection}>
+                <Pressable
+                  onPress={async () => {
+                    if (kommersBusy) return;
+                    setKommersBusy(true);
+                    try {
+                      await openAuthedFile(
+                        `/api/v2/leads/tenders/${tender.id}/documents/kommers`,
+                        `zakazka-${tender.id}-prilohy.zip`,
+                        "application/zip",
+                      );
+                    } catch {
+                      Alert.alert("Dokumenty", "Dokumenty se nepodařilo získat. Zkuste to prosím za chvíli.");
+                    } finally {
+                      setKommersBusy(false);
+                    }
+                  }}
+                  disabled={kommersBusy}
+                  style={({ pressed }) => [styles.aiBtn, (pressed || kommersBusy) && { opacity: 0.85 }]}
+                >
+                  {kommersBusy ? (
+                    <ActivityIndicator color={colors.text} size="small" />
+                  ) : (
+                    <>
+                      <Text style={styles.aiBtnIcon}>📎</Text>
+                      <Text style={styles.aiBtnText}>Zobrazit dokumenty</Text>
+                      <Text style={styles.docChevron}>›</Text>
+                    </>
+                  )}
+                </Pressable>
+              </View>
+            );
+          }
           if (docs.length === 0) return null;
           return (
             <View style={styles.docsSection}>
