@@ -93,6 +93,9 @@ export default function AdminFeedbackDetailScreen() {
           <Text style={styles.message}>{item.message}</Text>
           {item.page ? <Text style={styles.metaLine}>{item.page}</Text> : null}
           {item.tenderId ? <Text style={styles.metaLine}>tender #{item.tenderId}</Text> : null}
+          <Text selectable style={styles.metaLine}>
+            id: {item.id}
+          </Text>
         </View>
 
         {item.aiTriage ? <TriageCard triage={item.aiTriage} styles={styles} colors={colors} t={t} /> : null}
