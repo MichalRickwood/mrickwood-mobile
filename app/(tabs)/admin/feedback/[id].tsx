@@ -89,11 +89,15 @@ export default function AdminFeedbackDetailScreen() {
           <Text style={styles.badge}>{feedbackStatusLabel(item.status, t)}</Text>
         </View>
 
+        {/* ID feedbacku hned nahoře — jeden tap kamkoli na řádek = kopírovat */}
+        <View style={[styles.card, styles.idCard]}>
+          <CopyRow label={item.id} value={item.id} copiedLabel={t("admin", "triageCopied")} copyLabel={t("admin", "triageCopy")} styles={styles} big />
+        </View>
+
         <Text style={styles.sectionTitle}>{t("admin", "secMessage")}</Text>
         <View style={styles.card}>
           <Text style={styles.message}>{item.message}</Text>
           {item.page ? <Text style={styles.metaLine}>{item.page}</Text> : null}
-          <CopyRow label={`id: ${item.id}`} value={item.id} copiedLabel={t("admin", "triageCopied")} copyLabel={t("admin", "triageCopy")} styles={styles} />
           {item.tenderId ? (
             <Pressable
               onPress={() => router.push({ pathname: "/match/[id]", params: { id: `live-${item.tenderId}` } })}
@@ -176,36 +180,38 @@ export default function AdminFeedbackDetailScreen() {
   );
 }
 
-/** Řádek s hodnotou + tlačítkem kopírovat (feedback id, apod.). */
+/** Řádek s hodnotou + tlačítkem kopírovat (feedback id, apod.).
+ *  Tap kamkoli na řádek kopíruje — na mobilu se malé tlačítko špatně trefuje. */
 function CopyRow({
   label,
   value,
   copyLabel,
   copiedLabel,
   styles,
+  big,
 }: {
   label: string;
   value: string;
   copyLabel: string;
   copiedLabel: string;
   styles: ReturnType<typeof makeStyles>;
+  big?: boolean;
 }) {
   const [copied, setCopied] = useState(false);
   return (
-    <View style={styles.copyRow}>
-      <Text selectable style={[styles.metaLine, styles.copyRowValue]} numberOfLines={1}>
+    <Pressable
+      onPress={() => {
+        Clipboard.setString(value);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }}
+      style={styles.copyRow}
+    >
+      <Text style={[big ? styles.copyRowValueBig : styles.metaLine, styles.copyRowValue]} numberOfLines={1}>
         {label}
       </Text>
-      <Pressable
-        onPress={() => {
-          Clipboard.setString(value);
-          setCopied(true);
-          setTimeout(() => setCopied(false), 2000);
-        }}
-      >
-        <Text style={styles.link}>{copied ? copiedLabel : copyLabel}</Text>
-      </Pressable>
-    </View>
+      <Text style={styles.link}>{copied ? copiedLabel : `📋 ${copyLabel}`}</Text>
+    </Pressable>
   );
 }
 
@@ -336,5 +342,7 @@ const makeStyles = (colors: Colors) =>
     triageEvidence: { fontSize: 10, fontFamily: "monospace", color: colors.textMuted, backgroundColor: colors.bg, borderWidth: 1, borderColor: colors.border, borderRadius: radius.sm, padding: spacing.sm, marginTop: spacing.xs },
     copyRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: spacing.md, marginTop: spacing.xs },
     copyRowValue: { flexShrink: 1 },
+    copyRowValueBig: { fontSize: fontSize.sm, color: colors.text, fontFamily: "monospace", fontWeight: "600" },
+    idCard: { paddingVertical: spacing.md, marginBottom: spacing.sm },
     tenderLinkBtn: { marginTop: spacing.sm, alignSelf: "flex-start" },
   });
