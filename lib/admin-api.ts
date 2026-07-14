@@ -118,8 +118,24 @@ export interface AdminInvoice {
   hasPdf: boolean;
 }
 
-export type FeedbackKind = "BUG" | "IMPROVEMENT" | "OTHER" | "MISSING_TENDER";
+export type FeedbackKind = "BUG" | "IMPROVEMENT" | "OTHER" | "MISSING_TENDER" | "WRONG_TENDER";
 export type FeedbackStatus = "NEW" | "IN_PROGRESS" | "RESOLVED" | "WONT_FIX" | "DUPLICATE";
+
+/** Výstup automatické AI triáže (Feedback.aiTriage, schéma v1). */
+export interface AiTriage {
+  version: number;
+  createdAt: string;
+  kind: string;
+  summary: string;
+  recommendation: string;
+  confidence: "high" | "medium" | "low";
+  reasons: string[];
+  scope?: "ONE_OFF" | "SYSTEMATIC" | "UNKNOWN" | null;
+  affectedEstimate?: string | null;
+  evidence?: Record<string, unknown>;
+  suggestedReply?: { locale: string; subject: string; body: string } | null;
+  rootCause?: string | null;
+}
 
 export interface FeedbackAttachment {
   id: string;
@@ -135,7 +151,9 @@ export interface Feedback {
   message: string;
   page: string | null;
   userAgent: string | null;
+  tenderId: string | null;
   adminNote: string | null;
+  aiTriage: AiTriage | null;
   email: string | null;
   name: string | null;
   createdAt: string;

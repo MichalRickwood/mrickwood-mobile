@@ -753,18 +753,21 @@ export const endpoints = {
     return r.data;
   },
 
-  // Feedback — submit (BUG / IMPROVEMENT / OTHER / MISSING_TENDER).
+  // Feedback — submit (BUG / IMPROVEMENT / OTHER / MISSING_TENDER / WRONG_TENDER).
   // MISSING_TENDER má monthly cap 1/měsíc — server vrací 429 s code=MONTHLY_CAP_REACHED.
+  // WRONG_TENDER vyžaduje tenderId (hlášení chybné zakázky z detailu).
   // Když jsou attachments, posíláme multipart; jinak JSON (jednodušší pro server).
   submitFeedback: async (input: {
     kind: FeedbackKind;
     message: string;
+    tenderId?: string;
     attachments?: { uri: string; name: string; mimeType: string }[];
   }) => {
     if (input.attachments && input.attachments.length > 0) {
       const fd = new FormData();
       fd.append("kind", input.kind);
       fd.append("message", input.message);
+      if (input.tenderId) fd.append("tenderId", input.tenderId);
       for (const a of input.attachments) {
         // RN FormData přijímá { uri, name, type } objekt jako file part.
         fd.append("attachments", {
@@ -781,7 +784,7 @@ export const endpoints = {
     }
     const r = await api.post<{ data: { id: string; createdAt: string } }>(
       "/api/v2/feedback",
-      { kind: input.kind, message: input.message },
+      { kind: input.kind, message: input.message, ...(input.tenderId ? { tenderId: input.tenderId } : {}) },
     );
     return r.data;
   },
@@ -830,7 +833,7 @@ export const endpoints = {
   aiCreditGet: () => api.get<{ data: AiCreditView }>("/api/v2/account/ai-credit"),
 };
 
-export type FeedbackKind = "BUG" | "IMPROVEMENT" | "OTHER" | "MISSING_TENDER";
+export type FeedbackKind = "BUG" | "IMPROVEMENT" | "OTHER" | "MISSING_TENDER" | "WRONG_TENDER";
 
 export type BillingTier = "FREE" | "PAID";
 export type BillingState = "TRIAL" | "ACTIVE" | "PAST_DUE" | "SUSPENDED" | "CANCELED";

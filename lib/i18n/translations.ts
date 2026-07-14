@@ -884,6 +884,15 @@ export interface Dict {
     kindImprovement: string;
     kindOther: string;
     kindMissingTender: string;
+    kindWrongTender: string;
+    // AI triáž (Feedback.aiTriage)
+    triageTitle: string;
+    triageConfidence: string;
+    triageRootCause: string;
+    triageSuggestedReply: string;
+    triageScopeSystematic: string;
+    triageScopeOneOff: string;
+    triageAffected: string;
     fbNew: string;
     fbInProgress: string;
     fbResolved: string;
@@ -1067,6 +1076,14 @@ const ADMIN_CS: Dict["admin"] = {
   kindImprovement: "Návrh",
   kindOther: "Jiné",
   kindMissingTender: "Chybějící zakázka",
+  kindWrongTender: "Chybná zakázka",
+  triageTitle: "AI triáž",
+  triageConfidence: "jistota",
+  triageRootCause: "Příčina",
+  triageSuggestedReply: "Návrh odpovědi",
+  triageScopeSystematic: "Systematická chyba",
+  triageScopeOneOff: "Jednorázová chyba",
+  triageAffected: "Odhad dopadu",
   fbNew: "Nový",
   fbInProgress: "V řešení",
   fbResolved: "Vyřešeno",
@@ -1246,6 +1263,14 @@ const ADMIN_EN: Dict["admin"] = {
   kindImprovement: "Idea",
   kindOther: "Other",
   kindMissingTender: "Missing tender",
+  kindWrongTender: "Incorrect tender",
+  triageTitle: "AI triage",
+  triageConfidence: "confidence",
+  triageRootCause: "Root cause",
+  triageSuggestedReply: "Suggested reply",
+  triageScopeSystematic: "Systematic issue",
+  triageScopeOneOff: "One-off issue",
+  triageAffected: "Estimated impact",
   fbNew: "New",
   fbInProgress: "In progress",
   fbResolved: "Resolved",

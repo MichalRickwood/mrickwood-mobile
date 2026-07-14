@@ -99,7 +99,8 @@ export default function MatchDetailScreen() {
             setReporting(true);
             try {
               await endpoints.submitFeedback({
-                kind: "OTHER",
+                kind: "WRONG_TENDER",
+                tenderId: String(match.tender.id),
                 message: `Neplatná zakázka — tender #${match.tender.id}\n${match.tender.title}\n${match.tender.url}`,
               });
               Alert.alert(

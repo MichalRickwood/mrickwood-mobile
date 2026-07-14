@@ -19,6 +19,8 @@ export function feedbackKindLabel(kind: FeedbackKind, t: TFn): string {
       return t("admin", "kindImprovement");
     case "MISSING_TENDER":
       return t("admin", "kindMissingTender");
+    case "WRONG_TENDER":
+      return t("admin", "kindWrongTender");
     default:
       return t("admin", "kindOther");
   }
@@ -55,7 +57,7 @@ export default function AdminFeedbackScreen() {
     return items;
   }, [query.data, kindFilter, statusFilter]);
 
-  const kinds: (FeedbackKind | "ALL")[] = ["ALL", "BUG", "IMPROVEMENT", "MISSING_TENDER", "OTHER"];
+  const kinds: (FeedbackKind | "ALL")[] = ["ALL", "BUG", "IMPROVEMENT", "MISSING_TENDER", "WRONG_TENDER", "OTHER"];
   const statuses: (FeedbackStatus | "ALL")[] = ["ALL", "NEW", "IN_PROGRESS", "RESOLVED", "WONT_FIX", "DUPLICATE"];
 
   const renderRow = ({ item }: { item: Feedback }) => (

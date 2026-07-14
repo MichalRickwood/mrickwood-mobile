@@ -3,7 +3,7 @@ import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, Text
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { adminApi, type FeedbackStatus } from "@/lib/admin-api";
+import { adminApi, type AiTriage, type FeedbackStatus } from "@/lib/admin-api";
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme-context";
 import { openAuthedFile } from "@/lib/file-open";
@@ -92,7 +92,10 @@ export default function AdminFeedbackDetailScreen() {
         <View style={styles.card}>
           <Text style={styles.message}>{item.message}</Text>
           {item.page ? <Text style={styles.metaLine}>{item.page}</Text> : null}
+          {item.tenderId ? <Text style={styles.metaLine}>tender #{item.tenderId}</Text> : null}
         </View>
+
+        {item.aiTriage ? <TriageCard triage={item.aiTriage} styles={styles} colors={colors} t={t} /> : null}
 
         <Text style={styles.sectionTitle}>{t("admin", "secUser")}</Text>
         <View style={styles.card}>
@@ -164,6 +167,70 @@ export default function AdminFeedbackDetailScreen() {
   );
 }
 
+/** Karta s výsledkem automatické AI triáže (jen návrh — akce schvaluje admin). */
+function TriageCard({
+  triage,
+  styles,
+  colors,
+  t,
+}: {
+  triage: AiTriage;
+  styles: ReturnType<typeof makeStyles>;
+  colors: Colors;
+  t: ReturnType<typeof useI18n>["t"];
+}) {
+  const recPositive = triage.recommendation === "GRANT" || triage.recommendation === "ACCEPT";
+  const recNegative = triage.recommendation === "DENY";
+  const recColor = recPositive ? colors.success ?? colors.accent : recNegative ? colors.danger : colors.accent;
+  return (
+    <>
+      <Text style={styles.sectionTitle}>🤖 {t("admin", "triageTitle")}</Text>
+      <View style={styles.card}>
+        <View style={styles.triageBadgeRow}>
+          <Text style={[styles.triageRec, { color: recColor, borderColor: recColor }]}>{triage.recommendation}</Text>
+          {triage.scope === "SYSTEMATIC" ? (
+            <Text style={[styles.triageRec, { color: colors.danger, borderColor: colors.danger }]}>
+              {t("admin", "triageScopeSystematic")}
+            </Text>
+          ) : triage.scope === "ONE_OFF" ? (
+            <Text style={styles.triageScope}>{t("admin", "triageScopeOneOff")}</Text>
+          ) : null}
+          <Text style={styles.triageScope}>
+            {t("admin", "triageConfidence")}: {triage.confidence}
+          </Text>
+        </View>
+        <Text style={styles.message}>{triage.summary}</Text>
+        {triage.affectedEstimate ? (
+          <Text style={[styles.metaLine, { color: colors.danger }]}>
+            {t("admin", "triageAffected")}: {triage.affectedEstimate}
+          </Text>
+        ) : null}
+        {triage.reasons.map((r, i) => (
+          <Text key={i} style={styles.triageReason}>
+            • {r}
+          </Text>
+        ))}
+        {triage.rootCause ? (
+          <Text style={styles.metaLine}>
+            {t("admin", "triageRootCause")}: {triage.rootCause}
+          </Text>
+        ) : null}
+        {triage.suggestedReply ? (
+          <>
+            <Text style={styles.triageReplyLabel}>
+              {t("admin", "triageSuggestedReply")} ({triage.suggestedReply.locale})
+            </Text>
+            <Text selectable style={styles.triageReply}>
+              {triage.suggestedReply.body}
+            </Text>
+          </>
+        ) : null}
+        <Text style={styles.metaLine}>{new Date(triage.createdAt).toLocaleString()}</Text>
+      </View>
+    </>
+  );
+}
+
 const makeStyles = (colors: Colors) =>
   StyleSheet.create({
     safe: { flex: 1, backgroundColor: colors.bg },
@@ -190,4 +257,10 @@ const makeStyles = (colors: Colors) =>
     dangerBtn: { borderColor: colors.danger, backgroundColor: colors.dangerBg },
     dangerText: { color: colors.danger },
     empty: { textAlign: "center", color: colors.textSubtle, marginTop: spacing.xxl, fontSize: fontSize.sm },
+    triageBadgeRow: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm, alignItems: "center", marginBottom: spacing.sm },
+    triageRec: { fontSize: fontSize.xs, fontWeight: "700", borderWidth: 1, borderRadius: radius.sm, paddingHorizontal: spacing.sm, paddingVertical: 2 },
+    triageScope: { fontSize: fontSize.xs, color: colors.textSubtle },
+    triageReason: { fontSize: fontSize.sm, color: colors.textMuted, marginTop: spacing.xs, lineHeight: 19 },
+    triageReplyLabel: { fontSize: fontSize.xs, color: colors.textSubtle, fontWeight: "600", textTransform: "uppercase", letterSpacing: 0.5, marginTop: spacing.md, marginBottom: spacing.xs },
+    triageReply: { fontSize: fontSize.sm, color: colors.text, backgroundColor: colors.bg, borderWidth: 1, borderColor: colors.border, borderRadius: radius.sm, padding: spacing.md, lineHeight: 20 },
   });
