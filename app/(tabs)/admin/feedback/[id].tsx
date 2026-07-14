@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+// eslint-disable-next-line @typescript-eslint/no-deprecated -- core Clipboard je v binárce (OTA-safe); expo-clipboard by chtěl nativní rebuild
+import { ActivityIndicator, Alert, Clipboard, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -92,10 +93,15 @@ export default function AdminFeedbackDetailScreen() {
         <View style={styles.card}>
           <Text style={styles.message}>{item.message}</Text>
           {item.page ? <Text style={styles.metaLine}>{item.page}</Text> : null}
-          {item.tenderId ? <Text style={styles.metaLine}>tender #{item.tenderId}</Text> : null}
-          <Text selectable style={styles.metaLine}>
-            id: {item.id}
-          </Text>
+          <CopyRow label={`id: ${item.id}`} value={item.id} copiedLabel={t("admin", "triageCopied")} copyLabel={t("admin", "triageCopy")} styles={styles} />
+          {item.tenderId ? (
+            <Pressable
+              onPress={() => router.push({ pathname: "/match/[id]", params: { id: `live-${item.tenderId}` } })}
+              style={styles.tenderLinkBtn}
+            >
+              <Text style={styles.link}>{t("admin", "openTender")} #{item.tenderId} →</Text>
+            </Pressable>
+          ) : null}
         </View>
 
         {item.aiTriage ? <TriageCard triage={item.aiTriage} styles={styles} colors={colors} t={t} /> : null}
@@ -170,6 +176,39 @@ export default function AdminFeedbackDetailScreen() {
   );
 }
 
+/** Řádek s hodnotou + tlačítkem kopírovat (feedback id, apod.). */
+function CopyRow({
+  label,
+  value,
+  copyLabel,
+  copiedLabel,
+  styles,
+}: {
+  label: string;
+  value: string;
+  copyLabel: string;
+  copiedLabel: string;
+  styles: ReturnType<typeof makeStyles>;
+}) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <View style={styles.copyRow}>
+      <Text selectable style={[styles.metaLine, styles.copyRowValue]} numberOfLines={1}>
+        {label}
+      </Text>
+      <Pressable
+        onPress={() => {
+          Clipboard.setString(value);
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        }}
+      >
+        <Text style={styles.link}>{copied ? copiedLabel : copyLabel}</Text>
+      </Pressable>
+    </View>
+  );
+}
+
 /** Karta s výsledkem automatické AI triáže (jen návrh — akce schvaluje admin). */
 function TriageCard({
   triage,
@@ -182,9 +221,12 @@ function TriageCard({
   colors: Colors;
   t: ReturnType<typeof useI18n>["t"];
 }) {
+  const [replyCopied, setReplyCopied] = useState(false);
+  const [showEvidence, setShowEvidence] = useState(false);
   const recPositive = triage.recommendation === "GRANT" || triage.recommendation === "ACCEPT";
   const recNegative = triage.recommendation === "DENY";
   const recColor = recPositive ? colors.success ?? colors.accent : recNegative ? colors.danger : colors.accent;
+  const hasEvidence = triage.evidence && Object.keys(triage.evidence).length > 0;
   return (
     <>
       <Text style={styles.sectionTitle}>🤖 {t("admin", "triageTitle")}</Text>
@@ -220,12 +262,37 @@ function TriageCard({
         ) : null}
         {triage.suggestedReply ? (
           <>
-            <Text style={styles.triageReplyLabel}>
-              {t("admin", "triageSuggestedReply")} ({triage.suggestedReply.locale})
-            </Text>
+            <View style={styles.copyRow}>
+              <Text style={[styles.triageReplyLabel, styles.copyRowValue]}>
+                {t("admin", "triageSuggestedReply")} ({triage.suggestedReply.locale})
+              </Text>
+              <Pressable
+                onPress={() => {
+                  Clipboard.setString(triage.suggestedReply!.body);
+                  setReplyCopied(true);
+                  setTimeout(() => setReplyCopied(false), 2000);
+                }}
+              >
+                <Text style={styles.link}>{replyCopied ? t("admin", "triageCopied") : t("admin", "triageCopy")}</Text>
+              </Pressable>
+            </View>
             <Text selectable style={styles.triageReply}>
               {triage.suggestedReply.body}
             </Text>
+          </>
+        ) : null}
+        {hasEvidence ? (
+          <>
+            <Pressable onPress={() => setShowEvidence((v) => !v)} style={styles.tenderLinkBtn}>
+              <Text style={styles.link}>
+                {showEvidence ? "▾" : "▸"} {t("admin", "triageEvidence")}
+              </Text>
+            </Pressable>
+            {showEvidence ? (
+              <Text selectable style={styles.triageEvidence}>
+                {JSON.stringify(triage.evidence, null, 2)}
+              </Text>
+            ) : null}
           </>
         ) : null}
         <Text style={styles.metaLine}>{new Date(triage.createdAt).toLocaleString()}</Text>
@@ -266,4 +333,8 @@ const makeStyles = (colors: Colors) =>
     triageReason: { fontSize: fontSize.sm, color: colors.textMuted, marginTop: spacing.xs, lineHeight: 19 },
     triageReplyLabel: { fontSize: fontSize.xs, color: colors.textSubtle, fontWeight: "600", textTransform: "uppercase", letterSpacing: 0.5, marginTop: spacing.md, marginBottom: spacing.xs },
     triageReply: { fontSize: fontSize.sm, color: colors.text, backgroundColor: colors.bg, borderWidth: 1, borderColor: colors.border, borderRadius: radius.sm, padding: spacing.md, lineHeight: 20 },
+    triageEvidence: { fontSize: 10, fontFamily: "monospace", color: colors.textMuted, backgroundColor: colors.bg, borderWidth: 1, borderColor: colors.border, borderRadius: radius.sm, padding: spacing.sm, marginTop: spacing.xs },
+    copyRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: spacing.md, marginTop: spacing.xs },
+    copyRowValue: { flexShrink: 1 },
+    tenderLinkBtn: { marginTop: spacing.sm, alignSelf: "flex-start" },
   });

@@ -893,6 +893,10 @@ export interface Dict {
     triageScopeSystematic: string;
     triageScopeOneOff: string;
     triageAffected: string;
+    triageCopy: string;
+    triageCopied: string;
+    triageEvidence: string;
+    openTender: string;
     fbNew: string;
     fbInProgress: string;
     fbResolved: string;
@@ -1084,6 +1088,10 @@ const ADMIN_CS: Dict["admin"] = {
   triageScopeSystematic: "Systematická chyba",
   triageScopeOneOff: "Jednorázová chyba",
   triageAffected: "Odhad dopadu",
+  triageCopy: "Kopírovat",
+  triageCopied: "Zkopírováno ✓",
+  triageEvidence: "Podklady (JSON)",
+  openTender: "Otevřít zakázku",
   fbNew: "Nový",
   fbInProgress: "V řešení",
   fbResolved: "Vyřešeno",
@@ -1271,6 +1279,10 @@ const ADMIN_EN: Dict["admin"] = {
   triageScopeSystematic: "Systematic issue",
   triageScopeOneOff: "One-off issue",
   triageAffected: "Estimated impact",
+  triageCopy: "Copy",
+  triageCopied: "Copied ✓",
+  triageEvidence: "Evidence (JSON)",
+  openTender: "Open tender",
   fbNew: "New",
   fbInProgress: "In progress",
   fbResolved: "Resolved",
