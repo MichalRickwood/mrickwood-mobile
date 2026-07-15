@@ -76,7 +76,7 @@ export default function LoginScreen() {
         </View>
 
         <View style={styles.brand}>
-          <Image source={require("@/assets/logo-dark.png")} style={styles.brandIcon} resizeMode="contain" />
+          <Image source={require("@/assets/veritra-mark-light.png")} style={styles.brandIcon} resizeMode="contain" />
           <Text style={styles.brandText}>{APP_NAME}</Text>
           <Text style={styles.brandSub}>{t("brand", "tagline")}</Text>
         </View>
