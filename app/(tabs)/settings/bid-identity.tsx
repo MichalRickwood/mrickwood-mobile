@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { AppScrollView } from "@/components/AppScroll";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useTheme } from "@/lib/theme-context";
@@ -121,7 +122,7 @@ export default function BidIdentityScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={["bottom"]}>
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <AppScrollView contentContainerStyle={styles.scroll}>
         <View style={[styles.statusBadge, view.complete ? styles.badgeOk : styles.badgeWarn]}>
           <Text style={[styles.badgeText, view.complete ? styles.badgeTextOk : styles.badgeTextWarn]}>
             {view.complete ? t("bidIdentity", "complete") : t("bidIdentity", "incomplete")}
@@ -167,7 +168,7 @@ export default function BidIdentityScreen() {
         <Pressable style={[styles.primaryBtn, saving && { opacity: 0.6 }]} disabled={saving} onPress={save}>
           {saving ? <ActivityIndicator size="small" color={colors.accentForeground} /> : <Text style={styles.primaryBtnText}>{t("bidIdentity", "saveBtn")}</Text>}
         </Pressable>
-      </ScrollView>
+      </AppScrollView>
     </SafeAreaView>
   );
 }
@@ -209,7 +210,7 @@ const makeStyles = (c: Colors) =>
   StyleSheet.create({
     safe: { flex: 1, backgroundColor: c.bg },
     center: { flex: 1, alignItems: "center", justifyContent: "center", padding: spacing.xl },
-    scroll: { padding: spacing.lg, paddingBottom: spacing.xxl * 2 },
+    scroll: { padding: spacing.lg, paddingBottom: spacing.xl },
     gateTitle: { fontSize: fontSize.lg, fontWeight: "700", color: c.text, marginBottom: spacing.sm, textAlign: "center" },
     gateBody: { fontSize: fontSize.sm, color: c.textSubtle, textAlign: "center", marginBottom: spacing.xl, lineHeight: 20 },
     statusBadge: { alignSelf: "flex-start", paddingHorizontal: spacing.md, paddingVertical: spacing.xs, borderRadius: radius.full, marginBottom: spacing.md },

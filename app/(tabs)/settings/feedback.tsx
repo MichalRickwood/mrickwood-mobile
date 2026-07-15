@@ -1,16 +1,6 @@
 import { useMemo, useState } from "react";
-import {
-  ActivityIndicator,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { ActivityIndicator, Image, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { AppScrollView } from "@/components/AppScroll";
 import * as ImagePicker from "expo-image-picker";
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme-context";
@@ -148,7 +138,7 @@ export default function FeedbackSettingsScreen() {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
       style={styles.flex}
     >
-      <ScrollView
+      <AppScrollView
         contentContainerStyle={styles.scroll}
         keyboardShouldPersistTaps="handled"
       >
@@ -259,7 +249,7 @@ export default function FeedbackSettingsScreen() {
             <Text style={styles.submitBtnText}>{t("feedback", "submit")}</Text>
           )}
         </Pressable>
-      </ScrollView>
+      </AppScrollView>
     </KeyboardAvoidingView>
   );
 }
@@ -267,7 +257,7 @@ export default function FeedbackSettingsScreen() {
 const makeStyles = (colors: Colors) =>
   StyleSheet.create({
     flex: { flex: 1, backgroundColor: colors.bg },
-    scroll: { padding: spacing.xl, paddingBottom: 100 },
+    scroll: { padding: spacing.xl, paddingBottom: spacing.xl },
     subtitle: { fontSize: fontSize.sm, color: colors.textSubtle, lineHeight: 20 },
     label: {
       fontSize: fontSize.xs,

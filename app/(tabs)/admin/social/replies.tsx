@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { ActivityIndicator, Alert, FlatList, Pressable, RefreshControl, StyleSheet, Switch, Text, View } from "react-native";
+import { ActivityIndicator, Alert, Pressable, RefreshControl, StyleSheet, Switch, Text, View } from "react-native";
+import { AppFlatList } from "@/components/AppScroll";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi, type SocialReply } from "@/lib/admin-api";
@@ -82,7 +83,7 @@ export default function AdminRepliesScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={["bottom"]}>
-      <FlatList
+      <AppFlatList
         data={query.data ?? []}
         keyExtractor={(r) => r.id}
         renderItem={renderRow}

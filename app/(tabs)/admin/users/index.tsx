@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { ActivityIndicator, FlatList, Pressable, RefreshControl, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Pressable, RefreshControl, StyleSheet, Text, TextInput, View } from "react-native";
+import { AppFlatList } from "@/components/AppScroll";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
@@ -115,7 +116,7 @@ export default function AdminUsersScreen() {
         </View>
       </View>
 
-      <FlatList
+      <AppFlatList
         data={filtered}
         keyExtractor={(u) => u.id}
         renderItem={renderRow}

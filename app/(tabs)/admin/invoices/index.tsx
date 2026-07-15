@@ -1,16 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import {
-  ActivityIndicator,
-  Alert,
-  FlatList,
-  Modal,
-  Pressable,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { ActivityIndicator, Alert, Modal, Pressable, RefreshControl, StyleSheet, Text, TextInput, View } from "react-native";
+import { AppFlatList } from "@/components/AppScroll";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { keepPreviousData, useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { adminApi, type AdminInvoice } from "@/lib/admin-api";
@@ -114,7 +104,7 @@ export default function AdminInvoicesScreen() {
         />
       </View>
 
-      <FlatList
+      <AppFlatList
         data={invoices}
         keyExtractor={(i) => i.id}
         renderItem={renderRow}

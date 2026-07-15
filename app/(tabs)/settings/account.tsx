@@ -1,15 +1,6 @@
 import { useMemo, useRef, useState } from "react";
-import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Alert, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { AppScrollView } from "@/components/AppScroll";
 import { useAuth } from "@/lib/auth-context";
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme-context";
@@ -119,7 +110,7 @@ export default function AccountScreen() {
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={styles.flex}
       >
-        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+        <AppScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           {user && (
             <View style={styles.card}>
               <Text style={styles.label}>{t("settings", "accountEmail")}</Text>
@@ -257,7 +248,7 @@ export default function AccountScreen() {
               />
             )}
           </Section>
-        </ScrollView>
+        </AppScrollView>
       </KeyboardAvoidingView>
     </View>
   );
@@ -473,7 +464,7 @@ const makeStyles = (colors: Colors) =>
   StyleSheet.create({
     safe: { flex: 1, backgroundColor: colors.bg },
     flex: { flex: 1 },
-    scroll: { padding: spacing.xl, paddingBottom: spacing.xxl * 2 },
+    scroll: { padding: spacing.xl, paddingBottom: spacing.xl },
     card: {
       backgroundColor: colors.card,
       borderRadius: radius.lg,

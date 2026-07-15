@@ -1,15 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { ActivityIndicator, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, View } from "react-native";
+import { AppScrollView } from "@/components/AppScroll";
 import { ApiError } from "@/lib/api";
 import { endpoints } from "@/lib/endpoints";
 import { useAuth } from "@/lib/auth-context";
@@ -152,7 +143,7 @@ export default function ProfileScreen() {
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={styles.flex}
       >
-        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+        <AppScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           <View style={styles.card}>
             <Text style={styles.label}>{t("settings", "accountEmail")}</Text>
             <View style={styles.readonlyValue}>
@@ -202,7 +193,7 @@ export default function ProfileScreen() {
             )}
             {error && <Text style={styles.errorText}>{error}</Text>}
           </View>
-        </ScrollView>
+        </AppScrollView>
       </KeyboardAvoidingView>
     </View>
   );

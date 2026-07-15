@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Alert, Image, Modal, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { AppScrollView } from "@/components/AppScroll";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -79,7 +80,7 @@ export default function AdminSocialDetailScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={["bottom"]}>
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <AppScrollView contentContainerStyle={styles.scroll}>
         {post.imageUrl ? <Image source={{ uri: post.imageUrl }} style={styles.image} resizeMode="cover" /> : null}
 
         <View style={styles.metaRow}>
@@ -117,7 +118,7 @@ export default function AdminSocialDetailScreen() {
             <Text style={[styles.actionText, styles.dangerText]}>{t("admin", "delete")}</Text>
           </Pressable>
         </View>
-      </ScrollView>
+      </AppScrollView>
 
       <Modal visible={rejectOpen} transparent animationType="fade" onRequestClose={() => setRejectOpen(false)}>
         <View style={styles.modalOverlay}>

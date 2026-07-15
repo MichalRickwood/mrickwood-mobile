@@ -1,16 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import {
-  ActivityIndicator,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { AppScrollView } from "@/components/AppScroll";
 import { ApiError } from "@/lib/api";
 import { endpoints } from "@/lib/endpoints";
 import { saveToken } from "@/lib/auth-storage";
@@ -143,7 +133,7 @@ export default function SecurityScreen() {
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={styles.flex}
       >
-        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+        <AppScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           <Text style={styles.title}>
             {hasPassword ? t("settings", "passwordTitleChange") : t("settings", "passwordTitleSet")}
           </Text>
@@ -230,7 +220,7 @@ export default function SecurityScreen() {
               <Text style={styles.revokeBtnText}>{t("settings", "revokeAllBtn")}</Text>
             </Pressable>
           </View>
-        </ScrollView>
+        </AppScrollView>
       </KeyboardAvoidingView>
     </View>
   );

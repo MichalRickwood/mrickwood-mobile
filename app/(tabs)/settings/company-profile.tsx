@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { AppScrollView } from "@/components/AppScroll";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useTheme } from "@/lib/theme-context";
@@ -131,7 +132,7 @@ export default function CompanyProfileScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={["bottom"]}>
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <AppScrollView contentContainerStyle={styles.scroll}>
         <Text style={styles.intro}>{t("companyProfile", "intro")}</Text>
 
         <Pressable style={[styles.secondaryBtn, generating && { opacity: 0.6 }]} disabled={generating} onPress={generate}>
@@ -181,7 +182,7 @@ export default function CompanyProfileScreen() {
             </Pressable>
           </>
         ) : null}
-      </ScrollView>
+      </AppScrollView>
     </SafeAreaView>
   );
 }
@@ -190,7 +191,7 @@ const makeStyles = (c: Colors) =>
   StyleSheet.create({
     safe: { flex: 1, backgroundColor: c.bg },
     center: { flex: 1, alignItems: "center", justifyContent: "center", padding: spacing.xl },
-    scroll: { padding: spacing.lg, paddingBottom: spacing.xxl * 2 },
+    scroll: { padding: spacing.lg, paddingBottom: spacing.xl },
     gateTitle: { fontSize: fontSize.lg, fontWeight: "700", color: c.text, marginBottom: spacing.sm, textAlign: "center" },
     gateBody: { fontSize: fontSize.sm, color: c.textSubtle, textAlign: "center", marginBottom: spacing.xl, lineHeight: 20 },
     intro: { fontSize: fontSize.sm, color: c.textSubtle, lineHeight: 20, marginBottom: spacing.md },

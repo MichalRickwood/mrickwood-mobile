@@ -1,14 +1,7 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useFocusEffect } from "expo-router";
-import {
-  ActivityIndicator,
-  FlatList,
-  Pressable,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { ActivityIndicator, Pressable, RefreshControl, StyleSheet, Text, View } from "react-native";
+import { AppFlatList } from "@/components/AppScroll";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useInfiniteQuery } from "@tanstack/react-query";
@@ -108,7 +101,7 @@ export default function StarredScreen() {
         </View>
       </View>
 
-      <FlatList
+      <AppFlatList
         data={matches}
         keyExtractor={(item) => item.matchId}
         renderItem={({ item }) => (
@@ -199,7 +192,7 @@ const makeStyles = (colors: Colors) =>
     segBtnActive: { backgroundColor: colors.accent },
     segText: { fontSize: 13, color: colors.textSubtle, fontWeight: "500" },
     segTextActive: { color: colors.accentForeground, fontWeight: "600" },
-    list: { padding: spacing.xl, paddingTop: spacing.sm, paddingBottom: 100, flexGrow: 1 },
+    list: { padding: spacing.xl, paddingTop: spacing.sm, paddingBottom: spacing.xl, flexGrow: 1 },
     footerLoader: { paddingVertical: spacing.lg, alignItems: "center" },
     card: {
       backgroundColor: colors.card,

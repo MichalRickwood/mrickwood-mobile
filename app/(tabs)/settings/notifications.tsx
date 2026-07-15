@@ -1,14 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  ActivityIndicator,
-  Linking,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Switch,
-  Text,
-  View,
-} from "react-native";
+import { ActivityIndicator, Linking, Pressable, StyleSheet, Switch, Text, View } from "react-native";
+import { AppScrollView } from "@/components/AppScroll";
 import { ApiError } from "@/lib/api";
 import { endpoints, type NotificationSettings } from "@/lib/endpoints";
 import { useI18n } from "@/lib/i18n";
@@ -116,7 +108,7 @@ export default function NotificationsScreen() {
 
   return (
     <View style={styles.safe}>
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <AppScrollView contentContainerStyle={styles.scroll}>
         <Text style={styles.sectionLabel}>{t("settings", "pushTitle")}</Text>
         <View style={styles.group}>
           <Row
@@ -191,7 +183,7 @@ export default function NotificationsScreen() {
             <Text style={styles.errorText}>{error}</Text>
           </View>
         )}
-      </ScrollView>
+      </AppScrollView>
     </View>
   );
 }

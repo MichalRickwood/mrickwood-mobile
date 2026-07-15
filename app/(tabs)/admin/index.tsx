@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Modal, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { AppScrollView } from "@/components/AppScroll";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useI18n } from "@/lib/i18n";
@@ -27,7 +28,7 @@ export default function AdminIndexScreen() {
       <View style={styles.header}>
         <Text style={styles.title}>{t("admin", "title")}</Text>
       </View>
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <AppScrollView contentContainerStyle={styles.scroll}>
         <AdminCard>
           <AdminRow
             label={t("admin", "usersRow")}
@@ -64,7 +65,7 @@ export default function AdminIndexScreen() {
             onPress={() => setYearOpen(true)}
           />
         </AdminCard>
-      </ScrollView>
+      </AppScrollView>
 
       <Modal visible={yearOpen} transparent animationType="fade" onRequestClose={() => setYearOpen(false)}>
         <View style={styles.modalOverlay}>

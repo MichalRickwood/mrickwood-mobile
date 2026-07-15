@@ -1,5 +1,6 @@
 import { useMemo } from "react";
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { AppScrollView } from "@/components/AppScroll";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
@@ -30,7 +31,7 @@ export default function AdminEmailDetailScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={["bottom"]}>
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <AppScrollView contentContainerStyle={styles.scroll}>
         <View style={styles.card}>
           <Field label={t("admin", "emailSubject")} value={log.subject || "—"} styles={styles} />
           <Field label={t("admin", "emailFrom")} value={log.fromAddr} styles={styles} />
@@ -45,7 +46,7 @@ export default function AdminEmailDetailScreen() {
         <View style={styles.card}>
           {bodyText ? <Text style={styles.body}>{bodyText}</Text> : <Text style={styles.empty}>{t("admin", "noBody")}</Text>}
         </View>
-      </ScrollView>
+      </AppScrollView>
     </SafeAreaView>
   );
 }

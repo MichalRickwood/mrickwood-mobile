@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { AppScrollView } from "@/components/AppScroll";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -117,7 +118,7 @@ export default function AdminUserDetailScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={["bottom"]}>
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <AppScrollView contentContainerStyle={styles.scroll}>
         {/* Profile */}
         <Section title={t("admin", "secProfile")} styles={styles}>
           <Field label={t("admin", "lblEmail")} value={user?.email ?? "—"} styles={styles} />
@@ -287,7 +288,7 @@ export default function AdminUserDetailScreen() {
             <Text style={[styles.actionText, styles.dangerText]}>{t("admin", "deleteUser")}</Text>
           </Pressable>
         </Section>
-      </ScrollView>
+      </AppScrollView>
     </SafeAreaView>
   );
 }

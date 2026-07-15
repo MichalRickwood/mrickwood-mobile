@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 // eslint-disable-next-line @typescript-eslint/no-deprecated -- core Clipboard je v binárce (OTA-safe); expo-clipboard by chtěl nativní rebuild
-import { ActivityIndicator, Alert, Clipboard, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Alert, Clipboard, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { AppScrollView } from "@/components/AppScroll";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -83,7 +84,7 @@ export default function AdminFeedbackDetailScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={["bottom"]}>
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <AppScrollView contentContainerStyle={styles.scroll}>
         <View style={styles.metaRow}>
           <Text style={styles.badge}>{feedbackKindLabel(item.kind, t)}</Text>
           <Text style={styles.badge}>{feedbackStatusLabel(item.status, t)}</Text>
@@ -175,7 +176,7 @@ export default function AdminFeedbackDetailScreen() {
         <Pressable onPress={confirmDelete} style={[styles.actionBtn, styles.dangerBtn]}>
           <Text style={[styles.actionText, styles.dangerText]}>{t("admin", "delete")}</Text>
         </Pressable>
-      </ScrollView>
+      </AppScrollView>
     </SafeAreaView>
   );
 }

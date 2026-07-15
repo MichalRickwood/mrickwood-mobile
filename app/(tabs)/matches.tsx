@@ -1,14 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  ActivityIndicator,
-  FlatList,
-  Pressable,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { ActivityIndicator, Pressable, RefreshControl, StyleSheet, Text, TextInput, View } from "react-native";
+import { AppFlatList } from "@/components/AppScroll";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -534,7 +526,7 @@ export default function MatchesScreen() {
         }}
       />
 
-      <FlatList
+      <AppFlatList
         data={displayMatches}
         keyExtractor={(item) => item.matchId}
         ListHeaderComponent={
@@ -727,7 +719,7 @@ const makeStyles = (colors: Colors) =>
       fontSize: fontSize.sm,
       color: colors.text,
     },
-    list: { padding: spacing.xl, paddingTop: spacing.sm, paddingBottom: 100, flexGrow: 1 },
+    list: { padding: spacing.xl, paddingTop: spacing.sm, paddingBottom: spacing.xl, flexGrow: 1 },
     footerLoader: { paddingVertical: spacing.lg, alignItems: "center" },
     card: {
       backgroundColor: colors.card,

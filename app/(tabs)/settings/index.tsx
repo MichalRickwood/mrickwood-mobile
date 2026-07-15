@@ -1,5 +1,6 @@
 import { useMemo, type ReactNode } from "react";
-import { Image, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Image, Linking, Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { AppScrollView } from "@/components/AppScroll";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -37,7 +38,7 @@ export default function SettingsIndexScreen() {
         </View>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <AppScrollView contentContainerStyle={styles.scroll}>
         <Pressable
           onPress={() => router.push("/(tabs)/settings/profile")}
           style={({ pressed }) => [styles.userCard, pressed && styles.rowPressed]}
@@ -136,7 +137,7 @@ export default function SettingsIndexScreen() {
         <Text style={styles.version}>
           {APP_NAME} v{Constants.expoConfig?.version ?? "?"}
         </Text>
-      </ScrollView>
+      </AppScrollView>
     </SafeAreaView>
   );
 }

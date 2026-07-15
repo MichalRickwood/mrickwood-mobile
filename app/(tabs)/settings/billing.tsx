@@ -1,16 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  ActivityIndicator,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { AppScrollView } from "@/components/AppScroll";
 import * as WebBrowser from "expo-web-browser";
 import * as Linking from "expo-linking";
 import { useQueryClient } from "@tanstack/react-query";
@@ -482,7 +472,7 @@ function BillingLegacy() {
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={styles.flex}
       >
-        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+        <AppScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           {/* PlanSummary skryt — info už je v "Aktivní služby" sekci níž a
               redundantní summary plan/state/cycle zbytečně zabíralo místo. */}
 
@@ -746,7 +736,7 @@ function BillingLegacy() {
               <Text style={styles.errorBoxText}>{error}</Text>
             </View>
           )}
-        </ScrollView>
+        </AppScrollView>
       </KeyboardAvoidingView>
     </View>
   );
@@ -1155,7 +1145,7 @@ const makeStyles = (colors: Colors) =>
   StyleSheet.create({
     safe: { flex: 1, backgroundColor: colors.bg },
     flex: { flex: 1 },
-    scroll: { padding: spacing.xl, paddingBottom: spacing.xxl * 2 },
+    scroll: { padding: spacing.xl, paddingBottom: spacing.xl },
     center: { flex: 1, alignItems: "center", justifyContent: "center", padding: spacing.xl },
 
     summary: {

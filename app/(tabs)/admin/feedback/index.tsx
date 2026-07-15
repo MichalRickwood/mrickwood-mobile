@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { ActivityIndicator, FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { AppFlatList } from "@/components/AppScroll";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
@@ -106,7 +107,7 @@ export default function AdminFeedbackScreen() {
         </ScrollView>
       </View>
 
-      <FlatList
+      <AppFlatList
         data={filtered}
         keyExtractor={(f) => f.id}
         renderItem={renderRow}

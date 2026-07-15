@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { AppFlatList } from "@/components/AppScroll";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
@@ -117,7 +118,7 @@ export default function AdminCommunicationsScreen() {
         ) : null}
       </View>
 
-      <FlatList
+      <AppFlatList
         data={items}
         keyExtractor={(e) => e.id}
         renderItem={renderRow}
