@@ -293,6 +293,14 @@ export default function MatchDetailScreen() {
           ) : null}
         </View>
 
+        {(() => {
+          // AI akce skryjeme u zakázek, kde máme JEN TED notice PDF (25 jazykových mutací
+          // oznámení) — analýza/dokumentace z nich nic nevytěží. Zakázky bez příloh nechávám
+          // (se-kommers materializuje lazy; analysis endpoint má vlastní guard).
+          const dcs = docsOverride ?? tender.documents ?? [];
+          const tedOnly = dcs.length > 0 && dcs.every((d) => d.url.includes("ted.europa.eu"));
+          if (tedOnly) return null;
+          return (
         <View style={styles.aiSection}>
           <Text style={styles.sectionLabel}>{t("matchDetail", "aiSectionLabel")}</Text>
           <Pressable
@@ -316,6 +324,8 @@ export default function MatchDetailScreen() {
             <Text style={styles.docChevron}>›</Text>
           </Pressable>
         </View>
+          );
+        })()}
 
         {(() => {
           const docs = docsOverride ?? tender.documents ?? [];
