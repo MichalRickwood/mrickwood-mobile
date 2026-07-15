@@ -1,4 +1,4 @@
-import { Text, View } from "react-native";
+import { Image, Text, View } from "react-native";
 import { useI18n } from "@/lib/i18n";
 import { APP_NAME } from "@/lib/config";
 
@@ -24,6 +24,11 @@ export default function Index() {
         justifyContent: "center",
       }}
     >
+      <Image
+        source={require("@/assets/veritra-mark.png")}
+        style={{ width: 96, height: 96, marginBottom: 24 }}
+        resizeMode="contain"
+      />
       <Text
         style={{
           fontSize: 46,
