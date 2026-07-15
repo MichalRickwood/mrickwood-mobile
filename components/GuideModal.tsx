@@ -10,6 +10,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import { WebView } from "react-native-webview";
 import { endpoints } from "@/lib/endpoints";
+import { useAuth } from "@/lib/auth-context";
 import { GUIDE_STEPS, guideVideoUrl, type GuideStepId } from "@/lib/guide";
 import { useI18n } from "@/lib/i18n";
 import type { Dict } from "@/lib/i18n/translations";
@@ -44,19 +45,23 @@ export default function GuideModal({
 
   // Trial box jen pro běžící trial — platícím (ruční otevření z Nastavení)
   // by „týden zdarma" působil nepatřičně. Best-effort: bez dat se box neukáže.
+  // Admin ho vidí vždy (kontrola obsahu průvodce bez nutnosti trial účtu).
+  const isAdmin = useAuth().user?.role === "ADMIN";
   const subsQuery = useQuery({
     queryKey: ["account-subscriptions"],
     queryFn: endpoints.listSubscriptions,
-    enabled: visible,
+    enabled: visible && !isAdmin,
     staleTime: 30_000,
   });
-  const trialActive = (subsQuery.data ?? []).some(
-    (s) =>
-      s.service === "LEADS" &&
-      s.state === "TRIAL" &&
-      !!s.trialEndsAt &&
-      new Date(s.trialEndsAt).getTime() > Date.now(),
-  );
+  const trialActive =
+    isAdmin ||
+    (subsQuery.data ?? []).some(
+      (s) =>
+        s.service === "LEADS" &&
+        s.state === "TRIAL" &&
+        !!s.trialEndsAt &&
+        new Date(s.trialEndsAt).getTime() > Date.now(),
+    );
 
   const step = GUIDE_STEPS[Math.min(index, GUIDE_STEPS.length - 1)];
   const isLast = index >= GUIDE_STEPS.length - 1;
