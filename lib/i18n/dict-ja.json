@@ -521,7 +521,9 @@
     "docPreviewTitle": "添付ファイル",
     "docPreviewImageFailed": "画像の読み込みに失敗しました。",
     "docPreviewMissingUrl": "ドキュメントのURLがありません。",
-    "docPreviewErrorTitle": "表示に失敗しました"
+    "docPreviewErrorTitle": "表示に失敗しました",
+    "docPreviewPreparing": "ドキュメントを準備しています… 大きな添付ファイルは時間がかかる場合があります。",
+    "docPreviewTimeout": "ドキュメントを準備できませんでした。しばらくしてからもう一度お試しください。"
   },
   "filters": {
     "chipRegion": "地域",

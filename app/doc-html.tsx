@@ -31,6 +31,8 @@ export default function DocHtmlScreen() {
   const [token, setToken] = useState<string | null>(null);
   const [tokenLoaded, setTokenLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Signed URL hotového náhledu — získává se pollingem (nowait), viz níže.
+  const [signedUrl, setSignedUrl] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -39,6 +41,39 @@ export default function DocHtmlScreen() {
       setTokenLoaded(true);
     })();
   }, []);
+
+  // Polling konverze: server u portálů blokujících DC IP (NEN…) stahuje přes worker,
+  // což na první otevření trvá i desítky sekund — blokující request by WebView/fetch
+  // timeoutnul. nowait=1 → 202 {pending} dokud není hotovo, pak {url} (signed Spaces).
+  useEffect(() => {
+    if (!token || !url) return;
+    let cancelled = false;
+    const pollUrl = `${API_BASE_URL}/api/v2/leads/documents/preview?url=${encodeURIComponent(url)}&kind=${encodeURIComponent(kind ?? "docx")}&redirect=json&nowait=1`;
+    (async () => {
+      for (let i = 0; i < 45; i++) {
+        let res: Response | null = null;
+        try {
+          res = await fetch(pollUrl, { headers: { Authorization: `Bearer ${token}` } });
+        } catch {
+          /* síť — zkusíme znovu */
+        }
+        if (cancelled) return;
+        if (res?.status === 200) {
+          const j = (await res.json().catch(() => null)) as { url?: string } | null;
+          if (j?.url) { setSignedUrl(j.url); return; }
+        } else if (res && res.status !== 202) {
+          setError(`HTTP ${res.status}`);
+          return;
+        }
+        await new Promise((r) => setTimeout(r, 3000));
+        if (cancelled) return;
+      }
+      setError(t("feedback", "docPreviewTimeout"));
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [token, url, kind, t]);
 
   if (!url) {
     return (
@@ -50,8 +85,6 @@ export default function DocHtmlScreen() {
       </SafeAreaView>
     );
   }
-
-  const previewUrl = `${API_BASE_URL}/api/v2/leads/documents/preview?url=${encodeURIComponent(url)}&kind=${encodeURIComponent(kind ?? "docx")}`;
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
@@ -65,11 +98,7 @@ export default function DocHtmlScreen() {
           headerTitleStyle: { fontSize: fontSize.sm, fontWeight: "600" },
         }}
       />
-      {!tokenLoaded || !token ? (
-        <View style={styles.center}>
-          <ActivityIndicator color={colors.textSubtle} />
-        </View>
-      ) : error ? (
+      {error ? (
         <View style={styles.center}>
           <Text style={styles.errTitle}>{t("feedback", "docPreviewErrorTitle")}</Text>
           <Text style={styles.errText}>{error}</Text>
@@ -77,12 +106,16 @@ export default function DocHtmlScreen() {
             <Text style={styles.backBtnText}>{t("settings", "back")}</Text>
           </Pressable>
         </View>
+      ) : !signedUrl ? (
+        <View style={styles.center}>
+          <ActivityIndicator color={colors.textSubtle} />
+          <Text style={[styles.errText, { marginTop: spacing.md }]}>
+            {t("feedback", "docPreviewPreparing")}
+          </Text>
+        </View>
       ) : (
         <WebView
-          source={{
-            uri: previewUrl,
-            headers: { Authorization: `Bearer ${token}` },
-          }}
+          source={{ uri: signedUrl }}
           style={[styles.webview, { backgroundColor: colors.bg }]}
           startInLoadingState
           renderLoading={() => (
