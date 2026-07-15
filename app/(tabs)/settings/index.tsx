@@ -1,4 +1,4 @@
-import { useMemo, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { Image, Linking, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { AppScrollView } from "@/components/AppScroll";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -12,6 +12,7 @@ import { APP_NAME, SUPPORT_WHATSAPP_URL } from "@/lib/config";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
 import AppearanceSwitcher from "@/components/AppearanceSwitcher";
+import GuideModal from "@/components/GuideModal";
 
 export default function SettingsIndexScreen() {
   const router = useRouter();
@@ -19,6 +20,7 @@ export default function SettingsIndexScreen() {
   const { t } = useI18n();
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
+  const [guideOpen, setGuideOpen] = useState(false);
 
   // Ikonka sekce v zaobleném čtverečku vlevo (monochromaticky dle theme)
   const sectionIcon = (name: keyof typeof Ionicons.glyphMap) => (
@@ -103,6 +105,16 @@ export default function SettingsIndexScreen() {
           />
         </View>
 
+        <View style={styles.group}>
+          <SectionRow
+            styles={styles}
+            icon={sectionIcon("play-circle-outline")}
+            label={t("guide", "settingsRow")}
+            hint={t("guide", "settingsRowHint")}
+            onPress={() => setGuideOpen(true)}
+          />
+        </View>
+
         <View style={[styles.group, styles.feedbackGroup]}>
           <Pressable
             onPress={() => router.push("/(tabs)/settings/feedback")}
@@ -138,6 +150,8 @@ export default function SettingsIndexScreen() {
           {APP_NAME} v{Constants.expoConfig?.version ?? "?"}
         </Text>
       </AppScrollView>
+
+      <GuideModal visible={guideOpen} onClose={() => setGuideOpen(false)} />
     </SafeAreaView>
   );
 }

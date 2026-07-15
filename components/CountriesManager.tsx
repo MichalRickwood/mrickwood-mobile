@@ -37,6 +37,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import * as Localization from "expo-localization";
 import { endpoints } from "@/lib/endpoints";
+import { markGuidePending } from "@/lib/guide";
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme-context";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
@@ -273,6 +274,8 @@ export default function CountriesManager({ mode }: { mode: "onboarding" | "setti
         qc.invalidateQueries({ queryKey: ["profile-v2"] }),
       ]);
       if (mode === "onboarding") {
+        // Čerstvě aktivovaný trial → obrazovka Zakázky otevře průvodce aplikací.
+        await markGuidePending();
         router.replace("/(tabs)/matches");
       } else {
         // Settings: zůstáváme — refreshnuté subs zamknou nové země jako aktivní.

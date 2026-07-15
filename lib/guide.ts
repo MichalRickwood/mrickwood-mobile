@@ -1,0 +1,69 @@
+/**
+ * Průvodce aplikací — kroky, persistovaný stav a (budoucí) video návody.
+ *
+ * Auto-open: CountriesManager při onboarding aktivaci trialu nastaví „pending"
+ * flag; obrazovka Zakázky ho při mountu spotřebuje a průvodce otevře. Stávající
+ * uživatelé pending nikdy nedostanou → žádné hromadné překvapení po updatu.
+ * Ruční otevření je vždy v Nastavení → Průvodce aplikací.
+ */
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+export type GuideStepId =
+  | "welcome"
+  | "orientation"
+  | "emailDigest"
+  | "aiAnalysis"
+  | "subscription";
+
+export const GUIDE_STEPS: GuideStepId[] = [
+  "welcome",
+  "orientation",
+  "emailDigest",
+  "aiAnalysis",
+  "subscription",
+];
+
+const PENDING_KEY = "veritra.guidePending";
+const SEEN_KEY = "veritra.guideSeen";
+
+export async function markGuidePending(): Promise<void> {
+  try {
+    await AsyncStorage.setItem(PENDING_KEY, "1");
+  } catch {
+    /* průvodce nesmí nikdy blokovat aplikaci */
+  }
+}
+
+/** Vrátí true právě jednou — po dokončení onboardingu (pending && !seen). */
+export async function consumeGuidePending(): Promise<boolean> {
+  try {
+    const [pending, seen] = await Promise.all([
+      AsyncStorage.getItem(PENDING_KEY),
+      AsyncStorage.getItem(SEEN_KEY),
+    ]);
+    if (pending !== "1") return false;
+    await Promise.all([
+      AsyncStorage.removeItem(PENDING_KEY),
+      AsyncStorage.setItem(SEEN_KEY, "1"),
+    ]);
+    return seen !== "1";
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Mobilní guide videa natočíme později — až budou na Spaces
+ * (Veritra/guides/mobile/<locale>/<topic>.mp4), stačí přidat klíč
+ * "<locale>/<topic>" do AVAILABLE a poslat OTA update.
+ */
+const GUIDE_VIDEO_BASE =
+  "https://rwx-storage.fra1.digitaloceanspaces.com/Veritra/guides/mobile";
+const AVAILABLE = new Set<string>([]);
+
+export function guideVideoUrl(topic: GuideStepId, locale: string): string | null {
+  const key = `${locale}/${topic}`;
+  if (AVAILABLE.has(key)) return `${GUIDE_VIDEO_BASE}/${key}.mp4`;
+  if (AVAILABLE.has(`cs/${topic}`)) return `${GUIDE_VIDEO_BASE}/cs/${topic}.mp4`;
+  return null;
+}

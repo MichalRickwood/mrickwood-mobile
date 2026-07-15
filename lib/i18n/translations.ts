@@ -16,6 +16,27 @@ export interface Dict {
   brand: {
     tagline: string;
   };
+  guide: {
+    title: string;
+    settingsRow: string;
+    settingsRowHint: string;
+    next: string;
+    back: string;
+    done: string;
+    skip: string;
+    videoSoon: string;
+    welcomeTitle: string;
+    welcomeBody: string;
+    trialNote: string;
+    orientationTitle: string;
+    orientationBody: string;
+    emailDigestTitle: string;
+    emailDigestBody: string;
+    aiAnalysisTitle: string;
+    aiAnalysisBody: string;
+    subscriptionTitle: string;
+    subscriptionBody: string;
+  };
   authLanding: {
     subtitle: string;
     loginBtn: string;
@@ -1367,6 +1388,33 @@ const ADMIN_EN: Dict["admin"] = {
 const cs: Dict = {
   admin: ADMIN_CS,
   brand: { tagline: "Evropské zakázky na jednom místě" },
+  guide: {
+    title: "Průvodce Veritra",
+    settingsRow: "Průvodce aplikací",
+    settingsRowHint: "Krátká prohlídka hlavních funkcí",
+    next: "Další",
+    back: "Zpět",
+    done: "Hotovo",
+    skip: "Přeskočit",
+    videoSoon: "Video návod připravujeme",
+    welcomeTitle: "Vítejte ve Veritře 👋",
+    welcomeBody:
+      "Jsme rádi, že jste tu. Krátký průvodce vám ukáže to nejdůležitější — jak sledovat veřejné zakázky přesně podle sebe. Kdykoliv ho znovu otevřete v Nastavení → Průvodce aplikací.",
+    trialNote:
+      "Prvních 7 dní máte zdarma — vyzkoušejte si vše bez omezení. Po skončení zkušebního týdne pokračujete s předplatným dle platného ceníku; spravujete ho v Nastavení.",
+    orientationTitle: "Zakázky a filtry",
+    orientationBody:
+      "Na záložce Zakázky procházíte aktuální zakázky podle svých filtrů — podle země, oboru, klíčových slov nebo hodnoty. Zajímavé zakázky si označte hvězdičkou, nevhodné skryjte. Veritra se z vašich reakcí učí a výběr zpřesňuje.",
+    emailDigestTitle: "E-mailový přehled",
+    emailDigestBody:
+      "Zapněte si u filtru e-mailový přehled a nové odpovídající zakázky vám přijdou rovnou do schránky.",
+    aiAnalysisTitle: "AI analýza zakázky",
+    aiAnalysisBody:
+      "Na detailu zakázky spusťte AI analýzu — shrne zadání, upozorní na rizika a posoudí vhodnost pro vaši firmu. První analýza je zdarma.",
+    subscriptionTitle: "Profil firmy a předplatné",
+    subscriptionBody:
+      "Doplňte profil firmy (IČO, obor, reference), aby byly AI analýzy přesnější. Předplatné a sledované země spravujete v Nastavení.",
+  },
   authLanding: {
     subtitle: "Přihlaste se ke svému účtu.",
     loginBtn: "Přihlásit se",
@@ -2131,6 +2179,33 @@ const cs: Dict = {
 const en: Dict = {
   admin: ADMIN_EN,
   brand: { tagline: "Europe's tenders unified" },
+  guide: {
+    title: "Veritra guide",
+    settingsRow: "App guide",
+    settingsRowHint: "A short tour of the main features",
+    next: "Next",
+    back: "Back",
+    done: "Done",
+    skip: "Skip",
+    videoSoon: "Video guide coming soon",
+    welcomeTitle: "Welcome to Veritra 👋",
+    welcomeBody:
+      "We're glad you're here. This short guide shows you the essentials — how to monitor public tenders tailored to you. You can reopen it anytime in Settings → App guide.",
+    trialNote:
+      "Your first 7 days are free — try everything without limits. After the trial week you continue with a subscription at the current price list; you manage it in Settings.",
+    orientationTitle: "Tenders & filters",
+    orientationBody:
+      "On the Tenders tab you browse current tenders matching your filters — by country, industry, keywords or value. Star the interesting ones, hide the rest. Veritra learns from your reactions and sharpens the selection.",
+    emailDigestTitle: "Email digest",
+    emailDigestBody:
+      "Turn on the email digest for a filter and new matching tenders will land straight in your inbox.",
+    aiAnalysisTitle: "AI tender analysis",
+    aiAnalysisBody:
+      "Run an AI analysis from any tender detail — it summarizes the brief, flags risks and assesses the fit for your company. The first analysis is free.",
+    subscriptionTitle: "Company profile & subscription",
+    subscriptionBody:
+      "Complete your company profile (business ID, industry, references) to make AI analyses more accurate. You manage your subscription and monitored countries in Settings.",
+  },
   authLanding: {
     subtitle: "Sign in to your account.",
     loginBtn: "Sign in",
@@ -2894,6 +2969,33 @@ const en: Dict = {
 const de: Dict = {
   admin: ADMIN_EN,
   brand: { tagline: "Europas Ausschreibungen vereint" },
+  guide: {
+    title: "Veritra-Leitfaden",
+    settingsRow: "App-Leitfaden",
+    settingsRowHint: "Kurze Tour durch die wichtigsten Funktionen",
+    next: "Weiter",
+    back: "Zurück",
+    done: "Fertig",
+    skip: "Überspringen",
+    videoSoon: "Videoanleitung folgt in Kürze",
+    welcomeTitle: "Willkommen bei Veritra 👋",
+    welcomeBody:
+      "Schön, dass Sie da sind. Dieser kurze Leitfaden zeigt Ihnen das Wichtigste — wie Sie Ausschreibungen genau nach Ihren Wünschen überwachen. Sie können ihn jederzeit unter Einstellungen → App-Leitfaden erneut öffnen.",
+    trialNote:
+      "Die ersten 7 Tage sind kostenlos — testen Sie alles ohne Einschränkungen. Nach der Testwoche geht es mit einem Abonnement gemäß der aktuellen Preisliste weiter; verwalten können Sie es in den Einstellungen.",
+    orientationTitle: "Ausschreibungen & Filter",
+    orientationBody:
+      "Im Tab Ausschreibungen durchsuchen Sie aktuelle Ausschreibungen nach Ihren Filtern — nach Land, Branche, Stichwörtern oder Auftragswert. Markieren Sie interessante mit einem Stern, blenden Sie unpassende aus. Veritra lernt aus Ihren Reaktionen und verfeinert die Auswahl.",
+    emailDigestTitle: "E-Mail-Übersicht",
+    emailDigestBody:
+      "Aktivieren Sie die E-Mail-Übersicht für einen Filter und neue passende Ausschreibungen landen direkt in Ihrem Postfach.",
+    aiAnalysisTitle: "KI-Analyse der Ausschreibung",
+    aiAnalysisBody:
+      "Starten Sie in der Detailansicht einer Ausschreibung eine KI-Analyse — sie fasst die Unterlagen zusammen, weist auf Risiken hin und bewertet die Eignung für Ihr Unternehmen. Die erste Analyse ist kostenlos.",
+    subscriptionTitle: "Firmenprofil & Abonnement",
+    subscriptionBody:
+      "Vervollständigen Sie Ihr Firmenprofil (Firmen-ID, Branche, Referenzen), damit die KI-Analysen präziser werden. Abonnement und überwachte Länder verwalten Sie in den Einstellungen.",
+  },
   authLanding: {
     subtitle: "Melden Sie sich bei Ihrem Konto an.",
     loginBtn: "Anmelden",
@@ -3659,6 +3761,33 @@ const de: Dict = {
 const sk: Dict = {
   admin: ADMIN_EN,
   brand: { tagline: "Európske zákazky na jednom mieste" },
+  guide: {
+    title: "Sprievodca Veritra",
+    settingsRow: "Sprievodca aplikáciou",
+    settingsRowHint: "Krátka prehliadka hlavných funkcií",
+    next: "Ďalej",
+    back: "Späť",
+    done: "Hotovo",
+    skip: "Preskočiť",
+    videoSoon: "Video návod pripravujeme",
+    welcomeTitle: "Vitajte vo Veritre 👋",
+    welcomeBody:
+      "Sme radi, že ste tu. Krátky sprievodca vám ukáže to najdôležitejšie — ako sledovať verejné zákazky presne podľa seba. Kedykoľvek ho znova otvoríte v Nastavenia → Sprievodca aplikáciou.",
+    trialNote:
+      "Prvých 7 dní máte zadarmo — vyskúšajte si všetko bez obmedzení. Po skončení skúšobného týždňa pokračujete s predplatným podľa platného cenníka; spravujete ho v Nastaveniach.",
+    orientationTitle: "Zákazky a filtre",
+    orientationBody:
+      "Na karte Zákazky prechádzate aktuálne zákazky podľa svojich filtrov — podľa krajiny, odboru, kľúčových slov alebo hodnoty. Zaujímavé zákazky si označte hviezdičkou, nevhodné skryte. Veritra sa z vašich reakcií učí a výber spresňuje.",
+    emailDigestTitle: "E-mailový prehľad",
+    emailDigestBody:
+      "Zapnite si pri filtri e-mailový prehľad a nové zodpovedajúce zákazky vám prídu rovno do schránky.",
+    aiAnalysisTitle: "AI analýza zákazky",
+    aiAnalysisBody:
+      "Na detaile zákazky spustite AI analýzu — zhrnie zadanie, upozorní na riziká a posúdi vhodnosť pre vašu firmu. Prvá analýza je zadarmo.",
+    subscriptionTitle: "Profil firmy a predplatné",
+    subscriptionBody:
+      "Doplňte profil firmy (IČO, odbor, referencie), aby boli AI analýzy presnejšie. Predplatné a sledované krajiny spravujete v Nastaveniach.",
+  },
   authLanding: {
     subtitle: "Prihláste sa do svojho účtu.",
     loginBtn: "Prihlásiť sa",
@@ -4422,6 +4551,33 @@ const sk: Dict = {
 const fr: Dict = {
   admin: ADMIN_EN,
   brand: { tagline: "Les appels d'offres d'Europe réunis" },
+  guide: {
+    title: "Guide Veritra",
+    settingsRow: "Guide de l'application",
+    settingsRowHint: "Un tour rapide des fonctions principales",
+    next: "Suivant",
+    back: "Retour",
+    done: "Terminé",
+    skip: "Passer",
+    videoSoon: "Guide vidéo bientôt disponible",
+    welcomeTitle: "Bienvenue sur Veritra 👋",
+    welcomeBody:
+      "Nous sommes ravis de vous accueillir. Ce court guide vous présente l'essentiel — comment suivre les appels d'offres selon vos besoins. Vous pouvez le rouvrir à tout moment dans Paramètres → Guide de l'application.",
+    trialNote:
+      "Vos 7 premiers jours sont gratuits — essayez tout sans limites. Après la semaine d'essai, vous continuez avec un abonnement selon la grille tarifaire en vigueur ; vous le gérez dans les Paramètres.",
+    orientationTitle: "Appels d'offres & filtres",
+    orientationBody:
+      "Dans l'onglet Appels d'offres, vous parcourez les marchés correspondant à vos filtres — par pays, secteur, mots-clés ou montant. Ajoutez une étoile aux plus intéressants, masquez les autres. Veritra apprend de vos réactions et affine la sélection.",
+    emailDigestTitle: "Résumé par e-mail",
+    emailDigestBody:
+      "Activez le résumé par e-mail pour un filtre et les nouveaux marchés correspondants arriveront directement dans votre boîte de réception.",
+    aiAnalysisTitle: "Analyse IA du marché",
+    aiAnalysisBody:
+      "Lancez une analyse IA depuis le détail d'un marché — elle résume le cahier des charges, signale les risques et évalue la pertinence pour votre entreprise. La première analyse est gratuite.",
+    subscriptionTitle: "Profil d'entreprise & abonnement",
+    subscriptionBody:
+      "Complétez votre profil d'entreprise (numéro d'identification, secteur, références) pour des analyses IA plus précises. Vous gérez l'abonnement et les pays suivis dans les Paramètres.",
+  },
   authLanding: {
     subtitle: "Connectez-vous à votre compte.",
     loginBtn: "Se connecter",
@@ -5185,6 +5341,33 @@ const fr: Dict = {
 const it: Dict = {
   admin: ADMIN_EN,
   brand: { tagline: "Le gare d'Europa, in un unico posto" },
+  guide: {
+    title: "Guida Veritra",
+    settingsRow: "Guida all'app",
+    settingsRowHint: "Un breve tour delle funzioni principali",
+    next: "Avanti",
+    back: "Indietro",
+    done: "Fatto",
+    skip: "Salta",
+    videoSoon: "Guida video in arrivo",
+    welcomeTitle: "Benvenuto in Veritra 👋",
+    welcomeBody:
+      "Siamo felici che tu sia qui. Questa breve guida ti mostra l'essenziale — come monitorare le gare d'appalto su misura per te. Puoi riaprirla in qualsiasi momento in Impostazioni → Guida all'app.",
+    trialNote:
+      "I primi 7 giorni sono gratuiti — prova tutto senza limiti. Dopo la settimana di prova si continua con un abbonamento secondo il listino prezzi in vigore; lo gestisci nelle Impostazioni.",
+    orientationTitle: "Gare e filtri",
+    orientationBody:
+      "Nella scheda Gare sfogli le gare attuali in base ai tuoi filtri — per paese, settore, parole chiave o valore. Contrassegna con una stella quelle interessanti, nascondi le altre. Veritra impara dalle tue reazioni e affina la selezione.",
+    emailDigestTitle: "Riepilogo via e-mail",
+    emailDigestBody:
+      "Attiva il riepilogo via e-mail per un filtro e le nuove gare corrispondenti arriveranno direttamente nella tua casella di posta.",
+    aiAnalysisTitle: "Analisi IA della gara",
+    aiAnalysisBody:
+      "Avvia un'analisi IA dal dettaglio di una gara — riassume il capitolato, segnala i rischi e valuta l'idoneità per la tua azienda. La prima analisi è gratuita.",
+    subscriptionTitle: "Profilo aziendale e abbonamento",
+    subscriptionBody:
+      "Completa il profilo aziendale (partita IVA, settore, referenze) per analisi IA più precise. Gestisci l'abbonamento e i paesi monitorati nelle Impostazioni.",
+  },
   authLanding: {
     subtitle: "Accedi al tuo account.",
     loginBtn: "Accedi",

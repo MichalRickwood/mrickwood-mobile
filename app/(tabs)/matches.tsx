@@ -18,6 +18,8 @@ import CpvPickerModal from "@/components/CpvPickerModal";
 import ZadavatelPickerModal from "@/components/ZadavatelPickerModal";
 import SaveFilterModal from "@/components/SaveFilterModal";
 import SortPickerModal, { type SortKey } from "@/components/SortPickerModal";
+import GuideModal from "@/components/GuideModal";
+import { consumeGuidePending } from "@/lib/guide";
 import { CZ_REGIONS, regionLabel } from "@/lib/nuts-cz";
 import {
   EMPTY_AD_HOC,
@@ -73,6 +75,18 @@ export default function MatchesScreen() {
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const qc = useQueryClient();
   const [activeFilterId, setActiveFilterId] = useState<string | null>(null);
+  // Průvodce aplikací — auto-open jednou po dokončení onboardingu (pending
+  // flag nastavuje CountriesManager při aktivaci trialu).
+  const [guideOpen, setGuideOpen] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    void consumeGuidePending().then((pending) => {
+      if (!cancelled && pending) setGuideOpen(true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   // Naposledy zvolený filtr přežívá restart appky (AsyncStorage). Persistujeme
   // až po dokončení restore, aby počáteční null nepřepsal uloženou hodnotu.
   const filterRestoredRef = useRef(false);
@@ -561,6 +575,7 @@ export default function MatchesScreen() {
           setAdHocOpen(false);
         }}
       />
+      <GuideModal visible={guideOpen} onClose={() => setGuideOpen(false)} />
 
       <AppFlatList
         data={displayMatches}
