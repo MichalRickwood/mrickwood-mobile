@@ -24,6 +24,7 @@
       },
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
+        "LSApplicationQueriesSchemes": ["whatsapp"],
         "CFBundleURLTypes": [
           {
             "CFBundleURLSchemes": [

@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Alert, Linking, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { AppScrollView } from "@/components/AppScroll";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -20,6 +21,29 @@ function fmtDateTime(iso: string | null | undefined): string {
   if (!iso) return "—";
   const d = new Date(iso);
   return isNaN(d.getTime()) ? "—" : d.toLocaleString();
+}
+
+// Telefon → mezinárodní číslo pro WhatsApp (jen číslice, bez +). Vrací null pro nepoužitelné číslo.
+function toWaNumber(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  let digits = raw.replace(/\D/g, "");
+  if (digits.startsWith("00")) digits = digits.slice(2); // 00420… → 420…
+  if (digits.length === 9) digits = `420${digits}`; // lokální CZ/SK číslo bez předvolby
+  return digits.length >= 9 ? digits : null;
+}
+
+// Otevře WhatsApp chat — nejdřív zkusí nativní appku, jinak web (wa.me).
+async function openWhatsApp(raw: string | null | undefined): Promise<void> {
+  const num = toWaNumber(raw);
+  if (!num) return;
+  const appUrl = `whatsapp://send?phone=${num}`;
+  const webUrl = `https://wa.me/${num}`;
+  try {
+    const canApp = await Linking.canOpenURL(appUrl);
+    await Linking.openURL(canApp ? appUrl : webUrl);
+  } catch {
+    void Linking.openURL(webUrl).catch(() => {});
+  }
 }
 
 export default function AdminUserDetailScreen() {
@@ -124,7 +148,7 @@ export default function AdminUserDetailScreen() {
           <Field label={t("admin", "lblEmail")} value={user?.email ?? "—"} styles={styles} />
           <Field label={t("admin", "lblName")} value={user?.name || "—"} styles={styles} />
           <Field label={t("admin", "lblCompany")} value={user?.company || "—"} styles={styles} />
-          <Field label={t("admin", "lblPhone")} value={user?.phone || "—"} styles={styles} />
+          <PhoneField label={t("admin", "lblPhone")} phone={user?.phone} styles={styles} colors={colors} />
           <Field label={t("admin", "lblRole")} value={user?.role ?? "—"} styles={styles} />
           <Field label={t("admin", "lblVerified")} value={user?.emailVerified ? t("admin", "yes") : t("admin", "no")} styles={styles} />
           <Field label={t("admin", "lblCreated")} value={fmtDate(user?.createdAt)} styles={styles} />
@@ -309,6 +333,39 @@ function Field({ label, value, styles }: { label: string; value: string; styles:
     </View>
   );
 }
+// Telefon: když je vyplněný a použitelný, je řádek proklikem na WhatsApp chat.
+function PhoneField({
+  label,
+  phone,
+  styles,
+  colors,
+}: {
+  label: string;
+  phone: string | null | undefined;
+  styles: ReturnType<typeof makeStyles>;
+  colors: Colors;
+}) {
+  const canWhatsApp = !!toWaNumber(phone);
+  if (!phone || !canWhatsApp) {
+    return <Field label={label} value={phone || "—"} styles={styles} />;
+  }
+  return (
+    <Pressable
+      onPress={() => void openWhatsApp(phone)}
+      style={styles.fieldRow}
+      accessibilityRole="button"
+      accessibilityLabel={`WhatsApp ${phone}`}
+    >
+      <Text style={styles.fieldLabel}>{label}</Text>
+      <View style={styles.phoneValueWrap}>
+        <Text style={[styles.fieldValue, { color: colors.link }]} numberOfLines={1}>
+          {phone}
+        </Text>
+        <Ionicons name="logo-whatsapp" size={18} color="#25D366" />
+      </View>
+    </Pressable>
+  );
+}
 
 const makeStyles = (colors: Colors) =>
   StyleSheet.create({
@@ -328,6 +385,7 @@ const makeStyles = (colors: Colors) =>
     fieldRow: { flexDirection: "row", justifyContent: "space-between", paddingVertical: spacing.xs, gap: spacing.md },
     fieldLabel: { fontSize: fontSize.sm, color: colors.textSubtle },
     fieldValue: { fontSize: fontSize.sm, color: colors.text, fontWeight: "500", flexShrink: 1, textAlign: "right" },
+    phoneValueWrap: { flexDirection: "row", alignItems: "center", gap: spacing.xs, flexShrink: 1, justifyContent: "flex-end" },
     subRow: { flexDirection: "row", alignItems: "center", gap: spacing.md, paddingVertical: spacing.sm },
     subTitle: { fontSize: fontSize.sm, color: colors.text, fontWeight: "600" },
     subMeta: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: 2 },
