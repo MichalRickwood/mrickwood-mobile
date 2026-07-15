@@ -17,14 +17,16 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "cz.mrickwood.veritra",
-      "buildNumber": "1",
+      "buildNumber": "2",
       "usesAppleSignIn": true,
       "config": {
         "usesNonExemptEncryption": false
       },
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "LSApplicationQueriesSchemes": ["whatsapp"],
+        "LSApplicationQueriesSchemes": [
+          "whatsapp"
+        ],
         "CFBundleURLTypes": [
           {
             "CFBundleURLSchemes": [
@@ -72,7 +74,7 @@
       "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#FAFAF9"
+        "backgroundColor": "#F4F0E4"
       },
       "permissions": [
         "android.permission.POST_NOTIFICATIONS",
