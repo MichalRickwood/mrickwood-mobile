@@ -8,7 +8,8 @@ import { APP_NAME } from "@/lib/config";
  * tohoto by „/" renderovalo (tabs)/index a nepřihlášený by na okamžik viděl
  * zakázky.
  *
- * Vzhled = boot/loading obrazovka: Veritra wordmark + lokalizovaný tagline
+ * Vzhled = boot/loading obrazovka: oficiální Veritra logo (lockup ze Spaces
+ * Veritra/marketing/brand) + lokalizovaný tagline
  * (brand.tagline, dle jazyka zařízení) na krémovém pozadí #F4F0E4 — stejná
  * barva jako nativní splash, takže přechod splyne. (Dřív tu byla lupa s „T"
  * ze splash-icon.png — starý brand.)
@@ -25,20 +26,11 @@ export default function Index() {
       }}
     >
       <Image
-        source={require("@/assets/veritra-mark.png")}
-        style={{ width: 96, height: 96, marginBottom: 24 }}
+        source={require("@/assets/veritra-logo-text.png")}
+        style={{ width: 264, height: 42 }}
         resizeMode="contain"
+        accessibilityLabel={APP_NAME}
       />
-      <Text
-        style={{
-          fontSize: 46,
-          fontWeight: "800",
-          letterSpacing: -1,
-          color: "#1C1917",
-        }}
-      >
-        {APP_NAME}
-      </Text>
       <Text
         style={{
           marginTop: 10,
