@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, Pressable, RefreshControl, StyleSheet, Text, TextInput, View } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AppFlatList } from "@/components/AppScroll";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -29,6 +30,8 @@ import { useI18n } from "@/lib/i18n";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 
 type FilterT = ReturnType<typeof useI18n>["t"];
+
+const LAST_FILTER_KEY = "veritra.lastFilterId";
 
 function fmtMoney(n: number): string {
   return n >= 1_000_000
@@ -70,6 +73,9 @@ export default function MatchesScreen() {
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const qc = useQueryClient();
   const [activeFilterId, setActiveFilterId] = useState<string | null>(null);
+  // Naposledy zvolený filtr přežívá restart appky (AsyncStorage). Persistujeme
+  // až po dokončení restore, aby počáteční null nepřepsal uloženou hodnotu.
+  const filterRestoredRef = useRef(false);
   const [searchInput, setSearchInput] = useState("");
   const [searchDebounced, setSearchDebounced] = useState("");
   const [adHoc, setAdHoc] = useState<AdHocFilter>(EMPTY_AD_HOC);
@@ -112,10 +118,40 @@ export default function MatchesScreen() {
     }
   }, [params.filterId, params.since]);
 
+  // Restore naposledy zvoleného filtru po startu. Deep-link z push má přednost
+  // (nastavuje filtr taky, proto restore nepřepisuje už nastavenou hodnotu).
+  useEffect(() => {
+    void (async () => {
+      try {
+        const saved = await AsyncStorage.getItem(LAST_FILTER_KEY);
+        if (saved) setActiveFilterId((cur) => cur ?? saved);
+      } catch {
+        /* storage nedostupná — zůstane „všechny zakázky" */
+      } finally {
+        filterRestoredRef.current = true;
+      }
+    })();
+  }, []);
+
+  // Persist při každé změně (vč. odvolení na null = „všechny zakázky").
+  useEffect(() => {
+    if (!filterRestoredRef.current) return;
+    if (activeFilterId) void AsyncStorage.setItem(LAST_FILTER_KEY, activeFilterId);
+    else void AsyncStorage.removeItem(LAST_FILTER_KEY);
+  }, [activeFilterId]);
+
   const filtersQuery = useQuery({
     queryKey: ["filters"],
     queryFn: () => endpoints.myFilters(),
   });
+
+  // Obnovený filtr mezitím mohl být smazán (web/jiné zařízení) → spadni
+  // zpět na „všechny zakázky", ať se neukazuje prázdný výpis bez vysvětlení.
+  useEffect(() => {
+    const list = filtersQuery.data?.filters;
+    if (!list || !activeFilterId) return;
+    if (!list.some((f) => f.id === activeFilterId)) setActiveFilterId(null);
+  }, [filtersQuery.data, activeFilterId]);
 
   const deleteFilter = useMutation({
     mutationFn: (fid: string) => endpoints.deleteFilter(fid),
