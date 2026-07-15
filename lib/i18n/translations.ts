@@ -184,6 +184,7 @@ export interface Dict {
     title: string;
     descLabel: string;
     documentsLabel: string;
+    unzipping: string;
     btnEmail: string;
     btnOpenPortal: string;
     icoLine: string;
@@ -1534,6 +1535,7 @@ const cs: Dict = {
     title: "Zakázka",
     descLabel: "Popis",
     documentsLabel: "Dokumenty ({count})",
+    unzipping: "Rozbaluji ZIP…",
     btnEmail: "Odeslat emailem",
     btnOpenPortal: "Otevřít portál",
     icoLine: "IČO {ico}",
@@ -2294,6 +2296,7 @@ const en: Dict = {
     title: "Tender",
     descLabel: "Description",
     documentsLabel: "Documents ({count})",
+    unzipping: "Unpacking ZIP…",
     btnEmail: "Send by email",
     btnOpenPortal: "Open portal",
     icoLine: "Reg. no. {ico}",
@@ -3056,6 +3059,7 @@ const de: Dict = {
     title: "Ausschreibung",
     descLabel: "Beschreibung",
     documentsLabel: "Dokumente ({count})",
+    unzipping: "Entpacke ZIP…",
     btnEmail: "Per E-Mail senden",
     btnOpenPortal: "Portal öffnen",
     icoLine: "USt-IdNr. {ico}",
@@ -3816,6 +3820,7 @@ const sk: Dict = {
     title: "Zákazka",
     descLabel: "Popis",
     documentsLabel: "Dokumenty ({count})",
+    unzipping: "Rozbaľujem ZIP…",
     btnEmail: "Poslať e-mailom",
     btnOpenPortal: "Otvoriť portál",
     icoLine: "IČO {ico}",
@@ -4576,6 +4581,7 @@ const fr: Dict = {
     title: "Appel d'offres",
     descLabel: "Description",
     documentsLabel: "Documents ({count})",
+    unzipping: "Décompression du ZIP…",
     btnEmail: "Envoyer par e-mail",
     btnOpenPortal: "Ouvrir le portail",
     icoLine: "N° d'identification {ico}",
@@ -5336,6 +5342,7 @@ const it: Dict = {
     title: "Gara",
     descLabel: "Descrizione",
     documentsLabel: "Documenti ({count})",
+    unzipping: "Estrazione ZIP…",
     btnEmail: "Invia per email",
     btnOpenPortal: "Apri il portale",
     icoLine: "P. IVA {ico}",

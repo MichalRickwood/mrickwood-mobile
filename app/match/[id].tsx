@@ -65,6 +65,9 @@ export default function MatchDetailScreen() {
   const [reporting, setReporting] = useState(false);
   // Kommersannons: přílohy za interest (prenumeration) → LAZY na klik „Zobrazit dokumenty".
   const [kommersBusy, setKommersBusy] = useState(false);
+  // On-demand unzip: po rozbalení na serveru přepíšeme lokální seznam příloh čerstvými
+  // dokumenty (soubory místo ZIPu) — cache matches se invaliduje, ale detail nečeká.
+  const [docsOverride, setDocsOverride] = useState<TenderDocument[] | null>(null);
 
   async function sendSummary() {
     if (!match || emailing) return;
@@ -315,7 +318,7 @@ export default function MatchDetailScreen() {
         </View>
 
         {(() => {
-          const docs = tender.documents ?? [];
+          const docs = docsOverride ?? tender.documents ?? [];
           // Kommersannons: přílohy nejsou předharvestované (za interest) → tlačítko „Zobrazit dokumenty".
           if (docs.length === 0 && tender.portalType === "se-kommers") {
             return (
@@ -359,7 +362,19 @@ export default function MatchDetailScreen() {
                 {t("matchDetail", "documentsLabel", { count: docs.length })}
               </Text>
               {docs.map((d, i) => (
-                <DocumentRow key={`${d.url}-${i}`} styles={styles} doc={d} router={router} locale={locale} />
+                <DocumentRow
+                  key={`${d.url}-${i}`}
+                  styles={styles}
+                  doc={d}
+                  router={router}
+                  locale={locale}
+                  tenderId={tender.id}
+                  unzipLabel={t("matchDetail", "unzipping")}
+                  onDocsChanged={(next) => {
+                    setDocsOverride(next);
+                    qc.invalidateQueries({ queryKey: ["matches"] });
+                  }}
+                />
               ))}
             </View>
           );
@@ -387,16 +402,25 @@ export default function MatchDetailScreen() {
   );
 }
 
+const isZipDoc = (d: TenderDocument) =>
+  d.fileType === "zip" || /\.zip(\?|$)/i.test(d.name) || /\.zip(\?|$)/i.test(d.url);
+
 function DocumentRow({
   styles,
   doc,
   router,
   locale,
+  tenderId,
+  unzipLabel,
+  onDocsChanged,
 }: {
   styles: ReturnType<typeof makeStyles>;
   doc: TenderDocument;
   router: Router;
   locale: string;
+  tenderId: number;
+  unzipLabel: string;
+  onDocsChanged: (docs: TenderDocument[]) => void;
 }) {
   const { colors } = useTheme();
   const kind = inferDocKind(doc);
@@ -405,9 +429,43 @@ function DocumentRow({
     .filter(Boolean)
     .join(" · ");
   const [opening, setOpening] = useState(false);
+  const [unzipping, setUnzipping] = useState(false);
+
+  // ZIP → místo otevření požádat server o rozbalení (worker), pak refetch seznamu příloh:
+  // soubory nahradí ZIP a jdou otevřít in-app viewerem. Nepodporovaný portál / fail → fallback
+  // na normální otevření ZIPu.
+  async function tryUnzip(): Promise<boolean> {
+    try {
+      const res = await endpoints.docUnzipRequest(tenderId, doc.url);
+      if (!res.done && !res.jobId) return false;
+      if (res.jobId) {
+        let ok = false;
+        for (let i = 0; i < 40; i++) {
+          await new Promise((r) => setTimeout(r, 3000));
+          const st = await endpoints.docUnzipStatus(tenderId, res.jobId).catch(() => null);
+          if (st?.status === "DONE") { ok = true; break; }
+          if (st?.status === "FAILED") return false;
+        }
+        if (!ok) return false;
+      }
+      onDocsChanged(await endpoints.tenderDocuments(tenderId));
+      return true;
+    } catch {
+      return false;
+    }
+  }
 
   async function handlePress() {
-    if (opening) return;
+    if (opening || unzipping) return;
+    if (isZipDoc(doc)) {
+      setUnzipping(true);
+      try {
+        if (await tryUnzip()) return;
+      } finally {
+        setUnzipping(false);
+      }
+      // fallback: rozbalení nevyšlo → otevřít původní ZIP
+    }
     setOpening(true);
     try {
       // Náhled/proxy může chvíli trvat (server stahuje + cachuje) — spinner drží
@@ -421,8 +479,8 @@ function DocumentRow({
   return (
     <Pressable
       onPress={handlePress}
-      disabled={opening}
-      style={({ pressed }) => [styles.docRow, (pressed || opening) && { opacity: 0.6 }]}
+      disabled={opening || unzipping}
+      style={({ pressed }) => [styles.docRow, (pressed || opening || unzipping) && { opacity: 0.6 }]}
     >
       <View style={styles.docIcon}>
         <Text style={styles.docIconText}>{iconForKind(kind)}</Text>
@@ -431,9 +489,9 @@ function DocumentRow({
         <Text style={styles.docName} numberOfLines={2}>
           {cleanTedDocName(doc.name, doc.url)}
         </Text>
-        {meta && <Text style={styles.docMeta}>{meta}</Text>}
+        {(meta || unzipping) ? <Text style={styles.docMeta}>{unzipping ? unzipLabel : meta}</Text> : null}
       </View>
-      {opening ? (
+      {opening || unzipping ? (
         <ActivityIndicator size="small" color={colors.textFaint} style={styles.docChevron} />
       ) : (
         <Text style={styles.docChevron}>›</Text>

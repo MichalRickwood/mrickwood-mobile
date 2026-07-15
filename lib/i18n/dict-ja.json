@@ -186,7 +186,8 @@
     "reportInvalidFailed": "報告に失敗しました。しばらくしてから再度お試しください。",
     "btnAiAnalysis": "AI分析",
     "btnAiDocPrep": "AIドキュメント",
-    "aiSectionLabel": "AIツール"
+    "aiSectionLabel": "AIツール",
+    "unzipping": "ZIPを展開中…"
   },
   "aiAnalysis": {
     "title": "AI入札案件分析",
