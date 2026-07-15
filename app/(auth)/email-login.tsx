@@ -89,7 +89,7 @@ export default function EmailLoginScreen() {
             secure
             value={password}
             onChangeText={setPassword}
-            placeholder={t("auth", "passwordPh")}
+            placeholder="••••••••"
             autoCapitalize="none"
             textContentType="password"
             autoComplete="password"

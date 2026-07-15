@@ -167,6 +167,7 @@ export default function RegisterScreen() {
             hint={t("auth", "passwordHint")}
             value={password}
             onChangeText={setPassword}
+            placeholder={t("auth", "passwordPh")}
             autoCapitalize="none"
             textContentType="newPassword"
             autoComplete="new-password"
