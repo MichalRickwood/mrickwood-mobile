@@ -47,6 +47,13 @@ export default function TenderAnalysisScreen() {
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [reporting, setReporting] = useState(false);
+  // Průběh přípravy analýzy (stahování/čtení dokumentů…) — log kroků z SSE
+  // "status" eventů; zobrazuje se v prázdné streamující bublině.
+  const [steps, setSteps] = useState<string[]>([]);
+  // Buffer streamovaného textu — deltas se hromadí v ref a do stavu se
+  // flushují ~10× za vteřinu, aby se render nesekal (re-render per chunk).
+  const pendingRef = useRef("");
+  const flushTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const listRef = useRef<FlatList<Msg>>(null);
   // Auto-scroll jen když je uživatel u dna; když odscrolluje nahoru, necháme ho číst.
   const stickToBottomRef = useRef(true);
@@ -95,11 +102,54 @@ export default function TenderAnalysisScreen() {
   };
   const jumpToEnd = () => { stickToBottomRef.current = true; setAtBottom(true); scrollEnd(); };
 
+  // Lidský popisek fáze přípravy z SSE "status" eventu (zrcadlí web statusLabel).
+  function statusLabel(evt: { phase?: string; name?: string }): string {
+    switch (evt.phase) {
+      case "fetch":
+        return evt.name
+          ? t("aiAnalysis", "progressFetch", { name: evt.name })
+          : t("aiAnalysis", "progressDownloading");
+      case "read":
+        return evt.name
+          ? t("aiAnalysis", "progressRead", { name: evt.name })
+          : t("aiAnalysis", "progressDownloading");
+      case "zip":
+        return t("aiAnalysis", "progressUnzip");
+      case "docs":
+      case "cache-wait":
+      case "cache-miss":
+        return t("aiAnalysis", "progressDownloading");
+      default:
+        return t("aiAnalysis", "analyzing");
+    }
+  }
+
+  // Flush bufferu deltas do stavu (max ~10×/s) + scroll bez animace,
+  // aby se animace neprala s dalším flushem.
+  function startFlusher(asstId: string) {
+    if (flushTimerRef.current) return;
+    flushTimerRef.current = setInterval(() => {
+      if (!pendingRef.current) return;
+      const chunk = pendingRef.current;
+      pendingRef.current = "";
+      setMessages((m) => m.map((x) => (x.id === asstId ? { ...x, content: x.content + chunk } : x)));
+      if (stickToBottomRef.current) listRef.current?.scrollToEnd({ animated: false });
+    }, 100);
+  }
+  function stopFlusher() {
+    if (flushTimerRef.current) {
+      clearInterval(flushTimerRef.current);
+      flushTimerRef.current = null;
+    }
+  }
+  useEffect(() => stopFlusher, []);
+
   // Jeden tah konverzace. `sid` umožní předat aktuální sessionId i když ho stav
   // ještě nestihl zapsat (auto-start hned po loadu).
   async function runTurn(text: string, sid?: string | null) {
     if (!text || sending) return;
     setSending(true);
+    setSteps([]);
     const turnKey = Crypto.randomUUID();
     const userMsg: Msg = { id: turnKey, role: "user", content: text, createdAt: new Date().toISOString() };
     const asstId = `a-${turnKey}`;
@@ -108,14 +158,24 @@ export default function TenderAnalysisScreen() {
     stickToBottomRef.current = true;
     setAtBottom(true);
     scrollEnd();
+    pendingRef.current = "";
+    startFlusher(asstId);
+    let gotDelta = false;
     try {
       await ssePost<AnalysisStreamEvent>(
         `/api/v2/leads/tenders/${tenderId}/analysis`,
         { turnKey, message: text, sessionId: sid ?? sessionId ?? undefined, locale },
         (evt) => {
-          if (evt.type === "delta") {
-            setMessages((m) => m.map((x) => (x.id === asstId ? { ...x, content: x.content + evt.text } : x)));
+          if (evt.type === "status") {
+            const label = statusLabel(evt);
+            setSteps((s) => (s[s.length - 1] === label ? s : [...s, label]));
             maybeScrollEnd();
+          } else if (evt.type === "delta") {
+            if (!gotDelta) {
+              gotDelta = true;
+              setSteps([]);
+            }
+            pendingRef.current += evt.text;
           } else if (evt.type === "done") {
             setMessages((m) => m.map((x) => (x.id === asstId ? { ...x, streaming: false } : x)));
             if (evt.sessionId) setSessionId(evt.sessionId);
@@ -130,9 +190,18 @@ export default function TenderAnalysisScreen() {
         },
       );
     } catch (e) {
+      stopFlusher();
       setMessages((m) => m.filter((x) => x.id !== asstId));
       Alert.alert(t("aiAnalysis", "errorTitle"), e instanceof Error ? e.message : "");
     } finally {
+      stopFlusher();
+      // Poslední flush — zbytek bufferu, který interval nestihl.
+      if (pendingRef.current) {
+        const chunk = pendingRef.current;
+        pendingRef.current = "";
+        setMessages((m) => m.map((x) => (x.id === asstId ? { ...x, content: x.content + chunk } : x)));
+      }
+      setSteps([]);
       setMessages((m) => m.map((x) => (x.id === asstId ? { ...x, streaming: false } : x)));
       setSending(false);
       maybeScrollEnd();
@@ -223,7 +292,34 @@ export default function TenderAnalysisScreen() {
           renderItem={({ item }) => (
             <View style={[styles.bubble, item.role === "user" ? styles.bubbleUser : styles.bubbleAsst]}>
               {item.streaming && item.content.length === 0 ? (
-                <ActivityIndicator size="small" color={colors.textSubtle} />
+                // Průběh přípravy: hotové kroky se ✓, aktuální se spinnerem.
+                steps.length === 0 ? (
+                  <View style={styles.progressRow}>
+                    <ActivityIndicator size="small" color={colors.textSubtle} />
+                    <Text style={styles.progressText}>{t("aiAnalysis", "analyzing")}</Text>
+                  </View>
+                ) : (
+                  <View style={styles.progressBox}>
+                    {steps.slice(-5).map((s, i, arr) => {
+                      const current = i === arr.length - 1;
+                      return (
+                        <View key={`${i}-${s}`} style={styles.progressRow}>
+                          {current ? (
+                            <ActivityIndicator size="small" color={colors.textSubtle} />
+                          ) : (
+                            <Text style={styles.progressCheck}>✓</Text>
+                          )}
+                          <Text
+                            style={[styles.progressText, !current && styles.progressTextDone]}
+                            numberOfLines={1}
+                          >
+                            {s}
+                          </Text>
+                        </View>
+                      );
+                    })}
+                  </View>
+                )
               ) : (
                 <Text style={item.role === "user" ? styles.bubbleUserText : styles.bubbleAsstText}>{item.content}</Text>
               )}
@@ -285,6 +381,11 @@ const makeStyles = (c: Colors) =>
     bubbleAsst: { alignSelf: "flex-start", backgroundColor: c.card, borderWidth: 1, borderColor: c.border },
     bubbleUserText: { color: c.accentForeground, fontSize: fontSize.sm, lineHeight: 20 },
     bubbleAsstText: { color: c.text, fontSize: fontSize.sm, lineHeight: 20 },
+    progressBox: { gap: spacing.xs, minWidth: 220 },
+    progressRow: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
+    progressCheck: { width: 20, textAlign: "center", color: c.textFaint, fontSize: fontSize.sm },
+    progressText: { flexShrink: 1, color: c.textSubtle, fontSize: fontSize.sm, lineHeight: 20 },
+    progressTextDone: { color: c.textFaint },
     jumpBtn: { position: "absolute", right: spacing.lg, bottom: 76, width: 40, height: 40, borderRadius: 20, backgroundColor: c.accent, alignItems: "center", justifyContent: "center", shadowColor: "#000", shadowOpacity: 0.2, shadowRadius: 4, shadowOffset: { width: 0, height: 2 }, elevation: 4 },
     jumpBtnText: { color: c.accentForeground, fontSize: 20, fontWeight: "700", lineHeight: 22 },
     reportBtn: { marginHorizontal: spacing.lg, marginBottom: spacing.sm, backgroundColor: c.accent, paddingVertical: spacing.md, borderRadius: radius.md, alignItems: "center" },

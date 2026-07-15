@@ -157,6 +157,7 @@ export interface AnalysisState {
 }
 /** SSE eventy z POST …/analysis */
 export type AnalysisStreamEvent =
+  | { type: "status"; phase?: string; name?: string; detail?: string }
   | { type: "delta"; text: string }
   | { type: "done"; sessionId?: string; messageId?: string; charged?: number; insufficient?: boolean; balance?: number; currency?: Currency; replay?: boolean }
   | { type: "error"; message: string };

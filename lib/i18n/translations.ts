@@ -212,6 +212,10 @@ export interface Dict {
     profileRequiredCta: string;
     emptyHint: string;
     analyzing: string;
+    progressDownloading: string;
+    progressFetch: string;
+    progressRead: string;
+    progressUnzip: string;
     jumpToLatest: string;
     inputPlaceholder: string;
     send: string;
@@ -1557,6 +1561,10 @@ const cs: Dict = {
     profileRequiredCta: "Nastavit firemní profil",
     emptyHint: "Zeptejte se AI na vhodnost zakázky, rizika nebo požadavky. Po konverzaci vygenerujete PDF zhodnocení.",
     analyzing: "Analyzuji zakázku…",
+    progressDownloading: "Stahuji dokumenty zakázky…",
+    progressFetch: "Stahuji {name}…",
+    progressRead: "Čtu {name}…",
+    progressUnzip: "Rozbaluji přílohy…",
     jumpToLatest: "Skočit na konec",
     inputPlaceholder: "Napište zprávu…",
     send: "Odeslat",
@@ -2312,6 +2320,10 @@ const en: Dict = {
     profileRequiredCta: "Set up company profile",
     emptyHint: "Ask the AI about fit, risks or requirements. After the chat you can generate a PDF assessment.",
     analyzing: "Analyzing the tender…",
+    progressDownloading: "Downloading tender documents…",
+    progressFetch: "Downloading {name}…",
+    progressRead: "Reading {name}…",
+    progressUnzip: "Unpacking attachments…",
     jumpToLatest: "Jump to latest",
     inputPlaceholder: "Type a message…",
     send: "Send",
@@ -3069,6 +3081,10 @@ const de: Dict = {
     profileRequiredCta: "Firmenprofil einrichten",
     emptyHint: "Fragen Sie die KI nach Eignung, Risiken oder Anforderungen. Nach dem Chat erzeugen Sie eine PDF-Bewertung.",
     analyzing: "Analysiere die Ausschreibung…",
+    progressDownloading: "Lade Ausschreibungsunterlagen herunter…",
+    progressFetch: "Lade {name} herunter…",
+    progressRead: "Lese {name}…",
+    progressUnzip: "Entpacke Anhänge…",
     jumpToLatest: "Zum Ende springen",
     inputPlaceholder: "Nachricht schreiben…",
     send: "Senden",
@@ -3824,6 +3840,10 @@ const sk: Dict = {
     profileRequiredCta: "Nastaviť firemný profil",
     emptyHint: "Spýtajte sa AI na vhodnosť zákazky, riziká alebo požiadavky. Po konverzácii vygenerujete PDF zhodnotenie.",
     analyzing: "Analyzujem zákazku…",
+    progressDownloading: "Sťahujem dokumenty zákazky…",
+    progressFetch: "Sťahujem {name}…",
+    progressRead: "Čítam {name}…",
+    progressUnzip: "Rozbaľujem prílohy…",
     jumpToLatest: "Skočiť na koniec",
     inputPlaceholder: "Napíšte správu…",
     send: "Odoslať",
@@ -4579,6 +4599,10 @@ const fr: Dict = {
     profileRequiredCta: "Configurer le profil",
     emptyHint: "Demandez à l'IA la pertinence, les risques ou les exigences. Après l'échange, générez une évaluation PDF.",
     analyzing: "Analyse du marché…",
+    progressDownloading: "Téléchargement des documents du marché…",
+    progressFetch: "Téléchargement de {name}…",
+    progressRead: "Lecture de {name}…",
+    progressUnzip: "Décompression des pièces jointes…",
     jumpToLatest: "Aller à la fin",
     inputPlaceholder: "Écrire un message…",
     send: "Envoyer",
@@ -5334,6 +5358,10 @@ const it: Dict = {
     profileRequiredCta: "Imposta profilo aziendale",
     emptyHint: "Chiedi all'IA idoneità, rischi o requisiti. Dopo la conversazione generi una valutazione PDF.",
     analyzing: "Analisi della gara…",
+    progressDownloading: "Scarico i documenti della gara…",
+    progressFetch: "Scarico {name}…",
+    progressRead: "Leggo {name}…",
+    progressUnzip: "Estraggo gli allegati…",
     jumpToLatest: "Vai alla fine",
     inputPlaceholder: "Scrivi un messaggio…",
     send: "Invia",
