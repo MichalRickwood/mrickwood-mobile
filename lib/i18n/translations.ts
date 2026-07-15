@@ -1889,7 +1889,7 @@ const cs: Dict = {
     docPreviewImageFailed: "Obrázek se nepodařilo načíst.",
     docPreviewMissingUrl: "Chybí URL dokumentu.",
     docPreviewErrorTitle: "Nepodařilo se zobrazit",
-    docPreviewPreparing: "Připravuji dokument… U větších příloh to může chvíli trvat.",
+    docPreviewPreparing: "Stahování dokumentu… U větších příloh to může chvíli trvat.",
     docPreviewTimeout: "Dokument se nepodařilo připravit. Zkuste to prosím za chvíli.",
   },
   filters: {
@@ -2652,7 +2652,7 @@ const en: Dict = {
     docPreviewImageFailed: "Failed to load image.",
     docPreviewMissingUrl: "Missing document URL.",
     docPreviewErrorTitle: "Failed to display",
-    docPreviewPreparing: "Preparing document… Larger attachments may take a moment.",
+    docPreviewPreparing: "Downloading document… Larger attachments may take a moment.",
     docPreviewTimeout: "The document could not be prepared. Please try again shortly.",
   },
   filters: {
@@ -3417,7 +3417,7 @@ const de: Dict = {
     docPreviewImageFailed: "Bild konnte nicht geladen werden.",
     docPreviewMissingUrl: "Dokument-URL fehlt.",
     docPreviewErrorTitle: "Anzeige fehlgeschlagen",
-    docPreviewPreparing: "Dokument wird vorbereitet… Größere Anhänge können einen Moment dauern.",
+    docPreviewPreparing: "Dokument wird heruntergeladen… Größere Anhänge können einen Moment dauern.",
     docPreviewTimeout: "Das Dokument konnte nicht vorbereitet werden. Bitte versuchen Sie es gleich erneut.",
   },
   filters: {
@@ -4180,7 +4180,7 @@ const sk: Dict = {
     docPreviewImageFailed: "Načítanie obrázka zlyhalo.",
     docPreviewMissingUrl: "Chýba URL dokumentu.",
     docPreviewErrorTitle: "Zobrazenie zlyhalo",
-    docPreviewPreparing: "Pripravujem dokument… Pri väčších prílohách to môže chvíľu trvať.",
+    docPreviewPreparing: "Sťahovanie dokumentu… Pri väčších prílohách to môže chvíľu trvať.",
     docPreviewTimeout: "Dokument sa nepodarilo pripraviť. Skúste to prosím o chvíľu.",
   },
   filters: {
@@ -4943,7 +4943,7 @@ const fr: Dict = {
     docPreviewImageFailed: "Échec du chargement de l'image.",
     docPreviewMissingUrl: "URL du document manquante.",
     docPreviewErrorTitle: "Échec de l'affichage",
-    docPreviewPreparing: "Préparation du document… Les pièces jointes volumineuses peuvent prendre un moment.",
+    docPreviewPreparing: "Téléchargement du document… Les pièces jointes volumineuses peuvent prendre un moment.",
     docPreviewTimeout: "Le document n'a pas pu être préparé. Veuillez réessayer dans un instant.",
   },
   filters: {
@@ -5706,7 +5706,7 @@ const it: Dict = {
     docPreviewImageFailed: "Caricamento dell'immagine non riuscito.",
     docPreviewMissingUrl: "URL del documento mancante.",
     docPreviewErrorTitle: "Visualizzazione non riuscita",
-    docPreviewPreparing: "Preparazione del documento… Gli allegati più grandi possono richiedere qualche istante.",
+    docPreviewPreparing: "Download del documento… Gli allegati più grandi possono richiedere qualche istante.",
     docPreviewTimeout: "Impossibile preparare il documento. Riprova tra poco.",
   },
   filters: {

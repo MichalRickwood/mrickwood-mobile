@@ -107,11 +107,9 @@ export default function DocHtmlScreen() {
           </Pressable>
         </View>
       ) : !signedUrl ? (
-        <View style={styles.center}>
-          <ActivityIndicator color={colors.textSubtle} />
-          <Text style={[styles.errText, { marginTop: spacing.md }]}>
-            {t("feedback", "docPreviewPreparing")}
-          </Text>
+        <View style={styles.loading}>
+          <ActivityIndicator size="large" color={colors.textSubtle} />
+          <Text style={styles.loadingText}>{t("feedback", "docPreviewPreparing")}</Text>
         </View>
       ) : (
         <WebView
@@ -143,6 +141,10 @@ const makeStyles = (colors: Colors) =>
     safe: { flex: 1, backgroundColor: colors.bg },
     webview: { flex: 1 },
     center: { flex: 1, alignItems: "center", justifyContent: "center", padding: spacing.xl },
+    // Opticky vycentrováno: geometrický střed působí (s headerem nahoře) příliš nízko →
+    // obsah zvedáme paddingBottom o ~1/4 výšky.
+    loading: { flex: 1, alignItems: "center", justifyContent: "center", padding: spacing.xl, paddingBottom: "30%" },
+    loadingText: { fontSize: fontSize.sm, color: colors.textSubtle, textAlign: "center", marginTop: spacing.lg },
     errTitle: { fontSize: fontSize.lg, fontWeight: "600", color: colors.text, marginBottom: spacing.sm },
     errText: { fontSize: fontSize.sm, color: colors.textSubtle, textAlign: "center", marginBottom: spacing.lg },
     backBtn: {
