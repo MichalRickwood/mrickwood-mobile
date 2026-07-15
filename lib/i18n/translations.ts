@@ -1410,7 +1410,7 @@ const cs: Dict = {
     trialTitle: "Prvních 7 dní zdarma",
     trialBody:
       "Vyzkoušejte si vše bez omezení. Po zkušebním týdnu pokračujete s předplatným dle platného ceníku — spravujete ho v Nastavení.",
-    agendaTitle: "Co vás čeká",
+    agendaTitle: "Co vám průvodce ukáže",
     orientationTitle: "Zakázky a filtry",
     orientationBody:
       "Na záložce Zakázky procházíte aktuální zakázky podle svých filtrů — podle země, oboru, klíčových slov nebo hodnoty. Zajímavé zakázky si označte hvězdičkou, nevhodné skryjte. Veritra se z vašich reakcí učí a výběr zpřesňuje.",
@@ -2208,7 +2208,7 @@ const en: Dict = {
     trialTitle: "Your first 7 days are free",
     trialBody:
       "Try everything without limits. After the trial week you continue with a subscription at the current price list — manage it in Settings.",
-    agendaTitle: "What's ahead",
+    agendaTitle: "What the guide covers",
     orientationTitle: "Tenders & filters",
     orientationBody:
       "On the Tenders tab you browse current tenders matching your filters — by country, industry, keywords or value. Star the interesting ones, hide the rest. Veritra learns from your reactions and sharpens the selection.",
@@ -3005,7 +3005,7 @@ const de: Dict = {
     trialTitle: "Die ersten 7 Tage kostenlos",
     trialBody:
       "Testen Sie alles ohne Einschränkungen. Nach der Testwoche geht es mit einem Abonnement gemäß der aktuellen Preisliste weiter — verwalten in den Einstellungen.",
-    agendaTitle: "Was Sie erwartet",
+    agendaTitle: "Was Ihnen der Leitfaden zeigt",
     orientationTitle: "Ausschreibungen & Filter",
     orientationBody:
       "Im Tab Ausschreibungen durchsuchen Sie aktuelle Ausschreibungen nach Ihren Filtern — nach Land, Branche, Stichwörtern oder Auftragswert. Markieren Sie interessante mit einem Stern, blenden Sie unpassende aus. Veritra lernt aus Ihren Reaktionen und verfeinert die Auswahl.",
@@ -3804,7 +3804,7 @@ const sk: Dict = {
     trialTitle: "Prvých 7 dní zadarmo",
     trialBody:
       "Vyskúšajte si všetko bez obmedzení. Po skúšobnom týždni pokračujete s predplatným podľa platného cenníka — spravujete ho v Nastaveniach.",
-    agendaTitle: "Čo vás čaká",
+    agendaTitle: "Čo vám sprievodca ukáže",
     orientationTitle: "Zákazky a filtre",
     orientationBody:
       "Na karte Zákazky prechádzate aktuálne zákazky podľa svojich filtrov — podľa krajiny, odboru, kľúčových slov alebo hodnoty. Zaujímavé zákazky si označte hviezdičkou, nevhodné skryte. Veritra sa z vašich reakcií učí a výber spresňuje.",
@@ -4601,7 +4601,7 @@ const fr: Dict = {
     trialTitle: "Vos 7 premiers jours sont gratuits",
     trialBody:
       "Essayez tout sans limites. Après la semaine d'essai, vous continuez avec un abonnement selon la grille tarifaire en vigueur — gérable dans les Paramètres.",
-    agendaTitle: "Au programme",
+    agendaTitle: "Ce que le guide vous montre",
     orientationTitle: "Appels d'offres & filtres",
     orientationBody:
       "Dans l'onglet Appels d'offres, vous parcourez les marchés correspondant à vos filtres — par pays, secteur, mots-clés ou montant. Ajoutez une étoile aux plus intéressants, masquez les autres. Veritra apprend de vos réactions et affine la sélection.",
@@ -5398,7 +5398,7 @@ const it: Dict = {
     trialTitle: "I primi 7 giorni sono gratuiti",
     trialBody:
       "Prova tutto senza limiti. Dopo la settimana di prova si continua con un abbonamento secondo il listino in vigore — gestibile nelle Impostazioni.",
-    agendaTitle: "Cosa ti aspetta",
+    agendaTitle: "Cosa ti mostra la guida",
     orientationTitle: "Gare e filtri",
     orientationBody:
       "Nella scheda Gare sfogli le gare attuali in base ai tuoi filtri — per paese, settore, parole chiave o valore. Contrassegna con una stella quelle interessanti, nascondi le altre. Veritra impara dalle tue reazioni e affina la selezione.",
