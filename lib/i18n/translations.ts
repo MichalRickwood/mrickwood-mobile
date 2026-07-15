@@ -1406,10 +1406,10 @@ const cs: Dict = {
     videoSoon: "Video návod připravujeme",
     welcomeTitle: "Vítejte ve Veritře 👋",
     welcomeBody:
-      "Jsme rádi, že jste tu. Krátký průvodce vám ukáže to nejdůležitější — jak sledovat veřejné zakázky přesně podle sebe. Kdykoliv ho znovu otevřete v Nastavení → Průvodce aplikací.",
+      "Jsme rádi, že jste tu. Krátký průvodce vám ukáže to nejdůležitější — jak sledovat veřejné zakázky přesně podle sebe.",
     trialTitle: "Prvních 7 dní zdarma",
     trialBody:
-      "Vyzkoušejte si vše bez omezení. Po zkušebním týdnu pokračujete s předplatným dle platného ceníku — spravujete ho v Nastavení.",
+      "Vyzkoušejte si vše bez omezení. Poté pokračujete s předplatným dle platného ceníku.",
     agendaTitle: "Co vám průvodce ukáže",
     orientationTitle: "Zakázky a filtry",
     orientationBody:
@@ -2204,10 +2204,10 @@ const en: Dict = {
     videoSoon: "Video guide coming soon",
     welcomeTitle: "Welcome to Veritra 👋",
     welcomeBody:
-      "We're glad you're here. This short guide shows you the essentials — how to monitor public tenders tailored to you. You can reopen it anytime in Settings → App guide.",
+      "We're glad you're here. This short guide shows you the essentials — how to monitor public tenders tailored to you.",
     trialTitle: "Your first 7 days are free",
     trialBody:
-      "Try everything without limits. After the trial week you continue with a subscription at the current price list — manage it in Settings.",
+      "Try everything without limits. Then continue with a subscription at the current price list.",
     agendaTitle: "What the guide covers",
     orientationTitle: "Tenders & filters",
     orientationBody:
@@ -3001,10 +3001,10 @@ const de: Dict = {
     videoSoon: "Videoanleitung folgt in Kürze",
     welcomeTitle: "Willkommen bei Veritra 👋",
     welcomeBody:
-      "Schön, dass Sie da sind. Dieser kurze Leitfaden zeigt Ihnen das Wichtigste — wie Sie Ausschreibungen genau nach Ihren Wünschen überwachen. Sie können ihn jederzeit unter Einstellungen → App-Leitfaden erneut öffnen.",
+      "Schön, dass Sie da sind. Dieser kurze Leitfaden zeigt Ihnen das Wichtigste — Ausschreibungen genau nach Ihren Wünschen überwachen.",
     trialTitle: "Die ersten 7 Tage kostenlos",
     trialBody:
-      "Testen Sie alles ohne Einschränkungen. Nach der Testwoche geht es mit einem Abonnement gemäß der aktuellen Preisliste weiter — verwalten in den Einstellungen.",
+      "Testen Sie alles ohne Einschränkungen — danach Abo gemäß aktueller Preisliste.",
     agendaTitle: "Was Ihnen der Leitfaden zeigt",
     orientationTitle: "Ausschreibungen & Filter",
     orientationBody:
@@ -3800,10 +3800,10 @@ const sk: Dict = {
     videoSoon: "Video návod pripravujeme",
     welcomeTitle: "Vitajte vo Veritre 👋",
     welcomeBody:
-      "Sme radi, že ste tu. Krátky sprievodca vám ukáže to najdôležitejšie — ako sledovať verejné zákazky presne podľa seba. Kedykoľvek ho znova otvoríte v Nastavenia → Sprievodca aplikáciou.",
+      "Sme radi, že ste tu. Krátky sprievodca vám ukáže to najdôležitejšie — ako sledovať verejné zákazky presne podľa seba.",
     trialTitle: "Prvých 7 dní zadarmo",
     trialBody:
-      "Vyskúšajte si všetko bez obmedzení. Po skúšobnom týždni pokračujete s predplatným podľa platného cenníka — spravujete ho v Nastaveniach.",
+      "Vyskúšajte si všetko bez obmedzení. Potom pokračujete s predplatným podľa platného cenníka.",
     agendaTitle: "Čo vám sprievodca ukáže",
     orientationTitle: "Zákazky a filtre",
     orientationBody:
@@ -4597,10 +4597,10 @@ const fr: Dict = {
     videoSoon: "Guide vidéo bientôt disponible",
     welcomeTitle: "Bienvenue sur Veritra 👋",
     welcomeBody:
-      "Nous sommes ravis de vous accueillir. Ce court guide vous présente l'essentiel — comment suivre les appels d'offres selon vos besoins. Vous pouvez le rouvrir à tout moment dans Paramètres → Guide de l'application.",
+      "Ravis de vous accueillir. Ce court guide vous présente l'essentiel — suivre les appels d'offres selon vos besoins.",
     trialTitle: "Vos 7 premiers jours sont gratuits",
     trialBody:
-      "Essayez tout sans limites. Après la semaine d'essai, vous continuez avec un abonnement selon la grille tarifaire en vigueur — gérable dans les Paramètres.",
+      "Essayez tout sans limites, puis continuez avec un abonnement selon les tarifs en vigueur.",
     agendaTitle: "Ce que le guide vous montre",
     orientationTitle: "Appels d'offres & filtres",
     orientationBody:
@@ -5394,10 +5394,10 @@ const it: Dict = {
     videoSoon: "Guida video in arrivo",
     welcomeTitle: "Benvenuto in Veritra 👋",
     welcomeBody:
-      "Siamo felici che tu sia qui. Questa breve guida ti mostra l'essenziale — come monitorare le gare d'appalto su misura per te. Puoi riaprirla in qualsiasi momento in Impostazioni → Guida all'app.",
+      "Siamo felici che tu sia qui. Questa breve guida ti mostra l'essenziale — monitorare le gare su misura per te.",
     trialTitle: "I primi 7 giorni sono gratuiti",
     trialBody:
-      "Prova tutto senza limiti. Dopo la settimana di prova si continua con un abbonamento secondo il listino in vigore — gestibile nelle Impostazioni.",
+      "Prova tutto senza limiti. Poi si continua con un abbonamento secondo il listino in vigore.",
     agendaTitle: "Cosa ti mostra la guida",
     orientationTitle: "Gare e filtri",
     orientationBody:
