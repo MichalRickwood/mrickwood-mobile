@@ -280,6 +280,11 @@ export const endpoints = {
   mobileLogin: (input: { email: string; password: string }) =>
     api.post<MobileLoginResponse>("/api/auth/mobile/login", input, { noAuth: true }),
 
+  // Zapomenuté heslo — pošle reset link e-mailem (vždy ok, žádná enumerace
+  // e-mailů). Nové heslo se nastavuje na webu, přihlášení pak zpět v appce.
+  forgotPassword: (email: string) =>
+    api.post<{ ok: boolean }>("/api/auth/forgot-password", { email }, { noAuth: true }),
+
   // Nativní OAuth (Apple/Google idToken, GitHub code). Server ověří token,
   // najde/vytvoří usera (emailVerified hned, souhlasy clickwrap), vrátí session.
   mobileOauth: (input: {
