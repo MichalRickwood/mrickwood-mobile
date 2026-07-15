@@ -75,9 +75,15 @@ export default function TenderAnalysisScreen() {
         }
         // Auto-spuštění: když je profil hotový a ještě nic neproběhlo, spustíme
         // analýzu rovnou (skrytá kickoff zpráva) — uživatel nemusí nic psát.
-        const hasMsgs = (data.session?.messages?.length ?? 0) > 0;
-        if (data.hasCompanyProfile && !hasMsgs) {
+        const msgs = data.session?.messages ?? [];
+        const last = msgs[msgs.length - 1];
+        if (data.hasCompanyProfile && msgs.length === 0) {
           void runTurn(KICKOFF, data.session?.id ?? null);
+        } else if (data.hasCompanyProfile && last?.role === "user") {
+          // Nedokončený tah — poslední zpráva je od uživatele bez odpovědi
+          // (odchod z appky / timeout serveru). Spusť ho znovu, ať se analýza
+          // netváří jako hotová; user bublina už v messages je, nepřidávat.
+          void runTurn(last.content, data.session?.id ?? null, { resume: true });
         }
       } catch (e) {
         Alert.alert(t("aiAnalysis", "errorTitle"), e instanceof Error ? e.message : "");
@@ -145,15 +151,19 @@ export default function TenderAnalysisScreen() {
   useEffect(() => stopFlusher, []);
 
   // Jeden tah konverzace. `sid` umožní předat aktuální sessionId i když ho stav
-  // ještě nestihl zapsat (auto-start hned po loadu).
-  async function runTurn(text: string, sid?: string | null) {
+  // ještě nestihl zapsat (auto-start hned po loadu). `resume` = opakování
+  // nedokončeného tahu — user bublina už v messages je, nepřidává se znovu.
+  async function runTurn(text: string, sid?: string | null, opts?: { resume?: boolean }) {
     if (!text || sending) return;
     setSending(true);
     setSteps([]);
     const turnKey = Crypto.randomUUID();
     const userMsg: Msg = { id: turnKey, role: "user", content: text, createdAt: new Date().toISOString() };
     const asstId = `a-${turnKey}`;
-    setMessages((m) => [...m, userMsg, { id: asstId, role: "assistant", content: "", createdAt: "", streaming: true }]);
+    setMessages((m) => [
+      ...(opts?.resume ? m : [...m, userMsg]),
+      { id: asstId, role: "assistant", content: "", createdAt: "", streaming: true },
+    ]);
     // Nový tah uživatele → vrať ho k dnu, ať vidí svou zprávu i začátek odpovědi.
     stickToBottomRef.current = true;
     setAtBottom(true);
@@ -161,6 +171,7 @@ export default function TenderAnalysisScreen() {
     pendingRef.current = "";
     startFlusher(asstId);
     let gotDelta = false;
+    let sawDone = false;
     try {
       await ssePost<AnalysisStreamEvent>(
         `/api/v2/leads/tenders/${tenderId}/analysis`,
@@ -177,6 +188,7 @@ export default function TenderAnalysisScreen() {
             }
             pendingRef.current += evt.text;
           } else if (evt.type === "done") {
+            sawDone = true;
             setMessages((m) => m.map((x) => (x.id === asstId ? { ...x, streaming: false } : x)));
             if (evt.sessionId) setSessionId(evt.sessionId);
             if (typeof evt.balance === "number") setBalance(evt.balance);
@@ -185,10 +197,16 @@ export default function TenderAnalysisScreen() {
               Alert.alert(t("aiAnalysis", "insufficientTitle"), t("aiAnalysis", "insufficientBody"));
             }
           } else if (evt.type === "error") {
+            sawDone = true; // server chybu ohlásil sám, druhý alert nepřidávat
             Alert.alert(t("aiAnalysis", "errorTitle"), evt.message);
           }
         },
       );
+      // Stream skončil bez "done" (typicky timeout serverové funkce) — dej
+      // vědět; nedokončený tah se po příštím otevření obrazovky rozjede znovu.
+      if (!sawDone) {
+        Alert.alert(t("aiAnalysis", "errorTitle"), t("aiAnalysis", "streamFailedBody"));
+      }
     } catch (e) {
       stopFlusher();
       setMessages((m) => m.filter((x) => x.id !== asstId));
@@ -202,7 +220,13 @@ export default function TenderAnalysisScreen() {
         setMessages((m) => m.map((x) => (x.id === asstId ? { ...x, content: x.content + chunk } : x)));
       }
       setSteps([]);
-      setMessages((m) => m.map((x) => (x.id === asstId ? { ...x, streaming: false } : x)));
+      // Stream skončil bez jediného kousku textu (timeout serveru, chyba) →
+      // prázdnou bublinu odstraň, ať se analýza netváří jako hotová.
+      setMessages((m) =>
+        m
+          .filter((x) => !(x.id === asstId && !gotDelta))
+          .map((x) => (x.id === asstId ? { ...x, streaming: false } : x)),
+      );
       setSending(false);
       maybeScrollEnd();
     }
@@ -219,12 +243,8 @@ export default function TenderAnalysisScreen() {
     if (reporting) return;
     setReporting(true);
     try {
-      const { data } = await endpoints.analysisReport(tenderId, locale);
-      if (typeof data.balance === "number") setBalance(data.balance);
-      if (data.insufficient) {
-        Alert.alert(t("aiAnalysis", "insufficientTitle"), t("aiAnalysis", "insufficientBody"));
-        return;
-      }
+      // PDF je od analýzy v2 ZDARMA — jen GET zabalí poslední analýzu do PDF
+      // (starý POST /analysis/report byl zrušen → 405).
       await openAuthedFile(
         `/api/v2/leads/tenders/${tenderId}/analysis/report`,
         `zhodnoceni-zakazky-${tenderId}.pdf`,

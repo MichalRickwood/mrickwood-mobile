@@ -796,11 +796,6 @@ export const endpoints = {
       `/api/v2/leads/tenders/${tenderId}/analysis`,
       opts?.fresh ? { params: { new: 1 } } : undefined,
     ),
-  analysisReport: (tenderId: number, locale?: string) =>
-    api.post<{ data: { reportMd: string; charged: number; insufficient: boolean; balance: number; currency: Currency } }>(
-      `/api/v2/leads/tenders/${tenderId}/analysis/report`,
-      { locale },
-    ),
 
   // ── AI příprava dokumentace ──
   docPrepGet: (tenderId: number) =>

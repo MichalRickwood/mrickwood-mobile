@@ -208,6 +208,7 @@
     "reportBtn": "PDF評価レポートを生成する",
     "insufficientTitle": "クレジット不足",
     "insufficientBody": "veritra.io でAIクレジットをチャージして、再度お試しください。",
+    "streamFailedBody": "分析が中断されました。もう一度お試しください。",
     "topUpWeb": "veritra.io でクレジットをチャージする"
   },
   "docPrep": {
