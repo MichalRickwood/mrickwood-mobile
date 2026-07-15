@@ -1,4 +1,6 @@
-import { Image, View } from "react-native";
+import { Text, View } from "react-native";
+import { useI18n } from "@/lib/i18n";
+import { APP_NAME } from "@/lib/config";
 
 /**
  * Vstupní „/" route — záměrně NE tenders. RouterGuard (app/_layout.tsx) odsud
@@ -6,11 +8,13 @@ import { Image, View } from "react-native";
  * tohoto by „/" renderovalo (tabs)/index a nepřihlášený by na okamžik viděl
  * zakázky.
  *
- * Pozadí #F4F0E4 = barva pozadí splash-icon.png (krémová), takže contain pásy
- * nahoře/dole splynou s obrázkem → jednolitá plocha s logem, žádné „bílé sekce"
- * (předtím View #FAFAF9 ≠ krémové pozadí obrázku → viditelné pásy nahoře/dole).
+ * Vzhled = boot/loading obrazovka: Veritra wordmark + lokalizovaný tagline
+ * (brand.tagline, dle jazyka zařízení) na krémovém pozadí #F4F0E4 — stejná
+ * barva jako nativní splash, takže přechod splyne. (Dřív tu byla lupa s „T"
+ * ze splash-icon.png — starý brand.)
  */
 export default function Index() {
+  const { t } = useI18n();
   return (
     <View
       style={{
@@ -20,11 +24,27 @@ export default function Index() {
         justifyContent: "center",
       }}
     >
-      <Image
-        source={require("@/assets/splash-icon.png")}
-        resizeMode="contain"
-        style={{ width: "100%", height: "100%" }}
-      />
+      <Text
+        style={{
+          fontSize: 46,
+          fontWeight: "800",
+          letterSpacing: -1,
+          color: "#1C1917",
+        }}
+      >
+        {APP_NAME}
+      </Text>
+      <Text
+        style={{
+          marginTop: 10,
+          fontSize: 15,
+          color: "#78716C",
+          textAlign: "center",
+          paddingHorizontal: 32,
+        }}
+      >
+        {t("brand", "tagline")}
+      </Text>
     </View>
   );
 }
