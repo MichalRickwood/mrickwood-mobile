@@ -15,10 +15,10 @@
 import { readFileSync } from "fs";
 import { createPrivateKey, sign } from "crypto";
 
-const KEY_ID = "X5ZFJXJ53Z";
+const KEY_ID = "3GN49VPDGG";
 const ISSUER_ID = "786f2d55-60c2-4d71-a6c5-ebceb59b6699";
 const APP_ID = "6772703784";
-const KEY_PATH = "./private/AuthKey_X5ZFJXJ53Z.p8";
+const KEY_PATH = "./private/AuthKey_3GN49VPDGG.p8";
 const PERFORM_SUBMIT = process.argv.includes("--submit");
 
 function makeJwt(): string {

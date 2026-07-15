@@ -26,10 +26,10 @@ import {
   type IapProduct,
 } from "../../mrickwood-web/src/lib/iap-catalog";
 
-const KEY_ID = "X5ZFJXJ53Z";
+const KEY_ID = "3GN49VPDGG";
 const ISSUER_ID = "786f2d55-60c2-4d71-a6c5-ebceb59b6699";
 const APP_ID = "6772703784";
-const KEY_PATH = new URL("../private/AuthKey_X5ZFJXJ53Z.p8", import.meta.url).pathname;
+const KEY_PATH = new URL("../private/AuthKey_3GN49VPDGG.p8", import.meta.url).pathname;
 
 const APPLY = process.argv.includes("--apply");
 /** Volitelný filtr: --only veritra.leads.s1l0.m (pro testovací první produkt). */
