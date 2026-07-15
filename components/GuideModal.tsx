@@ -120,8 +120,44 @@ export default function GuideModal({
 
           {step === "welcome" && trialActive && (
             <View style={styles.trialBox}>
-              <Ionicons name="gift-outline" size={18} color="#047857" style={styles.trialIcon} />
-              <Text style={styles.trialText}>{t("guide", "trialNote")}</Text>
+              <View style={styles.trialTitleRow}>
+                <Ionicons name="gift-outline" size={18} color="#047857" />
+                <Text style={styles.trialTitle}>{t("guide", "trialTitle")}</Text>
+              </View>
+              <Text style={styles.trialText}>{t("guide", "trialBody")}</Text>
+            </View>
+          )}
+
+          {/* Agenda kroků — vyplní welcome stránku a zároveň slouží jako
+              rychlá navigace (tap = skok na krok). */}
+          {step === "welcome" && (
+            <View style={styles.agenda}>
+              <Text style={styles.agendaTitle}>{t("guide", "agendaTitle")}</Text>
+              <View style={styles.agendaCard}>
+                {GUIDE_STEPS.filter((s) => s !== "welcome").map((s, i) => (
+                  <Pressable
+                    key={s}
+                    onPress={() => setIndex(GUIDE_STEPS.indexOf(s))}
+                    style={({ pressed }) => [
+                      styles.agendaRow,
+                      i > 0 && styles.agendaRowBorder,
+                      pressed && { opacity: 0.6 },
+                    ]}
+                  >
+                    <View style={styles.agendaIcon}>
+                      <Ionicons
+                        name={STEP_ICON[s as Exclude<GuideStepId, "welcome">]}
+                        size={17}
+                        color={colors.textSubtle}
+                      />
+                    </View>
+                    <Text style={styles.agendaText}>
+                      {t("guide", `${s}Title` as GuideKey)}
+                    </Text>
+                    <Ionicons name="chevron-forward" size={16} color={colors.textFaint} />
+                  </Pressable>
+                ))}
+              </View>
             </View>
           )}
         </ScrollView>
@@ -214,17 +250,51 @@ const makeStyles = (colors: Colors) =>
     mediaSoon: { fontSize: fontSize.xs, color: colors.textSubtle },
     body: { fontSize: fontSize.base, lineHeight: 22, color: colors.text },
     trialBox: {
-      flexDirection: "row",
-      alignItems: "flex-start",
       marginTop: spacing.lg,
       backgroundColor: "#ECFDF5",
       borderColor: "#A7F3D0",
       borderWidth: 1,
       borderRadius: radius.lg,
-      padding: spacing.lg,
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
     },
-    trialIcon: { marginRight: spacing.sm, marginTop: 1 },
-    trialText: { flex: 1, fontSize: fontSize.sm, lineHeight: 20, color: "#065F46" },
+    trialTitleRow: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
+    trialTitle: { fontSize: fontSize.base, fontWeight: "700", color: "#047857" },
+    trialText: { fontSize: fontSize.sm, lineHeight: 19, color: "#065F46", marginTop: spacing.xs },
+    agenda: { marginTop: spacing.lg },
+    agendaTitle: {
+      fontSize: fontSize.xs,
+      fontWeight: "600",
+      letterSpacing: 0.8,
+      textTransform: "uppercase",
+      color: colors.textSubtle,
+      marginBottom: spacing.sm,
+    },
+    agendaCard: {
+      backgroundColor: colors.card,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.lg,
+      paddingHorizontal: spacing.md,
+    },
+    agendaRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: spacing.md,
+      paddingVertical: spacing.md,
+    },
+    agendaRowBorder: { borderTopWidth: 1, borderTopColor: colors.border },
+    agendaIcon: {
+      width: 32,
+      height: 32,
+      borderRadius: radius.md,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: colors.cardElevated,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    agendaText: { flex: 1, fontSize: fontSize.base, color: colors.text, fontWeight: "500" },
     footer: {
       borderTopWidth: 1,
       borderTopColor: colors.border,
