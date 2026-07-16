@@ -125,7 +125,7 @@ export default function GuideModal({
               <Text style={styles.heroTagline}>{t("brand", "tagline")}</Text>
             </View>
           ) : videoUrl ? (
-            <View style={styles.media}>
+            <View style={styles.mediaPortrait}>
               <WebView
                 source={{ uri: videoUrl }}
                 style={{ flex: 1, backgroundColor: "#000" }}
@@ -134,11 +134,11 @@ export default function GuideModal({
                 allowFileAccessFromFileURLs
                 allowingReadAccessToURL={videoUrl}
                 allowsInlineMediaPlayback
-                mediaPlaybackRequiresUserAction={false}
+                mediaPlaybackRequiresUserAction
               />
             </View>
           ) : videoLoading ? (
-            <View style={[styles.media, styles.mediaPlaceholder]}>
+            <View style={[styles.mediaPortrait, styles.mediaPlaceholder]}>
               <ActivityIndicator color={colors.textSubtle} />
             </View>
           ) : (
@@ -271,6 +271,17 @@ const makeStyles = (colors: Colors) =>
     heroTagline: { marginTop: spacing.sm, fontSize: fontSize.xs, color: "#78716C" },
     media: {
       aspectRatio: 16 / 10,
+      borderRadius: radius.lg,
+      overflow: "hidden",
+      marginBottom: spacing.lg,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    // Portrétní video (810×1800) — telefon 1:1, čitelný obsah; užší box na střed.
+    mediaPortrait: {
+      alignSelf: "center",
+      width: "62%",
+      aspectRatio: 810 / 1800,
       borderRadius: radius.lg,
       overflow: "hidden",
       marginBottom: spacing.lg,

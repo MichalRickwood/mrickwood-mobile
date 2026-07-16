@@ -59,6 +59,8 @@ export async function consumeGuidePending(): Promise<boolean> {
  */
 const GUIDE_VIDEO_BASE =
   "https://rwx-storage.fra1.digitaloceanspaces.com/Veritra/guides/mobile";
+/** Bump při přenahrání videí (CDN i lokální cache busting). v2 = portrét 810×1800. */
+const GUIDE_VIDEO_VERSION = "2";
 const AVAILABLE = new Set<string>([
   "cs/orientation", "cs/emailDigest", "cs/subscription",
   "en/orientation", "en/emailDigest", "en/subscription",
@@ -67,9 +69,8 @@ const AVAILABLE = new Set<string>([
 
 export function guideVideoUrl(topic: GuideStepId, locale: string): string | null {
   const key = `${locale}/${topic}`;
-  if (AVAILABLE.has(key)) return `${GUIDE_VIDEO_BASE}/${key}.mp4`;
-  if (AVAILABLE.has(`cs/${topic}`)) return `${GUIDE_VIDEO_BASE}/cs/${topic}.mp4`;
-  return null;
+  const resolved = AVAILABLE.has(key) ? key : AVAILABLE.has(`cs/${topic}`) ? `cs/${topic}` : null;
+  return resolved ? `${GUIDE_VIDEO_BASE}/${resolved}.mp4?v=${GUIDE_VIDEO_VERSION}` : null;
 }
 
 /**
@@ -85,7 +86,8 @@ export async function cachedGuideVideoUri(
   if (!remote) return null;
   try {
     const FileSystem = await import("expo-file-system/legacy");
-    const name = remote.split("/guides/mobile/")[1]!.replace(/\//g, "-");
+    // název souboru zahrnuje i ?v= → bump verze zneplatní lokální cache
+    const name = remote.split("/guides/mobile/")[1]!.replace(/[^a-zA-Z0-9.]+/g, "-");
     const target = `${FileSystem.cacheDirectory}guide-${name}`;
     const info = await FileSystem.getInfoAsync(target);
     if (info.exists && (info.size ?? 0) > 0) return target;
