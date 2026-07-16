@@ -71,3 +71,27 @@ export function guideVideoUrl(topic: GuideStepId, locale: string): string | null
   if (AVAILABLE.has(`cs/${topic}`)) return `${GUIDE_VIDEO_BASE}/cs/${topic}.mp4`;
   return null;
 }
+
+/**
+ * Video předstažené do cache — WebView pak hraje lokální soubor (okamžitý
+ * start místo streamování ze Spaces). Při selhání stažení vrací remote URL
+ * (fallback na streamování); videa mají ~0,3–1,5 MB, OS cache si je spravuje.
+ */
+export async function cachedGuideVideoUri(
+  topic: GuideStepId,
+  locale: string,
+): Promise<string | null> {
+  const remote = guideVideoUrl(topic, locale);
+  if (!remote) return null;
+  try {
+    const FileSystem = await import("expo-file-system/legacy");
+    const name = remote.split("/guides/mobile/")[1]!.replace(/\//g, "-");
+    const target = `${FileSystem.cacheDirectory}guide-${name}`;
+    const info = await FileSystem.getInfoAsync(target);
+    if (info.exists && (info.size ?? 0) > 0) return target;
+    const dl = await FileSystem.downloadAsync(remote, target);
+    return dl.status === 200 ? dl.uri : remote;
+  } catch {
+    return remote;
+  }
+}

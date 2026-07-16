@@ -5,13 +5,18 @@
  * Odstavec o zkušebním týdnu se ukazuje jen uživatelům v běžícím trialu.
  */
 import { useEffect, useMemo, useState } from "react";
-import { Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import { WebView } from "react-native-webview";
 import { endpoints } from "@/lib/endpoints";
 import { useAuth } from "@/lib/auth-context";
-import { GUIDE_STEPS, guideVideoUrl, type GuideStepId } from "@/lib/guide";
+import {
+  GUIDE_STEPS,
+  cachedGuideVideoUri,
+  guideVideoUrl,
+  type GuideStepId,
+} from "@/lib/guide";
 import { useI18n } from "@/lib/i18n";
 import type { Dict } from "@/lib/i18n/translations";
 import { useTheme } from "@/lib/theme-context";
@@ -67,9 +72,30 @@ export default function GuideModal({
   const isLast = index >= GUIDE_STEPS.length - 1;
   const titleKey = (step === "welcome" ? "welcomeTitle" : `${step}Title`) as GuideKey;
   const bodyKey = (step === "welcome" ? "welcomeBody" : `${step}Body`) as GuideKey;
-  // DOČASNĚ admin-only preview videí (schvalovací kolo) — po odsouhlasení
-  // odstranit gate, ať videa vidí všichni.
-  const videoUrl = step === "welcome" || !isAdmin ? null : guideVideoUrl(step, locale);
+
+  // Videa se při otevření průvodce předstáhnou do cache (0,3–1,5 MB/kus) a
+  // hrají se z disku — streamování ze Spaces ve WebView startovalo pomalu.
+  // DOČASNĚ admin-only preview (schvalovací kolo) — po odsouhlasení gate odstranit.
+  const [videoUris, setVideoUris] = useState<Partial<Record<GuideStepId, string>>>({});
+  useEffect(() => {
+    if (!visible || !isAdmin) return;
+    let cancelled = false;
+    (async () => {
+      for (const s of GUIDE_STEPS) {
+        if (s === "welcome" || !guideVideoUrl(s, locale)) continue;
+        const uri = await cachedGuideVideoUri(s, locale);
+        if (cancelled) return;
+        if (uri) setVideoUris((prev) => (prev[s] === uri ? prev : { ...prev, [s]: uri }));
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [visible, isAdmin, locale]);
+
+  const remoteVideoUrl = step === "welcome" || !isAdmin ? null : guideVideoUrl(step, locale);
+  const videoUrl = remoteVideoUrl ? (videoUris[step] ?? null) : null;
+  const videoLoading = !!remoteVideoUrl && !videoUrl;
 
   return (
     <Modal
@@ -103,9 +129,17 @@ export default function GuideModal({
               <WebView
                 source={{ uri: videoUrl }}
                 style={{ flex: 1, backgroundColor: "#000" }}
+                originWhitelist={["*"]}
+                allowFileAccess
+                allowFileAccessFromFileURLs
+                allowingReadAccessToURL={videoUrl}
                 allowsInlineMediaPlayback
-                mediaPlaybackRequiresUserAction
+                mediaPlaybackRequiresUserAction={false}
               />
+            </View>
+          ) : videoLoading ? (
+            <View style={[styles.media, styles.mediaPlaceholder]}>
+              <ActivityIndicator color={colors.textSubtle} />
             </View>
           ) : (
             <View style={[styles.media, styles.mediaPlaceholder]}>
