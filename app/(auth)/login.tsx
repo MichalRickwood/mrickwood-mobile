@@ -34,6 +34,12 @@ export default function LoginScreen() {
 
   const [, gResponse, gPrompt] = Google.useAuthRequest({
     iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
+    // Android: bez androidClientId hook při renderu HODÍ chybu (crash celé
+    // obrazovky). Dokud nemáme Google OAuth Android klienta, drží login
+    // naživu fallback hodnota; Google tlačítko na Androidu stejně nevedeme.
+    androidClientId:
+      process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID ??
+      "unset.apps.googleusercontent.com",
   });
 
   useEffect(() => {
