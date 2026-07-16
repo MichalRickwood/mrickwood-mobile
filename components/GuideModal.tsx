@@ -67,7 +67,9 @@ export default function GuideModal({
   const isLast = index >= GUIDE_STEPS.length - 1;
   const titleKey = (step === "welcome" ? "welcomeTitle" : `${step}Title`) as GuideKey;
   const bodyKey = (step === "welcome" ? "welcomeBody" : `${step}Body`) as GuideKey;
-  const videoUrl = step === "welcome" ? null : guideVideoUrl(step, locale);
+  // DOČASNĚ admin-only preview videí (schvalovací kolo) — po odsouhlasení
+  // odstranit gate, ať videa vidí všichni.
+  const videoUrl = step === "welcome" || !isAdmin ? null : guideVideoUrl(step, locale);
 
   return (
     <Modal

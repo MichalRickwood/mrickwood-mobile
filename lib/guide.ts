@@ -59,7 +59,11 @@ export async function consumeGuidePending(): Promise<boolean> {
  */
 const GUIDE_VIDEO_BASE =
   "https://rwx-storage.fra1.digitaloceanspaces.com/Veritra/guides/mobile";
-const AVAILABLE = new Set<string>([]);
+const AVAILABLE = new Set<string>([
+  "cs/orientation", "cs/emailDigest", "cs/subscription",
+  "en/orientation", "en/emailDigest", "en/subscription",
+  "de/orientation", "de/emailDigest", "de/subscription",
+]);
 
 export function guideVideoUrl(topic: GuideStepId, locale: string): string | null {
   const key = `${locale}/${topic}`;

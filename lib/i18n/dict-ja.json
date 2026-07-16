@@ -152,7 +152,7 @@
     "filterFormAllRegions": "すべての地域",
     "filterRegionsWholeCountry": "国全体",
     "filterRegionsWholeCountryOnly": "このソースは地域情報を提供していません。国全体を監視対象としています。",
-    "filterFormValueRange": "推定金額（CZK）",
+    "filterFormValueRange": "推定金額",
     "filterFormValueAny": "指定なし",
     "filterFormMinPlaceholder": "下限",
     "filterFormMaxPlaceholder": "上限",

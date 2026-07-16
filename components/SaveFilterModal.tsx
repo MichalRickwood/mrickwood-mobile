@@ -27,9 +27,10 @@ interface Props {
   onSaved: (newFilterId: string) => void;
 }
 
+// Stejný kompaktní formát jako chips v seznamu (5M / 500k) — jazykově neutrální.
 function formatMoney(n: number): string {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(n % 1_000_000 === 0 ? 0 : 1)} mil`;
-  if (n >= 1_000) return `${Math.round(n / 1_000)} tis`;
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(n % 1_000_000 === 0 ? 0 : 1)}M`;
+  if (n >= 1_000) return `${Math.round(n / 1_000)}k`;
   return String(n);
 }
 
@@ -117,16 +118,23 @@ export default function SaveFilterModal({ visible, adHoc, onClose, onSaved }: Pr
               <SummaryRow
                 styles={styles}
                 label={t("filters", "saveSummaryValue")}
-                value={`${adHoc.minValue ? `od ${formatMoney(adHoc.minValue)}` : ""}${
-                  adHoc.minValue && adHoc.maxValue ? " " : ""
-                }${adHoc.maxValue ? `do ${formatMoney(adHoc.maxValue)}` : ""} Kč`}
+                value={[
+                  adHoc.minValue
+                    ? t("filters", "chipPriceFrom", { value: formatMoney(adHoc.minValue) })
+                    : "",
+                  adHoc.maxValue
+                    ? t("filters", "chipPriceTo", { value: formatMoney(adHoc.maxValue) })
+                    : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
               />
             )}
             {adHoc.industryTags.length > 0 && (
               <SummaryRow
                 styles={styles}
                 label={t("filters", "saveSummaryCategory")}
-                value={`${adHoc.industryTags.length} tagů`}
+                value={String(adHoc.industryTags.length)}
               />
             )}
             {adHoc.cpvPrefixes.length > 0 && (
