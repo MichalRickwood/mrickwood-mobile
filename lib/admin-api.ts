@@ -97,6 +97,8 @@ export interface HealthReport {
   userId: string;
   score: number;
   band: HealthBand;
+  /** "activation" = nový účet (aktivační skóre), "established" = běžný model. */
+  stage?: "activation" | "established";
   breakdown: HealthBreakdown[];
   raw?: unknown;
 }

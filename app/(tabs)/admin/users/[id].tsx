@@ -173,7 +173,8 @@ export default function AdminUserDetailScreen() {
               <View key={s.id} style={styles.subRow}>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.subTitle}>
-                    {s.service} · {s.tier}
+                    {s.service}
+                    {s.scope ? ` · ${s.scope}` : ""} · {s.tier}
                   </Text>
                   <Text style={styles.subMeta}>
                     {s.state}
@@ -203,6 +204,11 @@ export default function AdminUserDetailScreen() {
                   text={`${t("admin", "healthScore")} ${healthQuery.data.score}`}
                   {...bandColors(healthQuery.data.band, colors)}
                 />
+                {healthQuery.data.stage ? (
+                  <Text style={styles.healthStage}>
+                    {healthQuery.data.stage === "activation" ? "Activation (new account)" : "Established"}
+                  </Text>
+                ) : null}
               </View>
               {healthQuery.data.breakdown?.map((b) => (
                 <View key={b.category} style={styles.healthRow}>
@@ -391,7 +397,8 @@ const makeStyles = (colors: Colors) =>
     subMeta: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: 2 },
     smallBtn: { backgroundColor: colors.accent, paddingHorizontal: spacing.md, paddingVertical: spacing.xs, borderRadius: radius.sm },
     smallBtnText: { color: colors.accentForeground, fontSize: fontSize.xs, fontWeight: "600" },
-    healthHeader: { marginBottom: spacing.sm, flexDirection: "row" },
+    healthHeader: { marginBottom: spacing.sm, flexDirection: "row", alignItems: "center", gap: spacing.sm },
+    healthStage: { fontSize: fontSize.xs, color: colors.textSubtle },
     healthRow: { flexDirection: "row", justifyContent: "space-between", paddingVertical: spacing.xs },
     healthLabel: { fontSize: fontSize.sm, color: colors.textMuted },
     healthValue: { fontSize: fontSize.sm, color: colors.text, fontWeight: "600" },
