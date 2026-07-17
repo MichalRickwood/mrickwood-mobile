@@ -71,6 +71,7 @@ export interface LeadFilterRow {
   zadavatelIcos: string[];
   minValue: number | null;
   maxValue: number | null;
+  includeUnknownValue?: boolean;
 }
 
 export interface LeadFilterInput {
@@ -82,6 +83,7 @@ export interface LeadFilterInput {
   zadavatelIcos?: string[];
   minValue?: number | null;
   maxValue?: number | null;
+  includeUnknownValue?: boolean;
   emailDigest?: boolean;
   active?: boolean;
 }
@@ -367,6 +369,8 @@ export const endpoints = {
     regions?: string;
     minValue?: number;
     maxValue?: number;
+    /** Ad-hoc override: propouštět zakázky bez uvedené hodnoty (default true). */
+    includeUnknownValue?: boolean;
     /** YYYY-MM-DD */
     deadlineFrom?: string;
     /** YYYY-MM-DD */
@@ -388,6 +392,7 @@ export const endpoints = {
     if (params?.regions) v2Params.regions = params.regions;
     if (params?.minValue != null) v2Params.minValue = params.minValue;
     if (params?.maxValue != null) v2Params.maxValue = params.maxValue;
+    if (params?.includeUnknownValue === false) v2Params.includeUnknownValue = "0";
     if (params?.deadlineFrom) v2Params.deadlineFrom = params.deadlineFrom;
     if (params?.deadlineTo) v2Params.deadlineTo = params.deadlineTo;
     if (params?.cpvPrefixes) v2Params.cpvPrefixes = params.cpvPrefixes;

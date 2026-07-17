@@ -570,6 +570,8 @@ export interface Dict {
     chipPriceTo: string;
     /** Označení měny value filtru — limity jsou vždy v CZK. */
     currencyCzk: string;
+    /** Toggle value filtru: propouštět i zakázky bez uvedené hodnoty. */
+    includeUnknownValue: string;
     chipDeadline: string;
     chipDeadlineFrom: string;
     chipDeadlineTo: string;
@@ -1967,6 +1969,7 @@ const cs: Dict = {
     chipPriceFrom: "od {value} Kč",
     chipPriceTo: "do {value} Kč",
     currencyCzk: "Kč",
+    includeUnknownValue: "Zahrnout i zakázky bez uvedené hodnoty",
     chipDeadline: "Lhůta",
     chipDeadlineFrom: "od {date}",
     chipDeadlineTo: "do {date}",
@@ -2765,6 +2768,7 @@ const en: Dict = {
     chipPriceFrom: "from {value} CZK",
     chipPriceTo: "up to {value} CZK",
     currencyCzk: "CZK",
+    includeUnknownValue: "Include tenders without a stated value",
     chipDeadline: "Deadline",
     chipDeadlineFrom: "from {date}",
     chipDeadlineTo: "until {date}",
@@ -3565,6 +3569,7 @@ const de: Dict = {
     chipPriceFrom: "ab {value} CZK",
     chipPriceTo: "bis {value} CZK",
     currencyCzk: "CZK",
+    includeUnknownValue: "Auch Ausschreibungen ohne Wert einbeziehen",
     chipDeadline: "Frist",
     chipDeadlineFrom: "ab {date}",
     chipDeadlineTo: "bis {date}",
@@ -4363,6 +4368,7 @@ const sk: Dict = {
     chipPriceFrom: "od {value} Kč",
     chipPriceTo: "do {value} Kč",
     currencyCzk: "Kč",
+    includeUnknownValue: "Zahrnúť aj zákazky bez uvedenej hodnoty",
     chipDeadline: "Termín",
     chipDeadlineFrom: "od {date}",
     chipDeadlineTo: "do {date}",
@@ -5161,6 +5167,7 @@ const fr: Dict = {
     chipPriceFrom: "à partir de {value} CZK",
     chipPriceTo: "jusqu'à {value} CZK",
     currencyCzk: "CZK",
+    includeUnknownValue: "Inclure les marchés sans valeur indiquée",
     chipDeadline: "Échéance",
     chipDeadlineFrom: "à partir du {date}",
     chipDeadlineTo: "jusqu'au {date}",
@@ -5959,6 +5966,7 @@ const it: Dict = {
     chipPriceFrom: "da {value} CZK",
     chipPriceTo: "fino a {value} CZK",
     currencyCzk: "CZK",
+    includeUnknownValue: "Includi anche gli appalti senza valore indicato",
     chipDeadline: "Scadenza",
     chipDeadlineFrom: "da {date}",
     chipDeadlineTo: "fino al {date}",

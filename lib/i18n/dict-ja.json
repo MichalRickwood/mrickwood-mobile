@@ -555,6 +555,7 @@
     "chipPriceFrom": "{value} CZK 以上",
     "chipPriceTo": "{value} CZK 以下",
     "currencyCzk": "CZK",
+    "includeUnknownValue": "金額未記載の案件も含める",
     "chipDeadline": "締切日",
     "chipDeadlineFrom": "{date} 以降",
     "chipDeadlineTo": "{date} まで",

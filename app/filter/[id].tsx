@@ -76,6 +76,7 @@ export default function FilterFormScreen() {
   const [regions, setRegions] = useState<string[]>([]);
   const [zadavatele, setZadavatele] = useState<ZadavatelOption[]>([]);
   const [minValue, setMinValue] = useState<number | null>(null);
+  const [includeUnknownValue, setIncludeUnknownValue] = useState(true);
   const [maxValue, setMaxValue] = useState<number | null>(null);
   const [emailDigest, setEmailDigest] = useState(true);
 
@@ -101,6 +102,7 @@ export default function FilterFormScreen() {
       setCpvPrefixes(existing.categories ?? []);
       setRegions(existing.regions);
       setMinValue(existing.minValue);
+      setIncludeUnknownValue(existing.includeUnknownValue ?? true);
       setMaxValue(existing.maxValue);
       setEmailDigest(existing.emailDigest);
       const icos = existing.zadavatelIcos ?? [];
@@ -149,6 +151,7 @@ export default function FilterFormScreen() {
       regions,
       zadavatelIcos: zadavatele.map((z) => z.ico),
       minValue,
+      includeUnknownValue,
       maxValue,
       emailDigest,
     };
@@ -474,10 +477,12 @@ export default function FilterFormScreen() {
         visible={valuePickerOpen}
         initialMin={minValue}
         initialMax={maxValue}
+        initialIncludeUnknown={includeUnknownValue}
         onClose={() => setValuePickerOpen(false)}
-        onApply={(min, max) => {
+        onApply={(min, max, includeUnknown) => {
           setMinValue(min);
           setMaxValue(max);
+          setIncludeUnknownValue(includeUnknown);
         }}
       />
       <CategoryPickerModal

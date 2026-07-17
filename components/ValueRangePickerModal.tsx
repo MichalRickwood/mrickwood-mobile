@@ -3,6 +3,7 @@ import {
   Modal,
   Pressable,
   StyleSheet,
+  Switch,
   Text,
   TextInput,
   TouchableOpacity,
@@ -16,14 +17,16 @@ interface Props {
   visible: boolean;
   initialMin: number | null;
   initialMax: number | null;
+  initialIncludeUnknown: boolean;
   onClose: () => void;
-  onApply: (min: number | null, max: number | null) => void;
+  onApply: (min: number | null, max: number | null, includeUnknown: boolean) => void;
 }
 
 export default function ValueRangePickerModal({
   visible,
   initialMin,
   initialMax,
+  initialIncludeUnknown,
   onClose,
   onApply,
 }: Props) {
@@ -32,13 +35,15 @@ export default function ValueRangePickerModal({
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const [minStr, setMinStr] = useState(initialMin != null ? String(initialMin) : "");
   const [maxStr, setMaxStr] = useState(initialMax != null ? String(initialMax) : "");
+  const [includeUnknown, setIncludeUnknown] = useState(initialIncludeUnknown);
 
   useEffect(() => {
     if (visible) {
       setMinStr(initialMin != null ? String(initialMin) : "");
       setMaxStr(initialMax != null ? String(initialMax) : "");
+      setIncludeUnknown(initialIncludeUnknown);
     }
-  }, [visible, initialMin, initialMax]);
+  }, [visible, initialMin, initialMax, initialIncludeUnknown]);
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
@@ -64,10 +69,14 @@ export default function ValueRangePickerModal({
               style={[styles.input, { flex: 1 }]}
             />
           </View>
+          <View style={styles.toggleRow}>
+            <Text style={styles.toggleLabel}>{t("filters", "includeUnknownValue")}</Text>
+            <Switch value={includeUnknown} onValueChange={setIncludeUnknown} />
+          </View>
           <View style={styles.actions}>
             <TouchableOpacity
               onPress={() => {
-                onApply(null, null);
+                onApply(null, null, true);
                 onClose();
               }}
               style={styles.clearBtn}
@@ -76,7 +85,7 @@ export default function ValueRangePickerModal({
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
-                onApply(minStr ? Number(minStr) || null : null, maxStr ? Number(maxStr) || null : null);
+                onApply(minStr ? Number(minStr) || null : null, maxStr ? Number(maxStr) || null : null, includeUnknown);
                 onClose();
               }}
               style={styles.applyBtn}
@@ -121,6 +130,8 @@ const makeStyles = (colors: Colors) =>
       fontSize: fontSize.base,
       color: colors.text,
     },
+    toggleRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: spacing.md },
+    toggleLabel: { fontSize: fontSize.sm, color: colors.textSubtle, flex: 1, marginRight: spacing.sm },
     actions: { flexDirection: "row", gap: spacing.sm, marginTop: spacing.lg },
     clearBtn: {
       flex: 1,

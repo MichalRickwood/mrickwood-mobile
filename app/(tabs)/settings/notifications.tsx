@@ -129,7 +129,7 @@ export default function NotificationsScreen() {
               <Text style={styles.noteText}>{t("settings", "pushPermissionDenied")}</Text>
             </Pressable>
           )}
-          {pushStatus?.kind === "unsupported" && (
+          {pushStatus?.kind === "unsupported" && !process.env.EXPO_PUBLIC_RECORDING && (
             <View style={styles.note}>
               <Text style={styles.noteText}>{t("settings", "pushNotSupported")}</Text>
             </View>

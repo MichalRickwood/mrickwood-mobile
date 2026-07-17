@@ -218,6 +218,7 @@ export default function MatchesScreen() {
         ...(searchDebounced ? { q: searchDebounced } : {}),
         ...(adHoc.regions.length > 0 ? { regions: adHoc.regions.join(",") } : {}),
         ...(adHoc.minValue != null ? { minValue: adHoc.minValue } : {}),
+        ...(!adHoc.includeUnknownValue ? { includeUnknownValue: false } : {}),
         ...(adHoc.maxValue != null ? { maxValue: adHoc.maxValue } : {}),
         ...(adHoc.deadlineFrom ? { deadlineFrom: adHoc.deadlineFrom } : {}),
         ...(adHoc.deadlineTo ? { deadlineTo: adHoc.deadlineTo } : {}),
@@ -313,6 +314,7 @@ export default function MatchesScreen() {
                       regions: f.regions ?? [],
                       minValue: f.minValue,
                       maxValue: f.maxValue,
+                      includeUnknownValue: f.includeUnknownValue ?? true,
                       deadlineFrom: null,
                       deadlineTo: null,
                       cpvPrefixes: f.categories ?? [],
@@ -528,9 +530,10 @@ export default function MatchesScreen() {
       <ValueRangePickerModal
         visible={valuePickerOpen}
         initialMin={adHoc.minValue}
+        initialIncludeUnknown={adHoc.includeUnknownValue}
         initialMax={adHoc.maxValue}
         onClose={() => setValuePickerOpen(false)}
-        onApply={(min, max) => setAdHoc((prev) => ({ ...prev, minValue: min, maxValue: max }))}
+        onApply={(min, max, includeUnknown) => setAdHoc((prev) => ({ ...prev, minValue: min, maxValue: max, includeUnknownValue: includeUnknown }))}
       />
       <DeadlinePickerModal
         visible={deadlinePickerOpen}
