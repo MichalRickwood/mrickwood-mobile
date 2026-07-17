@@ -236,6 +236,7 @@ export default function AdminUserDetailScreen() {
                   <Text style={styles.timelineLabel}>{a.label}</Text>
                   <Text style={styles.timelineMeta}>
                     {a.category} · {fmtDateTime(a.createdAt)}
+                    {a.path ? ` · ${a.path}` : ""}
                   </Text>
                 </View>
               </View>
