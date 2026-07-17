@@ -63,7 +63,7 @@ function deadlineChipLabel(from: string | null, to: string | null, t: FilterT): 
 
 function valueChipLabel(min: number | null, max: number | null, t: FilterT): string {
   if (min == null && max == null) return t("filters", "chipPrice");
-  if (min != null && max != null) return `${fmtMoney(min)} – ${fmtMoney(max)}`;
+  if (min != null && max != null) return `${fmtMoney(min)} – ${fmtMoney(max)} ${t("filters", "currencyCzk")}`;
   if (min != null) return t("filters", "chipPriceFrom", { value: fmtMoney(min) });
   return t("filters", "chipPriceTo", { value: fmtMoney(max!) });
 }

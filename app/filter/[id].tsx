@@ -41,11 +41,13 @@ function fmtMoney(n: number): string {
   return String(n);
 }
 
-function valueRangeLabel(min: number | null, max: number | null, anyLabel: string): string {
+type FilterT = ReturnType<typeof useI18n>["t"];
+
+function valueRangeLabel(min: number | null, max: number | null, anyLabel: string, t: FilterT): string {
   if (min == null && max == null) return anyLabel;
-  if (min != null && max != null) return `${fmtMoney(min)} – ${fmtMoney(max)} Kč`;
-  if (min != null) return `od ${fmtMoney(min)} Kč`;
-  return `do ${fmtMoney(max!)} Kč`;
+  if (min != null && max != null) return `${fmtMoney(min)} – ${fmtMoney(max)} ${t("filters", "currencyCzk")}`;
+  if (min != null) return t("filters", "chipPriceFrom", { value: fmtMoney(min) });
+  return t("filters", "chipPriceTo", { value: fmtMoney(max!) });
 }
 
 export default function FilterFormScreen() {
@@ -236,7 +238,7 @@ export default function FilterFormScreen() {
         ? regionLabel(regions[0], locale)
         : t("matches", "filterFormPickCount", { count: String(regions.length) });
 
-  const valueSummary = valueRangeLabel(minValue, maxValue, t("matches", "filterFormValueAny"));
+  const valueSummary = valueRangeLabel(minValue, maxValue, t("matches", "filterFormValueAny"), t);
 
   const zadavatelSummary =
     zadavatele.length === 0
