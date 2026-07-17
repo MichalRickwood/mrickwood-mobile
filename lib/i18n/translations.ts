@@ -847,6 +847,9 @@ export interface Dict {
     usersTitle: string;
     searchUsers: string;
     statusActive: string;
+    segAll: string;
+    segNoFilter: string;
+    segNoSub: string;
     statusInactive: string;
     statusAll: string;
     usersEmpty: string;
@@ -1046,6 +1049,9 @@ const ADMIN_CS: Dict["admin"] = {
   usersTitle: "Uživatelé",
   searchUsers: "Hledat e-mail / jméno / firmu",
   statusActive: "Aktivní",
+  segAll: "Vše",
+  segNoFilter: "Bez filtru",
+  segNoSub: "Bez aktivace",
   statusInactive: "Neaktivní",
   statusAll: "Vše",
   usersEmpty: "Žádní uživatelé.",
@@ -1237,6 +1243,9 @@ const ADMIN_EN: Dict["admin"] = {
   usersTitle: "Users",
   searchUsers: "Search email / name / company",
   statusActive: "Active",
+  segAll: "All",
+  segNoFilter: "No filter",
+  segNoSub: "No activation",
   statusInactive: "Inactive",
   statusAll: "All",
   usersEmpty: "No users.",

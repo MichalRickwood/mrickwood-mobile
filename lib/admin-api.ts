@@ -48,6 +48,8 @@ export interface AdminUser {
   utmTerm: string | null;
   apiKeys: { id: string; requestsMonth: number; requestsLimit: number }[];
   subscriptions: AdminSubscription[];
+  /** Počet lead filtrů (segmenty Bez filtru / Bez aktivace). */
+  filterCount?: number;
   billing: {
     billingMode: string;
     paymentMethod: string;

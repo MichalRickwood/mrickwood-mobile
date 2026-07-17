@@ -10,19 +10,22 @@ import { useTheme } from "@/lib/theme-context";
 import { AdminBadge, bandColors } from "@/components/AdminRow";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 
-type StatusFilter = "active" | "inactive" | "all";
+// Segmenty cílí na aktivační mezery z auditu: „Bez filtru" = má trial, ale
+// nevytvořil filtr (nedostane matche); „Bez aktivace" = registrace bez výběru
+// země. Původní Active/Inactive/All skryto (na přání — deaktivované řeší web).
+type SegmentFilter = "all" | "noFilter" | "noSub";
 
 export default function AdminUsersScreen() {
   const router = useRouter();
   const { t } = useI18n();
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
-  const [status, setStatus] = useState<StatusFilter>("active");
+  const [segment, setSegment] = useState<SegmentFilter>("all");
   const [search, setSearch] = useState("");
 
   const usersQuery = useQuery({
-    queryKey: ["admin-users", status],
-    queryFn: ({ signal }) => adminApi.listUsers(status, signal),
+    queryKey: ["admin-users", "active"],
+    queryFn: ({ signal }) => adminApi.listUsers("active", signal),
   });
 
   const bandLabel = (band: HealthBand): string => {
@@ -44,7 +47,12 @@ export default function AdminUsersScreen() {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    const all = usersQuery.data ?? [];
+    let all = usersQuery.data ?? [];
+    if (segment === "noFilter") {
+      all = all.filter((u) => u.subscriptions.length > 0 && (u.filterCount ?? 0) === 0);
+    } else if (segment === "noSub") {
+      all = all.filter((u) => u.subscriptions.length === 0);
+    }
     if (!q) return all;
     return all.filter(
       (u) =>
@@ -52,7 +60,7 @@ export default function AdminUsersScreen() {
         (u.name ?? "").toLowerCase().includes(q) ||
         (u.company ?? "").toLowerCase().includes(q),
     );
-  }, [usersQuery.data, search]);
+  }, [usersQuery.data, search, segment]);
 
   const renderRow = ({ item }: { item: AdminUser }) => {
     const activeSub = item.subscriptions.find((s) => s.state === "ACTIVE" || s.state === "TRIAL");
@@ -102,14 +110,14 @@ export default function AdminUsersScreen() {
           style={styles.search}
         />
         <View style={styles.segment}>
-          {(["active", "inactive", "all"] as StatusFilter[]).map((s) => (
+          {(["all", "noFilter", "noSub"] as SegmentFilter[]).map((s) => (
             <Pressable
               key={s}
-              onPress={() => setStatus(s)}
-              style={[styles.segmentBtn, status === s && styles.segmentBtnActive]}
+              onPress={() => setSegment(s)}
+              style={[styles.segmentBtn, segment === s && styles.segmentBtnActive]}
             >
-              <Text style={[styles.segmentText, status === s && styles.segmentTextActive]}>
-                {s === "active" ? t("admin", "statusActive") : s === "inactive" ? t("admin", "statusInactive") : t("admin", "statusAll")}
+              <Text style={[styles.segmentText, segment === s && styles.segmentTextActive]}>
+                {s === "all" ? t("admin", "segAll") : s === "noFilter" ? t("admin", "segNoFilter") : t("admin", "segNoSub")}
               </Text>
             </Pressable>
           ))}
