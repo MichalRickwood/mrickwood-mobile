@@ -38,11 +38,10 @@ import { useRouter } from "expo-router";
 import * as Localization from "expo-localization";
 import { endpoints } from "@/lib/endpoints";
 import { markGuidePending } from "@/lib/guide";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, bcp47 } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme-context";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 
-const LOCALE_MAP: Record<string, string> = { cs: "cs-CZ", en: "en-GB", de: "de-DE" };
 
 /**
  * Locale-aware thousand separator (CZ "1 234", DE "1.234", EN "1,234"). Pro
@@ -90,7 +89,7 @@ export default function CountriesManager({ mode }: { mode: "onboarding" | "setti
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const router = useRouter();
   const qc = useQueryClient();
-  const dateLocale = LOCALE_MAP[locale] ?? "cs-CZ";
+  const dateLocale = bcp47(locale);
 
   // Countries katalog se nemění často — staleTime 30 min. Cache se sdílí napříč
   // mounty (návrat settings ↔ onboarding je instant).
@@ -290,7 +289,7 @@ export default function CountriesManager({ mode }: { mode: "onboarding" | "setti
 
   function countryLabel(code: string): string {
     const c = countries?.find((x) => x.code === code);
-    return c ? c.labels[locale] ?? c.labels.en : code;
+    return c ? (c.labels as Record<string, string>)[locale] ?? c.labels.en : code;
   }
 
   // iOS Apple IAP: přímý nákup země v Nastavení (placené předplatné přes StoreKit).
@@ -589,7 +588,7 @@ export default function CountriesManager({ mode }: { mode: "onboarding" | "setti
         renderItem={({ item: c }) => {
           const isActive = activeScopes.has(c.code);
           const isSelected = selected.has(c.code);
-          const label = c.labels[locale] ?? c.labels.en;
+          const label = (c.labels as Record<string, string>)[locale] ?? c.labels.en;
           const flagUrl = `https://flagcdn.com/24x18/${c.code.toLowerCase()}.png`;
           const row = isActive ? rowByScope.get(c.code) : null;
           const activeMeta = isActive ? metaForActive(c.code) : null;

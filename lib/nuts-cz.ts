@@ -29,5 +29,5 @@ export const CZ_REGIONS: CzRegion[] = [
 export function regionLabel(code: string, locale: string): string {
   const r = CZ_REGIONS.find((x) => x.code === code);
   if (!r) return code;
-  return (r.labels[locale as keyof CzRegion["labels"]] ?? r.labels.cs) as string;
+  return (r.labels[locale as keyof CzRegion["labels"]] ?? r.labels.en ?? r.labels.cs) as string;
 }

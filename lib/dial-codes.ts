@@ -169,8 +169,11 @@ export const DIAL_CODES: DialCode[] = [
   mk("EG", "🇪🇬", "+20"),
 ];
 
+// Dial-code default per UI jazyk. Dřív jen de/sk → fr/it/ja/pl/nl/es padaly na +420.
+const DEFAULT_DIAL: Record<string, string> = {
+  cs: "+420", en: "+44", de: "+49", sk: "+421", fr: "+33", it: "+39",
+  ja: "+81", pl: "+48", nl: "+31", es: "+34",
+};
 export function defaultDialCodeForLocale(locale: string): string {
-  if (locale === "de") return "+49";
-  if (locale === "sk") return "+421";
-  return "+420";
+  return DEFAULT_DIAL[locale] ?? "+420";
 }

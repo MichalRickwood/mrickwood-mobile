@@ -15,7 +15,7 @@ import {
   type BillingServiceRow,
   type InvoiceRow,
 } from "@/lib/endpoints";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, bcp47 } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme-context";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 import CompanyLookupField from "@/components/CompanyLookupField";
@@ -24,8 +24,6 @@ import CountriesManager from "@/components/CountriesManager";
 import { downloadInvoicePdf } from "@/lib/invoice-pdf";
 import { useRouter } from "expo-router";
 
-const LOCALE_MAP: Record<string, string> = { cs: "cs-CZ", en: "en-GB", de: "de-DE" };
-const NUMBER_LOCALE_MAP: Record<string, string> = { cs: "cs-CZ", en: "en-US", de: "de-DE" };
 const SAVE_DEBOUNCE_MS = 700;
 
 type TFn = ReturnType<typeof useI18n>["t"];
@@ -43,8 +41,8 @@ function BillingLegacy() {
   const { t, locale } = useI18n();
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
-  const dateLocale = LOCALE_MAP[locale] ?? "cs-CZ";
-  const numberLocale = NUMBER_LOCALE_MAP[locale] ?? "cs-CZ";
+  const dateLocale = bcp47(locale);
+  const numberLocale = bcp47(locale);
 
   const [data, setData] = useState<BillingFullState | null>(null);
   const [invoices, setInvoices] = useState<InvoiceRow[] | null>(null);

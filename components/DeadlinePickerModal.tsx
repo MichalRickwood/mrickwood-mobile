@@ -42,6 +42,55 @@ LocaleConfig.locales["de"] = {
   dayNamesShort: ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"],
   today: "Heute",
 };
+LocaleConfig.locales["sk"] = {
+  monthNames: ["Január", "Február", "Marec", "Apríl", "Máj", "Jún", "Júl", "August", "September", "Október", "November", "December"],
+  monthNamesShort: ["Jan", "Feb", "Mar", "Apr", "Máj", "Jún", "Júl", "Aug", "Sep", "Okt", "Nov", "Dec"],
+  dayNames: ["Nedeľa", "Pondelok", "Utorok", "Streda", "Štvrtok", "Piatok", "Sobota"],
+  dayNamesShort: ["Ne", "Po", "Ut", "St", "Št", "Pi", "So"],
+  today: "Dnes",
+};
+LocaleConfig.locales["fr"] = {
+  monthNames: ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
+  monthNamesShort: ["Janv", "Févr", "Mars", "Avr", "Mai", "Juin", "Juil", "Août", "Sept", "Oct", "Nov", "Déc"],
+  dayNames: ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"],
+  dayNamesShort: ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"],
+  today: "Aujourd'hui",
+};
+LocaleConfig.locales["it"] = {
+  monthNames: ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"],
+  monthNamesShort: ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"],
+  dayNames: ["Domenica", "Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato"],
+  dayNamesShort: ["Dom", "Lun", "Mar", "Mer", "Gio", "Ven", "Sab"],
+  today: "Oggi",
+};
+LocaleConfig.locales["ja"] = {
+  monthNames: ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"],
+  monthNamesShort: ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"],
+  dayNames: ["日曜日", "月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日"],
+  dayNamesShort: ["日", "月", "火", "水", "木", "金", "土"],
+  today: "今日",
+};
+LocaleConfig.locales["pl"] = {
+  monthNames: ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"],
+  monthNamesShort: ["Sty", "Lut", "Mar", "Kwi", "Maj", "Cze", "Lip", "Sie", "Wrz", "Paź", "Lis", "Gru"],
+  dayNames: ["Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota"],
+  dayNamesShort: ["Nd", "Pn", "Wt", "Śr", "Cz", "Pt", "So"],
+  today: "Dziś",
+};
+LocaleConfig.locales["nl"] = {
+  monthNames: ["Januari", "Februari", "Maart", "April", "Mei", "Juni", "Juli", "Augustus", "September", "Oktober", "November", "December"],
+  monthNamesShort: ["Jan", "Feb", "Mrt", "Apr", "Mei", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec"],
+  dayNames: ["Zondag", "Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag"],
+  dayNamesShort: ["Zo", "Ma", "Di", "Wo", "Do", "Vr", "Za"],
+  today: "Vandaag",
+};
+LocaleConfig.locales["es"] = {
+  monthNames: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
+  monthNamesShort: ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"],
+  dayNames: ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"],
+  dayNamesShort: ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"],
+  today: "Hoy",
+};
 LocaleConfig.defaultLocale = "cs";
 
 interface Props {
@@ -71,10 +120,8 @@ export default function DeadlinePickerModal({
   onApply,
 }: Props) {
   const { t, locale } = useI18n();
-  // Aktualizuj Calendar lib locale podle current app locale (cs/en/de).
-  if (LocaleConfig.locales[locale]) {
-    LocaleConfig.defaultLocale = locale;
-  }
+  // Calendar lib locale podle current app locale (všech 10); neznámé → en (ne cs).
+  LocaleConfig.defaultLocale = LocaleConfig.locales[locale] ? locale : "en";
   const { colors, isDark } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const [from, setFrom] = useState<string | null>(initialFrom);

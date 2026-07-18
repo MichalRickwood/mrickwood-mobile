@@ -45,8 +45,13 @@ const FULL_COVERAGE = ["CZ", "SK", "FR"];
 const MANUAL_ONLY = ["GB"];
 const ALL_COUNTRIES = [...LOOKUP_COUNTRIES, ...MANUAL_ONLY, "OTHER"];
 
+// Výchozí země per jazyk (dřív jen de/sk → fr/it/ja/pl/nl/es padaly na CZ).
+const LOCALE_COUNTRY: Record<string, string> = {
+  cs: "CZ", en: "GB", de: "DE", sk: "SK", fr: "FR", it: "IT",
+  ja: "JP", pl: "PL", nl: "NL", es: "ES",
+};
 function defaultCountry(locale: string): string {
-  return locale === "de" ? "DE" : locale === "sk" ? "SK" : "CZ";
+  return LOCALE_COUNTRY[locale] ?? "CZ";
 }
 function flagUrl(iso: string): string {
   return `https://flagcdn.com/24x18/${iso.toLowerCase()}.png`;

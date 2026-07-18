@@ -2,10 +2,9 @@ import { useMemo } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import type { LeadMatchRow } from "@/lib/endpoints";
 import { useTheme } from "@/lib/theme-context";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, bcp47 } from "@/lib/i18n";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 
-const LOCALE_MAP: Record<string, string> = { cs: "cs-CZ", en: "en-GB", de: "de-DE" };
 
 interface Props {
   match: LeadMatchRow;
@@ -83,7 +82,7 @@ export default function MatchCard({ match, onPress, onToggleStar, onExclude, mod
 
 function formatDate(iso: string, locale: string): string {
   const d = new Date(iso);
-  return d.toLocaleDateString(LOCALE_MAP[locale] ?? "cs-CZ", {
+  return d.toLocaleDateString(bcp47(locale), {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",

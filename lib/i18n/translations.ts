@@ -5,12 +5,28 @@
  * Pro nové stringy přidej do všech 3 jazyků, jinak fallback na cs.
  */
 
-// Japonský slovník je generovaný (scripts/translate-mobile-dict.mts) → JSON.
+// Generované slovníky (scripts/translate-mobile-dict.mts) → JSON.
 import jaDict from "./dict-ja.json";
+import plDict from "./dict-pl.json";
+import nlDict from "./dict-nl.json";
+import esDict from "./dict-es.json";
 
-export type Locale = "cs" | "en" | "de" | "sk" | "fr" | "it" | "ja";
+export type Locale = "cs" | "en" | "de" | "sk" | "fr" | "it" | "ja" | "pl" | "nl" | "es";
 
-export const LOCALES: Locale[] = ["cs", "en", "de", "sk", "fr", "it", "ja"];
+export const LOCALES: Locale[] = ["cs", "en", "de", "sk", "fr", "it", "ja", "pl", "nl", "es"];
+
+/**
+ * BCP-47 tag pro Intl.* (datum/číslo). JEDINÝ zdroj — komponenty nesmí mít
+ * vlastní `{cs,en,de}` mapy (ty ignorovaly sk/fr/it/ja → špatný formát).
+ * `Record<Locale>` → přidání jazyka vynutí doplnění (tsc).
+ */
+export const BCP47: Record<Locale, string> = {
+  cs: "cs-CZ", en: "en-GB", de: "de-DE", sk: "sk-SK", fr: "fr-FR", it: "it-IT", ja: "ja-JP",
+  pl: "pl-PL", nl: "nl-NL", es: "es-ES",
+};
+export function bcp47(locale: string): string {
+  return BCP47[(LOCALES as string[]).includes(locale) ? (locale as Locale) : "cs"];
+}
 
 export interface Dict {
   brand: {
@@ -6210,4 +6226,7 @@ export const dicts: Record<Locale, Dict> = {
   fr,
   it,
   ja: { ...(jaDict as unknown as Dict), admin: ADMIN_EN },
+  pl: { ...(plDict as unknown as Dict), admin: ADMIN_EN },
+  nl: { ...(nlDict as unknown as Dict), admin: ADMIN_EN },
+  es: { ...(esDict as unknown as Dict), admin: ADMIN_EN },
 };

@@ -94,3 +94,4 @@ export function useI18n(): I18nState {
 }
 
 export type { Locale };
+export { bcp47, LOCALES } from "./translations";
