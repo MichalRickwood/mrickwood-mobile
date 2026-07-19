@@ -11,6 +11,17 @@ import { AdminBadge } from "@/components/AdminRow";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 
 const STATUSES: SocialStatus[] = ["DRAFT", "PENDING_REVIEW", "SCHEDULED", "PUBLISHED", "FAILED", "REJECTED", "ARCHIVED"];
+const COUNTRIES = ["GLOBAL", "CZ", "SK", "DE", "AT", "PL", "FR", "IT"];
+
+/** Překlad = automatický fanOut sourozenec (GLOBAL + jiný jazyk než cs). */
+function isTranslation(p: SocialPost): boolean {
+  return p.scope === "GLOBAL" && p.locale !== "cs";
+}
+function platformsLabel(p: SocialPost): string {
+  const pls = p.platforms ?? [];
+  if (pls.length >= 4) return "vše";
+  return pls.join("/") || "—";
+}
 
 export default function AdminSocialScreen() {
   const router = useRouter();
@@ -20,11 +31,19 @@ export default function AdminSocialScreen() {
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const [status, setStatus] = useState<SocialStatus | "">("PENDING_REVIEW");
   const [kind, setKind] = useState<"" | "POST" | "AD_CREATIVE">("");
+  const [country, setCountry] = useState("");
+  const [showTranslations, setShowTranslations] = useState(false);
 
   const query = useQuery({
-    queryKey: ["admin-social", status, kind],
-    queryFn: ({ signal }) => adminApi.listSocial({ status: status || undefined, kind: kind || undefined, limit: 200 }, signal),
+    queryKey: ["admin-social", status, kind, country],
+    queryFn: ({ signal }) => adminApi.listSocial({ status: status || undefined, kind: kind || undefined, country: country || undefined, limit: 200 }, signal),
   });
+
+  const visible = useMemo(() => {
+    const rows = query.data ?? [];
+    return showTranslations ? rows : rows.filter((p) => !isTranslation(p));
+  }, [query.data, showTranslations]);
+  const hiddenCount = (query.data?.length ?? 0) - visible.length;
 
   const invalidate = () => void qc.invalidateQueries({ queryKey: ["admin-social"] });
 
@@ -66,6 +85,8 @@ export default function AdminSocialScreen() {
         <View style={styles.rowHead}>
           <AdminBadge text={item.status} color={colors.textMuted} bg={colors.bg} />
           <AdminBadge text={item.country ?? "GLOBAL"} color={colors.textMuted} bg={colors.bg} />
+          {item.pillar ? <AdminBadge text={item.pillar} color={colors.textMuted} bg={colors.bg} /> : null}
+          <AdminBadge text={platformsLabel(item)} color={colors.textMuted} bg={colors.bg} />
         </View>
         <Text style={styles.caption} numberOfLines={3}>
           {item.caption}
@@ -80,6 +101,9 @@ export default function AdminSocialScreen() {
         <View style={styles.topActions}>
           <Pressable onPress={() => router.push("/(tabs)/admin/social/replies")} style={styles.topBtn}>
             <Text style={styles.topBtnText}>{t("admin", "repliesBtn")}</Text>
+          </Pressable>
+          <Pressable onPress={() => router.push("/(tabs)/admin/social/published")} style={styles.topBtn}>
+            <Text style={styles.topBtnText}>{t("admin", "perfBtn")}</Text>
           </Pressable>
           <Pressable onPress={confirmGenerate} disabled={generateMutation.isPending} style={[styles.topBtn, styles.topBtnPrimary]}>
             <Text style={[styles.topBtnText, styles.topBtnTextPrimary]}>{generateMutation.isPending ? t("admin", "generating") : t("admin", "generate")}</Text>
@@ -110,10 +134,26 @@ export default function AdminSocialScreen() {
             </Pressable>
           ))}
         </View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
+          <Pressable onPress={() => setCountry("")} style={[styles.chip, country === "" && styles.chipActive]}>
+            <Text style={[styles.chipText, country === "" && styles.chipTextActive]}>{t("admin", "allCountries")}</Text>
+          </Pressable>
+          {COUNTRIES.map((c) => (
+            <Pressable key={c} onPress={() => setCountry(c)} style={[styles.chip, country === c && styles.chipActive]}>
+              <Text style={[styles.chipText, country === c && styles.chipTextActive]}>{c}</Text>
+            </Pressable>
+          ))}
+        </ScrollView>
+        <Pressable onPress={() => setShowTranslations((v) => !v)} style={styles.translToggle}>
+          <Text style={styles.translToggleText}>
+            {showTranslations ? "☑" : "☐"} {t("admin", "showTranslations")}
+            {!showTranslations && hiddenCount > 0 ? ` (${hiddenCount})` : ""}
+          </Text>
+        </Pressable>
       </View>
 
       <AppFlatList
-        data={query.data ?? []}
+        data={visible}
         keyExtractor={(p) => p.id}
         renderItem={renderRow}
         contentContainerStyle={styles.list}
@@ -155,6 +195,8 @@ const makeStyles = (colors: Colors) =>
     segmentBtnActive: { backgroundColor: colors.accent },
     segmentText: { fontSize: fontSize.sm, color: colors.text, fontWeight: "500" },
     segmentTextActive: { color: colors.accentForeground, fontWeight: "600" },
+    translToggle: { paddingVertical: spacing.xs },
+    translToggleText: { fontSize: fontSize.xs, color: colors.textMuted, fontWeight: "500" },
     list: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xxl },
     row: { flexDirection: "row", gap: spacing.md, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: spacing.md, marginBottom: spacing.sm },
     rowPressed: { borderColor: colors.text },

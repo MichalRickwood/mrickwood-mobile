@@ -221,11 +221,16 @@ export interface SocialPost {
   topic: string | null;
   caption: string;
   hashtags: string[] | null;
+  headline: string | null;
+  subheadline: string | null;
+  features: string[] | null;
+  imageTemplate: string | null;
   status: SocialStatus;
   rejectionReason: string | null;
   registerLink: string;
   scheduledFor: string | null;
   publishedAt: string | null;
+  platformRefs: Record<string, { id?: string; permalink?: string }> | null;
   errorMsg: string | null;
   imageUrl: string | null;
   createdAt: string;
@@ -363,9 +368,18 @@ export const adminApi = {
   },
   socialAction: async (
     id: string,
-    input: { action: "approve" | "reject" | "update" | "delete"; reason?: string; scheduledFor?: string; caption?: string },
+    input: {
+      action: "approve" | "reject" | "update" | "delete" | "rerender";
+      reason?: string;
+      scheduledFor?: string;
+      caption?: string;
+      headline?: string;
+      subheadline?: string;
+      features?: string[];
+      imageTemplate?: string;
+    },
   ) => {
-    const r = await api.post<Env<{ ok: boolean; status?: string }>>(`${BASE}/social/${id}`, input);
+    const r = await api.post<Env<{ ok: boolean; status?: string; rerender?: boolean }>>(`${BASE}/social/${id}`, input);
     return r.data;
   },
   listReplies: async (signal?: AbortSignal) => {

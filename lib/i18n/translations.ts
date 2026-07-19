@@ -1029,6 +1029,21 @@ export interface Dict {
     country: string;
     allCountries: string;
     draftReply: string;
+    perfBtn: string;
+    perfTitle: string;
+    perfEmpty: string;
+    showTranslations: string;
+    editVisual: string;
+    saveVisual: string;
+    rerender: string;
+    rerendering: string;
+    headlineLabel: string;
+    subheadlineLabel: string;
+    featuresLabel: string;
+    openLink: string;
+    registerLinkLabel: string;
+    platformsLabel: string;
+    publishedAt: string;
   };
 }
 
@@ -1225,6 +1240,21 @@ const ADMIN_CS: Dict["admin"] = {
   country: "Země",
   allCountries: "Všechny země",
   draftReply: "Návrh odpovědi",
+  perfBtn: "Výkon",
+  perfTitle: "Výkon publikací",
+  perfEmpty: "Zatím nic nepublikováno.",
+  showTranslations: "Překlady",
+  editVisual: "Upravit vizuál",
+  saveVisual: "Uložit + přegenerovat",
+  rerender: "Přegenerovat obrázek",
+  rerendering: "Generuji obrázek…",
+  headlineLabel: "Titulek",
+  subheadlineLabel: "Podtitulek",
+  featuresLabel: "Funkce (1 na řádek, max 4)",
+  openLink: "Otevřít",
+  registerLinkLabel: "Odkaz registrace",
+  platformsLabel: "Sítě",
+  publishedAt: "Publikováno",
 };
 
 const ADMIN_EN: Dict["admin"] = {
@@ -1419,6 +1449,21 @@ const ADMIN_EN: Dict["admin"] = {
   country: "Country",
   allCountries: "All countries",
   draftReply: "Draft reply",
+  perfBtn: "Performance",
+  perfTitle: "Published performance",
+  perfEmpty: "Nothing published yet.",
+  showTranslations: "Translations",
+  editVisual: "Edit visual",
+  saveVisual: "Save + regenerate",
+  rerender: "Regenerate image",
+  rerendering: "Generating image…",
+  headlineLabel: "Headline",
+  subheadlineLabel: "Subheadline",
+  featuresLabel: "Features (one per line, max 4)",
+  openLink: "Open",
+  registerLinkLabel: "Register link",
+  platformsLabel: "Networks",
+  publishedAt: "Published",
 };
 
 const cs: Dict = {

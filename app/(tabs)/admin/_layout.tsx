@@ -32,6 +32,7 @@ export default function AdminLayout() {
       <Stack.Screen name="social/index" options={{ title: t("admin", "socialTitle") }} />
       <Stack.Screen name="social/[id]" options={{ title: t("admin", "socialDetailTitle") }} />
       <Stack.Screen name="social/replies" options={{ title: t("admin", "repliesBtn") }} />
+      <Stack.Screen name="social/published" options={{ title: t("admin", "perfTitle") }} />
     </Stack>
   );
 }
