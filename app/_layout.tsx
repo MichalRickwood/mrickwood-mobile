@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Stack, useRouter, useSegments } from "expo-router";
+import { Stack, usePathname, useRouter, useSegments } from "expo-router";
 import * as Notifications from "expo-notifications";
 import { StatusBar } from "expo-status-bar";
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from "@/lib/auth-context";
 import { I18nProvider } from "@/lib/i18n";
 import { ThemeProvider, useTheme } from "@/lib/theme-context";
 import { endpoints } from "@/lib/endpoints";
+import { trackScreen } from "@/lib/tracker";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -121,6 +122,19 @@ function RouterGuard() {
 }
 
 /**
+ * Screen views → /api/v2/track (UserActivity timeline v admin detailu
+ * uživatele). Jen přihlášený — anon se netrackuje.
+ */
+function ScreenTracker() {
+  const { status } = useAuth();
+  const pathname = usePathname();
+  useEffect(() => {
+    if (status === "authenticated") trackScreen(pathname);
+  }, [status, pathname]);
+  return null;
+}
+
+/**
  * Tap na push notifikaci „nové zakázky" → otevře matches na daném filtru a ukáže
  * JEN nové z dané dávky (params filterId + since). Řeší warm (listener) i cold
  * start (getLastNotificationResponseAsync); cold-start naviguje až po přihlášení.
@@ -188,6 +202,7 @@ export default function RootLayout() {
           <QueryClientProvider client={queryClient}>
             <AuthProvider>
               <ThemedStatusBar />
+              <ScreenTracker />
               <NotificationTapHandler />
               <RouterGuard />
             </AuthProvider>
