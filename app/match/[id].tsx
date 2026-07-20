@@ -19,6 +19,25 @@ import {
 import { useI18n } from "@/lib/i18n";
 import { ApiError } from "@/lib/api";
 
+// Jazyk(y) země zakázky (ISO country → app locales). Země bez UI jazyka
+// (SE/NO/FI/DK…) překlad nabízejí vždy.
+const COUNTRY_LANGS: Record<string, string[]> = {
+  CZ: ["cs"],
+  SK: ["sk"],
+  DE: ["de"],
+  AT: ["de"],
+  CH: ["de", "fr", "it"],
+  PL: ["pl"],
+  NL: ["nl"],
+  BE: ["nl", "fr"],
+  FR: ["fr"],
+  IT: ["it"],
+  ES: ["es"],
+  JP: ["ja"],
+  GB: ["en"],
+  IE: ["en"],
+};
+
 export default function MatchDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
@@ -68,6 +87,74 @@ export default function MatchDetailScreen() {
   // On-demand unzip: po rozbalení na serveru přepíšeme lokální seznam příloh čerstvými
   // dokumenty (soubory místo ZIPu) — cache matches se invaliduje, ale detail nečeká.
   const [docsOverride, setDocsOverride] = useState<TenderDocument[] | null>(null);
+  // Překlad zakázky do jazyka UI (10/měs. zdarma, pak z AI konta; server cachuje).
+  const [translation, setTranslation] = useState<{ title: string; description: string | null } | null>(null);
+  const [showTranslation, setShowTranslation] = useState(true);
+  const [translateBusy, setTranslateBusy] = useState(false);
+  const [translateQuota, setTranslateQuota] = useState<{
+    remainingFree: number;
+    price: number;
+    currency: string;
+    alreadyTranslated: boolean;
+  } | null>(null);
+
+  const tenderId = match?.tender.id ?? null;
+  const tenderCountry = match?.tender.country ?? null;
+  // Jazyk(y) země zakázky — při shodě s UI locale se překlad nenabízí.
+  const countryLangs =
+    tenderCountry != null
+      ? (COUNTRY_LANGS[tenderCountry] ?? [])
+      : null;
+  const wantsTranslation = countryLangs != null && !countryLangs.includes(locale);
+
+  async function translateTender() {
+    if (!tenderId || translateBusy) return;
+    setTranslateBusy(true);
+    try {
+      const res = await endpoints.translateTender(tenderId, locale);
+      setTranslation({ title: res.title, description: res.description });
+      setShowTranslation(true);
+      setTranslateQuota((q) =>
+        q ? { ...q, remainingFree: res.remainingFree, alreadyTranslated: true } : q,
+      );
+    } catch (err) {
+      const insufficient = err instanceof ApiError && err.status === 402;
+      Alert.alert(
+        insufficient
+          ? t("matchDetail", "translateInsufficientTitle")
+          : t("matchDetail", "errorTitle"),
+        insufficient
+          ? t("matchDetail", "translateInsufficientBody")
+          : t("matchDetail", "translateFailed"),
+      );
+    } finally {
+      setTranslateBusy(false);
+    }
+  }
+
+  const wantsQuota = wantsTranslation && tenderId != null;
+  useEffect(() => {
+    if (!wantsQuota || !tenderId) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const q = await endpoints.translateTenderQuota(tenderId, locale);
+        if (cancelled) return;
+        setTranslateQuota(q);
+        // Už dřív přeloženou zakázku rovnou obnovíme (repeat = zdarma, z cache).
+        if (q.alreadyTranslated) {
+          const res = await endpoints.translateTender(tenderId, locale);
+          if (!cancelled) setTranslation({ title: res.title, description: res.description });
+        }
+      } catch {
+        /* hint není kritický */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wantsQuota, tenderId, locale]);
 
   async function sendSummary() {
     if (!match || emailing) return;
@@ -237,7 +324,9 @@ export default function MatchDetailScreen() {
         }}
       />
       <ScrollView contentContainerStyle={styles.scroll}>
-        <Text style={styles.title}>{tender.title}</Text>
+        <Text style={styles.title}>
+          {showTranslation && translation ? translation.title : tender.title}
+        </Text>
         {tender.contractingAuthority?.name && (
           <Text style={styles.subtitle}>{tender.contractingAuthority.name}</Text>
         )}
@@ -253,12 +342,83 @@ export default function MatchDetailScreen() {
           return <Text style={styles.subtitleSub}>{parts.join(" · ")}</Text>;
         })()}
 
-        {tender.description && tender.description.trim().length > 0 && (
-          <View style={styles.descSection}>
-            <Text style={styles.sectionLabel}>{t("matchDetail", "descLabel")}</Text>
-            <Text style={styles.descText}>{tender.description}</Text>
+        {wantsTranslation && !translation && (
+          <Pressable
+            onPress={translateTender}
+            disabled={translateBusy}
+            style={({ pressed }) => [
+              styles.translateBtn,
+              (pressed || translateBusy) && { opacity: 0.7 },
+            ]}
+          >
+            {translateBusy ? (
+              <ActivityIndicator size="small" color={colors.text} />
+            ) : (
+              <Text style={styles.translateBtnText}>
+                {t("matchDetail", "translateBtn")}
+                {translateQuota && !translateQuota.alreadyTranslated && (
+                  <Text style={styles.translateHint}>
+                    {"  "}
+                    {translateQuota.remainingFree > 0
+                      ? t("matchDetail", "translateFreeLeft", {
+                          count: translateQuota.remainingFree,
+                        })
+                      : t("matchDetail", "translatePriceHint", {
+                          price: `${translateQuota.price} ${translateQuota.currency}`,
+                        })}
+                  </Text>
+                )}
+              </Text>
+            )}
+          </Pressable>
+        )}
+        {translation && (
+          <View style={styles.translateToggleRow}>
+            <Pressable
+              onPress={() => setShowTranslation(false)}
+              style={[styles.translateToggle, !showTranslation && styles.translateToggleActive]}
+            >
+              <Text
+                style={[
+                  styles.translateToggleText,
+                  !showTranslation && styles.translateToggleTextActive,
+                ]}
+              >
+                {t("matchDetail", "translateOriginal")}
+              </Text>
+            </Pressable>
+            <Pressable
+              onPress={() => setShowTranslation(true)}
+              style={[styles.translateToggle, showTranslation && styles.translateToggleActive]}
+            >
+              <Text
+                style={[
+                  styles.translateToggleText,
+                  showTranslation && styles.translateToggleTextActive,
+                ]}
+              >
+                🌐 {t("matchDetail", "translateTranslated")}
+              </Text>
+            </Pressable>
           </View>
         )}
+
+        {(() => {
+          const desc =
+            showTranslation && translation?.description
+              ? translation.description
+              : tender.description;
+          if (!desc || desc.trim().length === 0) return null;
+          return (
+            <View style={styles.descSection}>
+              <Text style={styles.sectionLabel}>{t("matchDetail", "descLabel")}</Text>
+              <Text style={styles.descText}>{desc}</Text>
+              {showTranslation && translation && (
+                <Text style={styles.translateNote}>{t("matchDetail", "translateNote")}</Text>
+              )}
+            </View>
+          );
+        })()}
 
         <View style={styles.metaGrid}>
           {(tender.deadlineAt || tender.publishedAt) && (
@@ -602,6 +762,39 @@ const makeStyles = (colors: Colors) =>
     padding: spacing.md,
     marginTop: spacing.sm,
   },
+  translateBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    marginTop: spacing.md,
+    alignSelf: "flex-start",
+  },
+  translateBtnText: { fontSize: fontSize.sm, color: colors.text, fontWeight: "600" },
+  translateHint: { fontSize: fontSize.xs, color: colors.textSubtle, fontWeight: "400" },
+  translateToggleRow: {
+    flexDirection: "row",
+    marginTop: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    overflow: "hidden",
+    alignSelf: "flex-start",
+  },
+  translateToggle: {
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    backgroundColor: colors.card,
+  },
+  translateToggleActive: { backgroundColor: colors.text },
+  translateToggleText: { fontSize: fontSize.sm, color: colors.text, fontWeight: "600" },
+  translateToggleTextActive: { color: colors.bg },
+  translateNote: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: spacing.sm },
   aiBtnIcon: { fontSize: 18, marginRight: spacing.md },
   aiBtnText: { flex: 1, fontSize: fontSize.sm, color: colors.text, fontWeight: "600" },
   docsSection: { marginTop: spacing.xl },

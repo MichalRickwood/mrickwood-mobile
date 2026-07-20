@@ -190,7 +190,22 @@
     "scheduledFor": "Programado",
     "country": "País",
     "allCountries": "Todos los países",
-    "draftReply": "Borrador de respuesta"
+    "draftReply": "Borrador de respuesta",
+    "perfBtn": "Rendimiento",
+    "perfTitle": "Rendimiento publicado",
+    "perfEmpty": "Nada publicado aún.",
+    "showTranslations": "Traducciones",
+    "editVisual": "Editar visual",
+    "saveVisual": "Guardar + regenerar",
+    "rerender": "Regenerar imagen",
+    "rerendering": "Generando imagen…",
+    "headlineLabel": "Titular",
+    "subheadlineLabel": "Subtitular",
+    "featuresLabel": "Características (una por línea, máx. 4)",
+    "openLink": "Abrir",
+    "registerLinkLabel": "Enlace de registro",
+    "platformsLabel": "Redes",
+    "publishedAt": "Publicado"
   },
   "brand": {
     "tagline": "Licitaciones europeas unificadas"
@@ -403,7 +418,16 @@
     "reportInvalidFailed": "Error al enviar el reporte. Inténtelo de nuevo más tarde.",
     "btnAiAnalysis": "Análisis de IA",
     "btnAiDocPrep": "Documentos de IA",
-    "aiSectionLabel": "Herramientas de IA"
+    "aiSectionLabel": "Herramientas de IA",
+    "translateBtn": "🌐 Traducir",
+    "translateOriginal": "Original",
+    "translateTranslated": "Traducción",
+    "translateNote": "Traducción automática (IA)",
+    "translateFreeLeft": "{count} traducciones gratuitas restantes este mes",
+    "translatePriceHint": "Traducir por {price} desde tu crédito de IA",
+    "translateFailed": "La traducción falló, por favor inténtalo de nuevo.",
+    "translateInsufficientTitle": "Crédito insuficiente",
+    "translateInsufficientBody": "Crédito de IA insuficiente para la traducción. Recarga en veritra.io en Ajustes."
   },
   "aiAnalysis": {
     "title": "Análisis de licitación con IA",

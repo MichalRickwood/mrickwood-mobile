@@ -33,6 +33,8 @@ export interface PublicTender {
   id: number;
   title: string;
   description?: string | null;
+  /** ISO 3166-1 alpha-2 — UI skrývá překlad, když locale odpovídá jazyku země. */
+  country?: string;
   portalType: string;
   url: string;
   status: string;
@@ -623,6 +625,28 @@ export const endpoints = {
     const r = await api.post<{
       data: { sent: true; email: string };
     }>(`/api/v2/leads/tenders/${tenderId}/email`);
+    return r.data;
+  },
+
+  // Překlad zakázky do jazyka UI (10/měs. zdarma, pak paušál z AI konta; 402 = nedostatek kreditu)
+  translateTender: async (tenderId: number, locale: string) => {
+    const r = await api.post<{
+      data: {
+        title: string;
+        description: string | null;
+        free: boolean;
+        charged: number;
+        remainingFree: number;
+      };
+    }>(`/api/v2/leads/tenders/${tenderId}/translate`, { locale });
+    return r.data;
+  },
+
+  // Kvóta překladů + zda už je tahle zakázka pro uživatele přeložená (repeat = zdarma)
+  translateTenderQuota: async (tenderId: number, locale: string) => {
+    const r = await api.get<{
+      data: { remainingFree: number; price: number; currency: string; alreadyTranslated: boolean };
+    }>(`/api/v2/leads/tenders/${tenderId}/translate`, { params: { locale } });
     return r.data;
   },
 

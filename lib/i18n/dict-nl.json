@@ -190,7 +190,22 @@
     "scheduledFor": "Gepland",
     "country": "Land",
     "allCountries": "Alle landen",
-    "draftReply": "Conceptreactie"
+    "draftReply": "Conceptreactie",
+    "perfBtn": "Prestaties",
+    "perfTitle": "Gepubliceerde prestaties",
+    "perfEmpty": "Nog niets gepubliceerd.",
+    "showTranslations": "Vertalingen",
+    "editVisual": "Visueel bewerken",
+    "saveVisual": "Opslaan + opnieuw genereren",
+    "rerender": "Afbeelding opnieuw genereren",
+    "rerendering": "Afbeelding genereren…",
+    "headlineLabel": "Koptekst",
+    "subheadlineLabel": "Subkoptekst",
+    "featuresLabel": "Kenmerken (één per regel, max. 4)",
+    "openLink": "Openen",
+    "registerLinkLabel": "Registratielink",
+    "platformsLabel": "Netwerken",
+    "publishedAt": "Gepubliceerd"
   },
   "brand": {
     "tagline": "De aanbestedingen van Europa verenigd"
@@ -403,7 +418,16 @@
     "reportInvalidFailed": "Melding mislukt. Probeer het later opnieuw.",
     "btnAiAnalysis": "AI-analyse",
     "btnAiDocPrep": "AI-documenten",
-    "aiSectionLabel": "AI-tools"
+    "aiSectionLabel": "AI-tools",
+    "translateBtn": "🌐 Vertalen",
+    "translateOriginal": "Origineel",
+    "translateTranslated": "Vertaling",
+    "translateNote": "Machinevertaling (AI)",
+    "translateFreeLeft": "{count} gratis vertalingen resterend deze maand",
+    "translatePriceHint": "Vertalen voor {price} uit uw AI-krediet",
+    "translateFailed": "Vertaling mislukt, probeer het opnieuw.",
+    "translateInsufficientTitle": "Onvoldoende krediet",
+    "translateInsufficientBody": "Onvoldoende AI-krediet voor vertaling. Laad bij via veritra.io onder Instellingen."
   },
   "aiAnalysis": {
     "title": "AI-tenderanalyse",

@@ -241,6 +241,15 @@ export interface Dict {
     btnAiAnalysis: string;
     btnAiDocPrep: string;
     aiSectionLabel: string;
+    translateBtn: string;
+    translateOriginal: string;
+    translateTranslated: string;
+    translateNote: string;
+    translateFreeLeft: string;
+    translatePriceHint: string;
+    translateFailed: string;
+    translateInsufficientTitle: string;
+    translateInsufficientBody: string;
   };
   aiAnalysis: {
     title: string;
@@ -1686,6 +1695,15 @@ const cs: Dict = {
     btnAiAnalysis: "AI analýza",
     btnAiDocPrep: "AI dokumentace",
     aiSectionLabel: "AI nástroje",
+    translateBtn: "🌐 Přeložit",
+    translateOriginal: "Originál",
+    translateTranslated: "Překlad",
+    translateNote: "Strojový překlad (AI)",
+    translateFreeLeft: "Tento měsíc zbývá {count} překladů zdarma",
+    translatePriceHint: "Překlad za {price} z AI konta",
+    translateFailed: "Překlad se nepodařil, zkuste to znovu.",
+    translateInsufficientTitle: "Nedostatečný kredit",
+    translateInsufficientBody: "Na překlad není dostatečný AI kredit. Dobijte si ho na veritra.io v Nastavení.",
   },
   aiAnalysis: {
     title: "AI analýza zakázky",
@@ -2485,6 +2503,15 @@ const en: Dict = {
     btnAiAnalysis: "AI analysis",
     btnAiDocPrep: "AI documents",
     aiSectionLabel: "AI tools",
+    translateBtn: "🌐 Translate",
+    translateOriginal: "Original",
+    translateTranslated: "Translation",
+    translateNote: "Machine translation (AI)",
+    translateFreeLeft: "{count} free translations left this month",
+    translatePriceHint: "Translate for {price} from your AI credit",
+    translateFailed: "Translation failed, please try again.",
+    translateInsufficientTitle: "Insufficient credit",
+    translateInsufficientBody: "Not enough AI credit for translation. Top up at veritra.io in Settings.",
   },
   aiAnalysis: {
     title: "AI tender analysis",
@@ -3286,6 +3313,15 @@ const de: Dict = {
     btnAiAnalysis: "KI-Analyse",
     btnAiDocPrep: "KI-Unterlagen",
     aiSectionLabel: "KI-Werkzeuge",
+    translateBtn: "🌐 Übersetzen",
+    translateOriginal: "Original",
+    translateTranslated: "Übersetzung",
+    translateNote: "Maschinelle Übersetzung (KI)",
+    translateFreeLeft: "Diesen Monat noch {count} kostenlose Übersetzungen",
+    translatePriceHint: "Übersetzung für {price} vom KI-Guthaben",
+    translateFailed: "Übersetzung fehlgeschlagen, bitte erneut versuchen.",
+    translateInsufficientTitle: "Guthaben nicht ausreichend",
+    translateInsufficientBody: "Nicht genug KI-Guthaben für die Übersetzung. Laden Sie es auf veritra.io in den Einstellungen auf.",
   },
   aiAnalysis: {
     title: "KI-Analyse der Ausschreibung",
@@ -4085,6 +4121,15 @@ const sk: Dict = {
     btnAiAnalysis: "AI analýza",
     btnAiDocPrep: "AI dokumentácia",
     aiSectionLabel: "AI nástroje",
+    translateBtn: "🌐 Preložiť",
+    translateOriginal: "Originál",
+    translateTranslated: "Preklad",
+    translateNote: "Strojový preklad (AI)",
+    translateFreeLeft: "Tento mesiac zostáva {count} prekladov zadarmo",
+    translatePriceHint: "Preklad za {price} z AI konta",
+    translateFailed: "Preklad sa nepodaril, skúste to znova.",
+    translateInsufficientTitle: "Nedostatočný kredit",
+    translateInsufficientBody: "Na preklad nie je dostatočný AI kredit. Dobite si ho na veritra.io v Nastaveniach.",
   },
   aiAnalysis: {
     title: "AI analýza zákazky",
@@ -4884,6 +4929,15 @@ const fr: Dict = {
     btnAiAnalysis: "Analyse IA",
     btnAiDocPrep: "Documents IA",
     aiSectionLabel: "Outils IA",
+    translateBtn: "🌐 Traduire",
+    translateOriginal: "Original",
+    translateTranslated: "Traduction",
+    translateNote: "Traduction automatique (IA)",
+    translateFreeLeft: "Il reste {count} traductions gratuites ce mois-ci",
+    translatePriceHint: "Traduction pour {price} depuis votre crédit IA",
+    translateFailed: "La traduction a échoué, veuillez réessayer.",
+    translateInsufficientTitle: "Crédit insuffisant",
+    translateInsufficientBody: "Crédit IA insuffisant pour la traduction. Rechargez-le sur veritra.io dans Paramètres.",
   },
   aiAnalysis: {
     title: "Analyse IA de l'appel d'offres",
@@ -5683,6 +5737,15 @@ const it: Dict = {
     btnAiAnalysis: "Analisi IA",
     btnAiDocPrep: "Documenti IA",
     aiSectionLabel: "Strumenti IA",
+    translateBtn: "🌐 Traduci",
+    translateOriginal: "Originale",
+    translateTranslated: "Traduzione",
+    translateNote: "Traduzione automatica (IA)",
+    translateFreeLeft: "Questo mese restano {count} traduzioni gratuite",
+    translatePriceHint: "Traduzione a {price} dal credito IA",
+    translateFailed: "Traduzione non riuscita, riprova.",
+    translateInsufficientTitle: "Credito insufficiente",
+    translateInsufficientBody: "Credito IA insufficiente per la traduzione. Ricaricalo su veritra.io nelle Impostazioni.",
   },
   aiAnalysis: {
     title: "Analisi IA della gara",

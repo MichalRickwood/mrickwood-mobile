@@ -190,7 +190,22 @@
     "scheduledFor": "Zaplanowane",
     "country": "Kraj",
     "allCountries": "Wszystkie kraje",
-    "draftReply": "Wersja robocza odpowiedzi"
+    "draftReply": "Wersja robocza odpowiedzi",
+    "perfBtn": "Wydajność",
+    "perfTitle": "Opublikowana wydajność",
+    "perfEmpty": "Nic jeszcze nie opublikowano.",
+    "showTranslations": "Tłumaczenia",
+    "editVisual": "Edytuj wizualizację",
+    "saveVisual": "Zapisz i wygeneruj ponownie",
+    "rerender": "Wygeneruj obraz ponownie",
+    "rerendering": "Generowanie obrazu…",
+    "headlineLabel": "Nagłówek",
+    "subheadlineLabel": "Podnagłówek",
+    "featuresLabel": "Funkcje (jedna w wierszu, maks. 4)",
+    "openLink": "Otwórz",
+    "registerLinkLabel": "Link rejestracyjny",
+    "platformsLabel": "Sieci",
+    "publishedAt": "Opublikowane"
   },
   "brand": {
     "tagline": "Przetargi europejskie w jednym miejscu"
@@ -403,7 +418,16 @@
     "reportInvalidFailed": "Zgłoszenie nie powiodło się. Spróbuj ponownie później.",
     "btnAiAnalysis": "Analiza AI",
     "btnAiDocPrep": "Dokumenty AI",
-    "aiSectionLabel": "Narzędzia AI"
+    "aiSectionLabel": "Narzędzia AI",
+    "translateBtn": "🌐 Przetłumacz",
+    "translateOriginal": "Oryginał",
+    "translateTranslated": "Tłumaczenie",
+    "translateNote": "Tłumaczenie maszynowe (AI)",
+    "translateFreeLeft": "{count} bezpłatnych tłumaczeń pozostało w tym miesiącu",
+    "translatePriceHint": "Przetłumacz za {price} z Twojego kredytu AI",
+    "translateFailed": "Tłumaczenie nie powiodło się, spróbuj ponownie.",
+    "translateInsufficientTitle": "Niewystarczający kredyt",
+    "translateInsufficientBody": "Niewystarczający kredyt AI do tłumaczenia. Doładuj konto na veritra.io w Ustawieniach."
   },
   "aiAnalysis": {
     "title": "Analiza przetargu przez AI",
