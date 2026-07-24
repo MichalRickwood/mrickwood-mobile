@@ -274,6 +274,12 @@ export interface Dict {
     streamFailedBody: string;
     aiUnavailableBody: string;
     retry: string;
+    pdfBtn: string;
+    pdfMenuTitle: string;
+    pdfEmailOption: string;
+    pdfDownloadOption: string;
+    pdfEmailSentTitle: string;
+    pdfEmailSentBody: string;
     topUpWeb: string;
   };
   errorScreen: {
@@ -1735,6 +1741,12 @@ const cs: Dict = {
     streamFailedBody: "Analýza se přerušila. Zkuste to prosím znovu.",
     aiUnavailableBody: "Služba AI je dočasně nedostupná. Zkuste to prosím později.",
     retry: "Zkusit znovu",
+    pdfBtn: "PDF",
+    pdfMenuTitle: "PDF analýzy",
+    pdfEmailOption: "Vygenerovat a poslat e-mailem",
+    pdfDownloadOption: "Vygenerovat a stáhnout",
+    pdfEmailSentTitle: "Odesláno",
+    pdfEmailSentBody: "PDF jsme poslali na {email}.",
     topUpWeb: "Dobít kredit na veritra.io",
   },
   errorScreen: {
@@ -2550,6 +2562,12 @@ const en: Dict = {
     streamFailedBody: "The analysis was interrupted. Please try again.",
     aiUnavailableBody: "The AI service is temporarily unavailable. Please try again later.",
     retry: "Try again",
+    pdfBtn: "PDF",
+    pdfMenuTitle: "Analysis PDF",
+    pdfEmailOption: "Generate and send by email",
+    pdfDownloadOption: "Generate and download",
+    pdfEmailSentTitle: "Sent",
+    pdfEmailSentBody: "We've sent the PDF to {email}.",
     topUpWeb: "Top up credit on veritra.io",
   },
   errorScreen: {
@@ -3367,6 +3385,12 @@ const de: Dict = {
     streamFailedBody: "Die Analyse wurde unterbrochen. Bitte versuchen Sie es erneut.",
     aiUnavailableBody: "Der KI-Dienst ist vorübergehend nicht verfügbar. Bitte versuchen Sie es später erneut.",
     retry: "Erneut versuchen",
+    pdfBtn: "PDF",
+    pdfMenuTitle: "Analyse-PDF",
+    pdfEmailOption: "Erstellen und per E-Mail senden",
+    pdfDownloadOption: "Erstellen und herunterladen",
+    pdfEmailSentTitle: "Gesendet",
+    pdfEmailSentBody: "Wir haben das PDF an {email} gesendet.",
     topUpWeb: "Guthaben auf veritra.io aufladen",
   },
   errorScreen: {
@@ -4182,6 +4206,12 @@ const sk: Dict = {
     streamFailedBody: "Analýza sa prerušila. Skúste to prosím znova.",
     aiUnavailableBody: "Služba AI je dočasne nedostupná. Skúste to prosím neskôr.",
     retry: "Skúsiť znova",
+    pdfBtn: "PDF",
+    pdfMenuTitle: "PDF analýzy",
+    pdfEmailOption: "Vygenerovať a poslať e-mailom",
+    pdfDownloadOption: "Vygenerovať a stiahnuť",
+    pdfEmailSentTitle: "Odoslané",
+    pdfEmailSentBody: "PDF sme poslali na {email}.",
     topUpWeb: "Dobiť kredit na veritra.io",
   },
   errorScreen: {
@@ -4997,6 +5027,12 @@ const fr: Dict = {
     streamFailedBody: "L'analyse a été interrompue. Veuillez réessayer.",
     aiUnavailableBody: "Le service d'IA est temporairement indisponible. Veuillez réessayer plus tard.",
     retry: "Réessayer",
+    pdfBtn: "PDF",
+    pdfMenuTitle: "PDF de l'analyse",
+    pdfEmailOption: "Générer et envoyer par e-mail",
+    pdfDownloadOption: "Générer et télécharger",
+    pdfEmailSentTitle: "Envoyé",
+    pdfEmailSentBody: "Nous avons envoyé le PDF à {email}.",
     topUpWeb: "Recharger sur veritra.io",
   },
   errorScreen: {
@@ -5812,6 +5848,12 @@ const it: Dict = {
     streamFailedBody: "L'analisi è stata interrotta. Riprova per favore.",
     aiUnavailableBody: "Il servizio IA è temporaneamente non disponibile. Riprova più tardi.",
     retry: "Riprova",
+    pdfBtn: "PDF",
+    pdfMenuTitle: "PDF dell'analisi",
+    pdfEmailOption: "Genera e invia via e-mail",
+    pdfDownloadOption: "Genera e scarica",
+    pdfEmailSentTitle: "Inviato",
+    pdfEmailSentBody: "Abbiamo inviato il PDF a {email}.",
     topUpWeb: "Ricarica su veritra.io",
   },
   errorScreen: {

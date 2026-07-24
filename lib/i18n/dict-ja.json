@@ -244,7 +244,13 @@
     "streamFailedBody": "分析が中断されました。もう一度お試しください。",
     "topUpWeb": "veritra.io でクレジットをチャージする",
     "aiUnavailableBody": "AIサービスは一時的に利用できません。しばらくしてからもう一度お試しください。",
-    "retry": "再試行"
+    "retry": "再試行",
+    "pdfBtn": "PDF",
+    "pdfMenuTitle": "分析PDF",
+    "pdfEmailOption": "生成してメールで送信",
+    "pdfDownloadOption": "生成してダウンロード",
+    "pdfEmailSentTitle": "送信しました",
+    "pdfEmailSentBody": "{email} にPDFを送信しました。"
   },
   "docPrep": {
     "title": "AI書類作成",

@@ -264,8 +264,7 @@ export default function TenderAnalysisScreen() {
     if (reporting) return;
     setReporting(true);
     try {
-      // PDF je od analýzy v2 ZDARMA — jen GET zabalí poslední analýzu do PDF
-      // (starý POST /analysis/report byl zrušen → 405).
+      // PDF je od analýzy v2 ZDARMA — GET jen zabalí poslední analýzu do PDF.
       await openAuthedFile(
         `/api/v2/leads/tenders/${tenderId}/analysis/report`,
         `zhodnoceni-zakazky-${tenderId}.pdf`,
@@ -278,12 +277,51 @@ export default function TenderAnalysisScreen() {
     }
   }
 
+  async function emailReport() {
+    if (reporting) return;
+    setReporting(true);
+    try {
+      const { data } = await endpoints.analysisReportEmail(tenderId, locale);
+      Alert.alert(
+        t("aiAnalysis", "pdfEmailSentTitle"),
+        t("aiAnalysis", "pdfEmailSentBody", { email: data.email }),
+      );
+    } catch (e) {
+      reportClientError("tender_analysis.report_email", e, { tenderId });
+      Alert.alert(t("aiAnalysis", "errorTitle"), e instanceof Error ? e.message : "");
+    } finally {
+      setReporting(false);
+    }
+  }
+
+  // PDF menu v hlavičce (vpravo nahoře vedle titulku) — nabídne email/stažení.
+  function openPdfMenu() {
+    Alert.alert(t("aiAnalysis", "pdfMenuTitle"), undefined, [
+      { text: t("aiAnalysis", "pdfEmailOption"), onPress: () => void emailReport() },
+      { text: t("aiAnalysis", "pdfDownloadOption"), onPress: () => void generateReport() },
+      { text: t("settings", "cancel"), style: "cancel" },
+    ]);
+  }
+
+  const hasReport = messages.some((m) => m.role === "assistant" && !m.streaming && m.content.length > 0);
+
   const screenOpts = {
     title: t("aiAnalysis", "title"),
     headerShown: true,
     headerBackTitle: t("matchDetail", "back"),
     headerStyle: { backgroundColor: colors.bg },
     headerTintColor: colors.text,
+    headerRight: hasReport
+      ? () => (
+          <Pressable onPress={openPdfMenu} disabled={reporting} hitSlop={8} style={styles.pdfHeaderBtn}>
+            {reporting ? (
+              <ActivityIndicator size="small" color={colors.accentForeground} />
+            ) : (
+              <Text style={styles.pdfHeaderBtnText}>{t("aiAnalysis", "pdfBtn")}</Text>
+            )}
+          </Pressable>
+        )
+      : undefined,
   } as const;
 
   if (loading) {
@@ -384,15 +422,6 @@ export default function TenderAnalysisScreen() {
             </Pressable>
           </View>
         )}
-        {messages.some((m) => m.role === "assistant" && !m.streaming) && (
-          <Pressable style={[styles.reportBtn, reporting && { opacity: 0.5 }]} disabled={reporting} onPress={generateReport}>
-            {reporting ? (
-              <ActivityIndicator size="small" color={colors.accentForeground} />
-            ) : (
-              <Text style={styles.reportBtnText}>{t("aiAnalysis", "reportBtn")}</Text>
-            )}
-          </Pressable>
-        )}
         <View style={styles.inputRow}>
           <TextInput
             style={styles.input}
@@ -445,8 +474,8 @@ const makeStyles = (c: Colors) =>
     errorCardText: { color: c.danger, fontSize: fontSize.sm, lineHeight: 20 },
     retryBtn: { alignSelf: "flex-start", backgroundColor: c.danger, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm, borderRadius: radius.md },
     retryBtnText: { color: "#fff", fontWeight: "600", fontSize: fontSize.sm },
-    reportBtn: { marginHorizontal: spacing.lg, marginBottom: spacing.sm, backgroundColor: c.accent, paddingVertical: spacing.md, borderRadius: radius.md, alignItems: "center" },
-    reportBtnText: { color: c.accentForeground, fontWeight: "600", fontSize: fontSize.sm },
+    pdfHeaderBtn: { backgroundColor: c.accent, paddingHorizontal: spacing.md, paddingVertical: spacing.xs, borderRadius: radius.full, minWidth: 52, alignItems: "center" },
+    pdfHeaderBtnText: { color: c.accentForeground, fontWeight: "700", fontSize: fontSize.xs },
     inputRow: { flexDirection: "row", alignItems: "flex-end", gap: spacing.sm, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm, borderTopWidth: 1, borderTopColor: c.border, backgroundColor: c.bg },
     input: { flex: 1, maxHeight: 120, backgroundColor: c.card, borderWidth: 1, borderColor: c.border, borderRadius: radius.md, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, fontSize: fontSize.sm, color: c.text },
     sendBtn: { backgroundColor: c.accent, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderRadius: radius.md, alignItems: "center", justifyContent: "center" },

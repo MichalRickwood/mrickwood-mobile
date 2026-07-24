@@ -452,7 +452,13 @@
     "streamFailedBody": "De analyse is onderbroken. Probeer het opnieuw.",
     "topUpWeb": "Tegoed opladen via veritra.io",
     "aiUnavailableBody": "De AI-service is tijdelijk niet beschikbaar. Probeer het later opnieuw.",
-    "retry": "Opnieuw proberen"
+    "retry": "Opnieuw proberen",
+    "pdfBtn": "PDF",
+    "pdfMenuTitle": "Analyse-PDF",
+    "pdfEmailOption": "Genereren en per e-mail versturen",
+    "pdfDownloadOption": "Genereren en downloaden",
+    "pdfEmailSentTitle": "Verzonden",
+    "pdfEmailSentBody": "We hebben de PDF naar {email} gestuurd."
   },
   "docPrep": {
     "title": "AI-documentvoorbereiding",

@@ -452,7 +452,13 @@
     "streamFailedBody": "Analiza została przerwana. Spróbuj ponownie.",
     "topUpWeb": "Doładuj kredyt na veritra.io",
     "aiUnavailableBody": "Usługa AI jest tymczasowo niedostępna. Spróbuj ponownie później.",
-    "retry": "Spróbuj ponownie"
+    "retry": "Spróbuj ponownie",
+    "pdfBtn": "PDF",
+    "pdfMenuTitle": "PDF analizy",
+    "pdfEmailOption": "Wygeneruj i wyślij e-mailem",
+    "pdfDownloadOption": "Wygeneruj i pobierz",
+    "pdfEmailSentTitle": "Wysłano",
+    "pdfEmailSentBody": "Wysłaliśmy PDF na {email}."
   },
   "docPrep": {
     "title": "Przygotowanie dokumentów przez AI",

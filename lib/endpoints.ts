@@ -838,6 +838,12 @@ export const endpoints = {
   },
 
   // ── AI analýza zakázky (chat → PDF) — SSE turn jde přes lib/sse.ts ──
+  /** Pošle PDF poslední analýzy na email uživatele (zdarma). */
+  analysisReportEmail: (tenderId: number, locale: string) =>
+    api.post<{ data: { sent: boolean; email: string } }>(
+      `/api/v2/leads/tenders/${tenderId}/analysis/report`,
+      { locale },
+    ),
   analysisGet: (tenderId: number, opts?: { fresh?: boolean }) =>
     api.get<{ data: AnalysisState }>(
       `/api/v2/leads/tenders/${tenderId}/analysis`,
