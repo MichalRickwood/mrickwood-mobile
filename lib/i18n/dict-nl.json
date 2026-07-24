@@ -1014,5 +1014,10 @@
     "sk": "Slovenčina",
     "fr": "Français",
     "it": "Italiano"
+  },
+  "errorScreen": {
+    "title": "Er is iets misgegaan",
+    "body": "Gegevens konden niet worden geladen. Controleer je verbinding en probeer het opnieuw.",
+    "retry": "Opnieuw proberen"
   }
 }

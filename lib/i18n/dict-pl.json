@@ -1014,5 +1014,10 @@
     "sk": "Slovenčina",
     "fr": "Français",
     "it": "Italiano"
+  },
+  "errorScreen": {
+    "title": "Coś poszło nie tak",
+    "body": "Nie udało się wczytać danych. Sprawdź połączenie i spróbuj ponownie.",
+    "retry": "Spróbuj ponownie"
   }
 }

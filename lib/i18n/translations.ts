@@ -276,6 +276,11 @@ export interface Dict {
     retry: string;
     topUpWeb: string;
   };
+  errorScreen: {
+    title: string;
+    body: string;
+    retry: string;
+  };
   docPrep: {
     title: string;
     errorTitle: string;
@@ -1732,6 +1737,11 @@ const cs: Dict = {
     retry: "Zkusit znovu",
     topUpWeb: "Dobít kredit na veritra.io",
   },
+  errorScreen: {
+    title: "Něco se pokazilo",
+    body: "Data se nepodařilo načíst. Zkontrolujte připojení a zkuste to znovu.",
+    retry: "Zkusit znovu",
+  },
   docPrep: {
     title: "AI příprava dokumentace",
     errorTitle: "Chyba",
@@ -2541,6 +2551,11 @@ const en: Dict = {
     aiUnavailableBody: "The AI service is temporarily unavailable. Please try again later.",
     retry: "Try again",
     topUpWeb: "Top up credit on veritra.io",
+  },
+  errorScreen: {
+    title: "Something went wrong",
+    body: "We couldn't load your data. Check your connection and try again.",
+    retry: "Try again",
   },
   docPrep: {
     title: "AI document preparation",
@@ -3354,6 +3369,11 @@ const de: Dict = {
     retry: "Erneut versuchen",
     topUpWeb: "Guthaben auf veritra.io aufladen",
   },
+  errorScreen: {
+    title: "Etwas ist schiefgelaufen",
+    body: "Daten konnten nicht geladen werden. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+    retry: "Erneut versuchen",
+  },
   docPrep: {
     title: "KI-Unterlagenerstellung",
     errorTitle: "Fehler",
@@ -4163,6 +4183,11 @@ const sk: Dict = {
     aiUnavailableBody: "Služba AI je dočasne nedostupná. Skúste to prosím neskôr.",
     retry: "Skúsiť znova",
     topUpWeb: "Dobiť kredit na veritra.io",
+  },
+  errorScreen: {
+    title: "Niečo sa pokazilo",
+    body: "Dáta sa nepodarilo načítať. Skontrolujte pripojenie a skúste to znova.",
+    retry: "Skúsiť znova",
   },
   docPrep: {
     title: "AI príprava dokumentácie",
@@ -4974,6 +4999,11 @@ const fr: Dict = {
     retry: "Réessayer",
     topUpWeb: "Recharger sur veritra.io",
   },
+  errorScreen: {
+    title: "Une erreur s'est produite",
+    body: "Impossible de charger les données. Vérifiez votre connexion et réessayez.",
+    retry: "Réessayer",
+  },
   docPrep: {
     title: "Préparation IA des documents",
     errorTitle: "Erreur",
@@ -5783,6 +5813,11 @@ const it: Dict = {
     aiUnavailableBody: "Il servizio IA è temporaneamente non disponibile. Riprova più tardi.",
     retry: "Riprova",
     topUpWeb: "Ricarica su veritra.io",
+  },
+  errorScreen: {
+    title: "Qualcosa è andato storto",
+    body: "Impossibile caricare i dati. Controlla la connessione e riprova.",
+    retry: "Riprova",
   },
   docPrep: {
     title: "Preparazione IA dei documenti",

@@ -1,14 +1,17 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Stack, usePathname, useRouter, useSegments } from "expo-router";
 import * as Notifications from "expo-notifications";
 import { StatusBar } from "expo-status-bar";
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider, useAuth } from "@/lib/auth-context";
-import { I18nProvider } from "@/lib/i18n";
+import { ApiError } from "@/lib/api";
+import { I18nProvider, useI18n } from "@/lib/i18n";
 import { ThemeProvider, useTheme } from "@/lib/theme-context";
 import { endpoints } from "@/lib/endpoints";
-import { trackScreen } from "@/lib/tracker";
+import { trackScreen, reportClientError } from "@/lib/tracker";
+import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -35,9 +38,13 @@ function RouterGuard() {
   // se segments ještě v (auth) spustil (auth)→(tabs) a přepsal onboarding redirect
   // na tabs ("Zatím žádné země"). S cílem routujeme konzistentně.
   const [destination, setDestination] = useState<"onboarding" | "tabs" | null>(null);
+  // Subscription check SELHAL (server/DB down) → error screen s retry.
+  // Dřív se chyba tiše brala jako „žádné subscription" → existující uživatel
+  // skončil v onboardingu („Dokončete profil"), což mate.
+  const [guardError, setGuardError] = useState(false);
 
   useEffect(() => {
-    if (status === "loading") return;
+    if (status === "loading" || guardError) return;
     const inAuth = segments[0] === "(auth)";
     const inOnboarding = segments[0] === "(onboarding)";
     // atEntry = na "/" (app/index.tsx, vstupní gate) — odsud (stejně jako z auth)
@@ -79,13 +86,11 @@ function RouterGuard() {
         // fetchQuery (ne raw call) → naplní react-query cache pod
         // ["account-subscriptions"], kterou tabs/index přečte SYNCHRONNĚ a ukáže
         // paywall hned (bez round-tripu navíc / problikávání matches loadingu).
-        const subs = await qc
-          .fetchQuery({
-            queryKey: ["account-subscriptions"],
-            queryFn: () => endpoints.listSubscriptions(),
-            staleTime: 30 * 1000,
-          })
-          .catch(() => []);
+        const subs = await qc.fetchQuery({
+          queryKey: ["account-subscriptions"],
+          queryFn: () => endpoints.listSubscriptions(),
+          staleTime: 30 * 1000,
+        });
         if (cancelled) return;
         // hasAnyLeads = měl někdy LEADS (i SUSPENDED/CANCELED po vypršení trialu).
         // Onboarding je JEN pro úplně nové (žádný LEADS řádek). Post-trial uživatel
@@ -95,15 +100,23 @@ function RouterGuard() {
         // Jen nastavíme cíl — navigaci provede re-run efektu výše dle `destination`.
         // Tím se onboarding redirect nikdy nepřepíše tabs větví (původní bug).
         setDestination(hasAnyLeads ? "tabs" : "onboarding");
-      } catch {
-        // Nečekaný throw v guardu — bezpečný fallback je onboarding, ne tabs.
-        if (!cancelled) setDestination("onboarding");
+      } catch (e) {
+        if (cancelled) return;
+        // 401 → api klient už session vyčistil, auth flow přesměruje na login.
+        if (e instanceof ApiError && e.status === 401) return;
+        // Server/DB down ap. → NEhádat onboarding; error screen s retry + report.
+        reportClientError("router_guard.subscriptions", e);
+        setGuardError(true);
       }
     })();
     return () => {
       cancelled = true;
     };
-  }, [status, segments, router, destination, qc]);
+  }, [status, segments, router, destination, qc, guardError]);
+
+  if (guardError) {
+    return <GuardErrorScreen onRetry={() => setGuardError(false)} />;
+  }
 
   // „/" = app/index.tsx (neutrální gate), NE tenders → nepřihlášený nikdy nevidí
   // probliknutí zakázek. RouterGuard odsud přesměruje (efekt výše). Žádný overlay
@@ -120,6 +133,33 @@ function RouterGuard() {
     </Stack>
   );
 }
+
+/** Celoplošná chyba načtení (server/DB down) — místo hádání onboardingu. */
+function GuardErrorScreen({ onRetry }: { onRetry: () => void }) {
+  const { colors } = useTheme();
+  const { t } = useI18n();
+  const styles = useMemo(() => makeGuardStyles(colors), [colors]);
+  return (
+    <View style={styles.wrap}>
+      <Text style={styles.emoji}>⚠️</Text>
+      <Text style={styles.title}>{t("errorScreen", "title")}</Text>
+      <Text style={styles.body}>{t("errorScreen", "body")}</Text>
+      <Pressable style={({ pressed }) => [styles.btn, pressed && { opacity: 0.7 }]} onPress={onRetry}>
+        <Text style={styles.btnText}>{t("errorScreen", "retry")}</Text>
+      </Pressable>
+    </View>
+  );
+}
+
+const makeGuardStyles = (c: Colors) =>
+  StyleSheet.create({
+    wrap: { flex: 1, backgroundColor: c.bg, alignItems: "center", justifyContent: "center", padding: spacing.xl },
+    emoji: { fontSize: 40, marginBottom: spacing.md },
+    title: { fontSize: fontSize.lg, fontWeight: "700", color: c.text, marginBottom: spacing.sm, textAlign: "center" },
+    body: { fontSize: fontSize.sm, color: c.textSubtle, textAlign: "center", lineHeight: 20, marginBottom: spacing.xl },
+    btn: { backgroundColor: c.accent, paddingHorizontal: spacing.xl, paddingVertical: spacing.md, borderRadius: radius.md },
+    btnText: { color: c.accentForeground, fontWeight: "600", fontSize: fontSize.sm },
+  });
 
 /**
  * Screen views → /api/v2/track (UserActivity timeline v admin detailu

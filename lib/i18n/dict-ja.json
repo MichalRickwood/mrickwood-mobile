@@ -1014,5 +1014,10 @@
     "registerLinkLabel": "登録リンク",
     "platformsLabel": "ネットワーク",
     "publishedAt": "公開済み"
+  },
+  "errorScreen": {
+    "title": "問題が発生しました",
+    "body": "データを読み込めませんでした。接続を確認してもう一度お試しください。",
+    "retry": "再試行"
   }
 }

@@ -27,6 +27,7 @@ import {
   type AdHocFilter,
 } from "@/lib/ad-hoc-filter";
 import { useToggleTenderPreference } from "@/lib/use-tender-preference";
+import { reportClientError } from "@/lib/tracker";
 import { useTheme } from "@/lib/theme-context";
 import { useI18n } from "@/lib/i18n";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
@@ -277,6 +278,14 @@ export default function MatchesScreen() {
 
   const empty = !matchesQuery.isLoading && displayMatches.length === 0;
   const errored = matchesQuery.isError;
+  // Chybu listu zaloguj do timeline (admin vidí, že user narazil) — 402 ne,
+  // to je legitimní paywall stav.
+  useEffect(() => {
+    if (!matchesQuery.isError) return;
+    const err = matchesQuery.error;
+    if (err instanceof ApiError && err.status === 402) return;
+    reportClientError("matches.list", err);
+  }, [matchesQuery.isError, matchesQuery.error]);
   // 402 = LEADS service není aktivní → paywall UI místo listu
   const paymentRequired =
     matchesQuery.error instanceof ApiError && matchesQuery.error.status === 402;

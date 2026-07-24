@@ -20,6 +20,7 @@ import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 import { useI18n } from "@/lib/i18n";
 import { endpoints, type AnalysisMessage, type AnalysisStreamEvent, type Currency } from "@/lib/endpoints";
 import { ssePost } from "@/lib/sse";
+import { reportClientError } from "@/lib/tracker";
 import { openAuthedFile } from "@/lib/file-open";
 import { AUTH_BASE_URL } from "@/lib/config";
 
@@ -212,11 +213,16 @@ export default function TenderAnalysisScreen() {
           }
         },
       );
-      // Stream skončil bez "done" (typicky timeout serverové funkce).
-      if (!sawDone) setTurnError(t("aiAnalysis", "streamFailedBody"));
+      // Stream skončil bez "done" (typicky timeout serverové funkce). Server o
+      // tom neví (žádný error event) → zaloguj z klienta.
+      if (!sawDone) {
+        reportClientError("tender_analysis.stream_cut", null, { tenderId });
+        setTurnError(t("aiAnalysis", "streamFailedBody"));
+      }
     } catch (e) {
       stopFlusher();
       setMessages((m) => m.filter((x) => x.id !== asstId));
+      reportClientError("tender_analysis.request", e, { tenderId });
       setTurnError(e instanceof Error && e.message ? e.message : t("aiAnalysis", "streamFailedBody"));
     } finally {
       stopFlusher();

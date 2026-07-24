@@ -77,6 +77,32 @@ export function track(event: TrackEvent): void {
   else schedule();
 }
 
+// Client error report → UserActivity (admin timeline). Throttle per context,
+// ať výpadek serveru nevyrobí lavinu eventů (které stejně nejde zapsat).
+const errorLastSent = new Map<string, number>();
+const ERROR_THROTTLE_MS = 60_000;
+
+/**
+ * Zaloguje klientskou chybu (selhání API/screen) do timeline uživatele.
+ * Fire-and-forget + okamžitý flush — při výpadku chceme event odeslat dřív,
+ * než user appku zavře; když server leží, ztráta je přijatelná.
+ */
+export function reportClientError(context: string, err: unknown, extra?: Record<string, unknown>): void {
+  const now = Date.now();
+  const last = errorLastSent.get(context) ?? 0;
+  if (now - last < ERROR_THROTTLE_MS) return;
+  errorLastSent.set(context, now);
+  const message =
+    err instanceof Error ? `${err.name}: ${err.message}` : String(err ?? "unknown");
+  track({
+    category: "feedback",
+    type: "client.error",
+    target: context,
+    meta: { context, message: message.slice(0, 300), ...extra },
+  });
+  void flush();
+}
+
 let lastScreen: string | null = null;
 
 /** Screen view s dedupe po sobě jdoucích stejných cest; ID segment → target. */

@@ -1014,5 +1014,10 @@
     "sk": "Slovenčina",
     "fr": "Français",
     "it": "Italiano"
+  },
+  "errorScreen": {
+    "title": "Algo salió mal",
+    "body": "No se pudieron cargar los datos. Comprueba tu conexión e inténtalo de nuevo.",
+    "retry": "Reintentar"
   }
 }
