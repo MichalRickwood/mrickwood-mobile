@@ -76,7 +76,11 @@ export default function TenderDocPrepScreen() {
         `/api/v2/leads/tenders/${tenderId}/doc-prep`,
         { new: false },
         (evt) => {
-          if (evt.type === "status") setPhase(evt.detail || evt.name || evt.phase);
+          if (evt.type === "status") {
+            if (evt.phase === "queue") setPhase(t("docPrep", "stQueue", { position: evt.detail ?? "?" }));
+            else if (evt.phase === "worker-down") setPhase(t("docPrep", "stWorkerDown"));
+            else setPhase(evt.detail || evt.name || evt.phase);
+          }
           else if (evt.type === "done") setState((s) => (s ? { ...s, docPrep: evt.docPrep } : s));
           else if (evt.type === "error") Alert.alert(t("docPrep", "errorTitle"), evt.message);
         },

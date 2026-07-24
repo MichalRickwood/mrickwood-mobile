@@ -458,7 +458,9 @@
     "pdfEmailOption": "Generar y enviar por correo",
     "pdfDownloadOption": "Generar y descargar",
     "pdfEmailSentTitle": "Enviado",
-    "pdfEmailSentBody": "Hemos enviado el PDF a {email}."
+    "pdfEmailSentBody": "Hemos enviado el PDF a {email}.",
+    "progressQueue": "En cola de descarga (posición {position})…",
+    "progressWorkerDown": "La descarga de documentos no está disponible temporalmente. Inténtalo más tarde."
   },
   "docPrep": {
     "title": "Preparación de documentos con IA",
@@ -497,7 +499,9 @@
     "uploadOnWeb": "Usted proporciona este documento en veritra.io.",
     "insufficientTitle": "Crédito insuficiente",
     "insufficientBody": "Recargue su crédito de IA en veritra.io e inténtelo de nuevo.",
-    "topUpWeb": "Recargar crédito en veritra.io"
+    "topUpWeb": "Recargar crédito en veritra.io",
+    "stQueue": "En cola de descarga (posición {position})…",
+    "stWorkerDown": "La descarga de documentos no está disponible temporalmente. Inténtalo más tarde."
   },
   "companyProfile": {
     "menuLabel": "Perfil de empresa (IA)",

@@ -114,7 +114,7 @@ export default function TenderAnalysisScreen() {
   const jumpToEnd = () => { stickToBottomRef.current = true; setAtBottom(true); scrollEnd(); };
 
   // Lidský popisek fáze přípravy z SSE "status" eventu (zrcadlí web statusLabel).
-  function statusLabel(evt: { phase?: string; name?: string }): string {
+  function statusLabel(evt: { phase?: string; name?: string; detail?: string }): string {
     switch (evt.phase) {
       case "fetch":
         return evt.name
@@ -126,6 +126,10 @@ export default function TenderAnalysisScreen() {
           : t("aiAnalysis", "progressDownloading");
       case "zip":
         return t("aiAnalysis", "progressUnzip");
+      case "queue":
+        return t("aiAnalysis", "progressQueue", { position: evt.detail ?? "?" });
+      case "worker-down":
+        return t("aiAnalysis", "progressWorkerDown");
       case "docs":
       case "cache-wait":
       case "cache-miss":

@@ -458,7 +458,9 @@
     "pdfEmailOption": "Wygeneruj i wyślij e-mailem",
     "pdfDownloadOption": "Wygeneruj i pobierz",
     "pdfEmailSentTitle": "Wysłano",
-    "pdfEmailSentBody": "Wysłaliśmy PDF na {email}."
+    "pdfEmailSentBody": "Wysłaliśmy PDF na {email}.",
+    "progressQueue": "W kolejce do pobrania (pozycja {position})…",
+    "progressWorkerDown": "Pobieranie dokumentów jest tymczasowo niedostępne. Spróbuj ponownie później."
   },
   "docPrep": {
     "title": "Przygotowanie dokumentów przez AI",
@@ -497,7 +499,9 @@
     "uploadOnWeb": "Ten dokument dostarczasz na veritra.io.",
     "insufficientTitle": "Niewystarczające środki AI",
     "insufficientBody": "Doładuj środki AI na veritra.io i spróbuj ponownie.",
-    "topUpWeb": "Doładuj środki na veritra.io"
+    "topUpWeb": "Doładuj środki na veritra.io",
+    "stQueue": "W kolejce do pobrania (pozycja {position})…",
+    "stWorkerDown": "Pobieranie dokumentów jest tymczasowo niedostępne. Spróbuj ponownie później."
   },
   "companyProfile": {
     "menuLabel": "Profil firmy (AI)",

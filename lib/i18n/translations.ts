@@ -265,6 +265,8 @@ export interface Dict {
     progressFetch: string;
     progressRead: string;
     progressUnzip: string;
+    progressQueue: string;
+    progressWorkerDown: string;
     jumpToLatest: string;
     inputPlaceholder: string;
     send: string;
@@ -290,6 +292,8 @@ export interface Dict {
   docPrep: {
     title: string;
     errorTitle: string;
+    stQueue: string;
+    stWorkerDown: string;
     identityRequiredTitle: string;
     identityRequiredBody: string;
     identityRequiredCta: string;
@@ -1732,6 +1736,8 @@ const cs: Dict = {
     progressFetch: "Stahuji {name}…",
     progressRead: "Čtu {name}…",
     progressUnzip: "Rozbaluji přílohy…",
+    progressQueue: "Ve frontě na stahování ({position}. v pořadí)…",
+    progressWorkerDown: "Stahování dokumentů je dočasně nedostupné. Zkuste to prosím později.",
     jumpToLatest: "Skočit na konec",
     inputPlaceholder: "Napište zprávu…",
     send: "Odeslat",
@@ -1756,6 +1762,8 @@ const cs: Dict = {
   },
   docPrep: {
     title: "AI příprava dokumentace",
+    stQueue: "Ve frontě na stahování ({position}. v pořadí)…",
+    stWorkerDown: "Stahování dokumentů je dočasně nedostupné. Zkuste to prosím později.",
     errorTitle: "Chyba",
     identityRequiredTitle: "Nejdřív identita firmy",
     identityRequiredBody: "Pro přípravu dokumentace je potřeba vyplnit identitu firmy (IČO, ARES, banka, kontakt, podpisující). Nastavíte ji v Nastavení.",
@@ -2553,6 +2561,8 @@ const en: Dict = {
     progressFetch: "Downloading {name}…",
     progressRead: "Reading {name}…",
     progressUnzip: "Unpacking attachments…",
+    progressQueue: "Queued for download (position {position})…",
+    progressWorkerDown: "Document download is temporarily unavailable. Please try again later.",
     jumpToLatest: "Jump to latest",
     inputPlaceholder: "Type a message…",
     send: "Send",
@@ -2577,6 +2587,8 @@ const en: Dict = {
   },
   docPrep: {
     title: "AI document preparation",
+    stQueue: "Queued for download (position {position})…",
+    stWorkerDown: "Document download is temporarily unavailable. Please try again later.",
     errorTitle: "Error",
     identityRequiredTitle: "Company identity needed",
     identityRequiredBody: "Document preparation requires your company identity (ID, ARES, bank, contact, signatory). Set it up in Settings.",
@@ -3376,6 +3388,8 @@ const de: Dict = {
     progressFetch: "Lade {name} herunter…",
     progressRead: "Lese {name}…",
     progressUnzip: "Entpacke Anhänge…",
+    progressQueue: "In der Download-Warteschlange (Position {position})…",
+    progressWorkerDown: "Der Dokumenten-Download ist vorübergehend nicht verfügbar. Bitte versuchen Sie es später erneut.",
     jumpToLatest: "Zum Ende springen",
     inputPlaceholder: "Nachricht schreiben…",
     send: "Senden",
@@ -3400,6 +3414,8 @@ const de: Dict = {
   },
   docPrep: {
     title: "KI-Unterlagenerstellung",
+    stQueue: "In der Download-Warteschlange (Position {position})…",
+    stWorkerDown: "Der Dokumenten-Download ist vorübergehend nicht verfügbar. Bitte versuchen Sie es später erneut.",
     errorTitle: "Fehler",
     identityRequiredTitle: "Firmenidentität nötig",
     identityRequiredBody: "Die Unterlagenerstellung erfordert Ihre Firmenidentität (IČO, ARES, Bank, Kontakt, Unterzeichner). Richten Sie sie in den Einstellungen ein.",
@@ -4197,6 +4213,8 @@ const sk: Dict = {
     progressFetch: "Sťahujem {name}…",
     progressRead: "Čítam {name}…",
     progressUnzip: "Rozbaľujem prílohy…",
+    progressQueue: "V rade na sťahovanie ({position}. v poradí)…",
+    progressWorkerDown: "Sťahovanie dokumentov je dočasne nedostupné. Skúste to prosím neskôr.",
     jumpToLatest: "Skočiť na koniec",
     inputPlaceholder: "Napíšte správu…",
     send: "Odoslať",
@@ -4221,6 +4239,8 @@ const sk: Dict = {
   },
   docPrep: {
     title: "AI príprava dokumentácie",
+    stQueue: "V rade na sťahovanie ({position}. v poradí)…",
+    stWorkerDown: "Sťahovanie dokumentov je dočasne nedostupné. Skúste to prosím neskôr.",
     errorTitle: "Chyba",
     identityRequiredTitle: "Najprv identita firmy",
     identityRequiredBody: "Na prípravu dokumentácie je potrebné vyplniť identitu firmy (IČO, ARES, banka, kontakt, podpisujúci). Nastavíte ju v Nastaveniach.",
@@ -5018,6 +5038,8 @@ const fr: Dict = {
     progressFetch: "Téléchargement de {name}…",
     progressRead: "Lecture de {name}…",
     progressUnzip: "Décompression des pièces jointes…",
+    progressQueue: "En file d'attente de téléchargement (position {position})…",
+    progressWorkerDown: "Le téléchargement des documents est temporairement indisponible. Veuillez réessayer plus tard.",
     jumpToLatest: "Aller à la fin",
     inputPlaceholder: "Écrire un message…",
     send: "Envoyer",
@@ -5042,6 +5064,8 @@ const fr: Dict = {
   },
   docPrep: {
     title: "Préparation IA des documents",
+    stQueue: "En file d'attente de téléchargement (position {position})…",
+    stWorkerDown: "Le téléchargement des documents est temporairement indisponible. Veuillez réessayer plus tard.",
     errorTitle: "Erreur",
     identityRequiredTitle: "Identité de l'entreprise requise",
     identityRequiredBody: "La préparation des documents nécessite l'identité de votre entreprise (IČO, ARES, banque, contact, signataire). Configurez-la dans les Réglages.",
@@ -5839,6 +5863,8 @@ const it: Dict = {
     progressFetch: "Scarico {name}…",
     progressRead: "Leggo {name}…",
     progressUnzip: "Estraggo gli allegati…",
+    progressQueue: "In coda per il download (posizione {position})…",
+    progressWorkerDown: "Il download dei documenti è temporaneamente non disponibile. Riprova più tardi.",
     jumpToLatest: "Vai alla fine",
     inputPlaceholder: "Scrivi un messaggio…",
     send: "Invia",
@@ -5863,6 +5889,8 @@ const it: Dict = {
   },
   docPrep: {
     title: "Preparazione IA dei documenti",
+    stQueue: "In coda per il download (posizione {position})…",
+    stWorkerDown: "Il download dei documenti è temporaneamente non disponibile. Riprova più tardi.",
     errorTitle: "Errore",
     identityRequiredTitle: "Serve l'identità aziendale",
     identityRequiredBody: "La preparazione dei documenti richiede l'identità aziendale (IČO, ARES, banca, contatto, firmatario). Impostala nelle Impostazioni.",

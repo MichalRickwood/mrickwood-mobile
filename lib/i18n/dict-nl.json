@@ -458,7 +458,9 @@
     "pdfEmailOption": "Genereren en per e-mail versturen",
     "pdfDownloadOption": "Genereren en downloaden",
     "pdfEmailSentTitle": "Verzonden",
-    "pdfEmailSentBody": "We hebben de PDF naar {email} gestuurd."
+    "pdfEmailSentBody": "We hebben de PDF naar {email} gestuurd.",
+    "progressQueue": "In de downloadwachtrij (positie {position})…",
+    "progressWorkerDown": "Het downloaden van documenten is tijdelijk niet beschikbaar. Probeer het later opnieuw."
   },
   "docPrep": {
     "title": "AI-documentvoorbereiding",
@@ -497,7 +499,9 @@
     "uploadOnWeb": "U levert dit document aan op veritra.io.",
     "insufficientTitle": "Onvoldoende tegoed",
     "insufficientBody": "Laad uw AI-tegoed op via veritra.io en probeer opnieuw.",
-    "topUpWeb": "Tegoed opladen via veritra.io"
+    "topUpWeb": "Tegoed opladen via veritra.io",
+    "stQueue": "In de downloadwachtrij (positie {position})…",
+    "stWorkerDown": "Het downloaden van documenten is tijdelijk niet beschikbaar. Probeer het later opnieuw."
   },
   "companyProfile": {
     "menuLabel": "Bedrijfsprofiel (AI)",

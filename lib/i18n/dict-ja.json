@@ -250,7 +250,9 @@
     "pdfEmailOption": "生成してメールで送信",
     "pdfDownloadOption": "生成してダウンロード",
     "pdfEmailSentTitle": "送信しました",
-    "pdfEmailSentBody": "{email} にPDFを送信しました。"
+    "pdfEmailSentBody": "{email} にPDFを送信しました。",
+    "progressQueue": "ダウンロード待機中（{position}番目）…",
+    "progressWorkerDown": "書類のダウンロードは一時的に利用できません。しばらくしてからもう一度お試しください。"
   },
   "docPrep": {
     "title": "AI書類作成",
@@ -289,7 +291,9 @@
     "uploadOnWeb": "この書類は veritra.io にてご提供いただいております。",
     "insufficientTitle": "クレジット不足",
     "insufficientBody": "veritra.io で AI クレジットをチャージして、もう一度お試しください。",
-    "topUpWeb": "veritra.io でクレジットをチャージ"
+    "topUpWeb": "veritra.io でクレジットをチャージ",
+    "stQueue": "ダウンロード待機中（{position}番目）…",
+    "stWorkerDown": "書類のダウンロードは一時的に利用できません。しばらくしてからもう一度お試しください。"
   },
   "companyProfile": {
     "menuLabel": "企業プロフィール（AI）",
