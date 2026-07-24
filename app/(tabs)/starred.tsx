@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useFocusEffect } from "expo-router";
-import { ActivityIndicator, Pressable, RefreshControl, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, RefreshControl, StyleSheet, Text, View, type FlatList } from "react-native";
+import { useScrollToTop } from "@react-navigation/native";
 import { AppFlatList } from "@/components/AppScroll";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -50,6 +51,10 @@ export default function StarredScreen() {
   );
 
   const matches = useMemo(() => q.data?.pages.flatMap((p) => p.matches) ?? [], [q.data]);
+  // Tap na už aktivní tab → plynulý scroll nahoru (viz matches.tsx — JS Tabs
+  // přes useScrollToTop, NativeTabs nativně; list musí být první JSX dítě).
+  const listRef = useRef<FlatList<(typeof matches)[number]>>(null);
+  useScrollToTop(listRef);
   const totalCount = q.data?.pages[0]?.totalCount ?? matches.length;
   const empty = !q.isLoading && matches.length === 0;
   const paymentRequired = q.error instanceof ApiError && q.error.status === 402;
@@ -68,40 +73,9 @@ export default function StarredScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safe} edges={["top"]}>
-      <View style={styles.header}>
-        <Text style={styles.title}>
-          {view === "starred" ? t("matches", "starredTab") : t("matches", "excludedTab")}
-        </Text>
-        <View style={styles.segWrap}>
-          <Pressable
-            onPress={() => setView("starred")}
-            style={({ pressed }) => [
-              styles.segBtn,
-              view === "starred" && styles.segBtnActive,
-              pressed && { opacity: 0.7 },
-            ]}
-          >
-            <Text style={[styles.segText, view === "starred" && styles.segTextActive]}>
-              {t("matches", "viewSwitchStarred")}
-            </Text>
-          </Pressable>
-          <Pressable
-            onPress={() => setView("excluded")}
-            style={({ pressed }) => [
-              styles.segBtn,
-              view === "excluded" && styles.segBtnActive,
-              pressed && { opacity: 0.7 },
-            ]}
-          >
-            <Text style={[styles.segText, view === "excluded" && styles.segTextActive]}>
-              {t("matches", "viewSwitchExcluded")}
-            </Text>
-          </Pressable>
-        </View>
-      </View>
-
+    <SafeAreaView style={[styles.safe, styles.reverse]} edges={["top"]}>
       <AppFlatList
+        ref={listRef}
         data={matches}
         keyExtractor={(item) => item.matchId}
         renderItem={({ item }) => (
@@ -161,6 +135,37 @@ export default function StarredScreen() {
           ) : null
         }
       />
+      <View style={styles.header}>
+        <Text style={styles.title}>
+          {view === "starred" ? t("matches", "starredTab") : t("matches", "excludedTab")}
+        </Text>
+        <View style={styles.segWrap}>
+          <Pressable
+            onPress={() => setView("starred")}
+            style={({ pressed }) => [
+              styles.segBtn,
+              view === "starred" && styles.segBtnActive,
+              pressed && { opacity: 0.7 },
+            ]}
+          >
+            <Text style={[styles.segText, view === "starred" && styles.segTextActive]}>
+              {t("matches", "viewSwitchStarred")}
+            </Text>
+          </Pressable>
+          <Pressable
+            onPress={() => setView("excluded")}
+            style={({ pressed }) => [
+              styles.segBtn,
+              view === "excluded" && styles.segBtnActive,
+              pressed && { opacity: 0.7 },
+            ]}
+          >
+            <Text style={[styles.segText, view === "excluded" && styles.segTextActive]}>
+              {t("matches", "viewSwitchExcluded")}
+            </Text>
+          </Pressable>
+        </View>
+      </View>
     </SafeAreaView>
   );
 }
@@ -168,6 +173,8 @@ export default function StarredScreen() {
 const makeStyles = (colors: Colors) =>
   StyleSheet.create({
     safe: { flex: 1, backgroundColor: colors.bg },
+    // Hlavička je v JSX POSLEDNÍ (list první kvůli iOS scroll-to-top), vizuálně nahoře.
+    reverse: { flexDirection: "column-reverse" },
     header: { paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.md },
     title: { fontSize: fontSize.xxl, fontWeight: "700", color: colors.text, letterSpacing: -0.5 },
     subtitle: { fontSize: fontSize.sm, color: colors.textSubtle, marginTop: spacing.xs },

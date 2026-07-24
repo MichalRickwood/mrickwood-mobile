@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ActivityIndicator, Pressable, RefreshControl, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Pressable, RefreshControl, StyleSheet, Text, TextInput, View, type FlatList } from "react-native";
+import { useScrollToTop } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AppFlatList } from "@/components/AppScroll";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -109,6 +110,12 @@ export default function MatchesScreen() {
   const params = useLocalSearchParams<{ filterId?: string; since?: string }>();
   const [newBatch, setNewBatch] = useState<{ filterId: string | null; since: string } | null>(null);
   const appliedSinceRef = useRef<string | null>(null);
+  // Tap na už aktivní tab → plynulý scroll nahoru. JS Tabs (Android/iPad/iOS<18)
+  // řeší useScrollToTop (tabPress event); NativeTabs (iOS 18+) to dělá nativně,
+  // ale scroll view hledá řetězcem „první potomek" — proto je FlatList v JSX
+  // PRVNÍ dítě SafeAreaView a hlavička je vizuálně nahoře přes column-reverse.
+  const listRef = useRef<FlatList<LeadMatchRow>>(null);
+  useScrollToTop(listRef);
 
   // Debounce search input → odložený query refetch. FULLTEXT (standard parser)
   // má min. token 3 znaky, takže hledáme až od 3 znaků (kratší = pomalý LIKE
@@ -298,12 +305,147 @@ export default function MatchesScreen() {
     return (
       <SafeAreaView style={styles.safe} edges={["top"]}>
         <LeadsPaywall />
-      </SafeAreaView>
+    </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.safe} edges={["top"]}>
+    <SafeAreaView style={[styles.safe, styles.reverse]} edges={["top"]}>
+      <AppFlatList
+        ref={listRef}
+        data={displayMatches}
+        keyExtractor={(item) => item.matchId}
+        ListHeaderComponent={
+          showNewBatch ? (
+            <Pressable
+              onPress={() => setNewBatch(null)}
+              style={({ pressed }) => [styles.newBatchBanner, pressed && { opacity: 0.7 }]}
+            >
+              <Text style={styles.newBatchText}>
+                {t("matches", "newBatchBanner", { count: String(displayMatches.length) })}
+              </Text>
+              <Text style={styles.newBatchAction}>{t("matches", "newBatchShowAll")}</Text>
+            </Pressable>
+          ) : null
+        }
+        renderItem={({ item }) => (
+          <MatchCard
+            match={item}
+            onPress={() =>
+              router.push({ pathname: "/match/[id]", params: { id: item.matchId } })
+            }
+            onToggleStar={(tenderId, next) =>
+              setPreference.mutate({ tenderId, status: next ? "STARRED" : "NONE" })
+            }
+            onExclude={(tenderId) =>
+              setPreference.mutate({ tenderId, status: "EXCLUDED" })
+            }
+          />
+        )}
+        contentContainerStyle={styles.list}
+        ItemSeparatorComponent={() => <View style={{ height: spacing.md }} />}
+        refreshControl={
+          <RefreshControl
+            refreshing={matchesQuery.isRefetching && !matchesQuery.isFetchingNextPage}
+            onRefresh={onRefresh}
+            tintColor={colors.textSubtle}
+          />
+        }
+        onEndReached={() => {
+          if (matchesQuery.hasNextPage && !matchesQuery.isFetchingNextPage) {
+            void matchesQuery.fetchNextPage();
+          }
+        }}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={
+          matchesQuery.isFetchingNextPage ? (
+            <View style={styles.footerLoader}>
+              <ActivityIndicator color={colors.textSubtle} />
+            </View>
+          ) : null
+        }
+        ListEmptyComponent={
+          errored ? (
+            <EmptyState
+              styles={styles}
+              title={t("matches", "errorTitle")}
+              body={(matchesQuery.error as Error)?.message ?? t("matches", "errorBody")}
+            />
+          ) : matchesQuery.isFetching && !matchesQuery.isFetchingNextPage ? (
+            <View style={styles.loadingState}>
+              <Text style={styles.loadingEmoji}>🔍</Text>
+              <Text style={styles.loadingTitle}>{t("matches", "loadingTitle")}</Text>
+              <Text style={styles.loadingBody}>{t("matches", "loadingBody")}</Text>
+              <ActivityIndicator color={colors.textSubtle} style={{ marginTop: spacing.md }} />
+            </View>
+          ) : empty ? (
+            <EmptyState
+              styles={styles}
+              title={t("matches", "emptyTitle")}
+              body={t("matches", "emptyBody")}
+            />
+          ) : null
+        }
+      />
+      <RegionPickerModal
+        visible={regionPickerOpen}
+        initial={adHoc.regions}
+        onClose={() => setRegionPickerOpen(false)}
+        onApply={(regions) => setAdHoc((prev) => ({ ...prev, regions }))}
+      />
+      <ValueRangePickerModal
+        visible={valuePickerOpen}
+        initialMin={adHoc.minValue}
+        initialIncludeUnknown={adHoc.includeUnknownValue}
+        initialMax={adHoc.maxValue}
+        onClose={() => setValuePickerOpen(false)}
+        onApply={(min, max, includeUnknown) => setAdHoc((prev) => ({ ...prev, minValue: min, maxValue: max, includeUnknownValue: includeUnknown }))}
+      />
+      <DeadlinePickerModal
+        visible={deadlinePickerOpen}
+        initialFrom={adHoc.deadlineFrom}
+        initialTo={adHoc.deadlineTo}
+        onClose={() => setDeadlinePickerOpen(false)}
+        onApply={(from, to) =>
+          setAdHoc((prev) => ({ ...prev, deadlineFrom: from, deadlineTo: to }))
+        }
+      />
+      <CategoryPickerModal
+        visible={categoryPickerOpen}
+        initial={adHoc.industryTags}
+        onClose={() => setCategoryPickerOpen(false)}
+        onApply={(tagIds) => setAdHoc((prev) => ({ ...prev, industryTags: tagIds }))}
+      />
+      <CpvPickerModal
+        visible={cpvPickerOpen}
+        initial={adHoc.cpvPrefixes}
+        onClose={() => setCpvPickerOpen(false)}
+        onApply={(p) => setAdHoc((prev) => ({ ...prev, cpvPrefixes: p }))}
+      />
+      <ZadavatelPickerModal
+        visible={zadavatelPickerOpen}
+        initial={adHoc.zadavatele}
+        onClose={() => setZadavatelPickerOpen(false)}
+        onApply={(z) => setAdHoc((prev) => ({ ...prev, zadavatele: z }))}
+      />
+      <SortPickerModal
+        visible={sortPickerOpen}
+        value={sort}
+        onClose={() => setSortPickerOpen(false)}
+        onPick={setSort}
+      />
+      <SaveFilterModal
+        visible={saveFilterOpen}
+        adHoc={adHoc}
+        onClose={() => setSaveFilterOpen(false)}
+        onSaved={(newId) => {
+          setActiveFilterId(newId);
+          setAdHoc(EMPTY_AD_HOC);
+          setAdHocOpen(false);
+        }}
+      />
+      <GuideModal visible={guideOpen} onClose={() => setGuideOpen(false)} />
+
       <View style={styles.header}>
         <View style={styles.headerTopRow}>
           <Text style={styles.title}>{t("matches", "title")}</Text>
@@ -542,141 +684,6 @@ export default function MatchesScreen() {
           </View>
         )}
       </View>
-
-      <RegionPickerModal
-        visible={regionPickerOpen}
-        initial={adHoc.regions}
-        onClose={() => setRegionPickerOpen(false)}
-        onApply={(regions) => setAdHoc((prev) => ({ ...prev, regions }))}
-      />
-      <ValueRangePickerModal
-        visible={valuePickerOpen}
-        initialMin={adHoc.minValue}
-        initialIncludeUnknown={adHoc.includeUnknownValue}
-        initialMax={adHoc.maxValue}
-        onClose={() => setValuePickerOpen(false)}
-        onApply={(min, max, includeUnknown) => setAdHoc((prev) => ({ ...prev, minValue: min, maxValue: max, includeUnknownValue: includeUnknown }))}
-      />
-      <DeadlinePickerModal
-        visible={deadlinePickerOpen}
-        initialFrom={adHoc.deadlineFrom}
-        initialTo={adHoc.deadlineTo}
-        onClose={() => setDeadlinePickerOpen(false)}
-        onApply={(from, to) =>
-          setAdHoc((prev) => ({ ...prev, deadlineFrom: from, deadlineTo: to }))
-        }
-      />
-      <CategoryPickerModal
-        visible={categoryPickerOpen}
-        initial={adHoc.industryTags}
-        onClose={() => setCategoryPickerOpen(false)}
-        onApply={(tagIds) => setAdHoc((prev) => ({ ...prev, industryTags: tagIds }))}
-      />
-      <CpvPickerModal
-        visible={cpvPickerOpen}
-        initial={adHoc.cpvPrefixes}
-        onClose={() => setCpvPickerOpen(false)}
-        onApply={(p) => setAdHoc((prev) => ({ ...prev, cpvPrefixes: p }))}
-      />
-      <ZadavatelPickerModal
-        visible={zadavatelPickerOpen}
-        initial={adHoc.zadavatele}
-        onClose={() => setZadavatelPickerOpen(false)}
-        onApply={(z) => setAdHoc((prev) => ({ ...prev, zadavatele: z }))}
-      />
-      <SortPickerModal
-        visible={sortPickerOpen}
-        value={sort}
-        onClose={() => setSortPickerOpen(false)}
-        onPick={setSort}
-      />
-      <SaveFilterModal
-        visible={saveFilterOpen}
-        adHoc={adHoc}
-        onClose={() => setSaveFilterOpen(false)}
-        onSaved={(newId) => {
-          setActiveFilterId(newId);
-          setAdHoc(EMPTY_AD_HOC);
-          setAdHocOpen(false);
-        }}
-      />
-      <GuideModal visible={guideOpen} onClose={() => setGuideOpen(false)} />
-
-      <AppFlatList
-        data={displayMatches}
-        keyExtractor={(item) => item.matchId}
-        ListHeaderComponent={
-          showNewBatch ? (
-            <Pressable
-              onPress={() => setNewBatch(null)}
-              style={({ pressed }) => [styles.newBatchBanner, pressed && { opacity: 0.7 }]}
-            >
-              <Text style={styles.newBatchText}>
-                {t("matches", "newBatchBanner", { count: String(displayMatches.length) })}
-              </Text>
-              <Text style={styles.newBatchAction}>{t("matches", "newBatchShowAll")}</Text>
-            </Pressable>
-          ) : null
-        }
-        renderItem={({ item }) => (
-          <MatchCard
-            match={item}
-            onPress={() =>
-              router.push({ pathname: "/match/[id]", params: { id: item.matchId } })
-            }
-            onToggleStar={(tenderId, next) =>
-              setPreference.mutate({ tenderId, status: next ? "STARRED" : "NONE" })
-            }
-            onExclude={(tenderId) =>
-              setPreference.mutate({ tenderId, status: "EXCLUDED" })
-            }
-          />
-        )}
-        contentContainerStyle={styles.list}
-        ItemSeparatorComponent={() => <View style={{ height: spacing.md }} />}
-        refreshControl={
-          <RefreshControl
-            refreshing={matchesQuery.isRefetching && !matchesQuery.isFetchingNextPage}
-            onRefresh={onRefresh}
-            tintColor={colors.textSubtle}
-          />
-        }
-        onEndReached={() => {
-          if (matchesQuery.hasNextPage && !matchesQuery.isFetchingNextPage) {
-            void matchesQuery.fetchNextPage();
-          }
-        }}
-        onEndReachedThreshold={0.5}
-        ListFooterComponent={
-          matchesQuery.isFetchingNextPage ? (
-            <View style={styles.footerLoader}>
-              <ActivityIndicator color={colors.textSubtle} />
-            </View>
-          ) : null
-        }
-        ListEmptyComponent={
-          errored ? (
-            <EmptyState
-              styles={styles}
-              title={t("matches", "errorTitle")}
-              body={(matchesQuery.error as Error)?.message ?? t("matches", "errorBody")}
-            />
-          ) : matchesQuery.isFetching && !matchesQuery.isFetchingNextPage ? (
-            <View style={styles.loadingState}>
-              <Text style={styles.loadingEmoji}>🔍</Text>
-              <Text style={styles.loadingTitle}>{t("matches", "loadingTitle")}</Text>
-              <Text style={styles.loadingBody}>{t("matches", "loadingBody")}</Text>
-              <ActivityIndicator color={colors.textSubtle} style={{ marginTop: spacing.md }} />
-            </View>
-          ) : empty ? (
-            <EmptyState
-              styles={styles}
-              title={t("matches", "emptyTitle")}
-              body={t("matches", "emptyBody")}
-            />
-          ) : null
-        }
-      />
     </SafeAreaView>
   );
 }
@@ -702,6 +709,8 @@ function EmptyState({
 const makeStyles = (colors: Colors) =>
   StyleSheet.create({
     safe: { flex: 1, backgroundColor: colors.bg },
+    // Hlavička je v JSX POSLEDNÍ (list první kvůli iOS scroll-to-top), vizuálně nahoře.
+    reverse: { flexDirection: "column-reverse" },
     newBatchBanner: {
       flexDirection: "row",
       alignItems: "center",
