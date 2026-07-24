@@ -170,7 +170,13 @@ export default function MatchesScreen() {
   const deleteFilter = useMutation({
     mutationFn: (fid: string) => endpoints.deleteFilter(fid),
     onSuccess: async (_d, fid) => {
-      if (activeFilterId === fid) setActiveFilterId(null);
+      if (activeFilterId === fid) {
+        // Smazaný aktivní filtr → zpět na Všechny vč. zahození dočasných chipů
+        // (mohly v nich zůstat předvyplněné hodnoty mazaného filtru).
+        setActiveFilterId(null);
+        setAdHoc(EMPTY_AD_HOC);
+        setAdHocOpen(false);
+      }
       await qc.invalidateQueries({ queryKey: ["filters"] });
       await qc.invalidateQueries({ queryKey: ["matches"] });
     },
@@ -297,7 +303,14 @@ export default function MatchesScreen() {
               filters={filters}
               activeId={activeFilterId}
               count={totalCount}
-              onPick={setActiveFilterId}
+              onPick={(fid) => {
+                // Výběr trvalého filtru (i ✕ = návrat na Všechny) NAHRAZUJE
+                // dočasný ad-hoc filtr — nekombinovat; jinak po ✕ zůstane v
+                // chipech kopie kritérií a seznam vypadá „nerefreshnutý".
+                setActiveFilterId(fid);
+                setAdHoc(EMPTY_AD_HOC);
+                setAdHocOpen(false);
+              }}
               onAdd={() => router.push("/filter/new")}
               onEdit={(fid) => router.push({ pathname: "/filter/[id]", params: { id: fid } })}
               onDelete={(fid) => deleteFilter.mutate(fid)}
