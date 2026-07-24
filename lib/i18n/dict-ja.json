@@ -242,7 +242,9 @@
     "insufficientTitle": "クレジット不足",
     "insufficientBody": "veritra.io でAIクレジットをチャージして、再度お試しください。",
     "streamFailedBody": "分析が中断されました。もう一度お試しください。",
-    "topUpWeb": "veritra.io でクレジットをチャージする"
+    "topUpWeb": "veritra.io でクレジットをチャージする",
+    "aiUnavailableBody": "AIサービスは一時的に利用できません。しばらくしてからもう一度お試しください。",
+    "retry": "再試行"
   },
   "docPrep": {
     "title": "AI書類作成",

@@ -450,7 +450,9 @@
     "insufficientTitle": "Crédito insuficiente",
     "insufficientBody": "Recargue su crédito de IA en veritra.io e inténtelo de nuevo.",
     "streamFailedBody": "El análisis fue interrumpido. Por favor, inténtelo de nuevo.",
-    "topUpWeb": "Recargar crédito en veritra.io"
+    "topUpWeb": "Recargar crédito en veritra.io",
+    "aiUnavailableBody": "El servicio de IA no está disponible temporalmente. Inténtalo de nuevo más tarde.",
+    "retry": "Reintentar"
   },
   "docPrep": {
     "title": "Preparación de documentos con IA",

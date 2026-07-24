@@ -272,6 +272,8 @@ export interface Dict {
     insufficientTitle: string;
     insufficientBody: string;
     streamFailedBody: string;
+    aiUnavailableBody: string;
+    retry: string;
     topUpWeb: string;
   };
   docPrep: {
@@ -1726,6 +1728,8 @@ const cs: Dict = {
     insufficientTitle: "Nedostatek kreditu",
     insufficientBody: "Dobijte si AI kredit na veritra.io a zkuste to znovu.",
     streamFailedBody: "Analýza se přerušila. Zkuste to prosím znovu.",
+    aiUnavailableBody: "Služba AI je dočasně nedostupná. Zkuste to prosím později.",
+    retry: "Zkusit znovu",
     topUpWeb: "Dobít kredit na veritra.io",
   },
   docPrep: {
@@ -2534,6 +2538,8 @@ const en: Dict = {
     insufficientTitle: "Insufficient credit",
     insufficientBody: "Top up your AI credit on veritra.io and try again.",
     streamFailedBody: "The analysis was interrupted. Please try again.",
+    aiUnavailableBody: "The AI service is temporarily unavailable. Please try again later.",
+    retry: "Try again",
     topUpWeb: "Top up credit on veritra.io",
   },
   docPrep: {
@@ -3344,6 +3350,8 @@ const de: Dict = {
     insufficientTitle: "Nicht genug Guthaben",
     insufficientBody: "Laden Sie Ihr KI-Guthaben auf veritra.io auf und versuchen Sie es erneut.",
     streamFailedBody: "Die Analyse wurde unterbrochen. Bitte versuchen Sie es erneut.",
+    aiUnavailableBody: "Der KI-Dienst ist vorübergehend nicht verfügbar. Bitte versuchen Sie es später erneut.",
+    retry: "Erneut versuchen",
     topUpWeb: "Guthaben auf veritra.io aufladen",
   },
   docPrep: {
@@ -4152,6 +4160,8 @@ const sk: Dict = {
     insufficientTitle: "Nedostatok kreditu",
     insufficientBody: "Dobite si AI kredit na veritra.io a skúste to znova.",
     streamFailedBody: "Analýza sa prerušila. Skúste to prosím znova.",
+    aiUnavailableBody: "Služba AI je dočasne nedostupná. Skúste to prosím neskôr.",
+    retry: "Skúsiť znova",
     topUpWeb: "Dobiť kredit na veritra.io",
   },
   docPrep: {
@@ -4960,6 +4970,8 @@ const fr: Dict = {
     insufficientTitle: "Crédit insuffisant",
     insufficientBody: "Rechargez votre crédit IA sur veritra.io et réessayez.",
     streamFailedBody: "L'analyse a été interrompue. Veuillez réessayer.",
+    aiUnavailableBody: "Le service d'IA est temporairement indisponible. Veuillez réessayer plus tard.",
+    retry: "Réessayer",
     topUpWeb: "Recharger sur veritra.io",
   },
   docPrep: {
@@ -5768,6 +5780,8 @@ const it: Dict = {
     insufficientTitle: "Credito insufficiente",
     insufficientBody: "Ricarica il credito IA su veritra.io e riprova.",
     streamFailedBody: "L'analisi è stata interrotta. Riprova per favore.",
+    aiUnavailableBody: "Il servizio IA è temporaneamente non disponibile. Riprova più tardi.",
+    retry: "Riprova",
     topUpWeb: "Ricarica su veritra.io",
   },
   docPrep: {

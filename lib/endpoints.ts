@@ -164,7 +164,7 @@ export type AnalysisStreamEvent =
   | { type: "status"; phase?: string; name?: string; detail?: string }
   | { type: "delta"; text: string }
   | { type: "done"; sessionId?: string; messageId?: string; charged?: number; insufficient?: boolean; balance?: number; currency?: Currency; replay?: boolean }
-  | { type: "error"; message: string };
+  | { type: "error"; message: string; code?: string };
 
 export type DocClassification = "GENERATE_OWN" | "FILL_VENDOR" | "USER_UPLOAD" | "EXTRA_REQUIRED";
 export interface DocPrepRequiredDoc {
@@ -208,7 +208,7 @@ export interface DocPrepState {
 export type DocPrepStreamEvent =
   | { type: "status"; phase: string; name?: string; detail?: string }
   | { type: "done"; docPrep: DocPrepView }
-  | { type: "error"; message: string };
+  | { type: "error"; message: string; code?: string };
 export interface DocPrepGenerateInput {
   priceMode: "amount" | "placeholder";
   priceNoVat?: number;

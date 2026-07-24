@@ -47,6 +47,10 @@ export default function TenderAnalysisScreen() {
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [reporting, setReporting] = useState(false);
+  // Selhání tahu — persistentní karta s „Zkusit znovu" místo transientního
+  // Alertu (ten šel snadno minout / na Androidu se nemusel ukázat vůbec).
+  const [turnError, setTurnError] = useState<string | null>(null);
+  const lastTurnRef = useRef<string | null>(null);
   // Průběh přípravy analýzy (stahování/čtení dokumentů…) — log kroků z SSE
   // "status" eventů; zobrazuje se v prázdné streamující bublině.
   const [steps, setSteps] = useState<string[]>([]);
@@ -157,6 +161,8 @@ export default function TenderAnalysisScreen() {
     if (!text || sending) return;
     setSending(true);
     setSteps([]);
+    setTurnError(null);
+    lastTurnRef.current = text;
     const turnKey = Crypto.randomUUID();
     const userMsg: Msg = { id: turnKey, role: "user", content: text, createdAt: new Date().toISOString() };
     const asstId = `a-${turnKey}`;
@@ -197,20 +203,21 @@ export default function TenderAnalysisScreen() {
               Alert.alert(t("aiAnalysis", "insufficientTitle"), t("aiAnalysis", "insufficientBody"));
             }
           } else if (evt.type === "error") {
-            sawDone = true; // server chybu ohlásil sám, druhý alert nepřidávat
-            Alert.alert(t("aiAnalysis", "errorTitle"), evt.message);
+            sawDone = true; // server chybu ohlásil sám
+            setTurnError(
+              evt.code === "AI_UNAVAILABLE"
+                ? t("aiAnalysis", "aiUnavailableBody")
+                : evt.message || t("aiAnalysis", "streamFailedBody"),
+            );
           }
         },
       );
-      // Stream skončil bez "done" (typicky timeout serverové funkce) — dej
-      // vědět; nedokončený tah se po příštím otevření obrazovky rozjede znovu.
-      if (!sawDone) {
-        Alert.alert(t("aiAnalysis", "errorTitle"), t("aiAnalysis", "streamFailedBody"));
-      }
+      // Stream skončil bez "done" (typicky timeout serverové funkce).
+      if (!sawDone) setTurnError(t("aiAnalysis", "streamFailedBody"));
     } catch (e) {
       stopFlusher();
       setMessages((m) => m.filter((x) => x.id !== asstId));
-      Alert.alert(t("aiAnalysis", "errorTitle"), e instanceof Error ? e.message : "");
+      setTurnError(e instanceof Error && e.message ? e.message : t("aiAnalysis", "streamFailedBody"));
     } finally {
       stopFlusher();
       // Poslední flush — zbytek bufferu, který interval nestihl.
@@ -237,6 +244,14 @@ export default function TenderAnalysisScreen() {
     if (!text || sending) return;
     setInput("");
     void runTurn(text);
+  }
+
+  // Opakuje poslední (selhaný) tah. User zpráva už v konverzaci je → resume,
+  // aby se bublina nepřidala podruhé.
+  function retryTurn() {
+    const text = lastTurnRef.current;
+    if (!text || sending) return;
+    void runTurn(text, sessionId, { resume: true });
   }
 
   async function generateReport() {
@@ -308,7 +323,11 @@ export default function TenderAnalysisScreen() {
           contentContainerStyle={styles.list}
           onScroll={onScroll}
           scrollEventThrottle={16}
-          ListEmptyComponent={<Text style={styles.emptyHint}>{t("aiAnalysis", "analyzing")}</Text>}
+          ListEmptyComponent={
+            <Text style={styles.emptyHint}>
+              {sending ? t("aiAnalysis", "analyzing") : t("aiAnalysis", "emptyHint")}
+            </Text>
+          }
           renderItem={({ item }) => (
             <View style={[styles.bubble, item.role === "user" ? styles.bubbleUser : styles.bubbleAsst]}>
               {item.streaming && item.content.length === 0 ? (
@@ -350,6 +369,14 @@ export default function TenderAnalysisScreen() {
           <Pressable style={styles.jumpBtn} onPress={jumpToEnd} accessibilityLabel={t("aiAnalysis", "jumpToLatest")}>
             <Text style={styles.jumpBtnText}>↓</Text>
           </Pressable>
+        )}
+        {turnError && !sending && (
+          <View style={styles.errorCard}>
+            <Text style={styles.errorCardText}>{turnError}</Text>
+            <Pressable style={styles.retryBtn} onPress={retryTurn}>
+              <Text style={styles.retryBtnText}>{t("aiAnalysis", "retry")}</Text>
+            </Pressable>
+          </View>
         )}
         {messages.some((m) => m.role === "assistant" && !m.streaming) && (
           <Pressable style={[styles.reportBtn, reporting && { opacity: 0.5 }]} disabled={reporting} onPress={generateReport}>
@@ -408,6 +435,10 @@ const makeStyles = (c: Colors) =>
     progressTextDone: { color: c.textFaint },
     jumpBtn: { position: "absolute", right: spacing.lg, bottom: 76, width: 40, height: 40, borderRadius: 20, backgroundColor: c.accent, alignItems: "center", justifyContent: "center", shadowColor: "#000", shadowOpacity: 0.2, shadowRadius: 4, shadowOffset: { width: 0, height: 2 }, elevation: 4 },
     jumpBtnText: { color: c.accentForeground, fontSize: 20, fontWeight: "700", lineHeight: 22 },
+    errorCard: { marginHorizontal: spacing.lg, marginBottom: spacing.sm, backgroundColor: c.dangerBg, borderRadius: radius.md, padding: spacing.md, gap: spacing.sm },
+    errorCardText: { color: c.danger, fontSize: fontSize.sm, lineHeight: 20 },
+    retryBtn: { alignSelf: "flex-start", backgroundColor: c.danger, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm, borderRadius: radius.md },
+    retryBtnText: { color: "#fff", fontWeight: "600", fontSize: fontSize.sm },
     reportBtn: { marginHorizontal: spacing.lg, marginBottom: spacing.sm, backgroundColor: c.accent, paddingVertical: spacing.md, borderRadius: radius.md, alignItems: "center" },
     reportBtnText: { color: c.accentForeground, fontWeight: "600", fontSize: fontSize.sm },
     inputRow: { flexDirection: "row", alignItems: "flex-end", gap: spacing.sm, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm, borderTopWidth: 1, borderTopColor: c.border, backgroundColor: c.bg },

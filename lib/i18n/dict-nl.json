@@ -450,7 +450,9 @@
     "insufficientTitle": "Onvoldoende tegoed",
     "insufficientBody": "Laad uw AI-tegoed op via veritra.io en probeer het opnieuw.",
     "streamFailedBody": "De analyse is onderbroken. Probeer het opnieuw.",
-    "topUpWeb": "Tegoed opladen via veritra.io"
+    "topUpWeb": "Tegoed opladen via veritra.io",
+    "aiUnavailableBody": "De AI-service is tijdelijk niet beschikbaar. Probeer het later opnieuw.",
+    "retry": "Opnieuw proberen"
   },
   "docPrep": {
     "title": "AI-documentvoorbereiding",
