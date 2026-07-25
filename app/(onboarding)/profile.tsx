@@ -74,6 +74,11 @@ export default function OnboardingProfile() {
   const [consentRequired, setConsentRequired] = useState(false);
   const [consentVop, setConsentVop] = useState(false);
   const [consentGdpr, setConsentGdpr] = useState(false);
+  // OAuth účet (Google/Apple) — telefon je povinný (server vynucuje IČO nebo
+  // telefon; IČO se na mobilu nesbírá kvůli Apple 3.1.1 → efektivně telefon).
+  // hasIco = účet už IČO má z webu → telefon pak nevynucujeme.
+  const [isOauth, setIsOauth] = useState(false);
+  const [hasIco, setHasIco] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -95,6 +100,8 @@ export default function OnboardingProfile() {
         setDialCode(dial);
         setPhoneLocal(local);
         setConsentRequired(!!p.consentRequired);
+        setIsOauth(!!p.isOauth);
+        setHasIco(!!p.ico?.trim());
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : String(e));
       } finally {
@@ -135,6 +142,11 @@ export default function OnboardingProfile() {
     }
     if (consentRequired && (!consentVop || !consentGdpr)) {
       setError(t("onboardingProfile", "consentRequiredError"));
+      return;
+    }
+    // OAuth účet musí mít telefon (nebo IČO z webu). Server to i vynucuje.
+    if (isOauth && !phoneLocal.replace(/\D/g, "") && !hasIco) {
+      setError(t("onboardingProfile", "phoneRequiredOauth"));
       return;
     }
     setSaving(true);
@@ -264,13 +276,17 @@ export default function OnboardingProfile() {
 
           {error && <Text style={styles.errorText}>{error}</Text>}
 
+          {isOauth && !phoneLocal.replace(/\D/g, "") && !hasIco && (
+            <Text style={styles.hintText}>{t("onboardingProfile", "phoneRequiredOauth")}</Text>
+          )}
+
           <Pressable
             onPress={submit}
-            disabled={saving}
+            disabled={saving || (isOauth && !phoneLocal.replace(/\D/g, "") && !hasIco)}
             style={({ pressed }) => [
               styles.ctaBtn,
               pressed && { opacity: 0.85 },
-              saving && { opacity: 0.6 },
+              (saving || (isOauth && !phoneLocal.replace(/\D/g, "") && !hasIco)) && { opacity: 0.6 },
             ]}
           >
             {saving ? (
@@ -312,6 +328,7 @@ function makeStyles(c: Colors) {
     phoneRow: { flexDirection: "row", gap: spacing.sm, alignItems: "center" },
     dialCodeWrap: { minWidth: 100 },
     errorText: { fontSize: fontSize.sm, color: c.danger, marginBottom: spacing.md, textAlign: "center" },
+    hintText: { fontSize: fontSize.xs, color: c.textMuted, marginBottom: spacing.sm, textAlign: "center" },
     ctaBtn: { backgroundColor: c.accent, paddingVertical: spacing.md, borderRadius: radius.md, alignItems: "center", marginTop: spacing.md },
     ctaBtnText: { color: c.accentForeground, fontSize: fontSize.base, fontWeight: "600" },
     consentSection: { marginTop: spacing.md, paddingTop: spacing.md, borderTopWidth: 1, borderTopColor: c.border, gap: spacing.sm },

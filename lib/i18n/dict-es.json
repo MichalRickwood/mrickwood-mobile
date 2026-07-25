@@ -972,6 +972,7 @@
     "saving": "Guardando…",
     "saveFailed": "Error al guardar. Por favor, inténtalo de nuevo.",
     "nameRequired": "Por favor, introduce tu nombre.",
+    "phoneRequiredOauth": "Se requiere un número de teléfono para iniciar sesión con Google/Apple.",
     "emailInvalid": "Formato de correo electrónico no válido.",
     "consentIntro": "Para continuar, necesitamos tu consentimiento:",
     "consentVopLabel": "Acepto los Términos de Servicio.",

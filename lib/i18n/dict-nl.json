@@ -972,6 +972,7 @@
     "saving": "Opslaan…",
     "saveFailed": "Opslaan mislukt. Probeer het opnieuw.",
     "nameRequired": "Voer uw naam in.",
+    "phoneRequiredOauth": "Een telefoonnummer is vereist bij aanmelden via Google/Apple.",
     "emailInvalid": "Ongeldig e-mailformaat.",
     "consentIntro": "Om door te gaan hebben we uw toestemming nodig:",
     "consentVopLabel": "Ik ga akkoord met de Servicevoorwaarden.",

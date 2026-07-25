@@ -321,6 +321,7 @@ export const endpoints = {
         locale: string;
         isComplete: boolean;
         consentRequired: boolean;
+        isOauth: boolean;
       };
     }>("/api/v2/account/profile");
     return r.data;

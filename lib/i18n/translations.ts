@@ -801,6 +801,7 @@ export interface Dict {
     saving: string;
     saveFailed: string;
     nameRequired: string;
+    phoneRequiredOauth: string;
     emailInvalid: string;
     consentIntro: string;
     consentVopLabel: string;
@@ -2271,6 +2272,7 @@ const cs: Dict = {
     saving: "Ukládám…",
     saveFailed: "Uložení selhalo. Zkuste to znovu.",
     nameRequired: "Vyplňte jméno.",
+    phoneRequiredOauth: "U přihlášení přes Google/Apple je telefonní číslo povinné.",
     emailInvalid: "Neplatný formát emailu.",
     consentIntro: "Pro pokračování potřebujeme váš souhlas:",
     consentVopLabel: "Souhlasím s Všeobecnými obchodními podmínkami.",
@@ -3097,6 +3099,7 @@ const en: Dict = {
     saving: "Saving…",
     saveFailed: "Save failed. Please try again.",
     nameRequired: "Please enter your name.",
+    phoneRequiredOauth: "A phone number is required for Google/Apple sign-in.",
     emailInvalid: "Invalid email format.",
     consentIntro: "To continue we need your consent:",
     consentVopLabel: "I agree to the Terms of Service.",
@@ -3925,6 +3928,7 @@ const de: Dict = {
     saving: "Speichere…",
     saveFailed: "Speichern fehlgeschlagen. Bitte erneut versuchen.",
     nameRequired: "Bitte geben Sie Ihren Namen ein.",
+    phoneRequiredOauth: "Bei der Anmeldung über Google/Apple ist eine Telefonnummer erforderlich.",
     emailInvalid: "Ungültiges E-Mail-Format.",
     consentIntro: "Zum Fortfahren benötigen wir Ihre Zustimmung:",
     consentVopLabel: "Ich stimme den AGB zu.",
@@ -4751,6 +4755,7 @@ const sk: Dict = {
     saving: "Ukladám…",
     saveFailed: "Uloženie zlyhalo. Skúste to znova.",
     nameRequired: "Zadajte svoje meno.",
+    phoneRequiredOauth: "Pri prihlásení cez Google/Apple je telefónne číslo povinné.",
     emailInvalid: "Neplatný formát e-mailu.",
     consentIntro: "Pre pokračovanie potrebujeme váš súhlas:",
     consentVopLabel: "Súhlasím s obchodnými podmienkami.",
@@ -5577,6 +5582,7 @@ const fr: Dict = {
     saving: "Enregistrement…",
     saveFailed: "Échec de l'enregistrement. Veuillez réessayer.",
     nameRequired: "Veuillez saisir votre nom.",
+    phoneRequiredOauth: "Un numéro de téléphone est requis pour la connexion via Google/Apple.",
     emailInvalid: "Format d'e-mail invalide.",
     consentIntro: "Pour continuer, nous avons besoin de votre consentement :",
     consentVopLabel: "J'accepte les Conditions générales d'utilisation.",
@@ -6403,6 +6409,7 @@ const it: Dict = {
     saving: "Salvataggio…",
     saveFailed: "Salvataggio non riuscito. Riprova.",
     nameRequired: "Inserisci il tuo nome.",
+    phoneRequiredOauth: "Per l'accesso con Google/Apple è richiesto un numero di telefono.",
     emailInvalid: "Formato email non valido.",
     consentIntro: "Per continuare ci serve il tuo consenso:",
     consentVopLabel: "Accetto le Condizioni di servizio.",

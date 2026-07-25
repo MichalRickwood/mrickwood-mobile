@@ -972,6 +972,7 @@
     "saving": "Zapisywanie…",
     "saveFailed": "Zapis nie powiódł się. Spróbuj ponownie.",
     "nameRequired": "Proszę podać imię i nazwisko.",
+    "phoneRequiredOauth": "Numer telefonu jest wymagany przy logowaniu przez Google/Apple.",
     "emailInvalid": "Nieprawidłowy format adresu e-mail.",
     "consentIntro": "Aby kontynuować, potrzebujemy Twojej zgody:",
     "consentVopLabel": "Akceptuję Warunki korzystania z usługi.",

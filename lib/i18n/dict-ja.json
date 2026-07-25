@@ -764,6 +764,7 @@
     "saving": "保存中…",
     "saveFailed": "保存に失敗しました。もう一度お試しください。",
     "nameRequired": "お名前を入力してください。",
+    "phoneRequiredOauth": "Google/Appleでのサインインには電話番号が必要です。",
     "emailInvalid": "メールアドレスの形式が正しくありません。",
     "consentIntro": "続行するには、以下へのご同意が必要です：",
     "consentVopLabel": "利用規約に同意します。",
