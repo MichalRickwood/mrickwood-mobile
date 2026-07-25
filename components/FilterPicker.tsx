@@ -22,7 +22,7 @@ import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 interface Props {
   filters: LeadFilterRow[];
   activeId: string | null;
-  count: number;
+  count: number | null;
   onPick: (id: string | null) => void;
   onAdd: () => void;
   onEdit: (id: string) => void;
@@ -63,7 +63,7 @@ export default function FilterPicker({ filters, activeId, count, onPick, onAdd, 
           <Text style={styles.pillLabel} numberOfLines={1}>
             {label}
           </Text>
-          <Text style={styles.pillCount}>· {count}</Text>
+          {count != null && <Text style={styles.pillCount}>· {count}</Text>}
         </Pressable>
         {active && (
           <Pressable

@@ -302,11 +302,12 @@ export default function MatchesScreen() {
     [matches, showNewBatch, newBatch],
   );
   // totalCount: inline z prvního response (defer + count cache hit), jinak
-  // z async count query; než dorazí, ukáže se aspoň počet načtených řádků.
+  // z async count query. Než dorazí REÁLNÝ počet → null (v pillu se nezobrazí
+  // ŽÁDNÉ číslo, ne provizorní počet načtených řádků = matně matoucí „· 50").
   const totalCount =
     matchesQuery.data?.pages[0]?.totalCount ??
     matchesCountQuery.data?.totalCount ??
-    matches.length;
+    null;
 
   const onRefresh = useCallback(() => {
     void matchesQuery.refetch();
