@@ -460,7 +460,8 @@
     "pdfEmailSentTitle": "Wysłano",
     "pdfEmailSentBody": "Wysłaliśmy PDF na {email}.",
     "progressQueue": "W kolejce do pobrania (pozycja {position})…",
-    "progressWorkerDown": "Pobieranie dokumentów jest tymczasowo niedostępne. Spróbuj ponownie później."
+    "progressWorkerDown": "Pobieranie dokumentów jest tymczasowo niedostępne. Spróbuj ponownie później.",
+    "errorReported": "Błąd został automatycznie zgłoszony, pracujemy nad naprawą."
   },
   "docPrep": {
     "title": "Przygotowanie dokumentów przez AI",

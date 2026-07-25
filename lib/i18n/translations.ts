@@ -276,6 +276,7 @@ export interface Dict {
     streamFailedBody: string;
     aiUnavailableBody: string;
     retry: string;
+    errorReported: string;
     pdfBtn: string;
     pdfMenuTitle: string;
     pdfEmailOption: string;
@@ -1747,6 +1748,7 @@ const cs: Dict = {
     streamFailedBody: "Analýza se přerušila. Zkuste to prosím znovu.",
     aiUnavailableBody: "Služba AI je dočasně nedostupná. Zkuste to prosím později.",
     retry: "Zkusit znovu",
+    errorReported: "Chyba byla automaticky nahlášena, na nápravě pracujeme.",
     pdfBtn: "PDF",
     pdfMenuTitle: "PDF analýzy",
     pdfEmailOption: "Vygenerovat a poslat e-mailem",
@@ -2572,6 +2574,7 @@ const en: Dict = {
     streamFailedBody: "The analysis was interrupted. Please try again.",
     aiUnavailableBody: "The AI service is temporarily unavailable. Please try again later.",
     retry: "Try again",
+    errorReported: "The issue has been reported automatically and we're working on a fix.",
     pdfBtn: "PDF",
     pdfMenuTitle: "Analysis PDF",
     pdfEmailOption: "Generate and send by email",
@@ -3399,6 +3402,7 @@ const de: Dict = {
     streamFailedBody: "Die Analyse wurde unterbrochen. Bitte versuchen Sie es erneut.",
     aiUnavailableBody: "Der KI-Dienst ist vorübergehend nicht verfügbar. Bitte versuchen Sie es später erneut.",
     retry: "Erneut versuchen",
+    errorReported: "Das Problem wurde automatisch gemeldet, wir arbeiten an einer Lösung.",
     pdfBtn: "PDF",
     pdfMenuTitle: "Analyse-PDF",
     pdfEmailOption: "Erstellen und per E-Mail senden",
@@ -4224,6 +4228,7 @@ const sk: Dict = {
     streamFailedBody: "Analýza sa prerušila. Skúste to prosím znova.",
     aiUnavailableBody: "Služba AI je dočasne nedostupná. Skúste to prosím neskôr.",
     retry: "Skúsiť znova",
+    errorReported: "Chyba bola automaticky nahlásená, na náprave pracujeme.",
     pdfBtn: "PDF",
     pdfMenuTitle: "PDF analýzy",
     pdfEmailOption: "Vygenerovať a poslať e-mailom",
@@ -5049,6 +5054,7 @@ const fr: Dict = {
     streamFailedBody: "L'analyse a été interrompue. Veuillez réessayer.",
     aiUnavailableBody: "Le service d'IA est temporairement indisponible. Veuillez réessayer plus tard.",
     retry: "Réessayer",
+    errorReported: "Le problème a été signalé automatiquement, nous travaillons à le résoudre.",
     pdfBtn: "PDF",
     pdfMenuTitle: "PDF de l'analyse",
     pdfEmailOption: "Générer et envoyer par e-mail",
@@ -5874,6 +5880,7 @@ const it: Dict = {
     streamFailedBody: "L'analisi è stata interrotta. Riprova per favore.",
     aiUnavailableBody: "Il servizio IA è temporaneamente non disponibile. Riprova più tardi.",
     retry: "Riprova",
+    errorReported: "Il problema è stato segnalato automaticamente, stiamo lavorando alla soluzione.",
     pdfBtn: "PDF",
     pdfMenuTitle: "PDF dell'analisi",
     pdfEmailOption: "Genera e invia via e-mail",

@@ -310,6 +310,7 @@ export default function TenderAnalysisScreen() {
   }
 
   const hasReport = messages.some((m) => m.role === "assistant" && !m.streaming && m.content.length > 0);
+  const visibleMessages = messages.filter((m) => !(m.role === "user" && m.content === KICKOFF));
 
   const screenOpts = {
     title: t("aiAnalysis", "title"),
@@ -368,15 +369,26 @@ export default function TenderAnalysisScreen() {
         </Text>
         <FlatList
           ref={listRef}
-          data={messages.filter((m) => !(m.role === "user" && m.content === KICKOFF))}
+          data={visibleMessages}
           keyExtractor={(m) => m.id}
           contentContainerStyle={styles.list}
           onScroll={onScroll}
           scrollEventThrottle={16}
           ListEmptyComponent={
-            <Text style={styles.emptyHint}>
-              {sending ? t("aiAnalysis", "analyzing") : t("aiAnalysis", "emptyHint")}
-            </Text>
+            turnError && !sending ? (
+              // Chyba v prázdném chatu → karta NAHOŘE místo „Zeptejte se AI…"
+              <View style={styles.errorCardTop}>
+                <Text style={styles.errorCardText}>{turnError}</Text>
+                <Text style={styles.errorCardSub}>{t("aiAnalysis", "errorReported")}</Text>
+                <Pressable style={({ pressed }) => [styles.retryBtn, pressed && { opacity: 0.7 }]} onPress={retryTurn}>
+                  <Text style={styles.retryBtnText}>{t("aiAnalysis", "retry")}</Text>
+                </Pressable>
+              </View>
+            ) : (
+              <Text style={styles.emptyHint}>
+                {sending ? t("aiAnalysis", "analyzing") : t("aiAnalysis", "emptyHint")}
+              </Text>
+            )
           }
           renderItem={({ item }) => (
             <View style={[styles.bubble, item.role === "user" ? styles.bubbleUser : styles.bubbleAsst]}>
@@ -420,10 +432,11 @@ export default function TenderAnalysisScreen() {
             <Text style={styles.jumpBtnText}>↓</Text>
           </Pressable>
         )}
-        {turnError && !sending && (
+        {turnError && !sending && visibleMessages.length > 0 && (
           <View style={styles.errorCard}>
             <Text style={styles.errorCardText}>{turnError}</Text>
-            <Pressable style={styles.retryBtn} onPress={retryTurn}>
+            <Text style={styles.errorCardSub}>{t("aiAnalysis", "errorReported")}</Text>
+            <Pressable style={({ pressed }) => [styles.retryBtn, pressed && { opacity: 0.7 }]} onPress={retryTurn}>
               <Text style={styles.retryBtnText}>{t("aiAnalysis", "retry")}</Text>
             </Pressable>
           </View>
@@ -477,7 +490,9 @@ const makeStyles = (c: Colors) =>
     jumpBtn: { position: "absolute", right: spacing.lg, bottom: 76, width: 40, height: 40, borderRadius: 20, backgroundColor: c.accent, alignItems: "center", justifyContent: "center", shadowColor: "#000", shadowOpacity: 0.2, shadowRadius: 4, shadowOffset: { width: 0, height: 2 }, elevation: 4 },
     jumpBtnText: { color: c.accentForeground, fontSize: 20, fontWeight: "700", lineHeight: 22 },
     errorCard: { marginHorizontal: spacing.lg, marginBottom: spacing.sm, backgroundColor: c.dangerBg, borderRadius: radius.md, padding: spacing.md, gap: spacing.sm },
+    errorCardTop: { marginTop: spacing.xl, backgroundColor: c.dangerBg, borderRadius: radius.md, padding: spacing.lg, gap: spacing.sm },
     errorCardText: { color: c.danger, fontSize: fontSize.sm, lineHeight: 20 },
+    errorCardSub: { color: c.danger, opacity: 0.75, fontSize: fontSize.xs, lineHeight: 18 },
     retryBtn: { alignSelf: "flex-start", backgroundColor: c.danger, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm, borderRadius: radius.md },
     retryBtnText: { color: "#fff", fontWeight: "600", fontSize: fontSize.sm },
     pdfHeaderBtn: { backgroundColor: c.accent, paddingHorizontal: spacing.md, paddingVertical: spacing.xs, borderRadius: radius.full, minWidth: 52, alignItems: "center" },

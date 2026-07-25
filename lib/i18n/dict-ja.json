@@ -252,7 +252,8 @@
     "pdfEmailSentTitle": "送信しました",
     "pdfEmailSentBody": "{email} にPDFを送信しました。",
     "progressQueue": "ダウンロード待機中（{position}番目）…",
-    "progressWorkerDown": "書類のダウンロードは一時的に利用できません。しばらくしてからもう一度お試しください。"
+    "progressWorkerDown": "書類のダウンロードは一時的に利用できません。しばらくしてからもう一度お試しください。",
+    "errorReported": "問題は自動的に報告されました。修正に取り組んでいます。"
   },
   "docPrep": {
     "title": "AI書類作成",

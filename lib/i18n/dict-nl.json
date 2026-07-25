@@ -460,7 +460,8 @@
     "pdfEmailSentTitle": "Verzonden",
     "pdfEmailSentBody": "We hebben de PDF naar {email} gestuurd.",
     "progressQueue": "In de downloadwachtrij (positie {position})…",
-    "progressWorkerDown": "Het downloaden van documenten is tijdelijk niet beschikbaar. Probeer het later opnieuw."
+    "progressWorkerDown": "Het downloaden van documenten is tijdelijk niet beschikbaar. Probeer het later opnieuw.",
+    "errorReported": "Het probleem is automatisch gemeld, we werken aan een oplossing."
   },
   "docPrep": {
     "title": "AI-documentvoorbereiding",
