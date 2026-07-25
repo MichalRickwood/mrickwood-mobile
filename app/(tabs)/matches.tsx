@@ -247,8 +247,35 @@ export default function MatchesScreen() {
           : {}),
         ...(sort !== "newest" ? { sort } : {}),
         ...(hasNarrowingFilter ? { limit: 200 } : {}),
+        // Řádky hned — drahý COUNT (u všech zemí ~5 s) nesmí zdržovat první
+        // render; počet do pillu dotáhne matchesCountQuery (z cache i inline).
+        count: "defer",
       }, { signal }),
     getNextPageParam: (last) => last.nextCursor ?? undefined,
+  });
+
+  // Asynchronní totalCount pro pill (server cachuje 3 min; u čistého browse je
+  // to jen součet globálních per-country počtů → ~0 ms).
+  const matchesCountQuery = useQuery({
+    enabled: !leadsInactive,
+    queryKey: ["matches-count", activeFilterId, searchDebounced, adHoc],
+    staleTime: 120 * 1000,
+    queryFn: ({ signal }) =>
+      endpoints.myMatches({
+        ...(activeFilterId ? { filterId: activeFilterId } : {}),
+        ...(searchDebounced ? { q: searchDebounced } : {}),
+        ...(adHoc.regions.length > 0 ? { regions: adHoc.regions.join(",") } : {}),
+        ...(adHoc.minValue != null ? { minValue: adHoc.minValue } : {}),
+        ...(!adHoc.includeUnknownValue ? { includeUnknownValue: false } : {}),
+        ...(adHoc.maxValue != null ? { maxValue: adHoc.maxValue } : {}),
+        ...(adHoc.deadlineFrom ? { deadlineFrom: adHoc.deadlineFrom } : {}),
+        ...(adHoc.deadlineTo ? { deadlineTo: adHoc.deadlineTo } : {}),
+        ...(adHoc.cpvPrefixes.length > 0 ? { cpvPrefixes: adHoc.cpvPrefixes.join(",") } : {}),
+        ...(adHoc.industryTags.length > 0 ? { industryTags: adHoc.industryTags.join(",") } : {}),
+        ...(adHoc.zadavatele.length > 0 ? { zadavatelIcos: adHoc.zadavatele.map((z) => z.ico).join(",") } : {}),
+        limit: 1,
+        count: "only",
+      }, { signal }),
   });
 
   const filters = filtersQuery.data?.filters ?? [];
@@ -274,9 +301,12 @@ export default function MatchesScreen() {
     () => (showNewBatch && newBatch ? matches.filter((m) => m.matchedAt >= newBatch.since) : matches),
     [matches, showNewBatch, newBatch],
   );
-  // Server now applies all filters SQL-side a vrací accurate totalCount.
-  // Fallback na matches.length jen když server nepošle (offline cache atd.).
-  const totalCount = matchesQuery.data?.pages[0]?.totalCount ?? matches.length;
+  // totalCount: inline z prvního response (defer + count cache hit), jinak
+  // z async count query; než dorazí, ukáže se aspoň počet načtených řádků.
+  const totalCount =
+    matchesQuery.data?.pages[0]?.totalCount ??
+    matchesCountQuery.data?.totalCount ??
+    matches.length;
 
   const onRefresh = useCallback(() => {
     void matchesQuery.refetch();

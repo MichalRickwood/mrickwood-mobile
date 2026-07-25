@@ -3,7 +3,10 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Stack, usePathname, useRouter, useSegments } from "expo-router";
 import * as Notifications from "expo-notifications";
 import { StatusBar } from "expo-status-bar";
-import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
+import { QueryClient, useQueryClient } from "@tanstack/react-query";
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
+import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider, useAuth } from "@/lib/auth-context";
 import { ApiError } from "@/lib/api";
@@ -21,6 +24,25 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+// Persistovaná query cache (AsyncStorage) — studený start ukáže POSLEDNÍ známý
+// stav okamžitě (seznam zakázek, filtry, subscriptions) a na pozadí se obnoví
+// (stale-while-revalidate). Bez toho user čekal na 3 roundtripy naprázdno.
+const PERSIST_KEYS = new Set(["matches", "matches-count", "filters", "account-subscriptions"]);
+const queryPersister = createAsyncStoragePersister({
+  storage: AsyncStorage,
+  key: "veritra.queryCache.v1",
+  throttleTime: 2000,
+});
+const persistOptions = {
+  persister: queryPersister,
+  maxAge: 24 * 60 * 60 * 1000,
+  buster: "v1",
+  dehydrateOptions: {
+    shouldDehydrateQuery: (q: { queryKey: readonly unknown[]; state: { status: string } }) =>
+      q.state.status === "success" && PERSIST_KEYS.has(String(q.queryKey[0])),
+  },
+};
 
 /**
  * Router guard — anon → login, auth bez LEADS subs → onboarding, jinak → tabs.
@@ -54,6 +76,10 @@ function RouterGuard() {
     if (status === "anonymous") {
       if (!inAuth) router.replace("/(auth)/login");
       setDestination(null);
+      // Odhlášení → vyčistit query cache i její persistovanou kopii, ať se
+      // dalšímu přihlášenému neukážou data předchozího účtu.
+      qc.clear();
+      void AsyncStorage.removeItem("veritra.queryCache.v1");
       return;
     }
 
@@ -239,14 +265,14 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <I18nProvider>
         <ThemeProvider>
-          <QueryClientProvider client={queryClient}>
+          <PersistQueryClientProvider client={queryClient} persistOptions={persistOptions}>
             <AuthProvider>
               <ThemedStatusBar />
               <ScreenTracker />
               <NotificationTapHandler />
               <RouterGuard />
             </AuthProvider>
-          </QueryClientProvider>
+          </PersistQueryClientProvider>
         </ThemeProvider>
       </I18nProvider>
     </SafeAreaProvider>
