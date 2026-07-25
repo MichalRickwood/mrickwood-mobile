@@ -212,7 +212,9 @@ export default function TenderAnalysisScreen() {
             setTurnError(
               evt.code === "AI_UNAVAILABLE"
                 ? t("aiAnalysis", "aiUnavailableBody")
-                : evt.message || t("aiAnalysis", "streamFailedBody"),
+                : evt.code === "WORKER_DOWN"
+                  ? t("aiAnalysis", "progressWorkerDown")
+                  : evt.message || t("aiAnalysis", "streamFailedBody"),
             );
           }
         },

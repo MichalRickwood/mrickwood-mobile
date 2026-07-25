@@ -82,7 +82,11 @@ export default function TenderDocPrepScreen() {
             else setPhase(evt.detail || evt.name || evt.phase);
           }
           else if (evt.type === "done") setState((s) => (s ? { ...s, docPrep: evt.docPrep } : s));
-          else if (evt.type === "error") Alert.alert(t("docPrep", "errorTitle"), evt.message);
+          else if (evt.type === "error")
+            Alert.alert(
+              t("docPrep", "errorTitle"),
+              evt.code === "WORKER_DOWN" ? t("docPrep", "stWorkerDown") : evt.message,
+            );
         },
       );
       await reload();
