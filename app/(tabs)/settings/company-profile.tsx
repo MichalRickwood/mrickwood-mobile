@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { AppScrollView } from "@/components/AppScroll";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { useTheme } from "@/lib/theme-context";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 import { useI18n } from "@/lib/i18n";
@@ -24,6 +24,8 @@ export default function CompanyProfileScreen() {
   const router = useRouter();
   const { colors } = useTheme();
   const { t } = useI18n();
+  // Multi-profil: cílový profil ze seznamu (bez něj default profil).
+  const { profileId } = useLocalSearchParams<{ profileId?: string }>();
   const styles = useMemo(() => makeStyles(colors), [colors]);
 
   const [loading, setLoading] = useState(true);
@@ -39,7 +41,7 @@ export default function CompanyProfileScreen() {
     let alive = true;
     (async () => {
       try {
-        const { data } = await endpoints.companyProfileGet();
+        const { data } = await endpoints.companyProfileGet(profileId);
         if (!alive) return;
         setView(data);
         setMd(data.companyMd ?? "");
@@ -63,7 +65,7 @@ export default function CompanyProfileScreen() {
     setLog([]);
     let errMsg: string | null = null;
     try {
-      await ssePost<BuildEvent>("/api/v2/account/company-profile/build", {}, (evt) => {
+      await ssePost<BuildEvent>("/api/v2/account/company-profile/build", profileId ? { profileId } : {}, (evt) => {
         if (evt.type === "status") {
           if (evt.step === "dump") {
             setPhase("dump");
@@ -98,7 +100,7 @@ export default function CompanyProfileScreen() {
     if (saving || !md.trim()) return;
     setSaving(true);
     try {
-      const { data } = await endpoints.companyProfileSaveMd(md.trim());
+      const { data } = await endpoints.companyProfileSaveMd(md.trim(), profileId);
       setView(data);
       Alert.alert(t("companyProfile", "savedTitle"), t("companyProfile", "savedBody"));
     } catch (e) {

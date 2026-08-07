@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { AppScrollView } from "@/components/AppScroll";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { useTheme } from "@/lib/theme-context";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 import { useI18n } from "@/lib/i18n";
@@ -12,6 +12,8 @@ export default function BidIdentityScreen() {
   const router = useRouter();
   const { colors } = useTheme();
   const { t } = useI18n();
+  // Multi-profil: cílový profil ze seznamu (bez něj default profil).
+  const { profileId } = useLocalSearchParams<{ profileId?: string }>();
   const styles = useMemo(() => makeStyles(colors), [colors]);
 
   const [loading, setLoading] = useState(true);
@@ -51,7 +53,7 @@ export default function BidIdentityScreen() {
     let alive = true;
     (async () => {
       try {
-        const { data } = await endpoints.bidIdentityGet();
+        const { data } = await endpoints.bidIdentityGet(profileId);
         if (alive) hydrate(data);
       } catch (e) {
         if (alive) Alert.alert(t("bidIdentity", "errorTitle"), e instanceof Error ? e.message : "");
@@ -68,7 +70,7 @@ export default function BidIdentityScreen() {
     if (enriching) return;
     setEnriching(true);
     try {
-      const { data } = await endpoints.bidIdentityEnrich();
+      const { data } = await endpoints.bidIdentityEnrich(profileId);
       hydrate(data);
     } catch (e) {
       Alert.alert(t("bidIdentity", "errorTitle"), e instanceof Error ? e.message : "");
@@ -88,7 +90,7 @@ export default function BidIdentityScreen() {
         signatories: signatories
           .map((s) => ({ name: s.name.trim(), function: s.function.trim() || "jednatel" }))
           .filter((s) => s.name),
-      });
+      }, profileId);
       hydrate(data);
       Alert.alert(t("bidIdentity", "savedTitle"), t("bidIdentity", "savedBody"));
     } catch (e) {

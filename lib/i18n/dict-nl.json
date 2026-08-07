@@ -461,7 +461,12 @@
     "pdfEmailSentBody": "We hebben de PDF naar {email} gestuurd.",
     "progressQueue": "In de downloadwachtrij (positie {position})…",
     "progressWorkerDown": "Het downloaden van documenten is tijdelijk niet beschikbaar. Probeer het later opnieuw.",
-    "errorReported": "Het probleem is automatisch gemeld, we werken aan een oplossing."
+    "errorReported": "Het probleem is automatisch gemeld, we werken aan een oplossing.",
+    "profileLabel": "Bedrijf",
+    "profilePicked": "AI koos profiel {label}: {reason}",
+    "switchPaidTitle": "Bedrijf wisselen?",
+    "switchPaidBody": "De analyse loopt al — wisselen start een nieuwe analyse (betaald uit tegoed tenzij er nog een gratis analyse is).",
+    "switchBtn": "Wisselen"
   },
   "docPrep": {
     "title": "AI-documentvoorbereiding",
@@ -502,7 +507,8 @@
     "insufficientBody": "Laad uw AI-tegoed op via veritra.io en probeer opnieuw.",
     "topUpWeb": "Tegoed opladen via veritra.io",
     "stQueue": "In de downloadwachtrij (positie {position})…",
-    "stWorkerDown": "Het downloaden van documenten is tijdelijk niet beschikbaar. Probeer het later opnieuw."
+    "stWorkerDown": "Het downloaden van documenten is tijdelijk niet beschikbaar. Probeer het later opnieuw.",
+    "profileLabel": "Bedrijf"
   },
   "companyProfile": {
     "menuLabel": "Bedrijfsprofiel (AI)",
@@ -1031,5 +1037,28 @@
     "title": "Er is iets misgegaan",
     "body": "Gegevens konden niet worden geladen. Controleer je verbinding en probeer het opnieuw.",
     "retry": "Opnieuw proberen"
+  },
+  "companyProfiles": {
+    "menuLabel": "Bedrijfsprofielen",
+    "menuHint": "Meerdere bedrijven op één account",
+    "screenTitle": "Bedrijfsprofielen",
+    "addBtn": "Bedrijf toevoegen",
+    "addNote": "Elk profiel is een apart bedrijf met een eigen AI-profiel en inschrijfidentiteit. AI-opbouw van een extra profiel wordt van het tegoed afgeschreven.",
+    "labelPlaceholder": "Bedrijfsnaam",
+    "icoPlaceholder": "KvK-nummer",
+    "createBtn": "Aanmaken",
+    "defaultBadge": "standaard",
+    "setDefault": "Als standaard instellen",
+    "rename": "Hernoemen",
+    "renameTitle": "Nieuwe profielnaam",
+    "deleteBtn": "Verwijderen",
+    "deleteConfirmTitle": "Profiel verwijderen?",
+    "deleteConfirmBody": "De analysegeschiedenis blijft bewaard.",
+    "cancelBtn": "Annuleren",
+    "lastProfileError": "Het laatste profiel kan niet worden verwijderd.",
+    "limitError": "Maximaal aantal profielen bereikt.",
+    "profileRow": "Bedrijfsprofiel (AI)",
+    "identityRow": "Inschrijfidentiteit",
+    "identityMissing": "identiteit ontbreekt"
   }
 }

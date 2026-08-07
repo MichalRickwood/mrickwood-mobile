@@ -461,7 +461,12 @@
     "pdfEmailSentBody": "Wysłaliśmy PDF na {email}.",
     "progressQueue": "W kolejce do pobrania (pozycja {position})…",
     "progressWorkerDown": "Pobieranie dokumentów jest tymczasowo niedostępne. Spróbuj ponownie później.",
-    "errorReported": "Błąd został automatycznie zgłoszony, pracujemy nad naprawą."
+    "errorReported": "Błąd został automatycznie zgłoszony, pracujemy nad naprawą.",
+    "profileLabel": "Firma",
+    "profilePicked": "AI wybrała profil {label}: {reason}",
+    "switchPaidTitle": "Zmienić firmę?",
+    "switchPaidBody": "Analiza już trwa — zmiana rozpocznie nową analizę (płatną z kredytu, o ile nie przysługuje darmowa).",
+    "switchBtn": "Zmień"
   },
   "docPrep": {
     "title": "Przygotowanie dokumentów przez AI",
@@ -502,7 +507,8 @@
     "insufficientBody": "Doładuj środki AI na veritra.io i spróbuj ponownie.",
     "topUpWeb": "Doładuj środki na veritra.io",
     "stQueue": "W kolejce do pobrania (pozycja {position})…",
-    "stWorkerDown": "Pobieranie dokumentów jest tymczasowo niedostępne. Spróbuj ponownie później."
+    "stWorkerDown": "Pobieranie dokumentów jest tymczasowo niedostępne. Spróbuj ponownie później.",
+    "profileLabel": "Firma"
   },
   "companyProfile": {
     "menuLabel": "Profil firmy (AI)",
@@ -1031,5 +1037,28 @@
     "title": "Coś poszło nie tak",
     "body": "Nie udało się wczytać danych. Sprawdź połączenie i spróbuj ponownie.",
     "retry": "Spróbuj ponownie"
+  },
+  "companyProfiles": {
+    "menuLabel": "Profile firm",
+    "menuHint": "Wiele firm na jednym koncie",
+    "screenTitle": "Profile firm",
+    "addBtn": "Dodaj firmę",
+    "addNote": "Każdy profil to osobna firma z własnym profilem AI i tożsamością ofertową. Utworzenie kolejnego profilu przez AI jest płatne z kredytu.",
+    "labelPlaceholder": "Nazwa firmy",
+    "icoPlaceholder": "NIP",
+    "createBtn": "Utwórz",
+    "defaultBadge": "domyślny",
+    "setDefault": "Ustaw jako domyślny",
+    "rename": "Zmień nazwę",
+    "renameTitle": "Nowa nazwa profilu",
+    "deleteBtn": "Usuń",
+    "deleteConfirmTitle": "Usunąć profil?",
+    "deleteConfirmBody": "Historia analiz zostanie zachowana.",
+    "cancelBtn": "Anuluj",
+    "lastProfileError": "Nie można usunąć ostatniego profilu.",
+    "limitError": "Osiągnięto maksymalną liczbę profili.",
+    "profileRow": "Profil firmy (AI)",
+    "identityRow": "Tożsamość ofertowa",
+    "identityMissing": "brak tożsamości"
   }
 }

@@ -461,7 +461,12 @@
     "pdfEmailSentBody": "Hemos enviado el PDF a {email}.",
     "progressQueue": "En cola de descarga (posición {position})…",
     "progressWorkerDown": "La descarga de documentos no está disponible temporalmente. Inténtalo más tarde.",
-    "errorReported": "El problema se ha notificado automáticamente y estamos trabajando en solucionarlo."
+    "errorReported": "El problema se ha notificado automáticamente y estamos trabajando en solucionarlo.",
+    "profileLabel": "Empresa",
+    "profilePicked": "La IA eligió el perfil {label}: {reason}",
+    "switchPaidTitle": "¿Cambiar de empresa?",
+    "switchPaidBody": "El análisis ya está en curso — el cambio inicia un nuevo análisis (cobrado del crédito salvo que quede uno gratuito).",
+    "switchBtn": "Cambiar"
   },
   "docPrep": {
     "title": "Preparación de documentos con IA",
@@ -502,7 +507,8 @@
     "insufficientBody": "Recargue su crédito de IA en veritra.io e inténtelo de nuevo.",
     "topUpWeb": "Recargar crédito en veritra.io",
     "stQueue": "En cola de descarga (posición {position})…",
-    "stWorkerDown": "La descarga de documentos no está disponible temporalmente. Inténtalo más tarde."
+    "stWorkerDown": "La descarga de documentos no está disponible temporalmente. Inténtalo más tarde.",
+    "profileLabel": "Empresa"
   },
   "companyProfile": {
     "menuLabel": "Perfil de empresa (IA)",
@@ -1031,5 +1037,28 @@
     "title": "Algo salió mal",
     "body": "No se pudieron cargar los datos. Comprueba tu conexión e inténtalo de nuevo.",
     "retry": "Reintentar"
+  },
+  "companyProfiles": {
+    "menuLabel": "Perfiles de empresa",
+    "menuHint": "Varias empresas en una cuenta",
+    "screenTitle": "Perfiles de empresa",
+    "addBtn": "Añadir empresa",
+    "addNote": "Cada perfil es una empresa independiente con su propio perfil de IA e identidad de oferta. La creación por IA de otro perfil se cobra del crédito.",
+    "labelPlaceholder": "Nombre de la empresa",
+    "icoPlaceholder": "NIF",
+    "createBtn": "Crear",
+    "defaultBadge": "predeterminado",
+    "setDefault": "Establecer como predeterminado",
+    "rename": "Renombrar",
+    "renameTitle": "Nuevo nombre del perfil",
+    "deleteBtn": "Eliminar",
+    "deleteConfirmTitle": "¿Eliminar el perfil?",
+    "deleteConfirmBody": "El historial de análisis se conservará.",
+    "cancelBtn": "Cancelar",
+    "lastProfileError": "El último perfil no se puede eliminar.",
+    "limitError": "Se alcanzó el número máximo de perfiles.",
+    "profileRow": "Perfil de empresa (IA)",
+    "identityRow": "Identidad de oferta",
+    "identityMissing": "falta identidad"
   }
 }

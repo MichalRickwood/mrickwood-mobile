@@ -44,8 +44,12 @@ export default function TenderDocPrepScreen() {
   const [priceText, setPriceText] = useState("");
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Multi-profil: uživatelem zvolený profil (null = server rozhodne — rozpracovaná
+  // příprava → dědění z analýzy → default).
+  const selectedProfileRef = useRef<string | null>(null);
+
   const reload = async () => {
-    const { data } = await endpoints.docPrepGet(tenderId);
+    const { data } = await endpoints.docPrepGet(tenderId, selectedProfileRef.current ? { profileId: selectedProfileRef.current } : undefined);
     setState(data);
     return data;
   };
@@ -74,7 +78,7 @@ export default function TenderDocPrepScreen() {
     try {
       await ssePost<DocPrepStreamEvent>(
         `/api/v2/leads/tenders/${tenderId}/doc-prep`,
-        { new: false },
+        { new: false, ...(selectedProfileRef.current ? { profileId: selectedProfileRef.current } : {}) },
         (evt) => {
           if (evt.type === "status") {
             if (evt.phase === "queue") setPhase(t("docPrep", "stQueue", { position: evt.detail ?? "?" }));
@@ -176,6 +180,23 @@ export default function TenderDocPrepScreen() {
     );
   }
 
+  const dpProfiles = state?.profiles ?? [];
+  const profileChips = dpProfiles.length > 1 ? (
+    <View style={styles.profileChips}>
+      {dpProfiles.map((p) => (
+        <Pressable
+          key={p.id}
+          onPress={() => { selectedProfileRef.current = p.id; void reload(); }}
+          style={[styles.profileChip, p.id === state?.profileId && styles.profileChipActive]}
+        >
+          <Text style={[styles.profileChipText, p.id === state?.profileId && styles.profileChipTextActive]}>
+            {p.label}{p.bidIdentityComplete ? "" : ` (${t("companyProfiles", "identityMissing")})`}
+          </Text>
+        </Pressable>
+      ))}
+    </View>
+  ) : null;
+
   if (state && !state.identity.complete) {
     return (
       <SafeAreaView style={styles.safe} edges={["bottom"]}>
@@ -183,7 +204,11 @@ export default function TenderDocPrepScreen() {
         <View style={styles.center}>
           <Text style={styles.gateTitle}>{t("docPrep", "identityRequiredTitle")}</Text>
           <Text style={styles.gateBody}>{t("docPrep", "identityRequiredBody")}</Text>
-          <Pressable style={styles.primaryBtn} onPress={() => router.push("/(tabs)/settings/bid-identity")}>
+          {profileChips}
+          <Pressable
+            style={styles.primaryBtn}
+            onPress={() => router.push({ pathname: "/(tabs)/settings/bid-identity", params: state.profileId ? { profileId: state.profileId } : {} })}
+          >
             <Text style={styles.primaryBtnText}>{t("docPrep", "identityRequiredCta")}</Text>
           </Pressable>
         </View>
@@ -203,6 +228,12 @@ export default function TenderDocPrepScreen() {
           {dp?.freeTier ? t("docPrep", "firstFree") : t("docPrep", "balance", { amount: String(state?.balance ?? 0), currency: (state?.currency ?? "CZK") as Currency })}
         </Text>
 
+        {!plan && profileChips ? (
+          <View style={{ marginBottom: spacing.sm }}>
+            <Text style={styles.hint}>{t("docPrep", "profileLabel")}:</Text>
+            {profileChips}
+          </View>
+        ) : null}
         {!plan ? (
           <View style={styles.block}>
             <Text style={styles.hint}>{t("docPrep", "analyzeHint")}</Text>
@@ -335,6 +366,11 @@ const makeStyles = (c: Colors) =>
     scroll: { padding: spacing.lg, paddingBottom: spacing.xxl * 2 },
     gateTitle: { fontSize: fontSize.lg, fontWeight: "700", color: c.text, marginBottom: spacing.sm, textAlign: "center" },
     gateBody: { fontSize: fontSize.sm, color: c.textSubtle, textAlign: "center", marginBottom: spacing.xl, lineHeight: 20 },
+    profileChips: { flexDirection: "row", flexWrap: "wrap", gap: spacing.xs, justifyContent: "center", marginBottom: spacing.md, marginTop: spacing.xs },
+    profileChip: { borderWidth: 1, borderColor: c.border, borderRadius: radius.full, paddingHorizontal: spacing.md, paddingVertical: 4, backgroundColor: c.card },
+    profileChipActive: { borderColor: c.accent, backgroundColor: c.accent },
+    profileChipText: { fontSize: fontSize.xs, color: c.textMuted, fontWeight: "600" },
+    profileChipTextActive: { color: c.accentForeground },
     primaryBtn: { backgroundColor: c.accent, paddingHorizontal: spacing.xl, paddingVertical: spacing.md, borderRadius: radius.md, alignItems: "center", marginTop: spacing.md },
     primaryBtnText: { color: c.accentForeground, fontWeight: "600", fontSize: fontSize.sm },
     rowCenter: { flexDirection: "row", alignItems: "center" },

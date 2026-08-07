@@ -18,7 +18,7 @@ import * as WebBrowser from "expo-web-browser";
 import { useTheme } from "@/lib/theme-context";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 import { useI18n } from "@/lib/i18n";
-import { endpoints, type AnalysisMessage, type AnalysisStreamEvent, type Currency } from "@/lib/endpoints";
+import { endpoints, type AnalysisMessage, type AnalysisStreamEvent, type Currency , type AnalysisProfileOpt } from "@/lib/endpoints";
 import { ssePost } from "@/lib/sse";
 import { reportClientError } from "@/lib/tracker";
 import { openAuthedFile } from "@/lib/file-open";
@@ -45,6 +45,12 @@ export default function TenderAnalysisScreen() {
   const [balance, setBalance] = useState<number | null>(null);
   const [currency, setCurrency] = useState<Currency>("CZK");
   const [messages, setMessages] = useState<Msg[]>([]);
+  // Multi-profil: nabídka profilů (selector jen při >1) + volba/zdůvodnění session.
+  const [profileOpts, setProfileOpts] = useState<AnalysisProfileOpt[]>([]);
+  const [profileId, setProfileId] = useState<string | null>(null);
+  const [profileLabel, setProfileLabel] = useState<string | null>(null);
+  const [pickReason, setPickReason] = useState<string | null>(null);
+  const [canSwitchProfile, setCanSwitchProfile] = useState(true);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [reporting, setReporting] = useState(false);
@@ -68,15 +74,20 @@ export default function TenderAnalysisScreen() {
     let alive = true;
     (async () => {
       try {
-        const { data } = await endpoints.analysisGet(tenderId);
+        const { data } = await endpoints.analysisGet(tenderId, { locale });
         if (!alive) return;
         setHasProfile(data.hasCompanyProfile);
+        setProfileOpts(data.profiles ?? []);
         setBalance(data.balance);
         setCurrency(data.currency);
         if (data.session) {
           setSessionId(data.session.id);
           setFreeTier(data.session.freeTier);
           setMessages(data.session.messages);
+          setProfileId(data.session.profileId ?? null);
+          setProfileLabel(data.session.profileLabel ?? null);
+          setPickReason(data.session.pickReason ?? null);
+          setCanSwitchProfile(data.session.canSwitchProfile ?? true);
         }
         // Auto-spuštění: když je profil hotový a ještě nic neproběhlo, spustíme
         // analýzu rovnou (skrytá kickoff zpráva) — uživatel nemusí nic psát.
@@ -355,6 +366,34 @@ export default function TenderAnalysisScreen() {
     );
   }
 
+  async function switchProfile(newProfileId: string) {
+    if (!sessionId || newProfileId === profileId || sending) return;
+    const doSwitch = async () => {
+      try {
+        const { data } = await endpoints.analysisSetProfile(tenderId, { sessionId, profileId: newProfileId });
+        setSessionId(data.session.id);
+        setFreeTier(data.session.freeTier);
+        setMessages(data.session.messages);
+        setProfileId(data.session.profileId ?? null);
+        setProfileLabel(data.session.profileLabel ?? null);
+        setPickReason(data.session.pickReason ?? null);
+        setCanSwitchProfile(data.session.canSwitchProfile ?? true);
+        if ((data.session.messages ?? []).length === 0) void runTurn(KICKOFF, data.session.id);
+      } catch (e) {
+        Alert.alert(t("aiAnalysis", "errorTitle"), e instanceof Error ? e.message : "");
+      }
+    };
+    if (canSwitchProfile) {
+      void doSwitch();
+    } else {
+      // Po první odpovědi = nová (typicky placená) session → potvrzení.
+      Alert.alert(t("aiAnalysis", "switchPaidTitle"), t("aiAnalysis", "switchPaidBody"), [
+        { text: t("companyProfiles", "cancelBtn"), style: "cancel" },
+        { text: t("aiAnalysis", "switchBtn"), onPress: () => void doSwitch() },
+      ]);
+    }
+  }
+
   return (
     <SafeAreaView style={styles.safe} edges={["bottom"]}>
       <Stack.Screen options={screenOpts} />
@@ -367,6 +406,22 @@ export default function TenderAnalysisScreen() {
         <Text style={styles.balanceLine}>
           {freeTier ? t("aiAnalysis", "firstFree") : t("aiAnalysis", "balance", { amount: String(balance ?? 0), currency })}
         </Text>
+        {profileOpts.length > 1 && (
+          <View style={styles.profileChips}>
+            {profileOpts.map((p) => (
+              <Pressable
+                key={p.id}
+                onPress={() => void switchProfile(p.id)}
+                style={[styles.profileChip, p.id === profileId && styles.profileChipActive]}
+              >
+                <Text style={[styles.profileChipText, p.id === profileId && styles.profileChipTextActive]}>{p.label}</Text>
+              </Pressable>
+            ))}
+          </View>
+        )}
+        {profileOpts.length > 1 && pickReason && profileLabel ? (
+          <Text style={styles.profileReason}>🤖 {t("aiAnalysis", "profilePicked", { label: profileLabel, reason: pickReason })}</Text>
+        ) : null}
         <FlatList
           ref={listRef}
           data={visibleMessages}
@@ -475,6 +530,12 @@ const makeStyles = (c: Colors) =>
     primaryBtnText: { color: c.accentForeground, fontWeight: "600", fontSize: fontSize.sm },
     tenderTitle: { fontSize: fontSize.sm, fontWeight: "600", color: c.text, paddingHorizontal: spacing.lg, paddingTop: spacing.sm },
     balanceLine: { fontSize: fontSize.xs, color: c.textSubtle, paddingHorizontal: spacing.lg, paddingVertical: spacing.xs },
+    profileChips: { flexDirection: "row", flexWrap: "wrap", gap: spacing.xs, paddingHorizontal: spacing.lg, paddingBottom: spacing.xs },
+    profileChip: { borderWidth: 1, borderColor: c.border, borderRadius: radius.full, paddingHorizontal: spacing.md, paddingVertical: 4, backgroundColor: c.card },
+    profileChipActive: { borderColor: c.accent, backgroundColor: c.accent },
+    profileChipText: { fontSize: fontSize.xs, color: c.textMuted, fontWeight: "600" },
+    profileChipTextActive: { color: c.accentForeground },
+    profileReason: { fontSize: fontSize.xs, color: c.textSubtle, paddingHorizontal: spacing.lg, paddingBottom: spacing.xs },
     list: { padding: spacing.lg, gap: spacing.sm },
     emptyHint: { fontSize: fontSize.sm, color: c.textFaint, textAlign: "center", marginTop: spacing.xxl, paddingHorizontal: spacing.xl, lineHeight: 20 },
     bubble: { maxWidth: "85%", borderRadius: radius.md, padding: spacing.md, marginBottom: spacing.xs },

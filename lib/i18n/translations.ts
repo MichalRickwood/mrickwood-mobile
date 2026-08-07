@@ -252,6 +252,11 @@ export interface Dict {
     translateInsufficientBody: string;
   };
   aiAnalysis: {
+    profileLabel: string;
+    profilePicked: string;
+    switchPaidTitle: string;
+    switchPaidBody: string;
+    switchBtn: string;
     title: string;
     errorTitle: string;
     balance: string;
@@ -291,6 +296,7 @@ export interface Dict {
     retry: string;
   };
   docPrep: {
+    profileLabel: string;
     title: string;
     errorTitle: string;
     stQueue: string;
@@ -330,6 +336,29 @@ export interface Dict {
     insufficientTitle: string;
     insufficientBody: string;
     topUpWeb: string;
+  };
+  companyProfiles: {
+    menuLabel: string;
+    menuHint: string;
+    screenTitle: string;
+    addBtn: string;
+    addNote: string;
+    labelPlaceholder: string;
+    icoPlaceholder: string;
+    createBtn: string;
+    defaultBadge: string;
+    setDefault: string;
+    rename: string;
+    renameTitle: string;
+    deleteBtn: string;
+    deleteConfirmTitle: string;
+    deleteConfirmBody: string;
+    cancelBtn: string;
+    lastProfileError: string;
+    limitError: string;
+    profileRow: string;
+    identityRow: string;
+    identityMissing: string;
   };
   companyProfile: {
     menuLabel: string;
@@ -1725,6 +1754,11 @@ const cs: Dict = {
     translateInsufficientBody: "Na překlad není dostatečný AI kredit. Dobijte si ho na veritra.io v Nastavení.",
   },
   aiAnalysis: {
+    profileLabel: "Firma",
+    profilePicked: "AI vybrala profil {label}: {reason}",
+    switchPaidTitle: "Přepnout firmu?",
+    switchPaidBody: "Analýza už běží — přepnutí založí novou analýzu (platí se z kreditu, pokud už nemáte nárok na analýzu zdarma).",
+    switchBtn: "Přepnout",
     title: "AI analýza zakázky",
     errorTitle: "Chyba",
     balance: "Kredit: {amount} {currency}",
@@ -1764,6 +1798,7 @@ const cs: Dict = {
     retry: "Zkusit znovu",
   },
   docPrep: {
+    profileLabel: "Firma",
     title: "AI příprava dokumentace",
     stQueue: "Ve frontě na stahování ({position}. v pořadí)…",
     stWorkerDown: "Stahování dokumentů je dočasně nedostupné. Zkuste to prosím později.",
@@ -1803,6 +1838,29 @@ const cs: Dict = {
     insufficientTitle: "Nedostatek kreditu",
     insufficientBody: "Dobijte si AI kredit na veritra.io a zkuste to znovu.",
     topUpWeb: "Dobít kredit na veritra.io",
+  },
+  companyProfiles: {
+    menuLabel: "Firemní profily",
+    menuHint: "Více firem na jednom účtu",
+    screenTitle: "Firemní profily",
+    addBtn: "Přidat firmu",
+    addNote: "Každý profil je samostatná firma s vlastním AI profilem a identitou pro dokumentaci. AI sestavení dalšího profilu se účtuje z kreditu.",
+    labelPlaceholder: "Název firmy",
+    icoPlaceholder: "IČO",
+    createBtn: "Vytvořit",
+    defaultBadge: "výchozí",
+    setDefault: "Nastavit jako výchozí",
+    rename: "Přejmenovat",
+    renameTitle: "Nový název profilu",
+    deleteBtn: "Smazat",
+    deleteConfirmTitle: "Smazat profil?",
+    deleteConfirmBody: "Historie analýz zůstane zachována.",
+    cancelBtn: "Zrušit",
+    lastProfileError: "Poslední profil nelze smazat.",
+    limitError: "Dosažen maximální počet profilů.",
+    profileRow: "Profil firmy (AI)",
+    identityRow: "Identita pro dokumentaci",
+    identityMissing: "chybí identita",
   },
   companyProfile: {
     menuLabel: "Firemní profil (AI)",
@@ -2552,6 +2610,11 @@ const en: Dict = {
     translateInsufficientBody: "Not enough AI credit for translation. Top up at veritra.io in Settings.",
   },
   aiAnalysis: {
+    profileLabel: "Company",
+    profilePicked: "AI picked profile {label}: {reason}",
+    switchPaidTitle: "Switch company?",
+    switchPaidBody: "The analysis is already running — switching starts a new analysis (charged from credit unless a free one remains).",
+    switchBtn: "Switch",
     title: "AI tender analysis",
     errorTitle: "Error",
     balance: "Credit: {amount} {currency}",
@@ -2591,6 +2654,7 @@ const en: Dict = {
     retry: "Try again",
   },
   docPrep: {
+    profileLabel: "Company",
     title: "AI document preparation",
     stQueue: "Queued for download (position {position})…",
     stWorkerDown: "Document download is temporarily unavailable. Please try again later.",
@@ -2630,6 +2694,29 @@ const en: Dict = {
     insufficientTitle: "Insufficient credit",
     insufficientBody: "Top up your AI credit on veritra.io and try again.",
     topUpWeb: "Top up credit on veritra.io",
+  },
+  companyProfiles: {
+    menuLabel: "Company profiles",
+    menuHint: "Multiple companies on one account",
+    screenTitle: "Company profiles",
+    addBtn: "Add company",
+    addNote: "Each profile is a separate company with its own AI profile and bid identity. Building another profile with AI is charged from credit.",
+    labelPlaceholder: "Company name",
+    icoPlaceholder: "Company ID",
+    createBtn: "Create",
+    defaultBadge: "default",
+    setDefault: "Set as default",
+    rename: "Rename",
+    renameTitle: "New profile name",
+    deleteBtn: "Delete",
+    deleteConfirmTitle: "Delete profile?",
+    deleteConfirmBody: "Analysis history will be kept.",
+    cancelBtn: "Cancel",
+    lastProfileError: "The last profile cannot be deleted.",
+    limitError: "Maximum number of profiles reached.",
+    profileRow: "Company profile (AI)",
+    identityRow: "Bid identity",
+    identityMissing: "identity missing",
   },
   companyProfile: {
     menuLabel: "Company profile (AI)",
@@ -3381,6 +3468,11 @@ const de: Dict = {
     translateInsufficientBody: "Nicht genug KI-Guthaben für die Übersetzung. Laden Sie es auf veritra.io in den Einstellungen auf.",
   },
   aiAnalysis: {
+    profileLabel: "Firma",
+    profilePicked: "KI wählte Profil {label}: {reason}",
+    switchPaidTitle: "Firma wechseln?",
+    switchPaidBody: "Die Analyse läuft bereits — der Wechsel startet eine neue Analyse (vom Guthaben abgebucht, sofern keine kostenlose verfügbar ist).",
+    switchBtn: "Wechseln",
     title: "KI-Analyse der Ausschreibung",
     errorTitle: "Fehler",
     balance: "Guthaben: {amount} {currency}",
@@ -3420,6 +3512,7 @@ const de: Dict = {
     retry: "Erneut versuchen",
   },
   docPrep: {
+    profileLabel: "Firma",
     title: "KI-Unterlagenerstellung",
     stQueue: "In der Download-Warteschlange (Position {position})…",
     stWorkerDown: "Der Dokumenten-Download ist vorübergehend nicht verfügbar. Bitte versuchen Sie es später erneut.",
@@ -3459,6 +3552,29 @@ const de: Dict = {
     insufficientTitle: "Nicht genug Guthaben",
     insufficientBody: "Laden Sie Ihr KI-Guthaben auf veritra.io auf und versuchen Sie es erneut.",
     topUpWeb: "Guthaben auf veritra.io aufladen",
+  },
+  companyProfiles: {
+    menuLabel: "Firmenprofile",
+    menuHint: "Mehrere Firmen in einem Konto",
+    screenTitle: "Firmenprofile",
+    addBtn: "Firma hinzufügen",
+    addNote: "Jedes Profil ist eine eigene Firma mit eigenem KI-Profil und Angebotsidentität. KI-Erstellung eines weiteren Profils wird vom Guthaben abgebucht.",
+    labelPlaceholder: "Firmenname",
+    icoPlaceholder: "Firmen-ID",
+    createBtn: "Erstellen",
+    defaultBadge: "Standard",
+    setDefault: "Als Standard festlegen",
+    rename: "Umbenennen",
+    renameTitle: "Neuer Profilname",
+    deleteBtn: "Löschen",
+    deleteConfirmTitle: "Profil löschen?",
+    deleteConfirmBody: "Der Analyseverlauf bleibt erhalten.",
+    cancelBtn: "Abbrechen",
+    lastProfileError: "Das letzte Profil kann nicht gelöscht werden.",
+    limitError: "Maximale Anzahl von Profilen erreicht.",
+    profileRow: "Firmenprofil (KI)",
+    identityRow: "Angebotsidentität",
+    identityMissing: "Identität fehlt",
   },
   companyProfile: {
     menuLabel: "Firmenprofil (KI)",
@@ -4208,6 +4324,11 @@ const sk: Dict = {
     translateInsufficientBody: "Na preklad nie je dostatočný AI kredit. Dobite si ho na veritra.io v Nastaveniach.",
   },
   aiAnalysis: {
+    profileLabel: "Firma",
+    profilePicked: "AI vybrala profil {label}: {reason}",
+    switchPaidTitle: "Prepnúť firmu?",
+    switchPaidBody: "Analýza už beží — prepnutie založí novú analýzu (platí sa z kreditu, ak už nemáte nárok na analýzu zadarmo).",
+    switchBtn: "Prepnúť",
     title: "AI analýza zákazky",
     errorTitle: "Chyba",
     balance: "Kredit: {amount} {currency}",
@@ -4247,6 +4368,7 @@ const sk: Dict = {
     retry: "Skúsiť znova",
   },
   docPrep: {
+    profileLabel: "Firma",
     title: "AI príprava dokumentácie",
     stQueue: "V rade na sťahovanie ({position}. v poradí)…",
     stWorkerDown: "Sťahovanie dokumentov je dočasne nedostupné. Skúste to prosím neskôr.",
@@ -4286,6 +4408,29 @@ const sk: Dict = {
     insufficientTitle: "Nedostatok kreditu",
     insufficientBody: "Dobite si AI kredit na veritra.io a skúste to znova.",
     topUpWeb: "Dobiť kredit na veritra.io",
+  },
+  companyProfiles: {
+    menuLabel: "Firemné profily",
+    menuHint: "Viac firiem na jednom účte",
+    screenTitle: "Firemné profily",
+    addBtn: "Pridať firmu",
+    addNote: "Každý profil je samostatná firma s vlastným AI profilom a identitou pre dokumentáciu. AI zostavenie ďalšieho profilu sa účtuje z kreditu.",
+    labelPlaceholder: "Názov firmy",
+    icoPlaceholder: "IČO",
+    createBtn: "Vytvoriť",
+    defaultBadge: "predvolený",
+    setDefault: "Nastaviť ako predvolený",
+    rename: "Premenovať",
+    renameTitle: "Nový názov profilu",
+    deleteBtn: "Zmazať",
+    deleteConfirmTitle: "Zmazať profil?",
+    deleteConfirmBody: "História analýz zostane zachovaná.",
+    cancelBtn: "Zrušiť",
+    lastProfileError: "Posledný profil nie je možné zmazať.",
+    limitError: "Dosiahnutý maximálny počet profilov.",
+    profileRow: "Profil firmy (AI)",
+    identityRow: "Identita pre dokumentáciu",
+    identityMissing: "chýba identita",
   },
   companyProfile: {
     menuLabel: "Firemný profil (AI)",
@@ -5035,6 +5180,11 @@ const fr: Dict = {
     translateInsufficientBody: "Crédit IA insuffisant pour la traduction. Rechargez-le sur veritra.io dans Paramètres.",
   },
   aiAnalysis: {
+    profileLabel: "Société",
+    profilePicked: "L'IA a choisi le profil {label} : {reason}",
+    switchPaidTitle: "Changer de société ?",
+    switchPaidBody: "L'analyse est déjà en cours — le changement lance une nouvelle analyse (débitée du crédit sauf analyse gratuite restante).",
+    switchBtn: "Changer",
     title: "Analyse IA de l'appel d'offres",
     errorTitle: "Erreur",
     balance: "Crédit : {amount} {currency}",
@@ -5074,6 +5224,7 @@ const fr: Dict = {
     retry: "Réessayer",
   },
   docPrep: {
+    profileLabel: "Société",
     title: "Préparation IA des documents",
     stQueue: "En file d'attente de téléchargement (position {position})…",
     stWorkerDown: "Le téléchargement des documents est temporairement indisponible. Veuillez réessayer plus tard.",
@@ -5113,6 +5264,29 @@ const fr: Dict = {
     insufficientTitle: "Crédit insuffisant",
     insufficientBody: "Rechargez votre crédit IA sur veritra.io et réessayez.",
     topUpWeb: "Recharger sur veritra.io",
+  },
+  companyProfiles: {
+    menuLabel: "Profils de société",
+    menuHint: "Plusieurs sociétés sur un compte",
+    screenTitle: "Profils de société",
+    addBtn: "Ajouter une société",
+    addNote: "Chaque profil est une société distincte avec son propre profil IA et identité de soumission. La création IA d'un profil supplémentaire est débitée du crédit.",
+    labelPlaceholder: "Nom de la société",
+    icoPlaceholder: "SIREN",
+    createBtn: "Créer",
+    defaultBadge: "par défaut",
+    setDefault: "Définir par défaut",
+    rename: "Renommer",
+    renameTitle: "Nouveau nom du profil",
+    deleteBtn: "Supprimer",
+    deleteConfirmTitle: "Supprimer le profil ?",
+    deleteConfirmBody: "L'historique des analyses sera conservé.",
+    cancelBtn: "Annuler",
+    lastProfileError: "Le dernier profil ne peut pas être supprimé.",
+    limitError: "Nombre maximum de profils atteint.",
+    profileRow: "Profil de société (IA)",
+    identityRow: "Identité de soumission",
+    identityMissing: "identité manquante",
   },
   companyProfile: {
     menuLabel: "Profil d'entreprise (IA)",
@@ -5862,6 +6036,11 @@ const it: Dict = {
     translateInsufficientBody: "Credito IA insufficiente per la traduzione. Ricaricalo su veritra.io nelle Impostazioni.",
   },
   aiAnalysis: {
+    profileLabel: "Azienda",
+    profilePicked: "L'IA ha scelto il profilo {label}: {reason}",
+    switchPaidTitle: "Cambiare azienda?",
+    switchPaidBody: "L'analisi è già in corso — il cambio avvia una nuova analisi (addebitata dal credito salvo analisi gratuita disponibile).",
+    switchBtn: "Cambia",
     title: "Analisi IA della gara",
     errorTitle: "Errore",
     balance: "Credito: {amount} {currency}",
@@ -5901,6 +6080,7 @@ const it: Dict = {
     retry: "Riprova",
   },
   docPrep: {
+    profileLabel: "Azienda",
     title: "Preparazione IA dei documenti",
     stQueue: "In coda per il download (posizione {position})…",
     stWorkerDown: "Il download dei documenti è temporaneamente non disponibile. Riprova più tardi.",
@@ -5940,6 +6120,29 @@ const it: Dict = {
     insufficientTitle: "Credito insufficiente",
     insufficientBody: "Ricarica il credito IA su veritra.io e riprova.",
     topUpWeb: "Ricarica su veritra.io",
+  },
+  companyProfiles: {
+    menuLabel: "Profili aziendali",
+    menuHint: "Più aziende in un unico account",
+    screenTitle: "Profili aziendali",
+    addBtn: "Aggiungi azienda",
+    addNote: "Ogni profilo è un'azienda separata con il proprio profilo IA e identità per le offerte. La creazione IA di un altro profilo viene addebitata dal credito.",
+    labelPlaceholder: "Nome azienda",
+    icoPlaceholder: "Partita IVA",
+    createBtn: "Crea",
+    defaultBadge: "predefinito",
+    setDefault: "Imposta come predefinito",
+    rename: "Rinomina",
+    renameTitle: "Nuovo nome del profilo",
+    deleteBtn: "Elimina",
+    deleteConfirmTitle: "Eliminare il profilo?",
+    deleteConfirmBody: "La cronologia delle analisi verrà conservata.",
+    cancelBtn: "Annulla",
+    lastProfileError: "L'ultimo profilo non può essere eliminato.",
+    limitError: "Numero massimo di profili raggiunto.",
+    profileRow: "Profilo aziendale (IA)",
+    identityRow: "Identità per le offerte",
+    identityMissing: "identità mancante",
   },
   companyProfile: {
     menuLabel: "Profilo aziendale (IA)",

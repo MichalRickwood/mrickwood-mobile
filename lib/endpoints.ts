@@ -151,10 +151,23 @@ export interface AnalysisSession {
   freeTier: boolean;
   reportMd: string | null;
   messages: AnalysisMessage[];
+  /** Multi-profil: se kterým profilem analýza běží + zdůvodnění AI výběru. */
+  profileId?: string | null;
+  profileLabel?: string | null;
+  pickReason?: string | null;
+  canSwitchProfile?: boolean;
+}
+export interface AnalysisProfileOpt {
+  id: string;
+  label: string;
+  ico: string | null;
+  isDefault: boolean;
 }
 export interface AnalysisState {
   hasDocuments: boolean;
   hasCompanyProfile: boolean;
+  /** Multi-profil: profily s vyplněným companyMd (selector se ukazuje při >1). */
+  profiles?: AnalysisProfileOpt[];
   balance: number;
   currency: Currency;
   session: AnalysisSession | null;
@@ -198,9 +211,19 @@ export interface DocPrepView {
   createdAt: string;
   updatedAt: string;
 }
+export interface DocPrepProfileOpt {
+  id: string;
+  label: string;
+  ico: string | null;
+  isDefault: boolean;
+  bidIdentityComplete: boolean;
+}
 export interface DocPrepState {
   hasDocuments: boolean;
   identity: { complete: boolean; missing: string[] };
+  /** Multi-profil: profil, se kterým příprava poběží + nabídka pro selector. */
+  profileId?: string;
+  profiles?: DocPrepProfileOpt[];
   docPrep: DocPrepView | null;
   balance: number;
   currency: Currency;
@@ -218,12 +241,24 @@ export interface DocPrepGenerateInput {
 }
 
 export interface CompanyProfileView {
+  profileId?: string;
+  label?: string;
   companyMd: string | null;
   companyMdAt: string | null;
   ico: string | null;
   companyName: string | null;
   freeAvailable: boolean;
   researchReady: boolean;
+}
+/** Souhrn firemního profilu (multi-profil, /account/company-profiles). */
+export interface ProfileSummary {
+  id: string;
+  label: string;
+  isDefault: boolean;
+  ico: string | null;
+  name: string | null;
+  hasCompanyMd: boolean;
+  bidIdentityComplete: boolean;
 }
 export interface BidIdentityView {
   complete: boolean;
@@ -848,15 +883,30 @@ export const endpoints = {
       `/api/v2/leads/tenders/${tenderId}/analysis/report`,
       { locale },
     ),
-  analysisGet: (tenderId: number, opts?: { fresh?: boolean }) =>
+  analysisGet: (tenderId: number, opts?: { fresh?: boolean; profileId?: string; locale?: string }) =>
     api.get<{ data: AnalysisState }>(
       `/api/v2/leads/tenders/${tenderId}/analysis`,
-      opts?.fresh ? { params: { new: 1 } } : undefined,
+      {
+        params: {
+          ...(opts?.fresh ? { new: 1 } : {}),
+          ...(opts?.profileId ? { profileId: opts.profileId } : {}),
+          ...(opts?.locale ? { locale: opts.locale } : {}),
+        },
+      },
+    ),
+  /** Přepne profil firmy u analýzy (multi-profil). Po 1. odpovědi zakládá novou session. */
+  analysisSetProfile: (tenderId: number, body: { sessionId: string; profileId: string }) =>
+    api.post<{ data: { session: AnalysisSession; newSession: boolean } }>(
+      `/api/v2/leads/tenders/${tenderId}/analysis/profile`,
+      body,
     ),
 
   // ── AI příprava dokumentace ──
-  docPrepGet: (tenderId: number) =>
-    api.get<{ data: DocPrepState }>(`/api/v2/leads/tenders/${tenderId}/doc-prep`),
+  docPrepGet: (tenderId: number, opts?: { profileId?: string }) =>
+    api.get<{ data: DocPrepState }>(
+      `/api/v2/leads/tenders/${tenderId}/doc-prep`,
+      opts?.profileId ? { params: { profileId: opts.profileId } } : undefined,
+    ),
   docPrepGenerate: (tenderId: number, body: DocPrepGenerateInput) =>
     api.post<{ data: { docPrep: DocPrepView; charged: number; balance: number; currency: Currency } }>(
       `/api/v2/leads/tenders/${tenderId}/doc-prep/generate`,
@@ -868,19 +918,42 @@ export const endpoints = {
       form,
     ),
 
-  // ── Firemní profil (AI) ──
-  companyProfileGet: () => api.get<{ data: CompanyProfileView }>("/api/v2/account/company-profile"),
-  companyProfileBuild: (questionnaire?: unknown) =>
-    api.post<{ data: CompanyProfileView }>("/api/v2/account/company-profile", questionnaire ? { questionnaire } : {}),
-  companyProfileSaveMd: (companyMd: string) =>
-    api.patch<{ data: CompanyProfileView }>("/api/v2/account/company-profile", { companyMd }),
-  companyProfileFinalize: () => api.put<{ data: CompanyProfileView }>("/api/v2/account/company-profile", {}),
+  // ── Firemní profil (AI) — multi-profil: profileId? cílí konkrétní profil (bez něj default) ──
+  companyProfileGet: (profileId?: string) =>
+    api.get<{ data: CompanyProfileView }>(
+      "/api/v2/account/company-profile",
+      profileId ? { params: { profileId } } : undefined,
+    ),
+  companyProfileBuild: (questionnaire?: unknown, profileId?: string) =>
+    api.post<{ data: CompanyProfileView }>("/api/v2/account/company-profile", {
+      ...(questionnaire ? { questionnaire } : {}),
+      ...(profileId ? { profileId } : {}),
+    }),
+  companyProfileSaveMd: (companyMd: string, profileId?: string) =>
+    api.patch<{ data: CompanyProfileView }>("/api/v2/account/company-profile", { companyMd, ...(profileId ? { profileId } : {}) }),
+  companyProfileFinalize: (profileId?: string) =>
+    api.put<{ data: CompanyProfileView }>("/api/v2/account/company-profile", profileId ? { profileId } : {}),
+
+  // ── Správa firemních profilů (multi-profil) ──
+  companyProfilesList: () =>
+    api.get<{ data: { profiles: ProfileSummary[]; maxProfiles: number } }>("/api/v2/account/company-profiles"),
+  companyProfileCreate: (body: { label?: string; ico?: string }) =>
+    api.post<{ data: { profile: ProfileSummary } }>("/api/v2/account/company-profiles", body),
+  companyProfileUpdate: (profileId: string, body: { label?: string; isDefault?: boolean }) =>
+    api.patch<{ data: { profile: ProfileSummary } }>(`/api/v2/account/company-profiles/${profileId}`, body),
+  companyProfileDelete: (profileId: string) =>
+    api.delete<{ data: { profiles: ProfileSummary[] } }>(`/api/v2/account/company-profiles/${profileId}`),
 
   // ── Bid identita ──
-  bidIdentityGet: () => api.get<{ data: BidIdentityView }>("/api/v2/account/bid-identity"),
-  bidIdentityEnrich: () => api.post<{ data: BidIdentityView }>("/api/v2/account/bid-identity", {}),
-  bidIdentitySave: (body: BidIdentitySaveInput) =>
-    api.put<{ data: BidIdentityView }>("/api/v2/account/bid-identity", body),
+  bidIdentityGet: (profileId?: string) =>
+    api.get<{ data: BidIdentityView }>(
+      "/api/v2/account/bid-identity",
+      profileId ? { params: { profileId } } : undefined,
+    ),
+  bidIdentityEnrich: (profileId?: string) =>
+    api.post<{ data: BidIdentityView }>("/api/v2/account/bid-identity", profileId ? { profileId } : {}),
+  bidIdentitySave: (body: BidIdentitySaveInput, profileId?: string) =>
+    api.put<{ data: BidIdentityView }>("/api/v2/account/bid-identity", { ...body, ...(profileId ? { profileId } : {}) }),
 
   // ── AI kredit (jen zobrazení; dobití na webu) ──
   aiCreditGet: () => api.get<{ data: AiCreditView }>("/api/v2/account/ai-credit"),

@@ -75,21 +75,14 @@ export default function SettingsIndexScreen() {
           />
         </View>
 
-        {/* AI nástroje — předpoklady pro analýzu / přípravu dokumentace */}
+        {/* AI nástroje — firemní profily (multi-profil: profil + identita per firma) */}
         <View style={styles.group}>
           <SectionRow
             styles={styles}
             icon={sectionIcon("business-outline")}
-            label={t("companyProfile", "menuLabel")}
-            hint={t("companyProfile", "menuHint")}
-            onPress={() => router.push("/(tabs)/settings/company-profile")}
-          />
-          <SectionRow
-            styles={styles}
-            icon={sectionIcon("id-card-outline")}
-            label={t("bidIdentity", "menuLabel")}
-            hint={t("bidIdentity", "menuHint")}
-            onPress={() => router.push("/(tabs)/settings/bid-identity")}
+            label={t("companyProfiles", "menuLabel")}
+            hint={t("companyProfiles", "menuHint")}
+            onPress={() => router.push("/(tabs)/settings/company-profiles")}
           />
         </View>
 

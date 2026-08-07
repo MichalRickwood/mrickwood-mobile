@@ -253,7 +253,12 @@
     "pdfEmailSentBody": "{email} にPDFを送信しました。",
     "progressQueue": "ダウンロード待機中（{position}番目）…",
     "progressWorkerDown": "書類のダウンロードは一時的に利用できません。しばらくしてからもう一度お試しください。",
-    "errorReported": "問題は自動的に報告されました。修正に取り組んでいます。"
+    "errorReported": "問題は自動的に報告されました。修正に取り組んでいます。",
+    "profileLabel": "会社",
+    "profilePicked": "AIがプロファイル{label}を選択: {reason}",
+    "switchPaidTitle": "会社を切り替えますか？",
+    "switchPaidBody": "分析は既に実行中です。切り替えると新しい分析が開始されます（無料分がない場合はクレジットから課金）。",
+    "switchBtn": "切り替え"
   },
   "docPrep": {
     "title": "AI書類作成",
@@ -294,7 +299,8 @@
     "insufficientBody": "veritra.io で AI クレジットをチャージして、もう一度お試しください。",
     "topUpWeb": "veritra.io でクレジットをチャージ",
     "stQueue": "ダウンロード待機中（{position}番目）…",
-    "stWorkerDown": "書類のダウンロードは一時的に利用できません。しばらくしてからもう一度お試しください。"
+    "stWorkerDown": "書類のダウンロードは一時的に利用できません。しばらくしてからもう一度お試しください。",
+    "profileLabel": "会社"
   },
   "companyProfile": {
     "menuLabel": "企業プロフィール（AI）",
@@ -1031,5 +1037,28 @@
     "title": "問題が発生しました",
     "body": "データを読み込めませんでした。接続を確認してもう一度お試しください。",
     "retry": "再試行"
+  },
+  "companyProfiles": {
+    "menuLabel": "会社プロファイル",
+    "menuHint": "1つのアカウントで複数の会社",
+    "screenTitle": "会社プロファイル",
+    "addBtn": "会社を追加",
+    "addNote": "各プロファイルは独自のAIプロファイルと入札用情報を持つ別会社です。追加プロファイルのAI作成はクレジットから課金されます。",
+    "labelPlaceholder": "会社名",
+    "icoPlaceholder": "法人番号",
+    "createBtn": "作成",
+    "defaultBadge": "デフォルト",
+    "setDefault": "デフォルトに設定",
+    "rename": "名前を変更",
+    "renameTitle": "新しいプロファイル名",
+    "deleteBtn": "削除",
+    "deleteConfirmTitle": "プロファイルを削除しますか？",
+    "deleteConfirmBody": "分析履歴は保持されます。",
+    "cancelBtn": "キャンセル",
+    "lastProfileError": "最後のプロファイルは削除できません。",
+    "limitError": "プロファイルの最大数に達しました。",
+    "profileRow": "会社プロファイル（AI）",
+    "identityRow": "入札用情報",
+    "identityMissing": "情報未入力"
   }
 }
