@@ -739,6 +739,7 @@
     "pushPermissionDenied": "Las notificaciones push están desactivadas en los ajustes de iOS. Actívalas en Configuración → Veritra.",
     "pushNotSupported": "Las notificaciones push no están disponibles en el simulador.",
     "pushNeedBuild": "Las notificaciones push solo funcionan en la versión completa de la aplicación (App Store). No están disponibles en Expo Go.",
+    "pushFailed": "No se pudieron activar las notificaciones push: {reason}. Inténtalo de nuevo.",
     "emailTitle": "Correo electrónico",
     "digestLabel": "Resumen diario de licitaciones",
     "digestDesc": "Cada día te enviaremos por correo todas las nuevas licitaciones que coincidan con tus filtros.",

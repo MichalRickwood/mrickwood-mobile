@@ -26,7 +26,22 @@ interface RequestOptions {
   /** Pokud true, nepřidá Authorization (např. login endpoint). */
   noAuth?: boolean;
   signal?: AbortSignal;
+  /** Strop na celý request včetně čtení těla. Viz DEFAULT_TIMEOUT_MS. */
+  timeoutMs?: number;
 }
+
+/**
+ * RN fetch nemá žádný default timeout. Bez stropu se zaseknutý request
+ * (výpadek serveru, ztracené spojení na mobilní síti) projeví jako věčně
+ * točící se kolečko bez jediné hlášky — uživatel neví, jestli se akce
+ * provedla. Timeout → AbortError → obrazovky ukážou svou hlášku o síti.
+ */
+const DEFAULT_TIMEOUT_MS = 60_000;
+/** Upload příloh po mobilních datech je pomalý — 3× 5 MB potřebuje víc. */
+const UPLOAD_TIMEOUT_MS = 120_000;
+/** AI endpointy (sestavení profilu, generování dokumentace) běží v minutách.
+ *  Strop = hranice Vercel funkce, ať klient nevzdá dřív než server. */
+export const LONG_TIMEOUT_MS = 300_000;
 
 async function request<T>(path: string, opts: RequestOptions = {}): Promise<T> {
   const url = new URL(path.startsWith("http") ? path : `${API_BASE_URL}${path}`);
@@ -52,26 +67,45 @@ async function request<T>(path: string, opts: RequestOptions = {}): Promise<T> {
     if (token) headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const res = await fetch(url.toString(), {
-    method: opts.method ?? "GET",
-    headers,
-    body:
-      opts.body === undefined
-        ? undefined
-        : isFormData
-          ? (opts.body as FormData)
-          : JSON.stringify(opts.body),
-    signal: opts.signal,
-  });
+  // Vlastní controller, aby timeout a případný signál od callera (odchod z
+  // obrazovky, react-query cancel) mohly abortovat tentýž request.
+  const controller = new AbortController();
+  const timeoutMs =
+    opts.timeoutMs ?? (isFormData ? UPLOAD_TIMEOUT_MS : DEFAULT_TIMEOUT_MS);
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  const abortFromCaller = () => controller.abort();
+  if (opts.signal) {
+    if (opts.signal.aborted) controller.abort();
+    else opts.signal.addEventListener("abort", abortFromCaller);
+  }
 
   let parsed: unknown = null;
-  const text = await res.text();
-  if (text) {
-    try {
-      parsed = JSON.parse(text);
-    } catch {
-      parsed = text;
+  let res: Response;
+  try {
+    res = await fetch(url.toString(), {
+      method: opts.method ?? "GET",
+      headers,
+      body:
+        opts.body === undefined
+          ? undefined
+          : isFormData
+            ? (opts.body as FormData)
+            : JSON.stringify(opts.body),
+      signal: controller.signal,
+    });
+
+    // Čtení těla drží pod stejným stropem — zaseknout se dá i tady.
+    const text = await res.text();
+    if (text) {
+      try {
+        parsed = JSON.parse(text);
+      } catch {
+        parsed = text;
+      }
     }
+  } finally {
+    clearTimeout(timer);
+    opts.signal?.removeEventListener("abort", abortFromCaller);
   }
 
   if (!res.ok) {

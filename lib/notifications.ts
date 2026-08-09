@@ -25,7 +25,15 @@ export type PushStatus =
   | { kind: "off" }
   | { kind: "denied" }
   | { kind: "unsupported" }
-  | { kind: "need-build" };
+  | { kind: "need-build" }
+  | { kind: "error"; message: string };
+
+/**
+ * Poslední důvod, proč registrace tokenu selhala. Bez něj se selhání projeví
+ * jen tím, že přepínač zůstane vypnutý — uživatel (ani support) se nedozví,
+ * že se vůbec něco pokazilo, a čeká na notifikace, které nikdy nepřijdou.
+ */
+let lastRegisterError: string | null = null;
 
 export async function getPushStatus(): Promise<PushStatus> {
   if (!Device.isDevice) return { kind: "unsupported" };
@@ -34,6 +42,7 @@ export async function getPushStatus(): Promise<PushStatus> {
   if (status === "denied") return { kind: "denied" };
   const saved = await AsyncStorage.getItem(PUSH_TOKEN_STORAGE_KEY);
   if (status === "granted" && saved) return { kind: "active", token: saved };
+  if (lastRegisterError) return { kind: "error", message: lastRegisterError };
   return { kind: "off" };
 }
 
@@ -87,17 +96,34 @@ export async function registerForPushNotifications(): Promise<string | null> {
   }
   if (finalStatus !== "granted") return null;
 
-  const tokenResponse = await Notifications.getExpoPushTokenAsync({ projectId });
-  const expoToken = tokenResponse.data;
-  if (!expoToken) return null;
+  // getExpoPushTokenAsync umí házet (APNs/FCM nedostupné, chybí google-services.json
+  // na Androidu, výpadek sítě). Neodchycená výjimka tady propadla až do
+  // `void register…()` v auth-contextu jako unhandled rejection — registrace tiše
+  // selhala a uživateli nikdy nepřišla notifikace, aniž by to kdokoli viděl.
+  let expoToken: string | null = null;
+  try {
+    const tokenResponse = await Notifications.getExpoPushTokenAsync({ projectId });
+    expoToken = tokenResponse.data || null;
+  } catch (e) {
+    lastRegisterError = (e as Error).message;
+    console.warn("[push] getExpoPushTokenAsync failed:", lastRegisterError);
+    return null;
+  }
+  if (!expoToken) {
+    lastRegisterError = "Expo nevrátilo push token.";
+    return null;
+  }
 
   const platform: "ios" | "android" = Platform.OS === "ios" ? "ios" : "android";
   try {
     await endpoints.registerPushDevice(expoToken, platform);
     await AsyncStorage.setItem(PUSH_TOKEN_STORAGE_KEY, expoToken);
+    lastRegisterError = null;
   } catch (e) {
-    // Síťová chyba — token vrátíme, zkusíme registrovat příště.
-    console.warn("[push] register failed:", (e as Error).message);
+    // Síťová chyba — token vrátíme, zkusíme registrovat příště. Bez uložení do
+    // storage, ať getPushStatus nehlásí "active" pro token, který server nezná.
+    lastRegisterError = (e as Error).message;
+    console.warn("[push] register failed:", lastRegisterError);
   }
   return expoToken;
 }

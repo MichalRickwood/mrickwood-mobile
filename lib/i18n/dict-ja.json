@@ -531,6 +531,7 @@
     "pushPermissionDenied": "iOSの設定でプッシュ通知が無効になっています。「設定」→「Veritra」から有効にしてください。",
     "pushNotSupported": "シミュレーターではプッシュ通知はご利用いただけません。",
     "pushNeedBuild": "プッシュ通知はフルアプリ版（App Store）でのみご利用いただけます。Expo Goでは使用できません。",
+    "pushFailed": "プッシュ通知の有効化に失敗しました：{reason}。もう一度お試しください。",
     "emailTitle": "メール",
     "digestLabel": "入札情報デイリーダイジェスト",
     "digestDesc": "設定したフィルターに一致する新着入札情報を毎日メールでお届けします。",

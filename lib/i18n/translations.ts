@@ -589,6 +589,7 @@ export interface Dict {
     pushPermissionDenied: string;
     pushNotSupported: string;
     pushNeedBuild: string;
+    pushFailed: string;
     emailTitle: string;
     digestLabel: string;
     digestDesc: string;
@@ -2091,6 +2092,7 @@ const cs: Dict = {
     pushPermissionDenied: "Push notifikace jsou zakázané v nastavení iOS. Povolte je v Nastavení → Veritra.",
     pushNotSupported: "Push notifikace nejsou na simulátoru dostupné.",
     pushNeedBuild: "Push notifikace fungují až v plné verzi aplikace (App Store). V Expo Go nejsou dostupné.",
+    pushFailed: "Zapnutí push notifikací se nezdařilo: {reason}. Zkuste to prosím znovu.",
     emailTitle: "Email",
     digestLabel: "Denní souhrn zakázek",
     digestDesc: "Každý den vám pošleme všechny nové zakázky, které odpovídají vašim filtrům.",
@@ -2947,6 +2949,7 @@ const en: Dict = {
     pushPermissionDenied: "Push notifications are disabled in iOS settings. Enable them in Settings → Veritra.",
     pushNotSupported: "Push notifications are not available on the simulator.",
     pushNeedBuild: "Push notifications only work in the full app version (App Store). Not available in Expo Go.",
+    pushFailed: "Enabling push notifications failed: {reason}. Please try again.",
     emailTitle: "Email",
     digestLabel: "Daily tender digest",
     digestDesc: "Each day we'll email you all new tenders matching your filters.",
@@ -3805,6 +3808,7 @@ const de: Dict = {
     pushPermissionDenied: "Push-Benachrichtigungen sind in den iOS-Einstellungen deaktiviert. Aktivieren Sie sie in Einstellungen → Veritra.",
     pushNotSupported: "Push-Benachrichtigungen sind im Simulator nicht verfügbar.",
     pushNeedBuild: "Push-Benachrichtigungen funktionieren nur in der vollständigen App-Version (App Store). In Expo Go nicht verfügbar.",
+    pushFailed: "Push-Benachrichtigungen konnten nicht aktiviert werden: {reason}. Bitte erneut versuchen.",
     emailTitle: "E-Mail",
     digestLabel: "Tägliche Ausschreibungsübersicht",
     digestDesc: "Jeden Tag senden wir Ihnen alle neuen Ausschreibungen, die Ihren Filtern entsprechen.",
@@ -4661,6 +4665,7 @@ const sk: Dict = {
     pushPermissionDenied: "Push oznámenia sú v nastaveniach iOS vypnuté. Zapnite ich v Nastavenia → Veritra.",
     pushNotSupported: "Push oznámenia nie sú v simulátore dostupné.",
     pushNeedBuild: "Push oznámenia fungujú len v plnej verzii aplikácie (App Store). V Expo Go nie sú dostupné.",
+    pushFailed: "Zapnutie push oznámení zlyhalo: {reason}. Skúste to prosím znova.",
     emailTitle: "E-mail",
     digestLabel: "Denný súhrn zákaziek",
     digestDesc: "Každý deň vám e-mailom pošleme všetky nové zákazky zhodujúce sa s vašimi filtrami.",
@@ -5517,6 +5522,7 @@ const fr: Dict = {
     pushPermissionDenied: "Les notifications push sont désactivées dans les réglages iOS. Activez-les dans Réglages → Veritra.",
     pushNotSupported: "Les notifications push ne sont pas disponibles sur le simulateur.",
     pushNeedBuild: "Les notifications push ne fonctionnent que dans la version complète de l'application (App Store). Non disponibles dans Expo Go.",
+    pushFailed: "L'activation des notifications push a échoué : {reason}. Veuillez réessayer.",
     emailTitle: "E-mail",
     digestLabel: "Résumé quotidien des appels d'offres",
     digestDesc: "Chaque jour, nous vous enverrons par e-mail tous les nouveaux appels d'offres correspondant à vos filtres.",
@@ -6373,6 +6379,7 @@ const it: Dict = {
     pushPermissionDenied: "Le notifiche push sono disattivate nelle impostazioni iOS. Attivale in Impostazioni → Veritra.",
     pushNotSupported: "Le notifiche push non sono disponibili sul simulatore.",
     pushNeedBuild: "Le notifiche push funzionano solo nella versione completa dell'app (App Store). Non disponibili in Expo Go.",
+    pushFailed: "Attivazione delle notifiche push non riuscita: {reason}. Riprova.",
     emailTitle: "Email",
     digestLabel: "Digest giornaliero delle gare",
     digestDesc: "Ogni giorno ti invieremo per email tutte le nuove gare che corrispondono ai tuoi filtri.",

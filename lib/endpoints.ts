@@ -1,4 +1,4 @@
-import { api } from "./api";
+import { api, LONG_TIMEOUT_MS } from "./api";
 
 /**
  * Typed endpoints — sjednoceno na jednom místě, ať klient nemusí znát URL.
@@ -911,6 +911,8 @@ export const endpoints = {
     api.post<{ data: { docPrep: DocPrepView; charged: number; balance: number; currency: Currency } }>(
       `/api/v2/leads/tenders/${tenderId}/doc-prep/generate`,
       body,
+      // Server má maxDuration=300 — klient nesmí vzdát dřív než on.
+      { timeoutMs: LONG_TIMEOUT_MS },
     ),
   docPrepUpload: (tenderId: number, form: FormData) =>
     api.post<{ data: { uploads: { name: string; key: string }[] } }>(
@@ -925,10 +927,15 @@ export const endpoints = {
       profileId ? { params: { profileId } } : undefined,
     ),
   companyProfileBuild: (questionnaire?: unknown, profileId?: string) =>
-    api.post<{ data: CompanyProfileView }>("/api/v2/account/company-profile", {
-      ...(questionnaire ? { questionnaire } : {}),
-      ...(profileId ? { profileId } : {}),
-    }),
+    api.post<{ data: CompanyProfileView }>(
+      "/api/v2/account/company-profile",
+      {
+        ...(questionnaire ? { questionnaire } : {}),
+        ...(profileId ? { profileId } : {}),
+      },
+      // Server má maxDuration=300 — klient nesmí vzdát dřív než on.
+      { timeoutMs: LONG_TIMEOUT_MS },
+    ),
   companyProfileSaveMd: (companyMd: string, profileId?: string) =>
     api.patch<{ data: CompanyProfileView }>("/api/v2/account/company-profile", { companyMd, ...(profileId ? { profileId } : {}) }),
   companyProfileFinalize: (profileId?: string) =>

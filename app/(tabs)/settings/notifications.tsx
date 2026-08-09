@@ -72,12 +72,10 @@ export default function NotificationsScreen() {
     setError(null);
     try {
       if (value) {
-        const token = await registerForPushNotifications();
-        if (!token) {
-          await refreshPush();
-        } else {
-          setPushStatus({ kind: "active", token });
-        }
+        // Stav vždy přečteme znovu z pravdy (uložený token + poslední chyba).
+        // Vrácený token sám o sobě neznamená, že ho server přijal.
+        await registerForPushNotifications();
+        await refreshPush();
       } else {
         await disablePush();
         setPushStatus({ kind: "off" });
@@ -137,6 +135,13 @@ export default function NotificationsScreen() {
           {pushStatus?.kind === "need-build" && (
             <View style={styles.note}>
               <Text style={styles.noteText}>{t("settings", "pushNeedBuild")}</Text>
+            </View>
+          )}
+          {pushStatus?.kind === "error" && (
+            <View style={styles.note}>
+              <Text style={styles.noteText}>
+                {t("settings", "pushFailed", { reason: pushStatus.message })}
+              </Text>
             </View>
           )}
         </View>

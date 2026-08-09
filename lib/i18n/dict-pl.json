@@ -739,6 +739,7 @@
     "pushPermissionDenied": "Powiadomienia push są wyłączone w ustawieniach iOS. Włącz je w Ustawienia → Veritra.",
     "pushNotSupported": "Powiadomienia push nie są dostępne w symulatorze.",
     "pushNeedBuild": "Powiadomienia push działają tylko w pełnej wersji aplikacji (App Store). Niedostępne w Expo Go.",
+    "pushFailed": "Włączenie powiadomień push nie powiodło się: {reason}. Spróbuj ponownie.",
     "emailTitle": "E-mail",
     "digestLabel": "Dzienny przegląd przetargów",
     "digestDesc": "Każdego dnia wyślemy Ci e-mailem wszystkie nowe przetargi pasujące do Twoich filtrów.",

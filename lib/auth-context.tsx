@@ -47,9 +47,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         prevUserIdRef.current = serverUser.id;
         setUser(serverUser);
         setStatus("authenticated");
-        void registerForPushNotifications().then((t) => {
-          pushTokenRef.current = t;
-        });
+        // .catch je nutný — bez něj by selhání registrace skončilo jako
+        // unhandled rejection a push by tiše nefungoval.
+        void registerForPushNotifications()
+          .then((t) => {
+            pushTokenRef.current = t;
+          })
+          .catch((e) => console.warn("[push] registrace selhala:", (e as Error).message));
       } catch (err) {
         const stored = await getUser();
         if (!cancelled) {
@@ -85,9 +89,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     prevUserIdRef.current = sessionUser.id;
     setUser(sessionUser);
     setStatus("authenticated");
-    void registerForPushNotifications().then((t) => {
-      pushTokenRef.current = t;
-    });
+    void registerForPushNotifications()
+      .then((t) => {
+        pushTokenRef.current = t;
+      })
+      .catch((e) => console.warn("[push] registrace selhala:", (e as Error).message));
   }, [queryClient]);
 
   const signOut = useCallback(async () => {

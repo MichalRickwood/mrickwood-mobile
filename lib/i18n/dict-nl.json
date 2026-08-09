@@ -739,6 +739,7 @@
     "pushPermissionDenied": "Pushmeldingen zijn uitgeschakeld in iOS-instellingen. Schakel ze in via Instellingen → Veritra.",
     "pushNotSupported": "Pushmeldingen zijn niet beschikbaar op de simulator.",
     "pushNeedBuild": "Pushmeldingen werken alleen in de volledige app-versie (App Store). Niet beschikbaar in Expo Go.",
+    "pushFailed": "Pushmeldingen inschakelen is mislukt: {reason}. Probeer het opnieuw.",
     "emailTitle": "E-mail",
     "digestLabel": "Dagelijkse tenderdigest",
     "digestDesc": "Elke dag sturen we u per e-mail alle nieuwe tenders die overeenkomen met uw filters.",
