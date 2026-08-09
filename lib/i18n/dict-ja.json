@@ -542,7 +542,9 @@
     "marketingPayingNote": "有料アカウントにはマーケティングメールが自動的に無効化されています。",
     "loadFailed": "設定の読み込みに失敗しました。",
     "saveFailed": "保存に失敗しました。",
-    "saved": "保存しました"
+    "saved": "保存しました",
+    "pushChannelName": "新着案件",
+    "pushChannelDesc": "フィルターに一致する案件の通知。"
   },
   "feedback": {
     "title": "フィードバック",

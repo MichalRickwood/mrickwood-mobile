@@ -750,7 +750,9 @@
     "marketingPayingNote": "Marketinge-mails zijn automatisch uitgeschakeld voor betalende accounts.",
     "loadFailed": "Laden van instellingen mislukt.",
     "saveFailed": "Opslaan mislukt.",
-    "saved": "Opgeslagen"
+    "saved": "Opgeslagen",
+    "pushChannelName": "Nieuwe aanbestedingen",
+    "pushChannelDesc": "Meldingen over aanbestedingen die aan je filters voldoen."
   },
   "feedback": {
     "title": "Feedback",

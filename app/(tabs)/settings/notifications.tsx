@@ -72,9 +72,11 @@ export default function NotificationsScreen() {
     setError(null);
     try {
       if (value) {
-        // Stav vždy přečteme znovu z pravdy (uložený token + poslední chyba).
-        // Vrácený token sám o sobě neznamená, že ho server přijal.
-        await registerForPushNotifications();
+        // force → zruší dřívější vypnutí; bez něj by registrace kvůli
+        // zapamatovanému opt-outu rovnou skončila a přepínač by nešel zapnout.
+        // Stav vždy přečteme znovu z pravdy (uložený token + poslední chyba);
+        // vrácený token sám o sobě neznamená, že ho server přijal.
+        await registerForPushNotifications({ force: true });
         await refreshPush();
       } else {
         await disablePush();

@@ -4,8 +4,16 @@ import Constants from "expo-constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Platform } from "react-native";
 import { endpoints } from "./endpoints";
+import { translateStandalone } from "./i18n";
 
 const PUSH_TOKEN_STORAGE_KEY = "veritra.pushToken";
+/**
+ * Uživatel si push vypnul přepínačem. Bez tohohle příznaku se registrace
+ * spustila znovu při dalším startu appky (auth-context volá registerFor…
+ * po každém obnovení session) a zařízení se tiše zapsalo zpátky — vypnutí
+ * tak vydrželo do prvního restartu. Ruší ho jen explicitní zapnutí přepínače.
+ */
+const PUSH_OPT_OUT_STORAGE_KEY = "veritra.pushOptOut";
 
 /** EAS projectId z app.json extra.eas.projectId nebo env. Bez něj Expo SDK 50+
  *  nedovolí getExpoPushTokenAsync — vrátíme `need-build`. */
@@ -35,9 +43,16 @@ export type PushStatus =
  */
 let lastRegisterError: string | null = null;
 
+async function isOptedOut(): Promise<boolean> {
+  return (await AsyncStorage.getItem(PUSH_OPT_OUT_STORAGE_KEY)) === "1";
+}
+
 export async function getPushStatus(): Promise<PushStatus> {
   if (!Device.isDevice) return { kind: "unsupported" };
   if (!getEasProjectId()) return { kind: "need-build" };
+  // Vypnuto uživatelem má přednost i před chybou registrace — jinak by
+  // přepínač po vypnutí ukazoval starou chybovou hlášku.
+  if (await isOptedOut()) return { kind: "off" };
   const { status } = await Notifications.getPermissionsAsync();
   if (status === "denied") return { kind: "denied" };
   const saved = await AsyncStorage.getItem(PUSH_TOKEN_STORAGE_KEY);
@@ -47,6 +62,11 @@ export async function getPushStatus(): Promise<PushStatus> {
 }
 
 export async function disablePush(): Promise<void> {
+  // Opt-out zapsat jako první — i kdyby odregistrace na serveru selhala,
+  // appka se už sama registrovat nezkusí a uživatel nedostane push z tohohle
+  // zařízení znovu jen proto, že byl offline.
+  await AsyncStorage.setItem(PUSH_OPT_OUT_STORAGE_KEY, "1");
+  lastRegisterError = null;
   const saved = await AsyncStorage.getItem(PUSH_TOKEN_STORAGE_KEY);
   if (saved) {
     try {
@@ -75,9 +95,41 @@ Notifications.setNotificationHandler({
   }),
 });
 
-export async function registerForPushNotifications(): Promise<string | null> {
+/**
+ * Android od 8.0 doručuje notifikace jen do kanálu. Bez explicitní registrace
+ * spadnou do kanálu s výchozí důležitostí, takže se neukážou jako banner —
+ * uživatel je najde až ve stažené liště. Kanál je vidět v systémovém nastavení
+ * appky, proto lokalizovaný název.
+ */
+async function ensureAndroidChannel(): Promise<void> {
+  if (Platform.OS !== "android") return;
+  try {
+    await Notifications.setNotificationChannelAsync("default", {
+      name: await translateStandalone("settings", "pushChannelName"),
+      description: await translateStandalone("settings", "pushChannelDesc"),
+      importance: Notifications.AndroidImportance.HIGH,
+      sound: "default",
+    });
+  } catch (e) {
+    // Kanál není blocker pro získání tokenu — jen zhorší viditelnost.
+    console.warn("[push] setNotificationChannelAsync failed:", (e as Error).message);
+  }
+}
+
+export async function registerForPushNotifications(
+  /** Zapnutí přepínačem v nastavení — zruší dřívější opt-out. */
+  opts: { force?: boolean } = {},
+): Promise<string | null> {
   if (!Device.isDevice) {
     // Simulator nedostává tokeny. Skip.
+    return null;
+  }
+
+  if (opts.force) {
+    await AsyncStorage.removeItem(PUSH_OPT_OUT_STORAGE_KEY);
+  } else if (await isOptedOut()) {
+    // Automatická registrace po loginu/startu appky. Uživatel si push vypnul,
+    // takže se ho nebudeme ptát znovu ani ho tiše registrovat zpátky.
     return null;
   }
 
@@ -87,6 +139,8 @@ export async function registerForPushNotifications(): Promise<string | null> {
     // detekovat tento stav přes getPushStatus() a zobrazit hint.
     return null;
   }
+
+  await ensureAndroidChannel();
 
   const { status: existing } = await Notifications.getPermissionsAsync();
   let finalStatus = existing;
@@ -128,6 +182,11 @@ export async function registerForPushNotifications(): Promise<string | null> {
   return expoToken;
 }
 
+/**
+ * Odhlášení z účtu — token na serveru zneplatníme, ale opt-out příznak
+ * necháme být. Je to volba „na tomhle telefonu nechci notifikace", ne
+ * vlastnost session; přihlášením jiného účtu by se neměla resetovat.
+ */
 export async function unregisterPushNotifications(token: string | null): Promise<void> {
   if (!token) return;
   try {

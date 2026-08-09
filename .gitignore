@@ -45,3 +45,8 @@ yarn-error.*
 /android
 private/
 .env
+
+# service accounty (FCM V1, Play) — plný přístup k projektu, nikdy do repa.
+# Pozor: google-services.json je naopak veřejný a commituje se, viz docs/android-push.md
+*-service-account.json
+firebase-adminsdk-*.json

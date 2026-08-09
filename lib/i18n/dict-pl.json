@@ -750,7 +750,9 @@
     "marketingPayingNote": "E-maile marketingowe są automatycznie wyłączone dla kont płatnych.",
     "loadFailed": "Nie udało się załadować ustawień.",
     "saveFailed": "Zapisywanie nie powiodło się.",
-    "saved": "Zapisano"
+    "saved": "Zapisano",
+    "pushChannelName": "Nowe przetargi",
+    "pushChannelDesc": "Powiadomienia o przetargach pasujących do Twoich filtrów."
   },
   "feedback": {
     "title": "Opinia",

@@ -750,7 +750,9 @@
     "marketingPayingNote": "Los correos de marketing están desactivados automáticamente para las cuentas de pago.",
     "loadFailed": "Error al cargar la configuración.",
     "saveFailed": "Error al guardar.",
-    "saved": "Guardado"
+    "saved": "Guardado",
+    "pushChannelName": "Nuevas licitaciones",
+    "pushChannelDesc": "Avisos sobre licitaciones que coinciden con tus filtros."
   },
   "feedback": {
     "title": "Comentarios",

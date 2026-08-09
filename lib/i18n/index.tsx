@@ -87,6 +87,28 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }
 
+/**
+ * Překlad mimo React strom — pro kód, který běží dřív než provider nebo úplně
+ * bez něj (registrace Android notification channelu). Locale čte přímo
+ * z AsyncStorage, tedy ze stejného zdroje jako provider.
+ */
+export async function translateStandalone<K1 extends keyof Dict, K2 extends keyof Dict[K1]>(
+  section: K1,
+  key: K2,
+  params?: Record<string, string | number>,
+): Promise<string> {
+  let locale = detectDefaultLocale();
+  try {
+    const saved = await AsyncStorage.getItem(STORAGE_KEY);
+    if (saved && (LOCALES as readonly string[]).includes(saved)) locale = saved as Locale;
+  } catch {
+    // ignore — zůstane systémový default
+  }
+  const sec = dicts[locale][section] as Record<string, string>;
+  const tpl = sec?.[key as string] ?? `${String(section)}.${String(key)}`;
+  return interpolate(tpl, params);
+}
+
 export function useI18n(): I18nState {
   const ctx = useContext(I18nContext);
   if (!ctx) throw new Error("useI18n must be used within I18nProvider");
