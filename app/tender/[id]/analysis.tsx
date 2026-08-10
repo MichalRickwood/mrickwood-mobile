@@ -39,7 +39,9 @@ export default function TenderAnalysisScreen() {
   const styles = useMemo(() => makeStyles(colors), [colors]);
 
   const [loading, setLoading] = useState(true);
-  const [hasProfile, setHasProfile] = useState(true);
+  // Ptát se na volbu profil vs. bez profilu? (server; jen napoprvé)
+  const [askProfileChoice, setAskProfileChoice] = useState(false);
+  const [choosing, setChoosing] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [freeTier, setFreeTier] = useState(false);
   const [balance, setBalance] = useState<number | null>(null);
@@ -76,7 +78,7 @@ export default function TenderAnalysisScreen() {
       try {
         const { data } = await endpoints.analysisGet(tenderId, { locale });
         if (!alive) return;
-        setHasProfile(data.hasCompanyProfile);
+        setAskProfileChoice(!!data.askProfileChoice);
         setProfileOpts(data.profiles ?? []);
         setBalance(data.balance);
         setCurrency(data.currency);
@@ -93,9 +95,9 @@ export default function TenderAnalysisScreen() {
         // analýzu rovnou (skrytá kickoff zpráva) — uživatel nemusí nic psát.
         const msgs = data.session?.messages ?? [];
         const last = msgs[msgs.length - 1];
-        if (data.hasCompanyProfile && msgs.length === 0) {
+        if (!data.askProfileChoice && msgs.length === 0) {
           void runTurn(KICKOFF, data.session?.id ?? null);
-        } else if (data.hasCompanyProfile && last?.role === "user") {
+        } else if (!data.askProfileChoice && last?.role === "user") {
           // Nedokončený tah — poslední zpráva je od uživatele bez odpovědi
           // (odchod z appky / timeout serveru). Spusť ho znovu, ať se analýza
           // netváří jako hotová; user bublina už v messages je, nepřidávat.
@@ -351,7 +353,30 @@ export default function TenderAnalysisScreen() {
     );
   }
 
-  if (!hasProfile) {
+  // Bez profilu firmy analýza běží taky, jen obecněji — necháme uživatele vybrat.
+  // Volbu „bez profilu" si server pamatuje na účet, takže se ptáme jen jednou.
+  async function startWithoutProfile() {
+    if (choosing) return;
+    setChoosing(true);
+    try {
+      const { data } = await endpoints.analysisGet(tenderId, { locale, withoutProfile: true });
+      setAskProfileChoice(false);
+      setBalance(data.balance);
+      setCurrency(data.currency);
+      if (data.session) {
+        setSessionId(data.session.id);
+        setFreeTier(data.session.freeTier);
+        setMessages(data.session.messages);
+        if (data.session.messages.length === 0) void runTurn(KICKOFF, data.session.id);
+      }
+    } catch (e) {
+      Alert.alert(t("aiAnalysis", "errorTitle"), e instanceof Error ? e.message : "");
+    } finally {
+      setChoosing(false);
+    }
+  }
+
+  if (askProfileChoice) {
     return (
       <SafeAreaView style={styles.safe} edges={["bottom"]}>
         <Stack.Screen options={screenOpts} />
@@ -360,6 +385,11 @@ export default function TenderAnalysisScreen() {
           <Text style={styles.gateBody}>{t("aiAnalysis", "profileRequiredBody")}</Text>
           <Pressable style={styles.primaryBtn} onPress={() => router.push("/(tabs)/settings/company-profile")}>
             <Text style={styles.primaryBtnText}>{t("aiAnalysis", "profileRequiredCta")}</Text>
+          </Pressable>
+          <Pressable style={styles.secondaryBtn} onPress={startWithoutProfile} disabled={choosing}>
+            {choosing
+              ? <ActivityIndicator color={colors.text} />
+              : <Text style={styles.secondaryBtnText}>{t("aiAnalysis", "profileRequiredWithout")}</Text>}
           </Pressable>
         </View>
       </SafeAreaView>
@@ -528,6 +558,18 @@ const makeStyles = (c: Colors) =>
     gateBody: { fontSize: fontSize.sm, color: c.textSubtle, textAlign: "center", marginBottom: spacing.xl, lineHeight: 20 },
     primaryBtn: { backgroundColor: c.accent, paddingHorizontal: spacing.xl, paddingVertical: spacing.md, borderRadius: radius.md },
     primaryBtnText: { color: c.accentForeground, fontWeight: "600", fontSize: fontSize.sm },
+    secondaryBtn: {
+      marginTop: spacing.md,
+      borderWidth: 1,
+      borderColor: c.border,
+      backgroundColor: c.card,
+      paddingHorizontal: spacing.xl,
+      paddingVertical: spacing.md,
+      borderRadius: radius.md,
+      minHeight: 44,
+      justifyContent: "center",
+    },
+    secondaryBtnText: { color: c.text, fontWeight: "600", fontSize: fontSize.sm },
     tenderTitle: { fontSize: fontSize.sm, fontWeight: "600", color: c.text, paddingHorizontal: spacing.lg, paddingTop: spacing.sm },
     balanceLine: { fontSize: fontSize.xs, color: c.textSubtle, paddingHorizontal: spacing.lg, paddingVertical: spacing.xs },
     profileChips: { flexDirection: "row", flexWrap: "wrap", gap: spacing.xs, paddingHorizontal: spacing.lg, paddingBottom: spacing.xs },

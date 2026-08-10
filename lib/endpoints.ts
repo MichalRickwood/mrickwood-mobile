@@ -171,6 +171,9 @@ export interface AnalysisProfileOpt {
 export interface AnalysisState {
   hasDocuments: boolean;
   hasCompanyProfile: boolean;
+  /** Nemá profil a ještě si nezvolil, zda jet bez něj → ukázat volbu. */
+  askProfileChoice?: boolean;
+  withoutProfile?: boolean;
   /** Multi-profil: profily s vyplněným companyMd (selector se ukazuje při >1). */
   profiles?: AnalysisProfileOpt[];
   balance: number;
@@ -888,7 +891,10 @@ export const endpoints = {
       `/api/v2/leads/tenders/${tenderId}/analysis/report`,
       { locale },
     ),
-  analysisGet: (tenderId: number, opts?: { fresh?: boolean; profileId?: string; locale?: string }) =>
+  analysisGet: (
+    tenderId: number,
+    opts?: { fresh?: boolean; profileId?: string; locale?: string; withoutProfile?: boolean },
+  ) =>
     api.get<{ data: AnalysisState }>(
       `/api/v2/leads/tenders/${tenderId}/analysis`,
       {
@@ -896,6 +902,8 @@ export const endpoints = {
           ...(opts?.fresh ? { new: 1 } : {}),
           ...(opts?.profileId ? { profileId: opts.profileId } : {}),
           ...(opts?.locale ? { locale: opts.locale } : {}),
+          // Volba „spustit bez profilu firmy" — server si ji zapamatuje na účet.
+          ...(opts?.withoutProfile ? { withoutProfile: 1 } : {}),
         },
       },
     ),
