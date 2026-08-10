@@ -123,6 +123,11 @@ export interface NotificationSettings {
   digestEnabled: boolean;
   marketingEnabled: boolean;
   educationalEnabled: boolean;
+  /** Push kategorie — vrstva NAD hlavním vypínačem (registrací zařízení). */
+  pushLeadsEnabled: boolean;
+  pushPublishEnabled: boolean;
+  /** Server: má uživatel s poptávkami co do činění? Read-only, PATCH ho ignoruje. */
+  publishRelevant: boolean;
 }
 
 /**

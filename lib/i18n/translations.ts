@@ -586,6 +586,10 @@ export interface Dict {
     pushTitle: string;
     pushLabel: string;
     pushDesc: string;
+    pushLeadsLabel: string;
+    pushLeadsDesc: string;
+    pushPublishLabel: string;
+    pushPublishDesc: string;
     pushPermissionDenied: string;
     pushNotSupported: string;
     pushNeedBuild: string;
@@ -2090,7 +2094,11 @@ const cs: Dict = {
     notificationsTitle: "Notifikace",
     pushTitle: "Push notifikace",
     pushLabel: "Push notifikace v aplikaci",
-    pushDesc: "Upozornění na nové zakázky odpovídající vašim filtrům.",
+    pushDesc: "Hlavní vypínač notifikací na tomto zařízení.",
+    pushLeadsLabel: "Nové zakázky",
+    pushLeadsDesc: "Zakázky z vašich filtrů a z AI výběru.",
+    pushPublishLabel: "Poptávky",
+    pushPublishDesc: "Přišla nabídka, odpověď na dotaz, výsledek soutěže.",
     pushPermissionDenied: "Push notifikace jsou zakázané v nastavení iOS. Povolte je v Nastavení → Veritra.",
     pushNotSupported: "Push notifikace nejsou na simulátoru dostupné.",
     pushNeedBuild: "Push notifikace fungují až v plné verzi aplikace (App Store). V Expo Go nejsou dostupné.",
@@ -2949,7 +2957,11 @@ const en: Dict = {
     notificationsTitle: "Notifications",
     pushTitle: "Push notifications",
     pushLabel: "In-app push notifications",
-    pushDesc: "Alerts for new tenders matching your filters.",
+    pushDesc: "Master switch for notifications on this device.",
+    pushLeadsLabel: "New tenders",
+    pushLeadsDesc: "Tenders from your filters and from the AI selection.",
+    pushPublishLabel: "Requests for quotation",
+    pushPublishDesc: "An offer arrived, a question was answered, the outcome of a competition.",
     pushPermissionDenied: "Push notifications are disabled in iOS settings. Enable them in Settings → Veritra.",
     pushNotSupported: "Push notifications are not available on the simulator.",
     pushNeedBuild: "Push notifications only work in the full app version (App Store). Not available in Expo Go.",
@@ -3810,7 +3822,11 @@ const de: Dict = {
     notificationsTitle: "Benachrichtigungen",
     pushTitle: "Push-Benachrichtigungen",
     pushLabel: "Push-Benachrichtigungen in der App",
-    pushDesc: "Hinweise zu neuen Ausschreibungen, die Ihren Filtern entsprechen.",
+    pushDesc: "Hauptschalter für Benachrichtigungen auf diesem Gerät.",
+    pushLeadsLabel: "Neue Ausschreibungen",
+    pushLeadsDesc: "Ausschreibungen aus Ihren Filtern und aus der KI-Auswahl.",
+    pushPublishLabel: "Anfragen",
+    pushPublishDesc: "Ein Angebot ist eingegangen, eine Frage wurde beantwortet, Ergebnis des Wettbewerbs.",
     pushPermissionDenied: "Push-Benachrichtigungen sind in den iOS-Einstellungen deaktiviert. Aktivieren Sie sie in Einstellungen → Veritra.",
     pushNotSupported: "Push-Benachrichtigungen sind im Simulator nicht verfügbar.",
     pushNeedBuild: "Push-Benachrichtigungen funktionieren nur in der vollständigen App-Version (App Store). In Expo Go nicht verfügbar.",
@@ -4669,7 +4685,11 @@ const sk: Dict = {
     notificationsTitle: "Oznámenia",
     pushTitle: "Push oznámenia",
     pushLabel: "Push oznámenia v aplikácii",
-    pushDesc: "Upozornenia na nové zákazky zhodujúce sa s vašimi filtrami.",
+    pushDesc: "Hlavný vypínač notifikácií na tomto zariadení.",
+    pushLeadsLabel: "Nové zákazky",
+    pushLeadsDesc: "Zákazky z vašich filtrov a z AI výberu.",
+    pushPublishLabel: "Dopyty",
+    pushPublishDesc: "Prišla ponuka, odpoveď na otázku, výsledok súťaže.",
     pushPermissionDenied: "Push oznámenia sú v nastaveniach iOS vypnuté. Zapnite ich v Nastavenia → Veritra.",
     pushNotSupported: "Push oznámenia nie sú v simulátore dostupné.",
     pushNeedBuild: "Push oznámenia fungujú len v plnej verzii aplikácie (App Store). V Expo Go nie sú dostupné.",
@@ -5528,7 +5548,11 @@ const fr: Dict = {
     notificationsTitle: "Notifications",
     pushTitle: "Notifications push",
     pushLabel: "Notifications push dans l'application",
-    pushDesc: "Alertes pour les nouveaux appels d'offres correspondant à vos filtres.",
+    pushDesc: "Interrupteur principal des notifications sur cet appareil.",
+    pushLeadsLabel: "Nouveaux marchés",
+    pushLeadsDesc: "Marchés issus de vos filtres et de la sélection IA.",
+    pushPublishLabel: "Demandes de devis",
+    pushPublishDesc: "Une offre est arrivée, une question a reçu une réponse, résultat de la consultation.",
     pushPermissionDenied: "Les notifications push sont désactivées dans les réglages iOS. Activez-les dans Réglages → Veritra.",
     pushNotSupported: "Les notifications push ne sont pas disponibles sur le simulateur.",
     pushNeedBuild: "Les notifications push ne fonctionnent que dans la version complète de l'application (App Store). Non disponibles dans Expo Go.",
@@ -6387,7 +6411,11 @@ const it: Dict = {
     notificationsTitle: "Notifiche",
     pushTitle: "Notifiche push",
     pushLabel: "Notifiche push in-app",
-    pushDesc: "Avvisi per le nuove gare che corrispondono ai tuoi filtri.",
+    pushDesc: "Interruttore principale delle notifiche su questo dispositivo.",
+    pushLeadsLabel: "Nuovi bandi",
+    pushLeadsDesc: "Bandi dai tuoi filtri e dalla selezione AI.",
+    pushPublishLabel: "Richieste di offerta",
+    pushPublishDesc: "È arrivata un'offerta, una domanda ha ricevuto risposta, esito della gara.",
     pushPermissionDenied: "Le notifiche push sono disattivate nelle impostazioni iOS. Attivale in Impostazioni → Veritra.",
     pushNotSupported: "Le notifiche push non sono disponibili sul simulatore.",
     pushNeedBuild: "Le notifiche push funzionano solo nella versione completa dell'app (App Store). Non disponibili in Expo Go.",

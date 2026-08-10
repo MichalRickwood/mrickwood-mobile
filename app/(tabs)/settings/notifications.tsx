@@ -49,7 +49,10 @@ export default function NotificationsScreen() {
     };
   }, [refreshPush, t]);
 
-  async function patch(key: Exclude<keyof NotificationSettings, "email">, value: boolean) {
+  async function patch(
+    key: Exclude<keyof NotificationSettings, "email" | "publishRelevant">,
+    value: boolean,
+  ) {
     if (!settings) return;
     const prev = settings;
     setSettings({ ...settings, [key]: value });
@@ -145,6 +148,39 @@ export default function NotificationsScreen() {
                 {t("settings", "pushFailed", { reason: pushStatus.message })}
               </Text>
             </View>
+          )}
+
+          {/* Co se posílá. Kategorie mají smysl jen když je hlavní vypínač
+              zapnutý — jinak by uživatel ladil něco, co stejně nedorazí. */}
+          {settings && (
+            <>
+              <View style={styles.separator} />
+              <Row
+                styles={styles}
+                label={t("settings", "pushLeadsLabel")}
+                desc={t("settings", "pushLeadsDesc")}
+                value={settings.pushLeadsEnabled}
+                disabled={!pushEnabled}
+                busy={saving === "pushLeadsEnabled"}
+                onChange={(v) => patch("pushLeadsEnabled", v)}
+                colors={colors}
+              />
+              {settings.publishRelevant && (
+                <>
+                  <View style={styles.separator} />
+                  <Row
+                    styles={styles}
+                    label={t("settings", "pushPublishLabel")}
+                    desc={t("settings", "pushPublishDesc")}
+                    value={settings.pushPublishEnabled}
+                    disabled={!pushEnabled}
+                    busy={saving === "pushPublishEnabled"}
+                    onChange={(v) => patch("pushPublishEnabled", v)}
+                    colors={colors}
+                  />
+                </>
+              )}
+            </>
           )}
         </View>
 
