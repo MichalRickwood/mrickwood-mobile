@@ -219,7 +219,8 @@
     "translatePriceHint": "AIクレジット {price} で翻訳する",
     "translateFailed": "翻訳に失敗しました。もう一度お試しください。",
     "translateInsufficientTitle": "クレジットが不足しています",
-    "translateInsufficientBody": "翻訳に必要なAIクレジットが不足しています。設定画面のveritra.ioよりチャージしてください。"
+    "translateInsufficientBody": "翻訳に必要なAIクレジットが不足しています。設定画面のveritra.ioよりチャージしてください。",
+    "reportInvalidDetailPlaceholder": "問題の内容をご記入ください（任意）…"
   },
   "aiAnalysis": {
     "title": "AI入札案件分析",

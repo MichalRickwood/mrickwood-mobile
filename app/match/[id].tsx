@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Alert, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, useLocalSearchParams, useRouter, type Router } from "expo-router";
 import { HeaderBackButton } from "@react-navigation/elements";
@@ -82,6 +82,8 @@ export default function MatchDetailScreen() {
 
   const [emailing, setEmailing] = useState(false);
   const [reporting, setReporting] = useState(false);
+  const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [reportDetail, setReportDetail] = useState("");
   // Kommersannons: přílohy za interest (prenumeration) → LAZY na klik „Zobrazit dokumenty".
   const [kommersBusy, setKommersBusy] = useState(false);
   // On-demand unzip: po rozbalení na serveru přepíšeme lokální seznam příloh čerstvými
@@ -177,40 +179,37 @@ export default function MatchDetailScreen() {
 
   function reportInvalid() {
     if (!match || reporting) return;
-    Alert.alert(
-      t("matchDetail", "reportInvalidConfirmTitle"),
-      t("matchDetail", "reportInvalidConfirmBody"),
-      [
-        { text: t("matchDetail", "reportInvalidConfirmNo"), style: "cancel" },
-        {
-          text: t("matchDetail", "reportInvalidConfirmYes"),
-          style: "destructive",
-          onPress: async () => {
-            setReporting(true);
-            try {
-              await endpoints.submitFeedback({
-                kind: "WRONG_TENDER",
-                tenderId: String(match.tender.id),
-                message: `Neplatná zakázka — tender #${match.tender.id}\n${match.tender.title}\n${match.tender.url}`,
-              });
-              Alert.alert(
-                t("matchDetail", "emailSentTitle"),
-                t("matchDetail", "reportInvalidSent"),
-              );
-            } catch (err) {
-              Alert.alert(
-                t("matchDetail", "errorTitle"),
-                err instanceof ApiError
-                  ? err.message
-                  : t("matchDetail", "reportInvalidFailed"),
-              );
-            } finally {
-              setReporting(false);
-            }
-          },
-        },
-      ],
-    );
+    setReportDetail("");
+    setReportModalOpen(true);
+  }
+
+  async function submitReport() {
+    if (!match || reporting) return;
+    setReporting(true);
+    try {
+      const detail = reportDetail.trim();
+      await endpoints.submitFeedback({
+        kind: "WRONG_TENDER",
+        tenderId: String(match.tender.id),
+        message:
+          `Neplatná zakázka — tender #${match.tender.id}\n${match.tender.title}\n${match.tender.url}` +
+          (detail ? `\n\nUpřesnění uživatele: ${detail}` : ""),
+      });
+      setReportModalOpen(false);
+      Alert.alert(
+        t("matchDetail", "emailSentTitle"),
+        t("matchDetail", "reportInvalidSent"),
+      );
+    } catch (err) {
+      Alert.alert(
+        t("matchDetail", "errorTitle"),
+        err instanceof ApiError
+          ? err.message
+          : t("matchDetail", "reportInvalidFailed"),
+      );
+    } finally {
+      setReporting(false);
+    }
   }
 
   useEffect(() => {
@@ -568,6 +567,64 @@ export default function MatchDetailScreen() {
           )}
         </Pressable>
       </ScrollView>
+
+      {/* Nahlášení chybné zakázky s nepovinným upřesněním (CEO 30. 8. 2026) */}
+      <Modal
+        visible={reportModalOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => !reporting && setReportModalOpen(false)}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          style={styles.reportModalBackdrop}
+        >
+          <View style={styles.reportModalCard}>
+            <Text style={styles.reportModalTitle}>
+              {t("matchDetail", "reportInvalidConfirmTitle")}
+            </Text>
+            <Text style={styles.reportModalBody}>
+              {t("matchDetail", "reportInvalidConfirmBody")}
+            </Text>
+            <TextInput
+              value={reportDetail}
+              onChangeText={setReportDetail}
+              placeholder={t("matchDetail", "reportInvalidDetailPlaceholder")}
+              placeholderTextColor={colors.textSubtle}
+              multiline
+              numberOfLines={4}
+              maxLength={1000}
+              editable={!reporting}
+              style={styles.reportModalInput}
+              textAlignVertical="top"
+            />
+            <View style={styles.reportModalActions}>
+              <Pressable
+                onPress={() => setReportModalOpen(false)}
+                disabled={reporting}
+                style={({ pressed }) => [styles.reportModalCancel, pressed && { opacity: 0.7 }]}
+              >
+                <Text style={styles.reportModalCancelText}>
+                  {t("matchDetail", "reportInvalidConfirmNo")}
+                </Text>
+              </Pressable>
+              <Pressable
+                onPress={submitReport}
+                disabled={reporting}
+                style={({ pressed }) => [styles.reportModalSubmit, (pressed || reporting) && { opacity: 0.7 }]}
+              >
+                {reporting ? (
+                  <ActivityIndicator color={colors.accentForeground} size="small" />
+                ) : (
+                  <Text style={styles.reportModalSubmitText}>
+                    {t("matchDetail", "reportInvalidConfirmYes")}
+                  </Text>
+                )}
+              </Pressable>
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -823,6 +880,66 @@ const makeStyles = (colors: Colors) =>
   docMeta: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: 2 },
   docChevron: { fontSize: 20, color: colors.textFaint, marginLeft: spacing.sm },
   headerActions: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
+  reportModalBackdrop: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.45)",
+    justifyContent: "center",
+    padding: spacing.lg,
+  },
+  reportModalCard: {
+    backgroundColor: colors.card,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    gap: spacing.sm,
+  },
+  reportModalTitle: {
+    fontSize: fontSize.lg,
+    fontWeight: "700",
+    color: colors.text,
+  },
+  reportModalBody: {
+    fontSize: fontSize.sm,
+    color: colors.textSubtle,
+  },
+  reportModalInput: {
+    minHeight: 96,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    padding: spacing.sm,
+    fontSize: fontSize.base,
+    color: colors.text,
+    backgroundColor: colors.bg,
+  },
+  reportModalActions: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: spacing.sm,
+    marginTop: spacing.xs,
+  },
+  reportModalCancel: {
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.md,
+  },
+  reportModalCancelText: {
+    color: colors.textSubtle,
+    fontSize: fontSize.base,
+    fontWeight: "600",
+  },
+  reportModalSubmit: {
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    borderRadius: radius.md,
+    backgroundColor: colors.danger,
+    minWidth: 110,
+    alignItems: "center",
+  },
+  reportModalSubmitText: {
+    color: colors.accentForeground,
+    fontSize: fontSize.base,
+    fontWeight: "700",
+  },
   reportInvalidBtn: {
     marginTop: spacing.xxl,
     paddingHorizontal: spacing.md,

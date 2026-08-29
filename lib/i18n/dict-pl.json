@@ -427,7 +427,8 @@
     "translatePriceHint": "Przetłumacz za {price} z Twojego kredytu AI",
     "translateFailed": "Tłumaczenie nie powiodło się, spróbuj ponownie.",
     "translateInsufficientTitle": "Niewystarczający kredyt",
-    "translateInsufficientBody": "Niewystarczający kredyt AI do tłumaczenia. Doładuj konto na veritra.io w Ustawieniach."
+    "translateInsufficientBody": "Niewystarczający kredyt AI do tłumaczenia. Doładuj konto na veritra.io w Ustawieniach.",
+    "reportInvalidDetailPlaceholder": "Opisz, co jest nie tak (opcjonalnie)…"
   },
   "aiAnalysis": {
     "title": "Analiza przetargu przez AI",

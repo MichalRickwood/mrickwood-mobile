@@ -427,7 +427,8 @@
     "translatePriceHint": "Traducir por {price} desde tu crédito de IA",
     "translateFailed": "La traducción falló, por favor inténtalo de nuevo.",
     "translateInsufficientTitle": "Crédito insuficiente",
-    "translateInsufficientBody": "Crédito de IA insuficiente para la traducción. Recarga en veritra.io en Ajustes."
+    "translateInsufficientBody": "Crédito de IA insuficiente para la traducción. Recarga en veritra.io en Ajustes.",
+    "reportInvalidDetailPlaceholder": "Describe el problema (opcional)…"
   },
   "aiAnalysis": {
     "title": "Análisis de licitación con IA",

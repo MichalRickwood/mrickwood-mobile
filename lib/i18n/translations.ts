@@ -234,6 +234,7 @@ export interface Dict {
     reportInvalidBtn: string;
     reportInvalidConfirmTitle: string;
     reportInvalidConfirmBody: string;
+    reportInvalidDetailPlaceholder: string;
     reportInvalidConfirmYes: string;
     reportInvalidConfirmNo: string;
     reportInvalidSent: string;
@@ -1743,7 +1744,8 @@ const cs: Dict = {
     emailFailed: "Odeslání emailu selhalo.",
     reportInvalidBtn: "Nahlásit neplatnou zakázku",
     reportInvalidConfirmTitle: "Nahlásit neplatnou zakázku?",
-    reportInvalidConfirmBody: "Pošleme zpětnou vazbu týmu, aby ji prověřil. Pokud máš další info, můžeš ho napsat na záložce Feedback.",
+    reportInvalidConfirmBody: "Pošleme hlášení týmu k prověření.",
+    reportInvalidDetailPlaceholder: "Popiš, co je špatně (nepovinné)…",
     reportInvalidConfirmYes: "Nahlásit",
     reportInvalidConfirmNo: "Zrušit",
     reportInvalidSent: "Hlášení odesláno. Díky!",
@@ -2608,6 +2610,7 @@ const en: Dict = {
     reportInvalidBtn: "Report invalid tender",
     reportInvalidConfirmTitle: "Report this tender as invalid?",
     reportInvalidConfirmBody: "We'll send the feedback to our team to review. If you have more info, you can add it on the Feedback tab.",
+    reportInvalidDetailPlaceholder: "Describe what is wrong (optional)…",
     reportInvalidConfirmYes: "Report",
     reportInvalidConfirmNo: "Cancel",
     reportInvalidSent: "Report sent. Thanks!",
@@ -3474,6 +3477,7 @@ const de: Dict = {
     reportInvalidBtn: "Ungültige Ausschreibung melden",
     reportInvalidConfirmTitle: "Diese Ausschreibung als ungültig melden?",
     reportInvalidConfirmBody: "Wir senden Feedback an das Team zur Überprüfung. Weitere Infos können Sie im Feedback-Tab hinzufügen.",
+    reportInvalidDetailPlaceholder: "Beschreibe, was falsch ist (optional)…",
     reportInvalidConfirmYes: "Melden",
     reportInvalidConfirmNo: "Abbrechen",
     reportInvalidSent: "Meldung gesendet. Danke!",
@@ -4338,6 +4342,7 @@ const sk: Dict = {
     reportInvalidBtn: "Nahlásiť neplatnú zákazku",
     reportInvalidConfirmTitle: "Nahlásiť túto zákazku ako neplatnú?",
     reportInvalidConfirmBody: "Spätnú väzbu odošleme nášmu tímu na posúdenie. Ak máte viac informácií, môžete ich pridať na karte Spätná väzba.",
+    reportInvalidDetailPlaceholder: "Popíš, čo je zle (nepovinné)…",
     reportInvalidConfirmYes: "Nahlásiť",
     reportInvalidConfirmNo: "Zrušiť",
     reportInvalidSent: "Hlásenie odoslané. Ďakujeme!",
@@ -5202,6 +5207,7 @@ const fr: Dict = {
     reportInvalidBtn: "Signaler un appel d'offres invalide",
     reportInvalidConfirmTitle: "Signaler cet appel d'offres comme invalide ?",
     reportInvalidConfirmBody: "Nous transmettrons votre retour à notre équipe pour examen. Si vous avez plus d'informations, vous pouvez les ajouter dans l'onglet Retours.",
+    reportInvalidDetailPlaceholder: "Décrivez le problème (facultatif)…",
     reportInvalidConfirmYes: "Signaler",
     reportInvalidConfirmNo: "Annuler",
     reportInvalidSent: "Signalement envoyé. Merci !",
@@ -6066,6 +6072,7 @@ const it: Dict = {
     reportInvalidBtn: "Segnala gara non valida",
     reportInvalidConfirmTitle: "Segnalare questa gara come non valida?",
     reportInvalidConfirmBody: "Invieremo la segnalazione al nostro team per la verifica. Se hai altre informazioni, puoi aggiungerle nella scheda Feedback.",
+    reportInvalidDetailPlaceholder: "Descrivi il problema (facoltativo)…",
     reportInvalidConfirmYes: "Segnala",
     reportInvalidConfirmNo: "Annulla",
     reportInvalidSent: "Segnalazione inviata. Grazie!",

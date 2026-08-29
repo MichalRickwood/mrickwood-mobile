@@ -427,7 +427,8 @@
     "translatePriceHint": "Vertalen voor {price} uit uw AI-krediet",
     "translateFailed": "Vertaling mislukt, probeer het opnieuw.",
     "translateInsufficientTitle": "Onvoldoende krediet",
-    "translateInsufficientBody": "Onvoldoende AI-krediet voor vertaling. Laad bij via veritra.io onder Instellingen."
+    "translateInsufficientBody": "Onvoldoende AI-krediet voor vertaling. Laad bij via veritra.io onder Instellingen.",
+    "reportInvalidDetailPlaceholder": "Beschrijf wat er mis is (optioneel)…"
   },
   "aiAnalysis": {
     "title": "AI-tenderanalyse",
