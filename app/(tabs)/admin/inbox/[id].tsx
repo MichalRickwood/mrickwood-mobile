@@ -3,10 +3,12 @@ import { useMemo, useState } from "react";
 import { ActivityIndicator, Alert, Clipboard, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { AppScrollView } from "@/components/AppScroll";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { Redirect, useLocalSearchParams, useRouter } from "expo-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi, type InboxDecision, type InboxOffer } from "@/lib/admin-api";
 import { useI18n } from "@/lib/i18n";
+import { useAuth } from "@/lib/auth-context";
+import { isInboxOwner } from "@/lib/inbox-owner";
 import { useTheme } from "@/lib/theme-context";
 import { AGENDA_LABEL } from "./index";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
@@ -20,6 +22,7 @@ export default function AdminInboxDetailScreen() {
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const [note, setNote] = useState("");
+  const { user } = useAuth();
 
   const query = useQuery({
     queryKey: ["admin-inbox-one", mailId],
@@ -49,6 +52,8 @@ export default function AdminInboxDetailScreen() {
     Clipboard.setString(content.suggestedReply.body);
     Alert.alert(t("admin", "inboxCopied"));
   }
+
+  if (!isInboxOwner(user)) return <Redirect href="/(tabs)/admin" />;
 
   if (query.isLoading) {
     return (

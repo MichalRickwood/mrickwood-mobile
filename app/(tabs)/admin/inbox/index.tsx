@@ -2,10 +2,12 @@ import { useMemo, useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 import { AppScrollView } from "@/components/AppScroll";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
+import { Redirect, useRouter } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
 import { adminApi, type InboxMailListItem } from "@/lib/admin-api";
 import { useI18n } from "@/lib/i18n";
+import { useAuth } from "@/lib/auth-context";
+import { isInboxOwner } from "@/lib/inbox-owner";
 import { useTheme } from "@/lib/theme-context";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 
@@ -32,11 +34,16 @@ export default function AdminInboxScreen() {
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const [pendingOnly, setPendingOnly] = useState(true);
+  const { user } = useAuth();
 
   const query = useQuery({
     queryKey: ["admin-inbox", pendingOnly],
     queryFn: ({ signal }) => adminApi.listInbox(pendingOnly, signal),
   });
+
+  // Server je skutečná hranice (assertOwner → NOT_FOUND); tohle je navíc, aby se
+  // cizí admin deep-linkem ani nedostal na prázdnou obrazovku.
+  if (!isInboxOwner(user)) return <Redirect href="/(tabs)/admin" />;
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
