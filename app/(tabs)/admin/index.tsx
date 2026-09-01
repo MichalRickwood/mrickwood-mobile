@@ -41,6 +41,11 @@ export default function AdminIndexScreen() {
             onPress={() => router.push("/(tabs)/admin/invoices")}
           />
           <AdminRow
+            label={t("admin", "inboxRow")}
+            hint={t("admin", "inboxRowHint")}
+            onPress={() => router.push("/(tabs)/admin/inbox")}
+          />
+          <AdminRow
             label={t("admin", "feedbackRow")}
             hint={t("admin", "feedbackRowHint")}
             onPress={() => router.push("/(tabs)/admin/feedback")}
