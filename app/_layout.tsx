@@ -201,31 +201,62 @@ function ScreenTracker() {
 }
 
 /**
- * Tap na push notifikaci „nové zakázky" → otevře matches na daném filtru a ukáže
- * JEN nové z dané dávky (params filterId + since). Řeší warm (listener) i cold
- * start (getLastNotificationResponseAsync); cold-start naviguje až po přihlášení.
+ * Tap na push notifikaci → otevře cíl podle `data.type`. Řeší warm (listener)
+ * i cold start (getLastNotificationResponseAsync); cold-start naviguje až po
+ * přihlášení.
+ *
+ * POZOR na dřívější chování: handler měl natvrdo `if (d.type !== "leads.new")
+ * return`, takže KAŽDÝ jiný typ pushe skončil bez navigace — notifikace se
+ * otevřela do appky a „ztratila se". Týkalo se to `feedback_triage`
+ * i `inbox_proposal`. Nové typy proto přidávej do `routeFor()`, ne do podmínky.
  */
+type PushTarget = { pathname: string; params?: Record<string, string> };
+
+function routeFor(d: Record<string, unknown> | null): PushTarget | null {
+  if (!d || typeof d.type !== "string") return null;
+  const str = (k: string) => (d[k] == null ? undefined : String(d[k]));
+
+  switch (d.type) {
+    case "leads.new": {
+      // `since` je povinné — bez něj by se otevřel celý seznam, ne nová dávka
+      const since = str("since");
+      if (!since) return null;
+      const params: Record<string, string> = { since };
+      const filterId = str("filterId");
+      if (filterId) params.filterId = filterId;
+      return { pathname: "/(tabs)/matches", params };
+    }
+    case "inbox_proposal": {
+      const mailId = str("mailId");
+      return mailId ? { pathname: `/(tabs)/admin/inbox/${mailId}` } : null;
+    }
+    case "feedback_triage": {
+      const feedbackId = str("feedbackId");
+      return feedbackId ? { pathname: `/(tabs)/admin/feedback/${feedbackId}` } : null;
+    }
+    default:
+      return null;
+  }
+}
+
 function NotificationTapHandler() {
   const { status } = useAuth();
   const router = useRouter();
   const statusRef = useRef(status);
-  const pendingRef = useRef<Record<string, string> | null>(null);
+  const pendingRef = useRef<PushTarget | null>(null);
   useEffect(() => { statusRef.current = status; }, [status]);
 
   const navigate = useCallback(
-    (params: Record<string, string>) => router.push({ pathname: "/(tabs)/matches", params }),
+    (target: PushTarget) =>
+      router.push(target.params ? { pathname: target.pathname, params: target.params } : target.pathname),
     [router],
   );
 
   const handle = useCallback((data: unknown) => {
-    const d = data as { type?: string; filterId?: string; since?: string } | null;
-    if (!d || d.type !== "leads.new") return;
-    const params: Record<string, string> = {};
-    if (d.filterId) params.filterId = String(d.filterId);
-    if (d.since) params.since = String(d.since);
-    if (!params.since) return;
-    if (statusRef.current === "authenticated") navigate(params);
-    else pendingRef.current = params; // cold start — počkej na přihlášení
+    const target = routeFor(data as Record<string, unknown> | null);
+    if (!target) return;
+    if (statusRef.current === "authenticated") navigate(target);
+    else pendingRef.current = target; // cold start — počkej na přihlášení
   }, [navigate]);
 
   useEffect(() => {

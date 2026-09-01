@@ -4,6 +4,8 @@ import { AppScrollView } from "@/components/AppScroll";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useI18n } from "@/lib/i18n";
+import { isInboxOwner } from "@/lib/inbox-owner";
+import { useAuth } from "@/lib/auth-context";
 import { useTheme } from "@/lib/theme-context";
 import { openAuthedFile } from "@/lib/file-open";
 import { AdminCard, AdminRow } from "@/components/AdminRow";
@@ -11,6 +13,7 @@ import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 
 export default function AdminIndexScreen() {
   const router = useRouter();
+  const { user } = useAuth();
   const { t } = useI18n();
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
@@ -40,6 +43,13 @@ export default function AdminIndexScreen() {
             hint={t("admin", "invoicesRowHint")}
             onPress={() => router.push("/(tabs)/admin/invoices")}
           />
+          {isInboxOwner(user) && (
+            <AdminRow
+              label={t("admin", "inboxRow")}
+              hint={t("admin", "inboxRowHint")}
+              onPress={() => router.push("/(tabs)/admin/inbox")}
+            />
+          )}
           <AdminRow
             label={t("admin", "feedbackRow")}
             hint={t("admin", "feedbackRowHint")}

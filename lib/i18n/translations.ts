@@ -1110,6 +1110,29 @@ export interface Dict {
     registerLinkLabel: string;
     platformsLabel: string;
     publishedAt: string;
+    // triáž příchozí pošty
+    inboxTitle: string;
+    inboxRow: string;
+    inboxRowHint: string;
+    inboxPending: string;
+    inboxAll: string;
+    inboxEmpty: string;
+    inboxFrom: string;
+    inboxOriginal: string;
+    inboxSummary: string;
+    inboxReasons: string;
+    inboxDeadline: string;
+    inboxOffers: string;
+    inboxSuggestedReply: string;
+    inboxReplyHint: string;
+    inboxCopyReply: string;
+    inboxCopied: string;
+    inboxDecisionNote: string;
+    inboxApprove: string;
+    inboxReject: string;
+    inboxMarkDone: string;
+    inboxDecided: string;
+    inboxProposalOnly: string;
   };
 }
 
@@ -1321,6 +1344,29 @@ const ADMIN_CS: Dict["admin"] = {
   registerLinkLabel: "Odkaz registrace",
   platformsLabel: "Sítě",
   publishedAt: "Publikováno",
+    // triáž příchozí pošty
+    inboxTitle: "Pošta",
+    inboxRow: "Pošta",
+    inboxRowHint: "Návrhy triáže příchozí pošty",
+    inboxPending: "K rozhodnutí",
+    inboxAll: "Vše",
+    inboxEmpty: "Žádné návrhy k rozhodnutí.",
+    inboxFrom: "Od",
+    inboxOriginal: "Původní mail",
+    inboxSummary: "Shrnutí",
+    inboxReasons: "Důvody",
+    inboxDeadline: "Lhůta",
+    inboxOffers: "Nabídky",
+    inboxSuggestedReply: "Návrh odpovědi",
+    inboxReplyHint: "Neodesílá se automaticky — zkopíruj a pošli sám.",
+    inboxCopyReply: "Kopírovat odpověď",
+    inboxCopied: "Zkopírováno",
+    inboxDecisionNote: "Poznámka k rozhodnutí (nepovinné)",
+    inboxApprove: "Schválit",
+    inboxReject: "Odmítnout",
+    inboxMarkDone: "Hotovo",
+    inboxDecided: "Rozhodnuto",
+    inboxProposalOnly: "Tohle je jen návrh. Schválením se nic neodešle.",
 };
 
 const ADMIN_EN: Dict["admin"] = {
@@ -1530,6 +1576,29 @@ const ADMIN_EN: Dict["admin"] = {
   registerLinkLabel: "Register link",
   platformsLabel: "Networks",
   publishedAt: "Published",
+    // inbound mail triage
+    inboxTitle: "Inbox",
+    inboxRow: "Inbox",
+    inboxRowHint: "Inbound mail triage proposals",
+    inboxPending: "To decide",
+    inboxAll: "All",
+    inboxEmpty: "No proposals to decide.",
+    inboxFrom: "From",
+    inboxOriginal: "Original email",
+    inboxSummary: "Summary",
+    inboxReasons: "Reasons",
+    inboxDeadline: "Deadline",
+    inboxOffers: "Quotes",
+    inboxSuggestedReply: "Suggested reply",
+    inboxReplyHint: "Not sent automatically — copy and send it yourself.",
+    inboxCopyReply: "Copy reply",
+    inboxCopied: "Copied",
+    inboxDecisionNote: "Decision note (optional)",
+    inboxApprove: "Approve",
+    inboxReject: "Reject",
+    inboxMarkDone: "Done",
+    inboxDecided: "Decided",
+    inboxProposalOnly: "This is only a proposal. Approving sends nothing.",
 };
 
 const cs: Dict = {

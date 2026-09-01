@@ -262,6 +262,73 @@ export interface SocialReply {
 // ---- Helper na rozbalení envelope ----
 type Env<T> = { data: T };
 
+// --- Triáž příchozí pošty ---------------------------------------------------
+
+export type InboxAgenda =
+  | "POPTAVKA_ODPOVED" | "POPTAVKA_PRICHOZI" | "VYSVETLENI_ZD" | "LHUTA_VYZVA"
+  | "FAKTURA_PLATBA" | "SMLOUVA_PRAVNI" | "ZAKAZNIK" | "JINE";
+export type InboxProposalStatus =
+  "NEW" | "NOTIFIED" | "APPROVED" | "REJECTED" | "DONE" | "EXPIRED";
+export type InboxDecision = Extract<InboxProposalStatus, "APPROVED" | "REJECTED" | "DONE">;
+
+/** Jedna nabídka ve srovnání. Ceny jsou STRINGY — píší se tak, jak přišly
+ *  („128 000 Kč bez DPH"); RWX je neplátce DPH, přepočet by tiše lhal. */
+export interface InboxOffer {
+  supplier: string;
+  email?: string;
+  price?: string;
+  priceNote?: string;
+  deliveryDays?: string;
+  validUntil?: string;
+  note?: string;
+}
+
+export interface InboxProposalContent {
+  version: number;
+  agenda: InboxAgenda;
+  summary: string;
+  proposedAction: string;
+  urgency: "high" | "normal" | "low";
+  confidence: "high" | "medium" | "low";
+  reasons: string[];
+  deadline?: string;
+  offers?: InboxOffer[];
+  evidence?: Record<string, unknown>;
+  suggestedReply?: { locale: string; subject: string; body: string };
+  createdAt?: string;
+}
+
+export interface InboxProposal {
+  id: string;
+  mailId: string;
+  content: InboxProposalContent;
+  status: InboxProposalStatus;
+  notifiedAt: string | null;
+  decidedAt: string | null;
+  decisionNote: string | null;
+  createdAt: string;
+}
+
+export interface InboxMailListItem {
+  id: string;
+  subject: string;
+  fromEmail: string;
+  fromName: string | null;
+  receivedAt: string;
+  agenda: string | null;
+  urgency: string | null;
+  summary: string | null;
+  status: string;
+  proposals: { id: string; status: InboxProposalStatus; createdAt: string; decidedAt: string | null }[];
+}
+
+export interface InboxMailDetail extends Omit<InboxMailListItem, "proposals"> {
+  toEmail: string;
+  textBody: string | null;
+  attachmentsJson: { filename: string; mimeType: string | null; sizeBytes: number | null }[] | null;
+  proposals: InboxProposal[];
+}
+
 export const adminApi = {
   // Users
   listUsers: async (status: "active" | "inactive" | "all", signal?: AbortSignal) => {
@@ -401,6 +468,23 @@ export const adminApi = {
   },
   cycleAction: async (action: "approve" | "reject") => {
     const r = await api.post<Env<{ ok: boolean; affected: number }>>(`${BASE}/social/cycle`, { action });
+    return r.data;
+  },
+  listInbox: async (pendingOnly: boolean, signal?: AbortSignal) => {
+    const r = await api.get<Env<{ items: InboxMailListItem[] }>>(
+      `${BASE}/inbox${pendingOnly ? "?pending=1" : ""}`, { signal },
+    );
+    return r.data.items;
+  },
+  getInboxMail: async (id: string, signal?: AbortSignal) => {
+    const r = await api.get<Env<InboxMailDetail>>(`${BASE}/inbox/${id}`, { signal });
+    return r.data;
+  },
+  decideInboxProposal: async (
+    mailId: string,
+    input: { proposalId: string; status: InboxDecision; decisionNote?: string },
+  ) => {
+    const r = await api.patch<Env<unknown>>(`${BASE}/inbox/${mailId}`, input);
     return r.data;
   },
 };
