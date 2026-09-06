@@ -99,6 +99,13 @@ interface Props {
   initialTo: string | null;
   onClose: () => void;
   onApply: (from: string | null, to: string | null) => void;
+  /** Nejstarší volitelný den; výchozí dnes (lhůty jsou v budoucnu). Reporty dávají 2016-07-01. */
+  minDate?: string | null;
+  /** Nejmladší volitelný den; výchozí bez omezení. Reporty dávají dnes. */
+  maxDate?: string | null;
+  title?: string;
+  /** Rychlé volby (letos, 12 měsíců, …) — po klepnutí se rovnou použijí. */
+  presets?: { label: string; from: string | null; to: string | null }[];
 }
 
 /** Vrátí všechny dny mezi from a to (včetně) jako YYYY-MM-DD pole. */
@@ -118,6 +125,10 @@ export default function DeadlinePickerModal({
   initialTo,
   onClose,
   onApply,
+  minDate,
+  maxDate,
+  title,
+  presets,
 }: Props) {
   const { t, locale } = useI18n();
   // Calendar lib locale podle current app locale (všech 10); neznámé → en (ne cs).
@@ -196,11 +207,21 @@ export default function DeadlinePickerModal({
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={onClose}>
         <Pressable style={styles.card} onPress={(e) => e.stopPropagation()}>
-          <Text style={styles.title}>{t("filters", "deadlineTitle")}</Text>
+          <Text style={styles.title}>{title ?? t("filters", "deadlineTitle")}</Text>
+          {presets?.length ? (
+            <View style={styles.presets}>
+              {presets.map((pr) => (
+                <TouchableOpacity key={pr.label} onPress={() => { onApply(pr.from, pr.to); onClose(); }} style={styles.presetBtn}>
+                  <Text style={styles.presetText}>{pr.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          ) : null}
           <Text style={styles.range}>{rangeText}</Text>
           <Calendar
             current={from ?? to ?? undefined}
-            minDate={new Date().toISOString().slice(0, 10)}
+            minDate={minDate === undefined ? new Date().toISOString().slice(0, 10) : (minDate ?? undefined)}
+            maxDate={maxDate ?? undefined}
             onDayPress={pick}
             markedDates={markedDates}
             markingType="period"
@@ -254,6 +275,9 @@ export default function DeadlinePickerModal({
 
 const makeStyles = (colors: Colors) =>
   StyleSheet.create({
+    presets: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginBottom: 8 },
+    presetBtn: { borderWidth: 1, borderColor: colors.border, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4 },
+    presetText: { fontSize: 12, color: colors.text },
     overlay: {
       flex: 1,
       backgroundColor: "rgba(0,0,0,0.5)",
