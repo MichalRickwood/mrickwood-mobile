@@ -362,7 +362,7 @@ export const adminApi = {
   deleteComment: async (id: string, commentId: string) => {
     await api.delete<Env<{ ok: true }>>(`${BASE}/users/${id}/comments/${commentId}`);
   },
-  updateUser: async (id: string, patch: { role?: "USER" | "ADMIN"; keyId?: string; paused?: boolean }) => {
+  updateUser: async (id: string, patch: { role?: "USER" | "ADMIN"; keyId?: string; paused?: boolean; grantService?: "REPORTS"; enabled?: boolean }) => {
     const r = await api.patch<Env<{ success: true }>>(`${BASE}/users/${id}`, patch);
     return r.data;
   },

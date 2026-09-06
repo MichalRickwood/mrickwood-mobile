@@ -1217,6 +1217,11 @@ export interface Dict {
     repOpenTender: string;
     repAwardDetail: string;
     repPaywallTitle: string;
+    repAccessLabel: string;
+    repAccessOn: string;
+    repAccessOff: string;
+    repEnable: string;
+    repDisable: string;
     repPaywallBody: string;
     repPaywallContact: string;
     repBiddersTitle: string;
@@ -1656,6 +1661,11 @@ const ADMIN_CS: Dict["admin"] = {
     repOpenTender: "Detail zakázky",
     repAwardDetail: "Detail zadání",
     repPaywallTitle: "Reporty jsou placená služba",
+    repAccessLabel: "Reporty (služba s předplatným)",
+    repAccessOn: "zapnuto z administrace",
+    repAccessOff: "bez přístupu",
+    repEnable: "Zapnout",
+    repDisable: "Vypnout",
     repPaywallBody: "Cenové hladiny, konkurence v segmentu, profily dodavatelů a zadavatelů a pravděpodobnostní model nad výsledky zadávacích řízení z celé EU. Přístup je součástí předplatného.",
     repPaywallContact: "Pro zpřístupnění reportů nás kontaktujte v Nastavení → Podpora.",
     repBiddersTitle: "Uchazeči",
@@ -2093,6 +2103,11 @@ const ADMIN_EN: Dict["admin"] = {
     repOpenTender: "Tender detail",
     repAwardDetail: "Award detail",
     repPaywallTitle: "Reports are a paid service",
+    repAccessLabel: "Reports (subscription service)",
+    repAccessOn: "enabled by admin",
+    repAccessOff: "no access",
+    repEnable: "Enable",
+    repDisable: "Disable",
     repPaywallBody: "Price levels, competition by segment, supplier and buyer profiles and the probabilistic model over award results from across the EU. Access is part of the subscription.",
     repPaywallContact: "To get access to reports, contact us via Settings → Support.",
     repBiddersTitle: "Bidders",

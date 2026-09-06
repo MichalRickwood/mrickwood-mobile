@@ -12,7 +12,7 @@ import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
  * obsahu ukáže tahle obrazovka s cestou k předplatnému. Až bude služba prodejná,
  * rozhodne o přístupu entitlement ze serveru, ne role.
  */
-export default function ReportyPaywall() {
+export default function ReportyPaywall({ onRecheck }: { onRecheck?: () => void } = {}) {
   const { colors } = useTheme();
   const { t } = useI18n();
   const router = useRouter();
@@ -42,6 +42,11 @@ export default function ReportyPaywall() {
       ) : (
         <Text style={styles.fineprint}>{t("admin", "repPaywallContact")}</Text>
       )}
+      {onRecheck ? (
+        <Pressable onPress={onRecheck} style={({ pressed }) => [styles.recheckBtn, pressed && { opacity: 0.6 }]}>
+          <Text style={styles.recheckText}>{t("filters", "paywallRecheckBtn")}</Text>
+        </Pressable>
+      ) : null}
     </ScrollView>
   );
 }
@@ -82,5 +87,7 @@ const makeStyles = (colors: Colors) =>
       alignItems: "center",
     },
     btnPrimaryText: { color: colors.accentForeground, fontSize: fontSize.base, fontWeight: "600" },
+    recheckBtn: { paddingVertical: spacing.md, alignItems: "center", alignSelf: "stretch" },
+    recheckText: { color: colors.link, fontSize: fontSize.base, fontWeight: "600" },
     fineprint: { fontSize: fontSize.xs, color: colors.textFaint, textAlign: "center", paddingHorizontal: spacing.md },
   });

@@ -84,6 +84,12 @@ export default function AdminUserDetailScreen() {
     onSuccess: invalidateUser,
     onError: () => Alert.alert(t("admin", "actionFailed")),
   });
+  // Reporty = služba s předplatným; z administrace se zapíná/vypíná jedním klikem (ACTIVE/PAID bez konce).
+  const reportsMutation = useMutation({
+    mutationFn: (enabled: boolean) => adminApi.updateUser(userId, { grantService: "REPORTS", enabled }),
+    onSuccess: invalidateUser,
+    onError: () => Alert.alert(t("admin", "actionFailed")),
+  });
   const deleteUserMutation = useMutation({
     mutationFn: () => adminApi.deleteUser(userId),
     onSuccess: () => {
@@ -191,6 +197,21 @@ export default function AdminUserDetailScreen() {
           ) : (
             <Text style={styles.emptyLine}>{t("admin", "noSubs")}</Text>
           )}
+          {user ? (() => {
+            const rep = user.subscriptions.find((s) => s.service === "REPORTS");
+            const zapnuto = !!rep && (rep.state === "ACTIVE" || rep.state === "TRIAL");
+            return (
+              <View style={styles.subRow}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.subTitle}>{t("admin", "repAccessLabel")}</Text>
+                  <Text style={styles.subMeta}>{zapnuto ? t("admin", "repAccessOn") : t("admin", "repAccessOff")}</Text>
+                </View>
+                <Pressable onPress={() => reportsMutation.mutate(!zapnuto)} disabled={reportsMutation.isPending} style={styles.smallBtn}>
+                  <Text style={styles.smallBtnText}>{zapnuto ? t("admin", "repDisable") : t("admin", "repEnable")}</Text>
+                </Pressable>
+              </View>
+            );
+          })() : null}
         </Section>
 
         {/* Health */}
