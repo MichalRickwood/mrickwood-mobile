@@ -559,6 +559,9 @@ export interface VypisOpts {
   off?: Record<string, number>;
   /** Jen zadání/účasti z daného roku. */
   rok?: number;
+  /** Období od–do (YYYY-MM-DD) přes datum zadání resp. uzavření smlouvy. */
+  od?: string;
+  do?: string;
   /** Druh řízení podle počtu nabídek. */
   kos?: Kos;
   /** IČO nebo přesný název druhé firmy — jen zakázky, kde soutěžily spolu. */
@@ -568,7 +571,7 @@ export interface VypisOpts {
 /** Rozloží `off` na `off_<blok>` parametry podle kontraktu. */
 const vypis = (o?: VypisOpts): Params => {
   if (!o) return {};
-  const p: Params = { limit: o.limit, rok: o.rok, kos: o.kos, spolu: o.spolu };
+  const p: Params = { limit: o.limit, rok: o.rok, kos: o.kos, spolu: o.spolu, od: o.od, do: o.do };
   for (const [klic, hodnota] of Object.entries(o.off ?? {})) {
     if (Number.isFinite(hodnota) && hodnota > 0) p[`off_${klic}`] = Math.floor(hodnota);
   }

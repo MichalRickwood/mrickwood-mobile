@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { Pressable, RefreshControl, StyleSheet, Text, View } from "react-native";
+import { Pressable, RefreshControl, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter, type Router } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
@@ -24,7 +24,7 @@ import { useTheme } from "@/lib/theme-context";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 
 type Kind = "dodavatel" | "zadavatel";
-interface Zuzeni { rok?: number; kos?: Kos; spolu?: string; spoluNazev?: string }
+interface Zuzeni { od?: string; do?: string; rok?: number; kos?: Kos; spolu?: string; spoluNazev?: string }
 
 /**
  * Profil jednoho subjektu — dodavatel (co vyhrál, co podal, s kým se potkává) nebo
@@ -59,7 +59,7 @@ export default function ReportProfilScreen() {
   // Zúžení jde na server (kontrakt zná `rok`, `kos`, `spolu`) — filtruje se v celých
   // datech, ne jen v načtené stránce.
   const zaklad = useCallback(
-    (o: VypisOpts = {}): VypisOpts => ({ rok: zuzeni.rok, kos: zuzeni.kos, spolu: zuzeni.spolu, ...o }),
+    (o: VypisOpts = {}): VypisOpts => ({ rok: zuzeni.rok, kos: zuzeni.kos, spolu: zuzeni.spolu, od: zuzeni.od, do: zuzeni.do, ...o }),
     [zuzeni],
   );
 
@@ -72,7 +72,7 @@ export default function ReportProfilScreen() {
   );
 
   const q = useQuery<ProfilDodavatele | ProfilZadavatele>({
-    queryKey: ["rep-profil", String(kind), zeme, dotaz, zuzeni.rok ?? "", zuzeni.kos ?? "", zuzeni.spolu ?? ""],
+    queryKey: ["rep-profil", String(kind), zeme, dotaz, zuzeni.rok ?? "", zuzeni.kos ?? "", zuzeni.spolu ?? "", zuzeni.od ?? "", zuzeni.do ?? ""],
     queryFn: ({ signal }) =>
       jeDodavatel
         ? reportyApi.dodavatel(zeme, dotaz, zaklad({ limit: STRANKA }), signal)
@@ -87,7 +87,7 @@ export default function ReportProfilScreen() {
   const str = useStrankovani(
     data as unknown as Record<string, unknown> | undefined,
     nacti as unknown as (o: VypisOpts) => Promise<Record<string, unknown>>,
-    `${kind}|${zeme}|${dotaz}|${zuzeni.rok ?? ""}|${zuzeni.kos ?? ""}|${zuzeni.spolu ?? ""}`,
+    `${kind}|${zeme}|${dotaz}|${zuzeni.rok ?? ""}|${zuzeni.kos ?? ""}|${zuzeni.spolu ?? ""}|${zuzeni.od ?? ""}|${zuzeni.do ?? ""}`,
   );
 
   return (
@@ -107,6 +107,7 @@ export default function ReportProfilScreen() {
         {data ? (
           <>
             <Hlavicka org={data.org} kind={jeDodavatel ? "dodavatel" : "zadavatel"} nahradniNazev={nazev} zeme={zeme} mena={mena} />
+            <ObdobiField zuzeni={zuzeni} onZmen={setZuzeni} />
             <ZuzeniLista zuzeni={zuzeni} onZmen={setZuzeni} />
             {jeDodavatel ? (
               <Dodavatel data={data as ProfilDodavatele} zeme={zeme} mena={mena} router={router} zuzeni={zuzeni} onZuz={setZuzeni} str={str} />
@@ -147,13 +148,59 @@ function Hlavicka({
 }
 
 /** Aktivní zúžení jako zrušitelné štítky. */
+/**
+ * Období od–do — jedna komponenta jako na webu: dvě data (YYYY-MM-DD) a rychlé volby
+ * letos / 12 měsíců / 3 roky / vše. Omezuje zadání, účasti, koše, roky i smlouvy z registru.
+ */
+function ObdobiField({ zuzeni, onZmen }: { zuzeni: Zuzeni; onZmen: (z: Zuzeni) => void }) {
+  const { t } = useI18n();
+  const { colors } = useTheme();
+  const s = useMemo(() => makeStyles(colors), [colors]);
+  const [od, setOd] = useState(zuzeni.od ?? "");
+  const [doD, setDoD] = useState(zuzeni.do ?? "");
+  const iso = (d: Date) => d.toISOString().slice(0, 10);
+  const platne = (v: string) => v === "" || /^\d{4}-\d{2}-\d{2}$/.test(v);
+  const nastav = (a: string, b: string) => { setOd(a); setDoD(b); if (platne(a) && platne(b)) onZmen({ ...zuzeni, od: a || undefined, do: b || undefined }); };
+  const dnes = new Date();
+  const presety: [string, string, string][] = [
+    [t("admin", "repObdobiLetos"), `${dnes.getFullYear()}-01-01`, ""],
+    [t("admin", "repObdobi12m"), iso(new Date(dnes.getFullYear() - 1, dnes.getMonth(), dnes.getDate())), ""],
+    [t("admin", "repObdobi3y"), iso(new Date(dnes.getFullYear() - 3, dnes.getMonth(), dnes.getDate())), ""],
+    [t("admin", "repObdobiVse"), "", ""],
+  ];
+  return (
+    <View style={s.obdobi}>
+      <Text style={s.obdobiLabel}>{t("admin", "repObdobi")}</Text>
+      <View style={s.obdobiRow}>
+        <TextInput value={od} onChangeText={(v: string) => nastav(v, doD)} placeholder="2024-01-01" placeholderTextColor={colors.textFaint}
+          style={[s.obdobiInput, !platne(od) && { borderColor: colors.danger }]} autoCapitalize="none" keyboardType="numbers-and-punctuation" />
+        <Text style={s.obdobiDash}>–</Text>
+        <TextInput value={doD} onChangeText={(v: string) => nastav(od, v)} placeholder={iso(dnes)} placeholderTextColor={colors.textFaint}
+          style={[s.obdobiInput, !platne(doD) && { borderColor: colors.danger }]} autoCapitalize="none" keyboardType="numbers-and-punctuation" />
+      </View>
+      <View style={s.obdobiPresety}>
+        {presety.map(([label, a, b]) => (
+          <Pressable key={label} onPress={() => nastav(a, b)} style={s.zuzeniChip}>
+            <Text style={s.zuzeniText}>{label}</Text>
+          </Pressable>
+        ))}
+      </View>
+    </View>
+  );
+}
+
 function ZuzeniLista({ zuzeni, onZmen }: { zuzeni: Zuzeni; onZmen: (z: Zuzeni) => void }) {
   const { t } = useI18n();
   const { colors } = useTheme();
   const s = useMemo(() => makeStyles(colors), [colors]);
-  if (!zuzeni.rok && !zuzeni.kos && !zuzeni.spolu) return null;
+  if (!zuzeni.rok && !zuzeni.kos && !zuzeni.spolu && !zuzeni.od && !zuzeni.do) return null;
   return (
     <View style={s.zuzeni}>
+      {zuzeni.od || zuzeni.do ? (
+        <Pressable onPress={() => onZmen({ ...zuzeni, od: undefined, do: undefined })} style={s.zuzeniChip}>
+          <Text style={s.zuzeniText}>{zuzeni.od ?? "…"} – {zuzeni.do ?? "…"} ✕</Text>
+        </Pressable>
+      ) : null}
       {zuzeni.rok ? (
         <Pressable onPress={() => onZmen({ ...zuzeni, rok: undefined })} style={s.zuzeniChip}>
           <Text style={s.zuzeniText}>{t("admin", "repFilterYear", { rok: zuzeni.rok })} ✕</Text>
@@ -644,6 +691,12 @@ const makeStyles = (colors: Colors) =>
     scroll: { padding: spacing.lg },
     title: { fontSize: fontSize.lg, fontWeight: "700", color: colors.text, lineHeight: 24 },
     badges: { flexDirection: "row", flexWrap: "wrap", gap: spacing.xs },
+    obdobi: { marginBottom: spacing.sm },
+    obdobiLabel: { fontSize: fontSize.xs, color: colors.textSubtle, marginBottom: 4 },
+    obdobiRow: { flexDirection: "row", alignItems: "center", gap: spacing.xs },
+    obdobiInput: { flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: 8, paddingHorizontal: spacing.sm, paddingVertical: 6, color: colors.text, fontSize: fontSize.sm, backgroundColor: colors.card },
+    obdobiDash: { color: colors.textSubtle },
+    obdobiPresety: { flexDirection: "row", flexWrap: "wrap", gap: spacing.xs, marginTop: spacing.xs },
     zuzeni: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: spacing.sm, marginBottom: spacing.lg },
     zuzeniChip: {
       backgroundColor: colors.accent,
