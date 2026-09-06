@@ -1308,6 +1308,10 @@ export interface Dict {
     repObdobiVse: string;
     repObdobiLoni: string;
     repObdobiDnes: string;
+    repFirmaVybrat: string;
+    repPouzit: string;
+    repZavrit: string;
+    repRoleVyber: string;
     repContractsInRegistry: string;
     repParticipations: string;
     repWinRate: string;
@@ -1605,8 +1609,8 @@ const ADMIN_CS: Dict["admin"] = {
     repTitle: "Reporty",
     repModelRow: "Model",
     repModelRowHint: "Uložené predikce a kvalita modelu",
-    repSubjektyRow: "Dodavatelé a zadavatelé",
-    repSubjektyRowHint: "Registr subjektů a jejich profily",
+    repSubjektyRow: "Profil firmy",
+    repSubjektyRowHint: "Výhry, účasti, konkurence a smlouvy firmy — výchozí je vaše firma",
     repCenyRow: "Cenové hladiny",
     repCenyRowHint: "Kvartily cen v segmentu země × CPV × roky",
     repKonkRow: "Konkurence",
@@ -1755,7 +1759,7 @@ const ADMIN_CS: Dict["admin"] = {
     repPredictedAt: "Predikováno",
     repOpenSource: "Otevřít zdroj v prohlížeči",
     repHasPrediction: "má predikci",
-    repSubjektyTitle: "Dodavatelé a zadavatelé",
+    repSubjektyTitle: "Profil firmy",
     repSubjQ: "Název nebo IČ",
     repSubjQPh: "Strabag / 60838744",
     repSubjResults: "Nalezené subjekty",
@@ -1773,6 +1777,10 @@ const ADMIN_CS: Dict["admin"] = {
     repObdobiVse: "vše",
     repObdobiLoni: "loni",
     repObdobiDnes: "dnes",
+    repFirmaVybrat: "Firma a období",
+    repPouzit: "Použít",
+    repZavrit: "Zavřít",
+    repRoleVyber: "Role firmy",
     repContractsInRegistry: "Smluv v registru",
     repParticipations: "Účastí",
     repWinRate: "Podíl výher",
@@ -2068,7 +2076,7 @@ const ADMIN_EN: Dict["admin"] = {
     repTitle: "Reports",
     repModelRow: "Model",
     repModelRowHint: "Stored predictions and model quality",
-    repSubjektyRow: "Suppliers and buyers",
+    repSubjektyRow: "Company profile",
     repSubjektyRowHint: "Entity registry and profiles",
     repCenyRow: "Price levels",
     repCenyRowHint: "Price quartiles by country × CPV × years",
@@ -2218,7 +2226,7 @@ const ADMIN_EN: Dict["admin"] = {
     repPredictedAt: "Predicted at",
     repOpenSource: "Open source in browser",
     repHasPrediction: "has prediction",
-    repSubjektyTitle: "Suppliers and buyers",
+    repSubjektyTitle: "Company profile",
     repSubjQ: "Name or reg. no.",
     repSubjQPh: "Strabag / 60838744",
     repSubjResults: "Matching entities",
@@ -2236,6 +2244,10 @@ const ADMIN_EN: Dict["admin"] = {
     repObdobiVse: "all",
     repObdobiLoni: "last year",
     repObdobiDnes: "today",
+    repFirmaVybrat: "Company and period",
+    repPouzit: "Apply",
+    repZavrit: "Close",
+    repRoleVyber: "Company role",
     repContractsInRegistry: "Contracts in register",
     repParticipations: "Bids",
     repWinRate: "Win rate",

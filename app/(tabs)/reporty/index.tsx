@@ -35,7 +35,7 @@ export default function ReportyIndexScreen() {
           <AdminRow
             label={t("admin", "repSubjektyRow")}
             hint={t("admin", "repSubjektyRowHint")}
-            onPress={() => router.push("/(tabs)/reporty/subjekty")}
+            onPress={() => router.push("/(tabs)/reporty/subjekty/profil")}
           />
           <AdminRow
             label={t("admin", "repCenyRow")}

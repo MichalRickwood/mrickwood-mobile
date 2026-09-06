@@ -1,8 +1,9 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Pressable, RefreshControl, StyleSheet, Text, View } from "react-native";
-import DateRangeField from "@/components/DateRangeField";
+import ReportyFirmaSheet, { type VyberFirmy } from "@/components/ReportyFirmaSheet";
+import { endpoints } from "@/lib/endpoints";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useLocalSearchParams, useRouter, type Router } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter, type Router } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
 import { AppScrollView } from "@/components/AppScroll";
 import {
@@ -48,14 +49,29 @@ export default function ReportProfilScreen() {
   const { t } = useI18n();
   const { colors } = useTheme();
   const s = useMemo(() => makeStyles(colors), [colors]);
-  const jeDodavatel = kind !== "zadavatel";
+  // Výběr firmy, role a období — z parametrů (proklik), jinak moje firma z profilu účtu; mění se oknem zespoda.
+  const [vyber, setVyber] = useState<VyberFirmy>({
+    country: String(country || "CZ"), ident: String(ident ?? ""), nazev: nazev ? String(nazev) : "",
+    kind: kind === "zadavatel" ? "zadavatel" : "dodavatel",
+  });
+  const [sheet, setSheet] = useState(false);
+  const jeDodavatel = vyber.kind !== "zadavatel";
   // Proklik z dvojice konkurentů otevře profil rovnou zúžený na společné zakázky.
   const [zuzeni, setZuzeni] = useState<Zuzeni>(
     spolu ? { spolu: String(spolu), spoluNazev: spoluNazev ? String(spoluNazev) : undefined } : {},
   );
 
-  const zeme = String(country || "CZ");
-  const dotaz = String(ident ?? "");
+  const zeme = vyber.country;
+  const dotaz = vyber.ident;
+
+  // Bez parametru = profil mé firmy (IČO a název z účtu); když účet firmu nemá, otevře se výběr.
+  const ucet = useQuery({ queryKey: ["account-profile-v2"], queryFn: () => endpoints.getProfileV2(), enabled: !dotaz, staleTime: 300_000 });
+  useEffect(() => {
+    if (dotaz || !ucet.data) return;
+    const a = ucet.data;
+    if (a.ico || a.company) setVyber((v) => ({ ...v, country: (a.country || v.country).toUpperCase(), ident: a.ico || a.company || "", nazev: a.company || "" }));
+    else setSheet(true);
+  }, [dotaz, ucet.data]);
 
   // Zúžení jde na server (kontrakt zná `rok`, `kos`, `spolu`) — filtruje se v celých
   // datech, ne jen v načtené stránce.
@@ -73,12 +89,12 @@ export default function ReportProfilScreen() {
   );
 
   const q = useQuery<ProfilDodavatele | ProfilZadavatele>({
-    queryKey: ["rep-profil", String(kind), zeme, dotaz, zuzeni.rok ?? "", zuzeni.kos ?? "", zuzeni.spolu ?? "", zuzeni.od ?? "", zuzeni.do ?? ""],
+    queryKey: ["rep-profil", vyber.kind, zeme, dotaz, zuzeni.rok ?? "", zuzeni.kos ?? "", zuzeni.spolu ?? "", zuzeni.od ?? "", zuzeni.do ?? ""],
     queryFn: ({ signal }) =>
       jeDodavatel
         ? reportyApi.dodavatel(zeme, dotaz, zaklad({ limit: STRANKA }), signal)
         : reportyApi.zadavatel(zeme, dotaz, zaklad({ limit: STRANKA }), signal),
-    enabled: !!country && !!ident,
+    enabled: !!zeme && !!dotaz,
     retry: false,
   });
 
@@ -88,11 +104,23 @@ export default function ReportProfilScreen() {
   const str = useStrankovani(
     data as unknown as Record<string, unknown> | undefined,
     nacti as unknown as (o: VypisOpts) => Promise<Record<string, unknown>>,
-    `${kind}|${zeme}|${dotaz}|${zuzeni.rok ?? ""}|${zuzeni.kos ?? ""}|${zuzeni.spolu ?? ""}|${zuzeni.od ?? ""}|${zuzeni.do ?? ""}`,
+    `${vyber.kind}|${zeme}|${dotaz}|${zuzeni.rok ?? ""}|${zuzeni.kos ?? ""}|${zuzeni.spolu ?? ""}|${zuzeni.od ?? ""}|${zuzeni.do ?? ""}`,
   );
 
   return (
     <SafeAreaView style={s.safe} edges={["bottom"]}>
+      <Stack.Screen options={{ title: vyber.nazev || t("admin", "repSubjektyTitle") }} />
+      <ReportyFirmaSheet
+        visible={sheet}
+        initial={{ ...vyber, od: zuzeni.od, do: zuzeni.do }}
+        onClose={() => setSheet(false)}
+        onApply={(v) => { setVyber({ country: v.country, ident: v.ident, nazev: v.nazev, kind: v.kind }); setZuzeni((z) => ({ ...z, od: v.od, do: v.do })); }}
+      />
+      {!dotaz && !ucet.isLoading ? (
+        <Pressable onPress={() => setSheet(true)} style={{ margin: spacing.lg }}>
+          <Text style={{ color: colors.link, fontSize: fontSize.base }}>{t("admin", "repFirmaVybrat")} ›</Text>
+        </Pressable>
+      ) : null}
       <AppScrollView
         contentContainerStyle={s.scroll}
         refreshControl={<RefreshControl refreshing={q.isRefetching} onRefresh={() => void q.refetch()} tintColor={colors.textSubtle} />}
@@ -107,8 +135,7 @@ export default function ReportProfilScreen() {
 
         {data ? (
           <>
-            <Hlavicka org={data.org} kind={jeDodavatel ? "dodavatel" : "zadavatel"} nahradniNazev={nazev} zeme={zeme} mena={mena} />
-            <DateRangeField od={zuzeni.od} do={zuzeni.do} onChange={(od, doD) => setZuzeni({ ...zuzeni, od, do: doD })} />
+            <FirmaKarta nazev={data.org.name ?? vyber.nazev} kind={vyber.kind} od={zuzeni.od} do={zuzeni.do} bezIco={!data.org.reg_no} onPress={() => setSheet(true)} />
             <ZuzeniLista zuzeni={zuzeni} onZmen={setZuzeni} />
             {jeDodavatel ? (
               <Dodavatel data={data as ProfilDodavatele} zeme={zeme} mena={mena} router={router} zuzeni={zuzeni} onZuz={setZuzeni} str={str} />
@@ -127,24 +154,23 @@ export default function ReportProfilScreen() {
 
 type Str = ReturnType<typeof useStrankovani>;
 
-function Hlavicka({
-  org, kind, nahradniNazev, zeme, mena,
-}: { org: OrgRow; kind: Kind; nahradniNazev?: string; zeme: string; mena: string }) {
+function FirmaKarta({ nazev, kind, od, do: doD, bezIco, onPress }: { nazev: string; kind: "dodavatel" | "zadavatel"; od?: string; do?: string; bezIco: boolean; onPress: () => void }) {
   const { t } = useI18n();
   const { colors } = useTheme();
   const s = useMemo(() => makeStyles(colors), [colors]);
+  const fmt = (v?: string) => (v ? v.split("-").reverse().map((x, i) => (i < 2 ? String(Number(x)) : x)).join(". ") : "");
+  const obdobi = od || doD ? `${fmt(od) || "…"} – ${fmt(doD) || t("admin", "repObdobiDnes")}` : t("admin", "repObdobiVse");
   return (
-    <RepSection>
-      <Text style={s.title}>{org.name ?? nahradniNazev ?? "–"}</Text>
-      <View style={s.badges}>
-        <RepBadge text={org.country ?? zeme} />
-        {org.reg_no ? <RepBadge text={org.reg_no} /> : <RepBadge text={t("admin", "repNoRegNo")} tone="warn" />}
-        <RepBadge text={kind === "dodavatel" ? t("admin", "repSupplier") : t("admin", "repBuyer")} tone="yes" />
-        <RepBadge text={mena} />
+    <Pressable onPress={onPress} style={({ pressed }) => [s.firmaKarta, pressed && { opacity: 0.8 }]}>
+      <View style={{ flex: 1 }}>
+        <Text style={s.title} numberOfLines={2}>{nazev || "–"}</Text>
+        <Text style={s.firmaMeta}>
+          {kind === "dodavatel" ? t("admin", "repSupplier") : t("admin", "repBuyer")} · {t("admin", "repObdobi")}: {obdobi}
+          {bezIco ? ` · ${t("admin", "repNoRegNo")}` : ""}
+        </Text>
       </View>
-      <RepRow label={t("admin", "repPeriod")} value={`${datum(org.first_seen)} – ${datum(org.last_seen)}`} />
-      {!org.reg_no ? <RepHint>{t("admin", "repNoRegNoHint")}</RepHint> : null}
-    </RepSection>
+      <Text style={s.firmaChevron}>›</Text>
+    </Pressable>
   );
 }
 
@@ -651,6 +677,9 @@ const makeStyles = (colors: Colors) =>
     scroll: { padding: spacing.lg },
     title: { fontSize: fontSize.lg, fontWeight: "700", color: colors.text, lineHeight: 24 },
     badges: { flexDirection: "row", flexWrap: "wrap", gap: spacing.xs },
+    firmaKarta: { flexDirection: "row", alignItems: "center", gap: spacing.sm, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, backgroundColor: colors.card, padding: spacing.md, marginBottom: spacing.md },
+    firmaMeta: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: 4 },
+    firmaChevron: { fontSize: 26, color: colors.textSubtle },
     zuzeni: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: spacing.sm, marginBottom: spacing.lg },
     zuzeniChip: {
       backgroundColor: colors.accent,
