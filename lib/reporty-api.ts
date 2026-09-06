@@ -389,6 +389,9 @@ export interface SmlouvyBlok {
 
 export interface SmlouvaRow {
   id?: Num;
+  /** soutez = spárováno se zadáním v našich datech; objednavka/dodatek/ramcova podle předmětu; jinak neurceno */
+  puvod?: "soutez" | "objednavka" | "dodatek" | "ramcova" | "neurceno" | null;
+  award_id?: Num;
   datumUzavreni?: string | null;
   zadavatelNazev?: string | null;
   zadavatelIco?: string | null;

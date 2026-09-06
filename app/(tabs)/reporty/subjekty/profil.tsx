@@ -627,6 +627,7 @@ function Smlouvy({ blok, zeme, str }: { blok: SmlouvyBlok | null | undefined; ze
             { head: t("admin", "repCounterparty"), w: 170, cell: (r) => zkrat(r.zadavatelNazev, 46) },
             { head: t("admin", "repSupplier"), w: 170, cell: (r) => zkrat(r.dodavatelNazev, 46) },
             { head: t("admin", "repAmount"), w: 130, n: true, cell: (r) => castkaMena(r.hodnotaVcetneDph ?? r.hodnotaBezDph, mena) },
+            { head: t("admin", "repOrigin"), w: 100, cell: (r) => t("admin", (`repOrigin_${r.puvod ?? "neurceno"}`) as "repOrigin_neurceno") },
             { head: "kategorie", w: 120, cell: (r) => zkrat(r.kategorie, 30) },
             { head: t("admin", "repSource"), w: 56, cell: (r) => (r.smlouvaUrl ? "↗" : ""), url: (r) => r.smlouvaUrl },
           ]}

@@ -1189,6 +1189,12 @@ export interface Dict {
     repRivalsHint: string;
     repWinsHint: string;
     repContractsCut: string;
+    repOrigin: string;
+    repOrigin_soutez: string;
+    repOrigin_objednavka: string;
+    repOrigin_dodatek: string;
+    repOrigin_ramcova: string;
+    repOrigin_neurceno: string;
     repBuyerMatched: string;
     repCountryRows: string;
     repNotInOurData: string;
@@ -1635,7 +1641,13 @@ const ADMIN_CS: Dict["admin"] = {
     repRegistryRecalc: "Souhrny v seznamu firem se přepočítávají jednou týdně (naposled {d}), čísla v profilu se počítají teď.",
     repRivalsHint: "Klik na „společné zakázky“ zúží účasti na ty, kde podaly obě firmy.",
     repWinsHint: "Zakázky, kde subjekt vystupuje jako vítěz.",
-    repContractsCut: "Načítají se jen smlouvy od {n} Kč — menší se nezveřejňují, takže skutečný počet je vyšší a s počtem vyhraných zakázek se čísla nekryjí.",
+    repContractsCut: "Registr smluv od července 2016, smlouvy od {n} Kč bez DPH, aktualizace denně. Jiný zdroj než výsledky řízení výš, čísla se nemusí krýt.",
+    repOrigin: "původ",
+    repOrigin_soutez: "soutěž",
+    repOrigin_objednavka: "objednávka",
+    repOrigin_dodatek: "dodatek",
+    repOrigin_ramcova: "rámcová",
+    repOrigin_neurceno: "neurčeno",
     repBuyerMatched: "Filtr se chytil na: {name}",
     repCountryRows: "{n} zadání",
     repNotInOurData: "v našich datech zatím není",
@@ -1650,7 +1662,7 @@ const ADMIN_CS: Dict["admin"] = {
     repRank: "pořadí",
     repWinsByNameWarn: "Výhry se párovaly jen podle názvu — subjekt nemá registrační číslo, takže mezi nimi mohou být i cizí firmy se stejným názvem.",
     repContracts: "Smlouvy v registru smluv",
-    repContractsHint: "Jen ČR a jen smlouvy od 300 tis. Kč — pod tuhle hranici se smlouvy nezveřejňují, takže počty i objemy jsou zdola oříznuté.",
+    repContractsHint: "Jen ČR. Původ: soutěž = smlouva spárovaná se zadáním v našich datech (IČO obou stran, datum, hodnota); objednávka, dodatek a rámcová podle předmětu; jinak neurčeno.",
     repContractsPending: "Server tuhle část zatím neposílá.",
     repContractsCount: "Smluv",
     repContractsVolume: "Objem smluv",
@@ -2080,7 +2092,13 @@ const ADMIN_EN: Dict["admin"] = {
     repRegistryRecalc: "Registry totals are recalculated weekly (last {d}); the profile numbers are computed now.",
     repRivalsHint: "Tap “shared tenders” to narrow bids to those where both firms took part.",
     repWinsHint: "Tenders where the entity is the winner.",
-    repContractsCut: "Only contracts from CZK {n} are loaded — smaller ones are not published, so the real count is higher and will not match the number of tenders won.",
+    repContractsCut: "Contract register since July 2016, contracts from {n} CZK excl. VAT, updated daily. A different source than the award results above, so figures may differ.",
+    repOrigin: "origin",
+    repOrigin_soutez: "competition",
+    repOrigin_objednavka: "purchase order",
+    repOrigin_dodatek: "amendment",
+    repOrigin_ramcova: "framework",
+    repOrigin_neurceno: "unknown",
     repBuyerMatched: "Filter matched: {name}",
     repCountryRows: "{n} awards",
     repNotInOurData: "not in our data yet",
@@ -2095,7 +2113,7 @@ const ADMIN_EN: Dict["admin"] = {
     repRank: "rank",
     repWinsByNameWarn: "Wins were matched by name only — the entity has no registration number, so other firms with the same name may be included.",
     repContracts: "Contract registry",
-    repContractsHint: "Czechia only, and only contracts from CZK 300k — below that threshold contracts are not published, so counts and volumes are truncated from below.",
+    repContractsHint: "Czech Republic only. Origin: competition = contract matched to an award in our data (both parties' IDs, date, value); purchase order, amendment and framework by subject; otherwise unknown.",
     repContractsPending: "The server does not send this section yet.",
     repContractsCount: "Contracts",
     repContractsVolume: "Contract volume",
