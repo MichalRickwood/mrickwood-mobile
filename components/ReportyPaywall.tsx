@@ -1,9 +1,7 @@
 import { useMemo } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { useRouter } from "expo-router";
+import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useTheme } from "@/lib/theme-context";
 import { useI18n } from "@/lib/i18n";
-import { isIapAvailable } from "@/lib/iap";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 
 /**
@@ -15,33 +13,22 @@ import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 export default function ReportyPaywall({ onRecheck }: { onRecheck?: () => void } = {}) {
   const { colors } = useTheme();
   const { t } = useI18n();
-  const router = useRouter();
   const styles = useMemo(() => makeStyles(colors), [colors]);
 
   return (
     <ScrollView style={styles.flex} contentContainerStyle={styles.scroll}>
       <View style={styles.icon}>
-        <Text style={styles.iconText}>🔒</Text>
+        <Text style={styles.iconText}>🚧</Text>
       </View>
       <Text style={styles.title}>{t("admin", "repPaywallTitle")}</Text>
       <Text style={styles.body}>{t("admin", "repPaywallBody")}</Text>
-      <View style={styles.list}>
-        {[t("admin", "repCenyRow"), t("admin", "repKonkRow"), t("admin", "repSubjektyRow"), t("admin", "repModelRow")].map((x) => (
-          <Text key={x} style={styles.listItem}>
-            • {x}
-          </Text>
-        ))}
-      </View>
-      {isIapAvailable() ? (
-        <Pressable
-          onPress={() => router.push("/(tabs)/settings/billing")}
-          style={({ pressed }) => [styles.btnPrimary, pressed && { opacity: 0.85 }]}
-        >
-          <Text style={styles.btnPrimaryText}>{t("onboardingCountries", "subscribe")}</Text>
-        </Pressable>
-      ) : (
-        <Text style={styles.fineprint}>{t("admin", "repPaywallContact")}</Text>
-      )}
+      <Pressable
+        onPress={() => void Linking.openURL(`mailto:michal@rickwood.cz?subject=${encodeURIComponent(t("admin", "repPaywallTitle"))}`)}
+        style={({ pressed }) => [styles.btnPrimary, pressed && { opacity: 0.85 }]}
+      >
+        <Text style={styles.btnPrimaryText}>{t("admin", "repPaywallWrite")}</Text>
+      </Pressable>
+      <Text style={styles.fineprint}>{t("admin", "repPaywallContact")}</Text>
       {onRecheck ? (
         <Pressable onPress={onRecheck} style={({ pressed }) => [styles.recheckBtn, pressed && { opacity: 0.6 }]}>
           <Text style={styles.recheckText}>{t("filters", "paywallRecheckBtn")}</Text>
@@ -89,5 +76,5 @@ const makeStyles = (colors: Colors) =>
     btnPrimaryText: { color: colors.accentForeground, fontSize: fontSize.base, fontWeight: "600" },
     recheckBtn: { paddingVertical: spacing.md, alignItems: "center", alignSelf: "stretch" },
     recheckText: { color: colors.link, fontSize: fontSize.base, fontWeight: "600" },
-    fineprint: { fontSize: fontSize.xs, color: colors.textFaint, textAlign: "center", paddingHorizontal: spacing.md },
+    fineprint: { fontSize: fontSize.xs, color: colors.textFaint, textAlign: "center", paddingHorizontal: spacing.md, marginTop: spacing.md },
   });

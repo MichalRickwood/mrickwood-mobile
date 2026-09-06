@@ -21,6 +21,10 @@ export default function ReportyIndexScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={["bottom"]}>
       <AppScrollView contentContainerStyle={styles.scroll}>
+        <View style={styles.beta}>
+          <Text style={styles.betaTitle}>{t("admin", "repBetaTitle")}</Text>
+          <Text style={styles.betaBody}>{t("admin", "repBetaBody")}</Text>
+        </View>
         <Text style={styles.intro}>{t("admin", "repIntro")}</Text>
         <AdminCard>
           <AdminRow
@@ -55,4 +59,7 @@ const makeStyles = (colors: Colors) =>
     safe: { flex: 1, backgroundColor: colors.bg },
     scroll: { padding: spacing.lg },
     intro: { fontSize: fontSize.sm, color: colors.textSubtle, marginBottom: spacing.lg, lineHeight: 20 },
+    beta: { borderWidth: 1, borderColor: colors.warning ?? colors.border, backgroundColor: colors.card, borderRadius: 10, padding: spacing.md, marginBottom: spacing.md },
+    betaTitle: { fontSize: fontSize.sm, fontWeight: "700", color: colors.text, marginBottom: 4 },
+    betaBody: { fontSize: fontSize.xs, color: colors.textSubtle, lineHeight: 18 },
   });

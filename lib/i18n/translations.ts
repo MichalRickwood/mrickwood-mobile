@@ -1224,6 +1224,9 @@ export interface Dict {
     repDisable: string;
     repPaywallBody: string;
     repPaywallContact: string;
+    repPaywallWrite: string;
+    repBetaTitle: string;
+    repBetaBody: string;
     repBiddersTitle: string;
     repBiddersIncomplete: string;
     repBiddersNone: string;
@@ -1660,14 +1663,17 @@ const ADMIN_CS: Dict["admin"] = {
     repOpenProfile: "Profil",
     repOpenTender: "Detail zakázky",
     repAwardDetail: "Detail zadání",
-    repPaywallTitle: "Reporty jsou placená služba",
+    repPaywallTitle: "Modul Reporty brzy spustíme",
     repAccessLabel: "Reporty (služba s předplatným)",
     repAccessOn: "zapnuto z administrace",
     repAccessOff: "bez přístupu",
     repEnable: "Zapnout",
     repDisable: "Vypnout",
-    repPaywallBody: "Cenové hladiny, konkurence v segmentu, profily dodavatelů a zadavatelů a pravděpodobnostní model nad výsledky zadávacích řízení z celé EU. Přístup je součástí předplatného.",
-    repPaywallContact: "Pro zpřístupnění reportů nás kontaktujte v Nastavení → Podpora.",
+    repPaywallBody: "Cenové hladiny oborů, konkurence v segmentu, profily dodavatelů a zadavatelů a pravděpodobný počet nabídek a cena u živých zakázek, vše nad výsledky zadávacích řízení z celé EU.",
+    repPaywallContact: "Chcete do první neveřejné testovací verze? Napište nám na michal@rickwood.cz.",
+    repPaywallWrite: "Napsat e-mail",
+    repBetaTitle: "První verze ve vývoji",
+    repBetaBody: "Reporty jsou v testovacím provozu. Čísla vycházejí z výsledků zadávacích řízení, která průběžně doplňujeme a čistíme; něco může chybět nebo sedět jen přibližně. Každou nesrovnalost nám prosím napište.",
     repBiddersTitle: "Uchazeči",
     repBiddersIncomplete: "Zdroj hlásí víc nabídek, než kolik uchazečů uvedl jménem. Seznam je neúplný.",
     repBiddersNone: "Zdroj jména uchazečů neuvedl.",
@@ -2102,14 +2108,17 @@ const ADMIN_EN: Dict["admin"] = {
     repOpenProfile: "Profile",
     repOpenTender: "Tender detail",
     repAwardDetail: "Award detail",
-    repPaywallTitle: "Reports are a paid service",
+    repPaywallTitle: "The Reports module is launching soon",
     repAccessLabel: "Reports (subscription service)",
     repAccessOn: "enabled by admin",
     repAccessOff: "no access",
     repEnable: "Enable",
     repDisable: "Disable",
-    repPaywallBody: "Price levels, competition by segment, supplier and buyer profiles and the probabilistic model over award results from across the EU. Access is part of the subscription.",
-    repPaywallContact: "To get access to reports, contact us via Settings → Support.",
+    repPaywallBody: "Price levels by sector, competition in a segment, supplier and buyer profiles and the likely number of bids and price for live tenders, all built on award results from across the EU.",
+    repPaywallContact: "Want to join the first private test version? Write to us at michal@rickwood.cz.",
+    repPaywallWrite: "Send an e-mail",
+    repBetaTitle: "Early version in development",
+    repBetaBody: "Reports are in test operation. The figures come from award results that we keep adding and cleaning; something may be missing or only approximate. Please tell us about any discrepancy.",
     repBiddersTitle: "Bidders",
     repBiddersIncomplete: "The source reports more bids than the bidders it names. The list is incomplete.",
     repBiddersNone: "The source did not name the bidders.",
