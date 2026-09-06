@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { useTheme } from "@/lib/theme-context";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
@@ -90,28 +90,55 @@ export interface RepColumn<T> {
   /** Číselný sloupec = zarovnat vpravo, tabulární číslice. */
   n?: boolean;
   cell: (row: T) => string;
+  /** Buňka je odkaz — proklik na profil firmy, detail zakázky, segment. */
+  tap?: (row: T) => void;
+  /** Buňka otevře URL v prohlížeči (zdroj zadání). Vylučuje se s `tap`. */
+  url?: (row: T) => string | null | undefined;
 }
 
-/** Tabulka s vodorovným rolováním uvnitř rámečku (ne celé stránky). */
+/** Kolik řádků tabulky ukázat napoprvé a o kolik přidávat. */
+export const STRANKA = 20;
+
+/**
+ * Tabulka s vodorovným rolováním uvnitř rámečku (ne celé stránky) a stránkováním.
+ *
+ * `celkem` je počet, který zná server (když ho posílá) — jinak se bere délka pole.
+ * Rozdíl je podstatný: pole je uříznuté na stropu dotazu, takže „zobrazeno 20 z 40"
+ * by u serverem oříznutého výpisu lhalo o tom, kolik toho ve skutečnosti existuje.
+ */
 export function RepTable<T>({
   cols,
   rows,
   onRowPress,
-  max,
+  celkem,
+  onVice,
+  viceNacita,
 }: {
   cols: RepColumn<T>[];
   rows: T[];
   onRowPress?: (row: T) => void;
-  /** Strop řádků — zbytek se schová za hlášku „a další". */
-  max?: number;
+  celkem?: number | null;
+  /** Načtení další stránky ze serveru. Bez něj se stránkuje jen v už načtených řádcích. */
+  onVice?: () => void;
+  viceNacita?: boolean;
 }) {
   const { colors } = useTheme();
   const s = useMemo(() => makeStyles(colors), [colors]);
-  const shown = max ? rows.slice(0, max) : rows;
-  const total = cols.reduce((a, c) => a + c.w, 0);
+  const [videt, setVidet] = useState(STRANKA);
+
+  // Nová data (jiný filtr, jiný profil) → zpátky na první stránku.
+  useEffect(() => setVidet(STRANKA), [rows]);
+
+  const shown = rows.slice(0, videt);
+  const total = celkem ?? rows.length;
+  const width = cols.reduce((a, c) => a + c.w, 0);
+  // Další řádky buď máme doma, nebo si o ně musíme říct serveru.
+  const viceDoma = videt < rows.length;
+  const viceNaServeru = !viceDoma && !!onVice && rows.length < total;
+
   return (
     <View style={s.tableWrap}>
-      <ScrollView horizontal showsHorizontalScrollIndicator contentContainerStyle={{ minWidth: total }}>
+      <ScrollView horizontal showsHorizontalScrollIndicator contentContainerStyle={{ minWidth: width }}>
         <View>
           <View style={s.trHead}>
             {cols.map((c) => (
@@ -121,11 +148,25 @@ export function RepTable<T>({
             ))}
           </View>
           {shown.map((r, i) => {
-            const body = cols.map((c) => (
-              <Text key={c.head} style={[s.td, { width: c.w }, c.n && s.rightMono]} numberOfLines={2}>
-                {c.cell(r)}
-              </Text>
-            ));
+            const body = cols.map((c) => {
+              const text = c.cell(r);
+              const url = c.url?.(r);
+              const akce = c.tap ? () => c.tap?.(r) : url ? () => void Linking.openURL(url).catch(() => {}) : null;
+              if (!akce) {
+                return (
+                  <Text key={c.head} style={[s.td, { width: c.w }, c.n && s.rightMono]} numberOfLines={2}>
+                    {text}
+                  </Text>
+                );
+              }
+              return (
+                <Pressable key={c.head} onPress={akce} style={{ width: c.w }} hitSlop={4}>
+                  <Text style={[s.td, s.tdLink, c.n && s.rightMono, { width: c.w }]} numberOfLines={2}>
+                    {text}
+                  </Text>
+                </Pressable>
+              );
+            });
             return onRowPress ? (
               <Pressable key={i} onPress={() => onRowPress(r)} style={({ pressed }) => [s.tr, pressed && s.trPressed]}>
                 {body}
@@ -138,7 +179,26 @@ export function RepTable<T>({
           })}
         </View>
       </ScrollView>
-      {max && rows.length > max ? <Text style={s.tableMore}>… a dalších {rows.length - max}</Text> : null}
+      {total > STRANKA || viceNaServeru ? (
+        <View style={s.tableFoot}>
+          <Text style={s.tableCount}>
+            {cislo(shown.length)} / {cislo(total)}
+          </Text>
+          {viceDoma || viceNaServeru ? (
+            <Pressable
+              onPress={() => (viceDoma ? setVidet((v) => v + STRANKA) : onVice?.())}
+              disabled={viceNacita}
+              style={({ pressed }) => [s.viceBtn, pressed && s.viceBtnPressed]}
+            >
+              {viceNacita ? (
+                <ActivityIndicator size="small" color={colors.text} />
+              ) : (
+                <Text style={s.viceText}>+ {cislo(Math.min(STRANKA, total - shown.length))}</Text>
+              )}
+            </Pressable>
+          ) : null}
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -175,31 +235,6 @@ export function RepBars({
         <Text style={s.hint}>{data.filter((d) => d.note).map((d) => `${d.label}: ${d.note}`).join(" · ")}</Text>
       ) : null}
     </View>
-  );
-}
-
-/** Přepínač hodnot (země, druh profilu…). */
-export function RepChips<T extends string>({
-  values,
-  value,
-  onChange,
-  labels,
-}: {
-  values: readonly T[];
-  value: T;
-  onChange: (v: T) => void;
-  labels?: Partial<Record<T, string>>;
-}) {
-  const { colors } = useTheme();
-  const s = useMemo(() => makeStyles(colors), [colors]);
-  return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.chips}>
-      {values.map((v) => (
-        <Pressable key={v} onPress={() => onChange(v)} style={[s.chip, value === v && s.chipActive]}>
-          <Text style={[s.chipText, value === v && s.chipTextActive]}>{labels?.[v] ?? v}</Text>
-        </Pressable>
-      ))}
-    </ScrollView>
   );
 }
 
@@ -258,13 +293,22 @@ export function RepButton({ title, onPress, disabled }: { title: string; onPress
   );
 }
 
-/** Odkaz otevíraný v prohlížeči (zdroj zadání, profil zadavatele). */
-export function RepLink({ url, title }: { url: string | null | undefined; title: string }) {
+/** Odkaz — buď do prohlížeče (`url`), nebo na jinou obrazovku (`onPress`). */
+export function RepLink({
+  url,
+  onPress,
+  title,
+}: {
+  url?: string | null;
+  onPress?: () => void;
+  title: string;
+}) {
   const { colors } = useTheme();
   const s = useMemo(() => makeStyles(colors), [colors]);
-  if (!url) return <Text style={s.body}>{title}</Text>;
+  const akce = onPress ?? (url ? () => void Linking.openURL(url).catch(() => {}) : null);
+  if (!akce) return <Text style={s.body}>{title}</Text>;
   return (
-    <Pressable onPress={() => void Linking.openURL(url).catch(() => {})}>
+    <Pressable onPress={akce} hitSlop={6}>
       <Text style={s.link}>{title}</Text>
     </Pressable>
   );
@@ -382,7 +426,31 @@ function makeStyles(colors: Colors) {
     td: { fontSize: 11, color: colors.text, paddingHorizontal: spacing.sm, paddingVertical: spacing.sm },
     right: { textAlign: "right" },
     rightMono: { textAlign: "right", fontVariant: ["tabular-nums"] },
-    tableMore: { fontSize: fontSize.xs, color: colors.textSubtle, padding: spacing.sm, backgroundColor: colors.bg },
+    tdLink: { color: colors.link, textDecorationLine: "underline" },
+    tableFoot: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: spacing.sm,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs,
+      backgroundColor: colors.bg,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: colors.border,
+    },
+    tableCount: { fontSize: fontSize.xs, color: colors.textSubtle, fontVariant: ["tabular-nums"] },
+    viceBtn: {
+      paddingHorizontal: spacing.md,
+      paddingVertical: 4,
+      borderRadius: radius.sm,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.card,
+      minWidth: 56,
+      alignItems: "center",
+    },
+    viceBtnPressed: { borderColor: colors.text },
+    viceText: { fontSize: fontSize.xs, color: colors.text, fontWeight: "700" },
 
     bars: { gap: spacing.xs },
     barRow: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
@@ -391,18 +459,6 @@ function makeStyles(colors: Colors) {
     barFill: { height: 14, backgroundColor: colors.accent, borderRadius: radius.sm },
     barValue: { fontSize: fontSize.xs, color: colors.text, width: 92, textAlign: "right", fontVariant: ["tabular-nums"] },
 
-    chips: { gap: spacing.sm, paddingVertical: 2 },
-    chip: {
-      paddingHorizontal: spacing.md,
-      paddingVertical: spacing.sm,
-      borderRadius: radius.full,
-      borderWidth: 1,
-      borderColor: colors.border,
-      backgroundColor: colors.card,
-    },
-    chipActive: { backgroundColor: colors.accent, borderColor: colors.accent },
-    chipText: { fontSize: fontSize.sm, color: colors.text, fontWeight: "500" },
-    chipTextActive: { color: colors.accentForeground, fontWeight: "700" },
 
     field: { gap: 4 },
     fieldLabel: { fontSize: fontSize.xs, color: colors.textSubtle },

@@ -1177,6 +1177,61 @@ export interface Dict {
     repModelQualityHint: string;
     repModelNoPredictions: string;
     repModelStored: string;
+
+    // Reporty — 2. kolo (země, firmy, prokliky, stránkování)
+    repCountrySearch: string;
+    repBuckets: string;
+    repBucketsHint: string;
+    repBucketUnknown: string;
+    repByIco: string;
+    repNameOnlyHint: string;
+    repRegistryRecalc: string;
+    repRivalsHint: string;
+    repWinsHint: string;
+    repContractsCut: string;
+    repBuyerMatched: string;
+    repCountryRows: string;
+    repNotInOurData: string;
+    repDefunct: string;
+    repAresDown: string;
+    repParticipationsTitle: string;
+    repParticipationsHint: string;
+    repOffered: string;
+    repOutcomeUnknown: string;
+    repWon: string;
+    repLost: string;
+    repRank: string;
+    repWinsByNameWarn: string;
+    repContracts: string;
+    repContractsHint: string;
+    repContractsPending: string;
+    repContractsCount: string;
+    repContractsVolume: string;
+    repSubject: string;
+    repCounterparty: string;
+    repAmount: string;
+    repDirectHint: string;
+    repOpenPriceLevels: string;
+    repOpenCompetition: string;
+    repOpenProfile: string;
+    repOpenTender: string;
+    repAwardDetail: string;
+    repAwardNotFound: string;
+    repFilterYear: string;
+    repBucketCompetitive: string;
+    repBucketSingle: string;
+    repBucketDirect: string;
+    repClearFilter: string;
+    repFilteredLocally: string;
+    repSharedTenders: string;
+    repSharedPending: string;
+    repSource: string;
+    repOpenInBrowser: string;
+    repNothingToShow: string;
+    repCompetitor: string;
+    repPredictedRival: string;
+    repNoRegNo: string;
+    repNoRegNoHint: string;
     repModelNoEval: string;
     repPredictionsN: string;
     repWithP1: string;
@@ -1555,6 +1610,61 @@ const ADMIN_CS: Dict["admin"] = {
     repModelQualityHint: "U každé metriky je n = počet vzorků, ze kterých se počítá. Metrika bez n se neukazuje.",
     repModelNoPredictions: "Žádné uložené predikce.",
     repModelStored: "uložené predikce",
+
+    // Reporty — 2. kolo (země, firmy, prokliky, stránkování)
+    repCountrySearch: "Hledat zemi",
+    repBuckets: "Druh řízení",
+    repBucketsHint: "Rozhoduje počet nabídek, ne označení od portálu — u malých zakázek portál hlásí soutěž i tam, kde zadavatel oslovil jedinou firmu.",
+    repBucketUnknown: "Neznámo",
+    repByIco: "{n} podle IČO",
+    repNameOnlyHint: "{n} z toho se páruje jen podle názvu — subjekt vystupuje pod víc zápisy, takže mezi nimi mohou být i cizí firmy.",
+    repRegistryRecalc: "Souhrny v seznamu firem se přepočítávají jednou týdně (naposled {d}), čísla v profilu se počítají teď.",
+    repRivalsHint: "Klik na „společné zakázky“ zúží účasti na ty, kde podaly obě firmy.",
+    repWinsHint: "Zakázky, kde subjekt vystupuje jako vítěz.",
+    repContractsCut: "Načítají se jen smlouvy od {n} Kč — menší se nezveřejňují, takže skutečný počet je vyšší a s počtem vyhraných zakázek se čísla nekryjí.",
+    repBuyerMatched: "Filtr se chytil na: {name}",
+    repCountryRows: "{n} zadání",
+    repNotInOurData: "v našich datech zatím není",
+    repDefunct: "zaniklá",
+    repAresDown: "Rejstřík firem se teď nepodařilo dotázat — ukazujeme jen naše data.",
+    repParticipationsTitle: "Účasti v soutěžích",
+    repParticipationsHint: "Co subjekt podal, bez ohledu na výsledek. Výhry jsou podmnožina.",
+    repOffered: "nabídnutá cena",
+    repOutcomeUnknown: "neuvedeno",
+    repWon: "vyhrál",
+    repLost: "nevyhrál",
+    repRank: "pořadí",
+    repWinsByNameWarn: "Výhry se párovaly jen podle názvu — subjekt nemá registrační číslo, takže mezi nimi mohou být i cizí firmy se stejným názvem.",
+    repContracts: "Smlouvy v registru smluv",
+    repContractsHint: "Jen ČR a jen smlouvy od 300 tis. Kč — pod tuhle hranici se smlouvy nezveřejňují, takže počty i objemy jsou zdola oříznuté.",
+    repContractsPending: "Server tuhle část zatím neposílá.",
+    repContractsCount: "Smluv",
+    repContractsVolume: "Objem smluv",
+    repSubject: "Předmět",
+    repCounterparty: "Protistrana",
+    repAmount: "Částka",
+    repDirectHint: "Jako „přímé zadání“ se počítá jen to, co tak označil sám portál. Skutečné zadání bez soutěže bývá vidět až ve smlouvách.",
+    repOpenPriceLevels: "Cenové hladiny",
+    repOpenCompetition: "Konkurence",
+    repOpenProfile: "Profil",
+    repOpenTender: "Detail zakázky",
+    repAwardDetail: "Detail zadání",
+    repAwardNotFound: "Zadání se nepodařilo otevřít.",
+    repFilterYear: "Rok {rok}",
+    repBucketCompetitive: "V soutěži",
+    repBucketSingle: "Jediná nabídka",
+    repBucketDirect: "Přímé zadání",
+    repClearFilter: "Zrušit filtr",
+    repFilteredLocally: "Filtruje se v už načtených řádcích — server zúžení podle roku zatím neumí.",
+    repSharedTenders: "Společné zakázky",
+    repSharedPending: "Výpis společných zakázek dvou firem server zatím neumí.",
+    repSource: "zdroj",
+    repOpenInBrowser: "Otevřít v prohlížeči",
+    repNothingToShow: "Pro tenhle filtr tu nic není.",
+    repCompetitor: "Konkurent",
+    repPredictedRival: "Predikovaný uchazeč",
+    repNoRegNo: "bez registračního čísla",
+    repNoRegNoHint: "Firma nemá registrační číslo — vede se jen pod normalizovaným názvem, takže profil nemusí sedět přesně.",
     repModelNoEval: "Zatím není co vyhodnotit — žádná predikce nemá spárovaný skutečný výsledek.",
     repPredictionsN: "Predikcí",
     repWithP1: "S P1",
@@ -1931,6 +2041,61 @@ const ADMIN_EN: Dict["admin"] = {
     repModelQualityHint: "Each metric shows n = number of samples it is computed from. A metric without n is not shown.",
     repModelNoPredictions: "No stored predictions.",
     repModelStored: "stored predictions",
+
+    // Reporty — 2. kolo (země, firmy, prokliky, stránkování)
+    repCountrySearch: "Search country",
+    repBuckets: "Procedure type",
+    repBucketsHint: "Decided by the number of bids, not the portal's label — for small contracts portals report a tender even where the buyer approached a single firm.",
+    repBucketUnknown: "Unknown",
+    repByIco: "{n} by reg. no.",
+    repNameOnlyHint: "{n} of these are matched by name only — the entity appears under several spellings, so other firms may be included.",
+    repRegistryRecalc: "Registry totals are recalculated weekly (last {d}); the profile numbers are computed now.",
+    repRivalsHint: "Tap “shared tenders” to narrow bids to those where both firms took part.",
+    repWinsHint: "Tenders where the entity is the winner.",
+    repContractsCut: "Only contracts from CZK {n} are loaded — smaller ones are not published, so the real count is higher and will not match the number of tenders won.",
+    repBuyerMatched: "Filter matched: {name}",
+    repCountryRows: "{n} awards",
+    repNotInOurData: "not in our data yet",
+    repDefunct: "defunct",
+    repAresDown: "The company registry could not be reached — showing our data only.",
+    repParticipationsTitle: "Bids submitted",
+    repParticipationsHint: "What the entity submitted, regardless of outcome. Wins are a subset.",
+    repOffered: "bid price",
+    repOutcomeUnknown: "not stated",
+    repWon: "won",
+    repLost: "lost",
+    repRank: "rank",
+    repWinsByNameWarn: "Wins were matched by name only — the entity has no registration number, so other firms with the same name may be included.",
+    repContracts: "Contract registry",
+    repContractsHint: "Czechia only, and only contracts from CZK 300k — below that threshold contracts are not published, so counts and volumes are truncated from below.",
+    repContractsPending: "The server does not send this section yet.",
+    repContractsCount: "Contracts",
+    repContractsVolume: "Contract volume",
+    repSubject: "Subject",
+    repCounterparty: "Counterparty",
+    repAmount: "Amount",
+    repDirectHint: "Only what the portal itself marked as a direct award is counted. Awards without a tender are usually visible only in contracts.",
+    repOpenPriceLevels: "Price levels",
+    repOpenCompetition: "Competition",
+    repOpenProfile: "Profile",
+    repOpenTender: "Tender detail",
+    repAwardDetail: "Award detail",
+    repAwardNotFound: "The award could not be opened.",
+    repFilterYear: "Year {rok}",
+    repBucketCompetitive: "Competitive",
+    repBucketSingle: "Single bid",
+    repBucketDirect: "Direct award",
+    repClearFilter: "Clear filter",
+    repFilteredLocally: "Filtering within already loaded rows — the server does not support narrowing by year yet.",
+    repSharedTenders: "Shared tenders",
+    repSharedPending: "The server cannot list two firms' shared tenders yet.",
+    repSource: "source",
+    repOpenInBrowser: "Open in browser",
+    repNothingToShow: "Nothing here for this filter.",
+    repCompetitor: "Competitor",
+    repPredictedRival: "Predicted bidder",
+    repNoRegNo: "no registration number",
+    repNoRegNoHint: "The firm has no registration number — it is tracked by normalized name only, so the profile may not match exactly.",
     repModelNoEval: "Nothing to evaluate yet — no prediction has a matched real outcome.",
     repPredictionsN: "Predictions",
     repWithP1: "With P1",

@@ -1,7 +1,7 @@
 import type { Num } from "./reporty-api";
 
 /**
- * Formátování čísel a dat pro Veritra · Reporty.
+ * Formátování čísel, měn a dat pro Veritra · Reporty + čištění názvů firem.
  *
  * Oddělené od `components/ReportUi.tsx` schválně: jsou to čisté funkce bez
  * React Native, takže se dají spustit (a ověřit proti ukázkovým odpovědím API)
@@ -82,3 +82,66 @@ export const castkaKratce = (v: Num, mena = "EUR"): string => {
 /** Zkrácení textu na délku `n` s výpustkou. */
 export const zkrat = (s: string | null | undefined, n: number): string =>
   !s ? "–" : s.length > n ? `${s.slice(0, n - 1)}…` : s;
+
+// ── Měny ────────────────────────────────────────────────────────────────────
+
+/**
+ * Částka v dané měně přes `Intl` (`style: "currency"`), tj. správný symbol i pozice
+ * podle jazyka. Neznámý nebo prázdný kód měny by `Intl` shodil `RangeError`em —
+ * pak se vrátí aspoň číslo s kódem za ním, ať uživatel nepřijde o hodnotu.
+ */
+export const castkaMena = (v: Num, mena: string | null | undefined, locale = LOCALE, des = 0): string => {
+  const n = num(v);
+  if (n === null) return "–";
+  const kod = (mena ?? "").trim().toUpperCase();
+  if (/^[A-Z]{3}$/.test(kod)) {
+    try {
+      return n.toLocaleString(locale, {
+        style: "currency", currency: kod,
+        maximumFractionDigits: des, minimumFractionDigits: des,
+      });
+    } catch {
+      /* engine měnu nezná — spadneme na tvar „číslo KÓD" */
+    }
+  }
+  return castka(n, kod, des);
+};
+
+/** Zkrácená částka v dané měně (tis./mil./mld.) — do tabulek a dlaždic. */
+export const castkaMenaKratce = (v: Num, mena: string | null | undefined): string =>
+  castkaKratce(v, (mena ?? "").trim().toUpperCase());
+
+// ── Čištění názvů ───────────────────────────────────────────────────────────
+
+/**
+ * Útržky, které se do dat propsaly z rozsekaných tabulek na portálech — nejsou to
+ * firmy, ale kusy hlaviček („Dodavatel", „Zadávacího řízení"). Opravuje se to na
+ * straně dat; tohle je dočasná pojistka, aby se smetí neukazovalo v seznamech.
+ *
+ * Porovnává se CELÝ název, ne podřetězec — „Dodavatel stavby s.r.o." je legitimní
+ * firma a filtr ji nesmí spolknout.
+ */
+const SMETI_CELE = new Set([
+  "dodavatel", "dodavatele", "spolecnost", "spolecnosti", "uchazec", "uchazece",
+  "ucastnik", "ucastnika", "zadavaciho rizeni", "zadavatel", "vitez", "nazev",
+]);
+
+/** Malá písmena bez diakritiky — ať „Uchazeč" a „uchazec" spadnou na totéž. */
+const bezDiakritiky = (s: string) =>
+  s.toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[.,;:]/g, " ").replace(/\s+/g, " ").trim();
+
+/** True = název je smetí a do seznamu firem nepatří. */
+export function jeSmeti(nazev: string | null | undefined): boolean {
+  const raw = (nazev ?? "").trim();
+  if (raw.length < 3) return true;
+  const n = bezDiakritiky(raw);
+  if (!n || n.length < 3) return true;
+  if (SMETI_CELE.has(n)) return true;
+  // Nejčastější případ: název začínající útržkem hlavičky tabulky.
+  if (n.startsWith("zadavaciho rizeni")) return true;
+  return false;
+}
+
+/** Odfiltruje smetí ze seznamu podle vybraného pole s názvem. */
+export const bezSmeti = <T,>(rows: T[], nazev: (r: T) => string | null | undefined): T[] =>
+  rows.filter((r) => !jeSmeti(nazev(r)));

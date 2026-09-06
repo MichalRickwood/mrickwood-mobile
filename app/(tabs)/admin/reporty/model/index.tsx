@@ -5,9 +5,13 @@ import { useRouter } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
 import { AppScrollView } from "@/components/AppScroll";
 import {
-  RepBadge, RepButton, RepChips, RepField, RepHint, RepKpi, RepRow, RepSection, RepState, RepTable,
-  castkaKratce, cislo, datum, num, podil, zkrat,
+  RepBadge, RepButton, RepField, RepHint, RepKpi, RepRow, RepSection, RepState, RepTable,
 } from "@/components/ReportUi";
+import CountryField from "@/components/CountryField";
+import { castkaMenaKratce, cislo, datum, num, podil, zkrat } from "@/lib/reporty-format";
+import { menaZeme } from "@/lib/countries";
+import { useVychoziZeme } from "@/lib/use-zeme";
+import { naPredikci } from "@/lib/reporty-nav";
 import {
   MODEL_COUNTRIES, reportChyba, reportyApi,
   type KvalitaZeme, type ModelHledani, type PosledniPredikce,
@@ -30,8 +34,9 @@ export default function ReportModelScreen() {
   const { colors } = useTheme();
   const s = useMemo(() => makeStyles(colors), [colors]);
 
+  const { vychoziZeme } = useVychoziZeme();
   // Stav filtrů drží obrazovka (ne URL) — po návratu z detailu zůstane zachovaný.
-  const [country, setCountry] = useState<string>("CZ");
+  const [country, setCountry] = useState<string>(vychoziZeme);
   const [dotaz, setDotaz] = useState("");
   const [hledane, setHledane] = useState("");
 
@@ -55,8 +60,8 @@ export default function ReportModelScreen() {
 
   const predikce = (kvalita.data?.posledni ?? []).filter((p) => p.country === country);
 
-  const otevri = (id: unknown) =>
-    router.push({ pathname: "/(tabs)/admin/reporty/model/[id]", params: { id: String(id) } });
+  const otevri = (id: unknown) => naPredikci(router, id as never);
+  const mena = menaZeme(country);
 
   return (
     <SafeAreaView style={s.safe} edges={["bottom"]}>
@@ -75,7 +80,7 @@ export default function ReportModelScreen() {
         }
       >
         <RepSection title={t("admin", "repFilters")} hint={t("admin", "repModelIntro")}>
-          <RepChips values={zeme} value={country} onChange={setCountry} />
+          <CountryField label={t("admin", "repCountry")} value={country} onChange={setCountry} />
           <View style={s.filterRow}>
             <RepField
               label={t("admin", "repModelQ")}
@@ -112,8 +117,8 @@ export default function ReportModelScreen() {
                 cols={[
                   { head: "id", w: 76, cell: (r) => String(r.id ?? "–") },
                   { head: t("admin", "repPublished"), w: 84, cell: (r) => datum(r.publishedAt) },
-                  { head: "název", w: 200, cell: (r) => zkrat(r.title, 70) },
-                  { head: t("admin", "repEstimate"), w: 110, n: true, cell: (r) => castkaKratce(r.estimatedValue, r.currency ?? "") },
+                  { head: "název", w: 200, cell: (r) => zkrat(r.title, 70), tap: (r) => otevri(r.id) },
+                  { head: t("admin", "repEstimate"), w: 116, n: true, cell: (r) => castkaMenaKratce(r.estimatedValue, r.currency || mena) },
                   { head: t("admin", "repDeadline"), w: 84, cell: (r) => datum(r.deadlineAt) },
                   { head: "zadavatel", w: 150, cell: (r) => zkrat(r.buyer, 40) },
                   { head: "predikce", w: 74, n: true, cell: (r) => (r.predikci > 0 ? cislo(r.predikci) : "–") },
@@ -138,9 +143,9 @@ export default function ReportModelScreen() {
               rows={predikce}
               onRowPress={(r) => otevri(r.tender_id)}
               cols={[
-                { head: "zakázka", w: 190, cell: (r) => zkrat(r.title, 65) },
+                { head: "zakázka", w: 190, cell: (r) => zkrat(r.title, 65), tap: (r) => otevri(r.tender_id) },
                 { head: "zadavatel", w: 150, cell: (r) => zkrat(r.buyer, 40) },
-                { head: t("admin", "repEstimate"), w: 104, n: true, cell: (r) => castkaKratce(r.est_value, "") },
+                { head: t("admin", "repEstimate"), w: 116, n: true, cell: (r) => castkaMenaKratce(r.est_value, mena) },
                 { head: "P2", w: 52, n: true, cell: (r) => cislo(r.p2_bids, 1) },
                 { head: "q50", w: 56, n: true, cell: (r) => cislo(r.q50, 2) },
                 { head: t("admin", "repDeadline"), w: 84, cell: (r) => datum(r.deadlineAt) },

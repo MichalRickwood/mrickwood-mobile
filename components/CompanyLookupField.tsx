@@ -13,6 +13,8 @@ import {
   searchCompaniesByName,
   type CompanySearchResult,
 } from "@/lib/company-lookup";
+import { reportyApi, type SubjektRow } from "@/lib/reporty-api";
+import { cislo, jeSmeti, zkrat } from "@/lib/reporty-format";
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme-context";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
@@ -24,7 +26,25 @@ export interface CompanyLookupResult {
   name: string;
   address: string;
   vatNumber?: string | null;
+  /** Dál jen ze zdroje `reporty` — volající podle toho otevře profil nebo doplní filtr. */
+  country?: string;
+  /** false = firma je z rejstříku, ale v datech o zakázkách ji zatím nemáme. */
+  vNasichDatech?: boolean;
+  jeDodavatel?: boolean;
+  jeZadavatel?: boolean;
 }
+
+/** Řádek našeptávače — sjednocuje fakturační rejstříky a náš registr firem. */
+type Navrh = CompanySearchResult & {
+  vatNumber?: string | null;
+  vNasichDatech?: boolean;
+  jeDodavatel?: boolean;
+  jeZadavatel?: boolean;
+  vyher?: number;
+  nabidek?: number;
+  zadani?: number;
+  zanik?: string | null;
+};
 
 interface Props {
   country: string;
@@ -37,6 +57,16 @@ interface Props {
   onClear: () => void;
   label: string;
   placeholder?: string;
+  /**
+   * Odkud brát návrhy.
+   *  - `fakturace` (výchozí) — rejstříky pro fakturační údaje (ARES, VIES, SIRENE…);
+   *    fulltext umí jen CZ/SK/FR, jinde se hledá podle IČO.
+   *  - `reporty` — náš registr firem ze zakázek (+ ARES u ČR). Funguje pro všechny
+   *    země, které Reporty nabízejí, a u každé firmy rovnou ukáže, kolik toho má v datech.
+   */
+  zdroj?: "fakturace" | "reporty";
+  /** Reporty: skryje firmy, které v našich datech nejsou (do filtrů, kde by nedávaly smysl). */
+  jenNaseData?: boolean;
 }
 
 /**
@@ -52,13 +82,15 @@ export default function CompanyLookupField({
   onClear,
   label,
   placeholder,
+  zdroj = "fakturace",
+  jenNaseData = false,
 }: Props) {
   const { t } = useI18n();
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
 
   const [query, setQuery] = useState(value);
-  const [results, setResults] = useState<(CompanySearchResult & { vatNumber?: string | null })[]>([]);
+  const [results, setResults] = useState<Navrh[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -77,8 +109,30 @@ export default function CompanyLookupField({
     setError(null);
   }, [country]);
 
+  const jeReporty = zdroj === "reporty";
   const isFullCoverage = (FULL_COVERAGE_COUNTRIES as readonly string[]).includes(country);
   const idDigitLen = country === "FR" ? 9 : 8;
+
+  /** Náš registr firem ze zakázek — jediný zdroj, který pokrývá všechny země Reportů. */
+  async function hledejVRegistru(q: string, signal: AbortSignal): Promise<Navrh[]> {
+    const r = await reportyApi.subjektHledani(country, q, signal);
+    return (r.subjekty ?? [])
+      .filter((x: SubjektRow) => !jeSmeti(x.name))
+      .filter((x: SubjektRow) => !jenNaseData || x.vNasichDatech !== false)
+      .map((x: SubjektRow) => ({
+        taxId: x.reg_no ? String(x.reg_no) : "",
+        country: String(x.country ?? country),
+        name: String(x.name ?? ""),
+        address: x.sidlo ?? "",
+        vNasichDatech: x.vNasichDatech !== false,
+        jeDodavatel: !!Number(x.is_supplier),
+        jeZadavatel: !!Number(x.is_buyer),
+        vyher: Number(x.n_won) || 0,
+        nabidek: Number(x.n_bids) || 0,
+        zadani: Number(x.n_awarded) || 0,
+        zanik: x.zanik ?? null,
+      }));
+  }
 
   function trigger(q: string) {
     if (abortRef.current) abortRef.current.abort();
@@ -89,8 +143,9 @@ export default function CompanyLookupField({
     const clean = q.replace(/\s/g, "");
     const isDigits = /^\d+$/.test(clean) && clean.length > 0;
 
-    const promise: Promise<(CompanySearchResult & { vatNumber?: string | null })[]> =
-      isDigits && clean.length === idDigitLen
+    const promise: Promise<Navrh[]> = jeReporty
+      ? hledejVRegistru(q, ctrl.signal)
+      : isDigits && clean.length === idDigitLen
         ? lookupCompanyById(country, clean, ctrl.signal).then((r) =>
             r.found
               ? [
@@ -138,8 +193,10 @@ export default function CompanyLookupField({
     debounceTimer.current = setTimeout(() => trigger(v.trim()), DEBOUNCE_MS);
   }
 
-  function selectResult(r: CompanySearchResult & { vatNumber?: string | null }) {
-    setQuery(r.taxId);
+  function selectResult(r: Navrh) {
+    // V Reportech se firma může vést jen pod názvem (bez IČO) — do pole patří to,
+    // co uživatele identifikuje, ne prázdný řetězec.
+    setQuery(jeReporty ? r.taxId || r.name : r.taxId);
     setShowResults(false);
     setResults([]);
     onResolve({
@@ -147,6 +204,10 @@ export default function CompanyLookupField({
       name: r.name,
       address: r.address,
       vatNumber: r.vatNumber ?? null,
+      country: r.country,
+      vNasichDatech: r.vNasichDatech,
+      jeDodavatel: r.jeDodavatel,
+      jeZadavatel: r.jeZadavatel,
     });
   }
 
@@ -158,7 +219,7 @@ export default function CompanyLookupField({
     onClear();
   }
 
-  const isResolved = !!value && !!resolvedName;
+  const isResolved = jeReporty ? !!resolvedName : !!value && !!resolvedName;
 
   if (isResolved) {
     return (
@@ -169,9 +230,13 @@ export default function CompanyLookupField({
             <Text style={styles.chipName} numberOfLines={2}>
               {resolvedName}
             </Text>
-            <Text style={styles.chipMeta}>
-              {t("settings", "billingProfileIco")} {value}
-            </Text>
+            {value ? (
+              <Text style={styles.chipMeta}>
+                {t("settings", "billingProfileIco")} {value}
+              </Text>
+            ) : (
+              <Text style={styles.chipMeta}>{t("admin", "repNoRegNo")}</Text>
+            )}
           </View>
           <Pressable
             onPress={clearResolved}
@@ -219,8 +284,20 @@ export default function CompanyLookupField({
                 {r.name}
               </Text>
               <Text style={styles.rowMeta} numberOfLines={1}>
-                {r.taxId} · {r.address}
+                {[r.taxId, r.address ? zkrat(r.address, 44) : null].filter(Boolean).join(" · ") || "—"}
               </Text>
+              {jeReporty ? (
+                r.vNasichDatech === false ? (
+                  <Text style={styles.rowWarn} numberOfLines={1}>
+                    {t("admin", "repNotInOurData")}
+                  </Text>
+                ) : (
+                  <Text style={styles.rowStats} numberOfLines={1}>
+                    {t("admin", "repWins")} {cislo(r.vyher)} · {t("admin", "repParticipations")} {cislo(r.nabidek)} · {t("admin", "repAwards")} {cislo(r.zadani)}
+                    {r.zanik ? ` · ${t("admin", "repDefunct")}` : ""}
+                  </Text>
+                )
+              ) : null}
             </Pressable>
           ))}
         </View>
@@ -261,6 +338,8 @@ const makeStyles = (colors: Colors) =>
     rowPressed: { backgroundColor: colors.bg },
     rowName: { fontSize: fontSize.sm, color: colors.text, fontWeight: "500" },
     rowMeta: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: 2 },
+    rowStats: { fontSize: 10, color: colors.textFaint, marginTop: 1 },
+    rowWarn: { fontSize: 10, color: colors.warning, marginTop: 1, fontWeight: "600" },
     error: { fontSize: fontSize.xs, color: colors.warning, marginTop: spacing.xs },
     chip: {
       flexDirection: "row",

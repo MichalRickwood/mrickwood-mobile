@@ -4,11 +4,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
 import { AppScrollView } from "@/components/AppScroll";
-import {
-  RepBadge, RepButton, RepField, RepHint, RepSection, RepState,
-  castkaKratce, cislo, datum, num, zkrat,
-} from "@/components/ReportUi";
-import { reportChyba, reportyApi, type OrgRow } from "@/lib/reporty-api";
+import { RepBadge, RepHint, RepSection, RepState } from "@/components/ReportUi";
+import CountryField from "@/components/CountryField";
+import CompanyLookupField, { type CompanyLookupResult } from "@/components/CompanyLookupField";
+import { bezSmeti, castkaMenaKratce, cislo, datum, num, zkrat } from "@/lib/reporty-format";
+import { useVychoziZeme } from "@/lib/use-zeme";
+import { naProfil } from "@/lib/reporty-nav";
+import { reportChyba, reportyApi, type SubjektRow } from "@/lib/reporty-api";
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme-context";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
@@ -25,11 +27,11 @@ export default function ReportSubjektyScreen() {
   const { t } = useI18n();
   const { colors } = useTheme();
   const s = useMemo(() => makeStyles(colors), [colors]);
+  const { vychoziZeme } = useVychoziZeme();
 
-  const [country, setCountry] = useState("CZ");
-  const [dotaz, setDotaz] = useState("");
+  const [country, setCountry] = useState(vychoziZeme);
   const [hledane, setHledane] = useState("");
-  const [hledanaZeme, setHledanaZeme] = useState("CZ");
+  const [hledanaZeme, setHledanaZeme] = useState(vychoziZeme);
 
   const q = useQuery({
     queryKey: ["rep-subjekt-hledani", hledanaZeme, hledane],
@@ -39,20 +41,21 @@ export default function ReportSubjektyScreen() {
   });
 
   const chyba = q.error ? reportChyba(q.error) : null;
+  // Útržky z rozsekaných tabulek na portálech do výsledků nepatří.
+  const subjekty = useMemo(() => bezSmeti(q.data?.subjekty ?? [], (r) => r.name), [q.data]);
 
-  const hledej = () => {
-    const d = dotaz.trim();
-    if (!d) return;
-    setHledanaZeme(country.toUpperCase().slice(0, 2) || "CZ");
-    setHledane(d);
+  /** Výběr z našeptávače otevře profil rovnou — bez mezikroku přes seznam. */
+  const zNaseptavace = (v: CompanyLookupResult) => {
+    // Subjekt bez IČO se dohledává podle přesného názvu.
+    const ident = v.taxId || v.name;
+    // Firma, která je jen zadavatel, se otevře jako zadavatel; jinak jako dodavatel.
+    const kind = !v.jeDodavatel && v.jeZadavatel ? "zadavatel" : "dodavatel";
+    naProfil(router, { country: v.country || country, ident, kind, nazev: v.name });
   };
 
-  const otevri = (org: OrgRow, kind: "dodavatel" | "zadavatel") =>
-    router.push({
-      pathname: "/(tabs)/admin/reporty/subjekty/profil",
-      // Profil se dohledává podle IČ, a když ho subjekt nemá, podle přesného názvu.
-      params: { country: hledanaZeme, ident: org.reg_no ?? org.name ?? "", kind, nazev: org.name ?? "" },
-    });
+  const otevri = (org: SubjektRow, kind: "dodavatel" | "zadavatel") =>
+    // Profil se dohledává podle IČ, a když ho subjekt nemá, podle přesného názvu.
+    naProfil(router, { country: hledanaZeme, ident: org.reg_no ?? org.name ?? "", kind, nazev: org.name ?? "" });
 
   return (
     <SafeAreaView style={s.safe} edges={["bottom"]}>
@@ -64,23 +67,21 @@ export default function ReportSubjektyScreen() {
         }
       >
         <RepSection title={t("admin", "repFilters")} hint={t("admin", "repSubjHint")}>
-          <View style={s.filterRow}>
-            <RepField
-              label={t("admin", "repCountry")}
-              value={country}
-              onChangeText={(v) => setCountry(v.toUpperCase().replace(/[^A-Z]/g, "").slice(0, 2))}
-              width={72}
-              autoCapitalize="characters"
-              maxLength={2}
-            />
-            <RepField
-              label={t("admin", "repSubjQ")}
-              value={dotaz}
-              onChangeText={setDotaz}
-              placeholder={t("admin", "repSubjQPh")}
-            />
-          </View>
-          <RepButton title={t("admin", "repSearch")} onPress={hledej} disabled={!dotaz.trim()} />
+          <CountryField label={t("admin", "repCountry")} value={country} onChange={setCountry} />
+          <CompanyLookupField
+            zdroj="reporty"
+            country={country}
+            value=""
+            resolvedName=""
+            label={t("admin", "repSubjQ")}
+            placeholder={t("admin", "repSubjQPh")}
+            onResolve={(v) => {
+              setHledanaZeme(country);
+              setHledane(v.name);
+              zNaseptavace(v);
+            }}
+            onClear={() => setHledane("")}
+          />
         </RepSection>
 
         {hledane ? (
@@ -91,23 +92,24 @@ export default function ReportSubjektyScreen() {
               errorTitle={t("admin", "repErrorTitle")}
               retryLabel={t("admin", "repRetry")}
               onRetry={() => void q.refetch()}
-              empty={q.data && q.data.subjekty.length === 0 ? t("admin", "repEmpty") : null}
+              empty={q.data && subjekty.length === 0 ? t("admin", "repEmpty") : null}
             />
-            {(q.data?.subjekty ?? []).map((org) => {
+            {subjekty.map((org) => {
               const jeDodavatel = !!num(org.is_supplier);
               const jeZadavatel = !!num(org.is_buyer);
               return (
                 <View key={String(org.id)} style={s.orgCard}>
                   <Text style={s.orgName}>{zkrat(org.name, 70)}</Text>
                   <Text style={s.orgMeta}>
-                    {org.reg_no ?? "–"} · {datum(org.first_seen)} – {datum(org.last_seen)}
+                    {[org.reg_no, org.sidlo ? zkrat(org.sidlo, 40) : null].filter(Boolean).join(" · ") || "–"} · {datum(org.first_seen)} – {datum(org.last_seen)}
                     {num(org.n_aliases) ? ` · ${t("admin", "repAliases")}: ${cislo(org.n_aliases)}` : ""}
                   </Text>
                   <View style={s.orgStats}>
                     <RepBadge text={`${t("admin", "repWins")}: ${cislo(org.n_won)}`} />
                     <RepBadge text={`${t("admin", "repParticipations")}: ${cislo(org.n_bids)}`} />
                     <RepBadge text={`${t("admin", "repAwards")}: ${cislo(org.n_awarded)}`} />
-                    {num(org.value_won_eur) ? <RepBadge text={castkaKratce(org.value_won_eur, "EUR")} /> : null}
+                    {num(org.value_won_eur) ? <RepBadge text={castkaMenaKratce(org.value_won_eur, "EUR")} /> : null}
+                    {org.vNasichDatech === false ? <RepBadge text={t("admin", "repNotInOurData")} tone="warn" /> : null}
                   </View>
                   <View style={s.orgActions}>
                     <Pressable

@@ -23,6 +23,50 @@ export type Num = number | string | null | undefined;
 /** Datum z DB jako ISO řetězec (`"2026-09-05T12:58:18.000Z"`). */
 export type DateStr = string | null | undefined;
 
+/**
+ * Dlouhá tabulka ze serveru: stránka řádků + kolik jich je v datech celkem.
+ * `celkem` je počet v datech, ne na stránce — díky tomu jde napsat „20 z 5 493".
+ */
+export interface Blok<T> { radky: T[]; celkem: number; offset: number; limit: number }
+
+/**
+ * Server přechází z holých polí na bloky. Dokud nasazená verze může být obojí,
+ * čtou se tabulky přes `radky()` / `celkem()`, ne přímo — jinak by starší backend
+ * shodil obrazovku na `undefined.radky`.
+ */
+export type MozneBlok<T> = Blok<T> | T[];
+
+export const radky = <T>(b: MozneBlok<T> | null | undefined): T[] =>
+  Array.isArray(b) ? b : (b?.radky ?? []);
+
+export const celkem = <T>(b: MozneBlok<T> | null | undefined): number =>
+  Array.isArray(b) ? b.length : (b?.celkem ?? 0);
+
+/**
+ * Měna, ve které jsou částky v odpovědi. `smisena` = v segmentu se míchá víc měn,
+ * takže server přepočetl na EUR; jinak jsou částky v národní měně a nepřepočítávají se.
+ */
+export interface Mena { kod: string; podil?: number; smisena?: boolean }
+
+/** Kód měny z odpovědi; starší backend posílal jen řetězec. */
+export const menaKod = (m: Mena | string | null | undefined, nahrada: string): string =>
+  (typeof m === "string" ? m : m?.kod) || nahrada;
+
+/**
+ * Druh řízení podle POČTU NABÍDEK, ne podle příznaku zdroje — ten u písemných zpráv
+ * k malým zakázkám hlásí „soutěž" i tam, kde zadavatel oslovil jedinou firmu.
+ */
+export type Kos = "soutez" | "jedina" | "prime" | "neznamo";
+export type Kose = Record<Kos, number>;
+
+/**
+ * Tentýž rozpad, jak ho vedle `kose` posílá SQL — ploché sloupce jako řetězce.
+ * V UI se sahá na `kose`; tohle je tu, aby typy odpovídaly skutečné odpovědi.
+ */
+export interface KoseSloupce {
+  k_soutez?: Num; k_jedina?: Num; k_prime?: Num; k_neznamo?: Num;
+}
+
 /** Země s natrénovaným modelem — zrcadlí `MODEL_COUNTRIES` na serveru. Odpověď ho
  *  posílá taky (`modelCountries`), tohle je jen výchozí hodnota pro první render. */
 export const MODEL_COUNTRIES = ["CZ", "IT", "SK", "SI", "HU", "PT"] as const;
@@ -171,13 +215,21 @@ export interface AwardRow extends ZadaniZaklad {
 
 /** Poslední zadání v profilu dodavatele. Vítěz tu NENÍ: vítězem je sám profilovaný
  *  subjekt, takže ho dotaz nevybírá — proto se nedá použít `AwardRow`. */
-export type ZadaniDodavatele = ZadaniZaklad & { cpv: string | null; buyer_name: string | null };
+export type ZadaniDodavatele = ZadaniZaklad & {
+  cpv: string | null; buyer_name: string | null; buyer_reg?: string | null;
+  winner_name?: string | null; winner_reg?: string | null;
+  source_id?: string | null; kos?: Kos;
+};
 
 /** Poslední zadání v profilu zadavatele — zrcadlově nese vítěze, ale ne zadavatele. */
 export type ZadaniZadavatele = ZadaniZaklad & {
   cpv: string | null;
+  buyer_name?: string | null;
+  buyer_reg?: string | null;
   winner_name: string | null;
   winner_reg: string | null;
+  source_id?: string | null;
+  kos?: Kos;
 };
 
 export interface BidRow {
@@ -222,64 +274,163 @@ export interface OrgRow {
   n_aliases: Num;
 }
 
+/**
+ * Řádek našeptávače. Kromě registru Veritry sem u ČR přitékají i firmy z ARESu —
+ * ty mají `vNasichDatech: false` a všechny čítače nulové, protože o nich žádná
+ * zadání neznáme. V UI se to musí říct, jinak vypadají jako firma bez zakázek.
+ */
+export interface SubjektRow extends OrgRow {
+  zdroj?: "registr" | "ares";
+  sidlo?: string | null;
+  zanik?: string | null;
+  vNasichDatech?: boolean;
+  poznamka?: string | null;
+}
+
 export interface SubjektHledani {
   zeme: string;
   dotaz: string;
-  subjekty: OrgRow[];
+  /** Vyplněné, když se nepodařilo dosáhnout na ARES — registr se i tak vrátí. */
+  aresChyba?: string | null;
+  subjekty: SubjektRow[];
 }
+
+/** IČO a názvy, pod kterými subjekt v datech vystupuje. */
+export interface Identita { reg_no: string | null; nazvy: string[] }
 
 export interface ProfilDodavatele {
   zeme: string;
   org: OrgRow;
-  /** Pozor: `registr_*` sčítá i názvové varianty subjektu, zbytek jen řádky
-   *  dohledatelné podle IČ / přesného názvu — čísla se nemusí rovnat. */
-  stats: {
-    vyher: Num;
+  mena?: Mena | string | null;
+  identita?: Identita;
+  /** Filtry, které server na výpisy skutečně použil — vrací se zpátky, ať jdou odklepnout. */
+  filtry?: { rok?: number; kos?: Kos; spolu?: string };
+  /**
+   * Pozor na dvojí čísla: `registr_*` se přepočítává jednou týdně a sčítá i názvové
+   * varianty, kdežto ostatní se počítá teď. Rozpad `*_s_ico` / `*_jen_nazev` říká,
+   * kolik z toho stojí na jistém spárování podle IČO a kolik jen na shodě názvu.
+   */
+  stats: KoseSloupce & {
+    vyher: Num; vyher_s_ico?: Num; vyher_jen_nazev?: Num;
+    /** V měně z `mena.kod`. */
+    objem?: Num;
     objem_eur: Num;
-    nabidek: Num;
-    vyherZNabidek: Num;
+    nabidek: Num; nabidek_s_ico?: Num; nabidek_jen_nazev?: Num;
+    vyherZNabidek: Num; prohry?: Num;
+    /** Zdroj výsledek nedal — není to prohra. */
+    neznamych?: Num;
     uspesnost: Num;
     s_cenou: Num;
-    registr_n_won: Num;
-    registr_n_bids: Num;
-    registr_objem_eur: Num;
+    registr_n_won: Num; registr_n_bids: Num; registr_objem_eur: Num;
+    registr_prepocet?: DateStr;
+    kose?: Kose;
   };
-  vyhryPoLetech: { rok: Num; vyher: Num; objem_eur: Num; v_soutezi: Num; prime: Num; prum_pomer: Num }[];
-  ucastPoLetech: { rok: Num; nabidek: Num; vyher: Num; prum_soupereru: Num }[];
-  zadavatele: { buyer_reg: string | null; buyer_name: string | null; vyher: Num; objem_eur: Num; posledni: DateStr }[];
-  cpv: { cpv3: string | null; vyher: Num; objem_eur: Num }[];
-  posledni: ZadaniDodavatele[];
-  soupeReri: { bidder_reg: string | null; bidder_name: string | null; spolecnych: Num; jejich_vyher: Num }[];
+  vyhryPoLetech: (KoseSloupce & {
+    rok: Num; vyher: Num; objem?: Num; objem_eur: Num; objem_mena?: Num;
+    v_soutezi?: Num; prime?: Num; prum_pomer: Num; kose?: Kose;
+  })[];
+  ucastPoLetech: { rok: Num; nabidek: Num; vyher: Num; neznamych?: Num; prum_soupereru: Num }[];
+  cpv: { cpv3: string | null; vyher: Num; objem?: Num; objem_eur: Num; objem_mena?: Num }[];
+  zadavatele: MozneBlok<{
+    buyer_reg: string | null; buyer_name: string | null; vyher: Num;
+    objem?: Num; objem_eur: Num; objem_mena?: Num; posledni: DateStr;
+  }>;
+  posledni: MozneBlok<ZadaniDodavatele>;
+  /** Co subjekt podal, bez ohledu na výsledek (výhry jsou podmnožina). */
+  ucasti?: MozneBlok<UcastRow>;
+  soupeReri: MozneBlok<{
+    bidder_reg: string | null; bidder_name: string | null; spolecnych: Num; jejich_vyher: Num;
+  }>;
+  /** Podle čeho se výhry párovaly: `reg` = jistá shoda IČO, `name` = jen shoda názvu. */
+  vyhryPodle?: "reg" | "name";
+  smlouvy?: SmlouvyBlok | null;
+}
+
+/**
+ * Jedna podaná nabídka. `is_winner === null` znamená, že zdroj výsledek neuvedl —
+ * NENÍ to prohra a v UI se musí lišit od nuly, jinak by profil tvrdil něco,
+ * co v datech není.
+ */
+export interface UcastRow extends ZadaniZaklad {
+  buyer_name: string | null;
+  buyer_reg: string | null;
+  cpv: string | null;
+  winner_name: string | null;
+  winner_reg: string | null;
+  /** NAŠE nabídka — vedle `final_value`, což je cena vítěze. */
+  offered_value: Num;
+  is_winner: number | null;
+  rank_no: Num;
+  bid_currency: string | null;
+  bidder_reg?: string | null;
+  source_id?: string | null;
+  kos?: Kos;
+}
+
+/**
+ * Smlouvy z registru smluv (jen ČR). Doplňuje obrázek tam, kde zadání z portálů
+ * mlčí — „přímé zadání" v našich datech je jen to, co portál sám takto označil.
+ *
+ * ⚠️ Registr smluv neobsahuje smlouvy pod 300 tis. Kč, takže počty i objemy jsou
+ * zdola oříznuté; v UI se to musí napsat.
+ */
+export interface SmlouvyBlok {
+  celkem: Num;
+  objem: Num;
+  mena?: string | null;
+  /** ⚠️ Spodní hranice zveřejňování (300 000 Kč). Menší smlouvy v datech VŮBEC nejsou,
+   *  takže počet i objem jsou zdola oříznuté — v UI to musí být vidět. */
+  orezOd?: Num;
+  roky?: { rok: string | null; n: Num; objem: Num }[];
+  radky?: SmlouvaRow[];
+  offset?: Num;
+  limit?: Num;
+}
+
+export interface SmlouvaRow {
+  id?: Num;
+  datumUzavreni?: string | null;
+  zadavatelNazev?: string | null;
+  zadavatelIco?: string | null;
+  dodavatelNazev?: string | null;
+  dodavatelIco?: string | null;
+  predmet?: string | null;
+  hodnotaBezDph?: Num;
+  hodnotaVcetneDph?: Num;
+  kategorie?: string | null;
+  smlouvaUrl?: string | null;
 }
 
 export interface ProfilZadavatele {
   zeme: string;
   org: OrgRow;
-  prehled: {
-    zadani: Num;
-    objem_eur: Num;
-    souteze: Num;
-    prima: Num;
-    neurceno: Num;
-    prum_nabidek: Num;
-    jedna_nabidka: Num;
-    s_poctem: Num;
-    prum_pomer: Num;
-    zrusenych: Num;
-    od: DateStr;
-    do: DateStr;
+  mena?: Mena | string | null;
+  identita?: Identita;
+  filtry?: { rok?: number; kos?: Kos };
+  prehled: KoseSloupce & {
+    zadani: Num; objem?: Num; objem_eur: Num; objem_mena?: Num;
+    s_ico?: Num; jen_nazev?: Num;
+    souteze: Num; prima: Num; neurceno: Num;
+    prum_nabidek: Num; jedna_nabidka: Num; s_poctem: Num;
+    prum_pomer: Num; zrusenych: Num;
+    od: DateStr; do: DateStr;
+    registr_prepocet?: DateStr;
+    kose?: Kose;
   };
-  poLetech: {
-    rok: Num; zadani: Num; objem_eur: Num; souteze: Num; prima: Num;
-    prum_nabidek: Num; jedna_nabidka: Num; s_poctem: Num; prum_pomer: Num;
-  }[];
-  vitezove: { winner_reg: string | null; winner_name: string | null; vyher: Num; objem_eur: Num; posledni: DateStr }[];
-  cpv: { cpv3: string | null; zadani: Num; objem_eur: Num }[];
+  poLetech: (KoseSloupce & {
+    rok: Num; zadani: Num; objem?: Num; objem_eur: Num; objem_mena?: Num;
+    souteze: Num; prima: Num; prum_nabidek: Num; jedna_nabidka: Num; s_poctem: Num;
+    prum_pomer: Num; kose?: Kose;
+  })[];
+  cpv: { cpv3: string | null; zadani: Num; objem?: Num; objem_eur: Num; objem_mena?: Num }[];
   kriteria: { kriterium: string | null; zadani: Num }[];
-  posledni: ZadaniZadavatele[];
-  /** Živé/archivní soutěže z portálů. Užší výběr sloupců než `TenderRow` — dotaz jede
-   *  přes `tenders` a bere jen to, co se vejde do výpisu. */
-  souteze: SoutezRow[];
+  vitezove: MozneBlok<{
+    winner_reg: string | null; winner_name: string | null; vyher: Num;
+    objem?: Num; objem_eur: Num; objem_mena?: Num; posledni: DateStr;
+  }>;
+  posledni: MozneBlok<ZadaniZadavatele>;
+  souteze: MozneBlok<SoutezRow>;
+  smlouvy?: SmlouvyBlok | null;
 }
 
 // ── 3. Cenové hladiny / 4. Konkurence ───────────────────────────────────────
@@ -327,8 +478,14 @@ export interface CenoveHladinyData {
   meny: { currency: string; n: number }[];
   /** `posledni: true` = koš „10 a víc nabídek". */
   rozdeleniNabidek: { bid_count: number; n: number; posledni: boolean }[];
-  vitezove: { reg: string | null; name: string; n: number; eur: number }[];
-  roky: { rok: number; n: number; objem_eur: number; median_eur: number | null; median_pomer: number | null; prum_nabidek: number | null }[];
+  vitezove: MozneBlok<{ reg: string | null; name: string; n: number; objem?: number; eur?: number }>;
+  roky: {
+    rok: number; n: number; objem?: number; objem_eur?: number;
+    median_cena?: number | null; median_eur?: number | null;
+    median_pomer: number | null; prum_nabidek: number | null;
+  }[];
+  mena?: Mena | string | null;
+  kose?: Kose;
 }
 
 export interface KonkurenceData {
@@ -338,13 +495,19 @@ export interface KonkurenceData {
   soutezi_s_nabidkami: number;
   /** Nenulové = vzorek nabídek narazil na strop, čísla jsou uříznutá. */
   strop: number | null;
-  vitezove: { winner_reg: string | null; winner_name: string | null; vyher: Num; objem_eur: Num; prum_pomer: Num }[];
-  ucastnici: {
+  vitezove: MozneBlok<{
+    winner_reg: string | null; winner_name: string | null; vyher: Num;
+    objem?: Num; objem_eur: Num; objem_mena?: Num; prum_pomer: Num;
+  }>;
+  ucastnici: MozneBlok<{
     reg: string | null; name: string; ucasti: number; vyhry: number;
     podil_vyher: number | null; prum_cena_vs_odhad: number | null;
     roky: { rok: number; n: number }[];
-  }[];
-  dvojice: { a: string; b: string; n: number }[];
+  }>;
+  dvojice: MozneBlok<{ a: string; aReg?: string | null; b: string; bReg?: string | null; n: number }>;
+  mena?: Mena | string | null;
+  /** Na koho se filtr zadavatele nakonec chytil (IČO i název se hledají volně). */
+  zadavatel?: { reg_no: string | null; name: string } | null;
 }
 
 export type CenoveHladiny = CenoveHladinyData | SegmentPrazdny | SegmentPrilisVelky;
@@ -364,6 +527,34 @@ async function nacti<T>(params: Params, signal?: AbortSignal): Promise<T> {
   return r.data;
 }
 
+/**
+ * Volitelné parametry, které web do kontraktu teprve doplňuje: stránkování a
+ * zúžení výpisů (rok, koš, společné zakázky dvou firem). Posílají se jen když
+ * je obrazovka opravdu nastaví — starší backend je prostě ignoruje.
+ */
+export interface VypisOpts {
+  /** Společný počet řádků pro všechny tabulky v odpovědi (1–100). */
+  limit?: number;
+  /** Offset jedné tabulky: klíč = název bloku v odpovědi (`ucasti`, `posledni`, …). */
+  off?: Record<string, number>;
+  /** Jen zadání/účasti z daného roku. */
+  rok?: number;
+  /** Druh řízení podle počtu nabídek. */
+  kos?: Kos;
+  /** IČO nebo přesný název druhé firmy — jen zakázky, kde soutěžily spolu. */
+  spolu?: string;
+}
+
+/** Rozloží `off` na `off_<blok>` parametry podle kontraktu. */
+const vypis = (o?: VypisOpts): Params => {
+  if (!o) return {};
+  const p: Params = { limit: o.limit, rok: o.rok, kos: o.kos, spolu: o.spolu };
+  for (const [klic, hodnota] of Object.entries(o.off ?? {})) {
+    if (Number.isFinite(hodnota) && hodnota > 0) p[`off_${klic}`] = Math.floor(hodnota);
+  }
+  return p;
+};
+
 export const reportyApi = {
   modelKvalita: (signal?: AbortSignal) => nacti<ModelKvalita>({ kind: "model-kvalita" }, signal),
   modelHledani: (country: string, q: string, signal?: AbortSignal) =>
@@ -373,15 +564,15 @@ export const reportyApi = {
 
   subjektHledani: (country: string, q: string, signal?: AbortSignal) =>
     nacti<SubjektHledani>({ kind: "subjekt-hledani", country, q }, signal),
-  dodavatel: (country: string, q: string, signal?: AbortSignal) =>
-    nacti<ProfilDodavatele>({ kind: "dodavatel", country, q }, signal),
-  zadavatel: (country: string, q: string, signal?: AbortSignal) =>
-    nacti<ProfilZadavatele>({ kind: "zadavatel", country, q }, signal),
+  dodavatel: (country: string, q: string, o?: VypisOpts, signal?: AbortSignal) =>
+    nacti<ProfilDodavatele>({ kind: "dodavatel", country, q, ...vypis(o) }, signal),
+  zadavatel: (country: string, q: string, o?: VypisOpts, signal?: AbortSignal) =>
+    nacti<ProfilZadavatele>({ kind: "zadavatel", country, q, ...vypis(o) }, signal),
 
-  cenoveHladiny: (s: Segment, signal?: AbortSignal) =>
-    nacti<CenoveHladiny>({ kind: "cenove-hladiny", country: s.country, cpv: s.cpv, od: s.rokOd, do: s.rokDo, nuts: s.nuts || undefined }, signal),
-  konkurence: (s: Segment, signal?: AbortSignal) =>
-    nacti<Konkurence>({ kind: "konkurence", country: s.country, cpv: s.cpv, od: s.rokOd, do: s.rokDo, nuts: s.nuts || undefined, buyer: s.buyer || undefined }, signal),
+  cenoveHladiny: (s: Segment, o?: VypisOpts, signal?: AbortSignal) =>
+    nacti<CenoveHladiny>({ kind: "cenove-hladiny", country: s.country, cpv: s.cpv, od: s.rokOd, do: s.rokDo, nuts: s.nuts || undefined, ...vypis(o) }, signal),
+  konkurence: (s: Segment, o?: VypisOpts, signal?: AbortSignal) =>
+    nacti<Konkurence>({ kind: "konkurence", country: s.country, cpv: s.cpv, od: s.rokOd, do: s.rokDo, nuts: s.nuts || undefined, buyer: s.buyer || undefined, ...vypis(o) }, signal),
 };
 
 /**

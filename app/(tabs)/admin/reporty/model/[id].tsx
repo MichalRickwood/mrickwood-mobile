@@ -1,13 +1,15 @@
 import { useMemo } from "react";
 import { RefreshControl, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
 import { AppScrollView } from "@/components/AppScroll";
 import {
   RepBadge, RepHint, RepKpi, RepLink, RepRow, RepSection, RepState, RepTable,
-  castka, castkaKratce, cislo, datum, num, podil, zkrat,
 } from "@/components/ReportUi";
+import { castkaMena, castkaMenaKratce, cislo, datum, num, podil, zkrat } from "@/lib/reporty-format";
+import { menaZeme } from "@/lib/countries";
+import { naProfil, naZakazku } from "@/lib/reporty-nav";
 import { reportChyba, reportyApi, type BidRow, type Num, type P1Radek, type Predikce } from "@/lib/reporty-api";
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme-context";
@@ -22,6 +24,7 @@ import { fontSize, spacing, type Colors } from "@/constants/theme";
  */
 export default function ReportModelDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
   const { t } = useI18n();
   const { colors } = useTheme();
   const s = useMemo(() => makeStyles(colors), [colors]);
@@ -37,12 +40,12 @@ export default function ReportModelDetailScreen() {
   const data = q.data;
   const posledni: Predikce | undefined = data?.predikce[0];
   const odhad = num(data?.tender.estimatedValue);
-  const mena = data?.tender.currency ?? "";
+  const mena = data?.tender.currency || menaZeme(String(data?.zeme ?? "CZ"));
 
   /** Poměr → absolutní cena. Bez odhadu vrací null (nedopočítáváme z ničeho). */
   const cena = (kvantil: Num): string => {
     const k = num(kvantil);
-    return odhad === null || k === null ? "–" : castkaKratce(k * odhad, mena);
+    return odhad === null || k === null ? "–" : castkaMenaKratce(k * odhad, mena);
   };
 
   return (
@@ -75,10 +78,17 @@ export default function ReportModelDetailScreen() {
               <RepRow label={t("admin", "repBuyer")} value={`${data.tender.buyer ?? "–"}${data.tender.buyer_ico ? ` (${data.tender.buyer_ico})` : ""}`} mono={false} />
               <RepRow label="CPV" value={data.tender.cpvCode ?? "–"} />
               <RepRow label="NUTS" value={data.tender.nuts ?? "–"} />
-              <RepRow label={t("admin", "repEstimate")} value={odhad === null ? "–" : castka(odhad, mena)} />
+              <RepRow label={t("admin", "repEstimate")} value={odhad === null ? "–" : castkaMena(odhad, mena)} />
               <RepRow label={t("admin", "repProcedure")} value={data.tender.procedureType ?? "–"} mono={false} />
               <RepRow label={t("admin", "repPublished")} value={datum(data.tender.publishedAt)} />
               <RepRow label={t("admin", "repDeadline")} value={datum(data.tender.deadlineAt)} />
+              <RepLink onPress={() => naZakazku(router, data.tender.id)} title={t("admin", "repOpenTender")} />
+              {data.tender.buyer ? (
+                <RepLink
+                  onPress={() => naProfil(router, { country: data.zeme, ident: data.tender.buyer_ico || data.tender.buyer, kind: "zadavatel", nazev: data.tender.buyer })}
+                  title={`${t("admin", "repBuyer")} — ${t("admin", "repOpenProfile")}`}
+                />
+              ) : null}
               <RepLink url={data.tender.sourceUrl} title={t("admin", "repOpenSource")} />
             </RepSection>
 
@@ -128,7 +138,10 @@ export default function ReportModelDetailScreen() {
                       rows={posledni.p1}
                       cols={[
                         { head: "#", w: 32, n: true, cell: (r) => String(posledni.p1.indexOf(r) + 1) },
-                        { head: "firma", w: 210, cell: (r) => zkrat(r.nazev, 60) },
+                        {
+                          head: "firma", w: 210, cell: (r) => zkrat(r.nazev, 60),
+                          tap: (r) => naProfil(router, { country: data.zeme, ident: r.ico || r.nazev, kind: "dodavatel", nazev: r.nazev }),
+                        },
                         { head: t("admin", "repRegNo"), w: 88, cell: (r) => r.ico ?? "–" },
                         { head: t("admin", "repProbability"), w: 100, n: true, cell: (r) => podil(r.p, 1) },
                       ]}
@@ -166,9 +179,15 @@ export default function ReportModelDetailScreen() {
                   <RepRow label="zdroj" value={data.award.source ?? "–"} />
                   <RepRow label="datum zadání" value={datum(data.award.award_date)} />
                   <RepRow label="vítěz" value={data.award.winner_name ?? "–"} mono={false} />
+                  {data.award.winner_name ? (
+                    <RepLink
+                      onPress={() => naProfil(router, { country: data.zeme, ident: data.award?.winner_reg || data.award?.winner_name, kind: "dodavatel", nazev: data.award?.winner_name })}
+                      title={t("admin", "repOpenProfile")}
+                    />
+                  ) : null}
                   <RepRow
                     label="cena"
-                    value={castka(data.award.final_value, data.award.currency ?? mena)}
+                    value={castkaMena(data.award.final_value, data.award.currency || mena)}
                   />
                   <RepRow label="nabídek" value={cislo(data.award.bid_count)} />
                   <RepLink url={data.award.raw_ref} title={t("admin", "repOpenSource")} />
@@ -178,9 +197,12 @@ export default function ReportModelDetailScreen() {
                     <RepTable<BidRow>
                       rows={data.bids}
                       cols={[
-                        { head: "firma", w: 200, cell: (r) => zkrat(r.bidder_name, 60) },
+                        {
+                          head: "firma", w: 200, cell: (r) => zkrat(r.bidder_name, 60),
+                          tap: (r) => naProfil(router, { country: data.zeme, ident: r.bidder_reg || r.bidder_name, kind: "dodavatel", nazev: r.bidder_name }),
+                        },
                         { head: t("admin", "repRegNo"), w: 88, cell: (r) => r.bidder_reg ?? "–" },
-                        { head: "cena", w: 120, n: true, cell: (r) => castkaKratce(r.offered_value, data.award?.currency ?? mena) },
+                        { head: "cena", w: 120, n: true, cell: (r) => castkaMenaKratce(r.offered_value, data.award?.currency || mena) },
                         { head: "vítěz", w: 56, n: true, cell: (r) => (num(r.is_winner) ? "✓" : "") },
                       ]}
                     />

@@ -42,6 +42,7 @@ export default function AdminLayout() {
       <Stack.Screen name="reporty/subjekty/profil" options={{ title: t("admin", "repSubjektyTitle") }} />
       <Stack.Screen name="reporty/cenove-hladiny" options={{ title: t("admin", "repCenyTitle") }} />
       <Stack.Screen name="reporty/konkurence" options={{ title: t("admin", "repKonkTitle") }} />
+      <Stack.Screen name="reporty/zadani" options={{ title: t("admin", "repAwardDetail") }} />
     </Stack>
   );
 }

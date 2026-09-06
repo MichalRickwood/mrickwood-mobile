@@ -1,16 +1,22 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { RefreshControl, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
 import { AppScrollView } from "@/components/AppScroll";
 import {
-  RepBars, RepButton, RepField, RepHint, RepKpi, RepRow, RepSection, RepState, RepTable,
-  castkaKratce, cislo, num, podil, pomer, zkrat,
+  RepBars, RepButton, RepField, RepHint, RepKpi, RepLink, RepRow, RepSection, RepState, RepTable,
 } from "@/components/ReportUi";
+import CountryField from "@/components/CountryField";
+import { bezSmeti, castkaMenaKratce, cislo, podil, pomer, zkrat } from "@/lib/reporty-format";
+import { menaZeme } from "@/lib/countries";
+import { naKonkurenci, naProfil } from "@/lib/reporty-nav";
+import { useVychoziZeme } from "@/lib/use-zeme";
 import {
-  jePrazdno, jePrilisVelky, reportChyba, reportyApi,
-  type CenoveHladinyData, type Kvartily, type Segment,
+  jePrazdno, jePrilisVelky, menaKod, reportChyba, reportyApi,
+  type CenoveHladinyData, type Kvartily, type Segment, type VypisOpts,
 } from "@/lib/reporty-api";
+import { STRANKA, useStrankovani } from "@/lib/use-strankovani";
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme-context";
 import { fontSize, spacing, type Colors } from "@/constants/theme";
@@ -27,18 +33,37 @@ const ROK = new Date().getFullYear();
 export default function ReportCenoveHladinyScreen() {
   const { t } = useI18n();
   const { colors } = useTheme();
+  const router = useRouter();
   const s = useMemo(() => makeStyles(colors), [colors]);
+  const { vychoziZeme: zemeUzivatele } = useVychoziZeme();
+  // Proklik z profilu (CPV mix) předvyplní zemi i CPV a rovnou načte.
+  const vstup = useLocalSearchParams<{ country?: string; cpv?: string; od?: string; do?: string }>();
 
-  const [country, setCountry] = useState("CZ");
-  const [cpv, setCpv] = useState("45");
-  const [od, setOd] = useState(String(ROK - 2));
-  const [doR, setDoR] = useState(String(ROK));
+  const [country, setCountry] = useState(vstup.country || zemeUzivatele);
+  const [cpv, setCpv] = useState(vstup.cpv || "45");
+  const [od, setOd] = useState(vstup.od || String(ROK - 2));
+  const [doR, setDoR] = useState(vstup.do || String(ROK));
   const [nuts, setNuts] = useState("");
-  const [segment, setSegment] = useState<Segment | null>(null);
+  const [segment, setSegment] = useState<Segment | null>(
+    vstup.cpv
+      ? {
+          country: (vstup.country || zemeUzivatele).toUpperCase(),
+          cpv: vstup.cpv,
+          rokOd: Number(vstup.od) || ROK - 2,
+          rokDo: Number(vstup.do) || ROK,
+        }
+      : null,
+  );
+
+  /** Došlápnutí další stránky jedné tabulky — tentýž segment, jen s offsetem. */
+  const nactiStranku = useCallback(
+    (o: VypisOpts) => reportyApi.cenoveHladiny(segment as Segment, o),
+    [segment],
+  );
 
   const q = useQuery({
     queryKey: ["rep-cenove-hladiny", segment],
-    queryFn: ({ signal }) => reportyApi.cenoveHladiny(segment as Segment, signal),
+    queryFn: ({ signal }) => reportyApi.cenoveHladiny(segment as Segment, { limit: STRANKA }, signal),
     enabled: !!segment,
     retry: false,
   });
@@ -57,6 +82,23 @@ export default function ReportCenoveHladinyScreen() {
       nuts: nuts.trim().toUpperCase() || undefined,
     });
 
+  /** Klik na rok v trendu = tentýž segment, ale jen ten rok. */
+  const zuzNaRok = (rok: number) => {
+    setOd(String(rok));
+    setDoR(String(rok));
+    setSegment((p) => (p ? { ...p, rokOd: rok, rokDo: rok } : p));
+  };
+
+  const mena = menaKod(plne?.mena, menaZeme(segment?.country ?? "CZ"));
+  const str = useStrankovani(
+    plne as unknown as Record<string, unknown> | undefined,
+    nactiStranku as unknown as (o: VypisOpts) => Promise<Record<string, unknown>>,
+    JSON.stringify(segment ?? {}),
+  );
+  // Vítězové bez útržků z rozsekaných tabulek na portálech.
+  type VitezRow = { reg: string | null; name: string; n: number; objem?: number; eur?: number };
+  const vitezove = useMemo(() => bezSmeti(str.rows<VitezRow>("vitezove"), (r) => r.name), [str]);
+
   return (
     <SafeAreaView style={s.safe} edges={["bottom"]}>
       <AppScrollView
@@ -68,14 +110,7 @@ export default function ReportCenoveHladinyScreen() {
       >
         <RepSection title={t("admin", "repFilters")}>
           <View style={s.filterRow}>
-            <RepField
-              label={t("admin", "repCountry")}
-              value={country}
-              onChangeText={(v) => setCountry(v.toUpperCase().replace(/[^A-Z]/g, "").slice(0, 2))}
-              width={72}
-              autoCapitalize="characters"
-              maxLength={2}
-            />
+            <CountryField label={t("admin", "repCountry")} value={country} onChange={setCountry} />
             <RepField
               label={t("admin", "repCpv")}
               value={cpv}
@@ -147,8 +182,8 @@ export default function ReportCenoveHladinyScreen() {
               ) : null}
             </RepSection>
 
-            <KvartilySekce title={t("admin", "repCenyPrices")} k={plne.ceny} mena="EUR" />
-            <KvartilySekce title={t("admin", "repCenyEstimates")} k={plne.odhady} mena="EUR" />
+            <KvartilySekce title={t("admin", "repCenyPrices")} k={plne.ceny} mena={mena} />
+            <KvartilySekce title={t("admin", "repCenyEstimates")} k={plne.odhady} mena={mena} />
             <KvartilySekce title={t("admin", "repCenyRatio")} k={plne.pomer} des={3} />
 
             {plne.rozdeleniNabidek.length ? (
@@ -160,42 +195,68 @@ export default function ReportCenoveHladinyScreen() {
                   }))}
                   formatValue={(v) => `${cislo(v)} (${pomer(v, plne.stats.s_poctem_nabidek)})`}
                 />
+                <RepHint>{t("admin", "repBucketsHint")}</RepHint>
+                {plne.kose ? (
+                  <RepTable
+                    rows={[plne.kose]}
+                    cols={[
+                      { head: t("admin", "repBucketCompetitive"), w: 90, n: true, cell: (r) => cislo(r.soutez) },
+                      { head: t("admin", "repBucketSingle"), w: 96, n: true, cell: (r) => cislo(r.jedina) },
+                      { head: t("admin", "repBucketDirect"), w: 96, n: true, cell: (r) => cislo(r.prime) },
+                      { head: t("admin", "repBucketUnknown"), w: 88, n: true, cell: (r) => cislo(r.neznamo) },
+                    ]}
+                  />
+                ) : null}
               </RepSection>
             ) : null}
 
             {plne.roky.length ? (
               <RepSection title={t("admin", "repTrendByYear")}>
                 <RepBars
-                  data={[...plne.roky].reverse().map((r) => ({ label: String(r.rok), value: r.median_eur ?? 0 }))}
-                  formatValue={(v) => castkaKratce(v, "EUR")}
+                  data={[...plne.roky].reverse().map((r) => ({ label: String(r.rok), value: r.median_cena ?? r.median_eur ?? 0 }))}
+                  formatValue={(v) => castkaMenaKratce(v, mena)}
                 />
                 <RepTable
                   rows={plne.roky}
                   cols={[
-                    { head: "rok", w: 56, cell: (r) => String(r.rok) },
+                    // Rok otevře tentýž segment zúžený na jediný rok.
+                    { head: "rok", w: 56, cell: (r) => String(r.rok), tap: (r) => zuzNaRok(r.rok) },
                     { head: t("admin", "repAwards"), w: 66, n: true, cell: (r) => cislo(r.n) },
-                    { head: t("admin", "repMedianPrice"), w: 116, n: true, cell: (r) => castkaKratce(r.median_eur, "EUR") },
+                    { head: t("admin", "repMedianPrice"), w: 120, n: true, cell: (r) => castkaMenaKratce(r.median_cena ?? r.median_eur, mena) },
                     { head: t("admin", "repMedianRatio"), w: 100, n: true, cell: (r) => cislo(r.median_pomer, 3) },
                     { head: t("admin", "repAvgBids"), w: 80, n: true, cell: (r) => cislo(r.prum_nabidek, 1) },
-                    { head: "objem", w: 116, n: true, cell: (r) => castkaKratce(r.objem_eur, "EUR") },
+                    { head: "objem", w: 120, n: true, cell: (r) => castkaMenaKratce(r.objem ?? r.objem_eur, mena) },
                   ]}
                 />
               </RepSection>
             ) : null}
 
-            {plne.vitezove.length ? (
+            {vitezove.length ? (
               <RepSection title={t("admin", "repTopWinners")}>
                 <RepTable
-                  rows={plne.vitezove}
+                  rows={vitezove}
+                  celkem={str.total("vitezove")}
+                  onVice={() => void str.vice("vitezove")}
+                  viceNacita={str.nacita === "vitezove"}
                   cols={[
-                    { head: "firma", w: 210, cell: (r) => zkrat(r.name, 60) },
+                    {
+                      head: "firma", w: 210, cell: (r) => zkrat(r.name, 60),
+                      tap: (r) => naProfil(router, { country: plne.segment.country, ident: r.reg || r.name, kind: "dodavatel", nazev: r.name }),
+                    },
                     { head: t("admin", "repRegNo"), w: 88, cell: (r) => r.reg ?? "–" },
                     { head: t("admin", "repWins"), w: 62, n: true, cell: (r) => cislo(r.n) },
-                    { head: "objem", w: 116, n: true, cell: (r) => castkaKratce(r.eur, "EUR") },
+                    { head: "objem", w: 120, n: true, cell: (r) => castkaMenaKratce(r.objem ?? r.eur, mena) },
                   ]}
                 />
               </RepSection>
             ) : null}
+
+            <RepSection>
+              <RepLink
+                onPress={() => naKonkurenci(router, { country: plne.segment.country, cpv: plne.segment.cpv })}
+                title={t("admin", "repOpenCompetition")}
+              />
+            </RepSection>
           </>
         ) : null}
 
@@ -210,7 +271,7 @@ function KvartilySekce({ title, k, mena, des = 0 }: { title: string; k: Kvartily
   const { t } = useI18n();
   const { colors } = useTheme();
   const s = useMemo(() => makeStyles(colors), [colors]);
-  const fmt = (v: number | null) => (v === null ? "–" : mena ? castkaKratce(v, mena) : cislo(v, des));
+  const fmt = (v: number | null) => (v === null ? "–" : mena ? castkaMenaKratce(v, mena) : cislo(v, des));
 
   if (!k?.n) {
     return (
