@@ -35,6 +35,13 @@ export default function AdminLayout() {
       <Stack.Screen name="social/[id]" options={{ title: t("admin", "socialDetailTitle") }} />
       <Stack.Screen name="social/replies" options={{ title: t("admin", "repliesBtn") }} />
       <Stack.Screen name="social/published" options={{ title: t("admin", "perfTitle") }} />
+      <Stack.Screen name="reporty/index" options={{ title: t("admin", "repTitle") }} />
+      <Stack.Screen name="reporty/model/index" options={{ title: t("admin", "repModelTitle") }} />
+      <Stack.Screen name="reporty/model/[id]" options={{ title: t("admin", "repDetailTitle") }} />
+      <Stack.Screen name="reporty/subjekty/index" options={{ title: t("admin", "repSubjektyTitle") }} />
+      <Stack.Screen name="reporty/subjekty/profil" options={{ title: t("admin", "repSubjektyTitle") }} />
+      <Stack.Screen name="reporty/cenove-hladiny" options={{ title: t("admin", "repCenyTitle") }} />
+      <Stack.Screen name="reporty/konkurence" options={{ title: t("admin", "repKonkTitle") }} />
     </Stack>
   );
 }

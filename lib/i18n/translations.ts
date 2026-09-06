@@ -1133,6 +1133,150 @@ export interface Dict {
     inboxMarkDone: string;
     inboxDecided: string;
     inboxProposalOnly: string;
+
+    // Veritra · Reporty
+    repRow: string;
+    repRowHint: string;
+    repTitle: string;
+    repModelRow: string;
+    repModelRowHint: string;
+    repSubjektyRow: string;
+    repSubjektyRowHint: string;
+    repCenyRow: string;
+    repCenyRowHint: string;
+    repKonkRow: string;
+    repKonkRowHint: string;
+    repIntro: string;
+    repNotDeployed: string;
+    repErrorTitle: string;
+    repRetry: string;
+    repEmpty: string;
+    repSearch: string;
+    repLoad: string;
+    repCountry: string;
+    repCpv: string;
+    repCpvHint: string;
+    repCpvInvalid: string;
+    repYearFrom: string;
+    repYearTo: string;
+    repNuts: string;
+    repOptional: string;
+    repBuyerIco: string;
+    repFilters: string;
+    repSample: string;
+    repSegmentTooBig: string;
+    repSegmentEmpty: string;
+    repModelTitle: string;
+    repModelIntro: string;
+    repModelNoCountry: string;
+    repModelQ: string;
+    repModelQPh: string;
+    repModelLatest: string;
+    repModelFound: string;
+    repModelQuality: string;
+    repModelQualityHint: string;
+    repModelNoPredictions: string;
+    repModelStored: string;
+    repModelNoEval: string;
+    repPredictionsN: string;
+    repWithP1: string;
+    repEvaluated: string;
+    repCoverage: string;
+    repP2Mae: string;
+    repP1Hit: string;
+    repAvgQ50: string;
+    repAvgWidth: string;
+    repVersion: string;
+    repLastRun: string;
+    repDetailTitle: string;
+    repP1Title: string;
+    repP1None: string;
+    repP2Title: string;
+    repP3Title: string;
+    repP3Hint: string;
+    repNoEstimate: string;
+    repOlderPredictions: string;
+    repReality: string;
+    repNoLink: string;
+    repBidders: string;
+    repNoBidders: string;
+    repNoPrediction: string;
+    repProbability: string;
+    repEstimate: string;
+    repDeadline: string;
+    repPublished: string;
+    repProcedure: string;
+    repPortal: string;
+    repActive: string;
+    repClosed: string;
+    repPredictedAt: string;
+    repOpenSource: string;
+    repHasPrediction: string;
+    repSubjektyTitle: string;
+    repSubjQ: string;
+    repSubjQPh: string;
+    repSubjResults: string;
+    repSubjHint: string;
+    repSupplier: string;
+    repBuyer: string;
+    repProfileSupplier: string;
+    repProfileBuyer: string;
+    repWins: string;
+    repParticipations: string;
+    repWinRate: string;
+    repVolumeWon: string;
+    repTopBuyers: string;
+    repTopWinners: string;
+    repCpvMix: string;
+    repWinsByYear: string;
+    repBidsByYear: string;
+    repVolumeByYear: string;
+    repTendersByYear: string;
+    repLastAwards: string;
+    repRivals: string;
+    repLiveTenders: string;
+    repRegistryNote: string;
+    repAvgBids: string;
+    repOneBidShare: string;
+    repPriceVsEstimate: string;
+    repCriteria: string;
+    repAwards: string;
+    repCompetitive: string;
+    repDirect: string;
+    repCancelled: string;
+    repPeriod: string;
+    repAliases: string;
+    repRole: string;
+    repRegNo: string;
+    repNotInRegistry: string;
+    repCenyTitle: string;
+    repCenyPrices: string;
+    repCenyEstimates: string;
+    repCenyRatio: string;
+    repCenyEurNote: string;
+    repBidDistribution: string;
+    repBidsTenPlus: string;
+    repTrendByYear: string;
+    repMedianPrice: string;
+    repMedianRatio: string;
+    repQuartiles: string;
+    repMin: string;
+    repQ1: string;
+    repMedian: string;
+    repQ3: string;
+    repMax: string;
+    repPriceEqualsEstimate: string;
+    repNoPriceData: string;
+    repKonkTitle: string;
+    repKonkFirms: string;
+    repKonkWinners: string;
+    repKonkPairs: string;
+    repKonkPairsHint: string;
+    repKonkTrend: string;
+    repKonkCap: string;
+    repKonkNoBids: string;
+    repTendersWithBids: string;
+    repBidSample: string;
   };
 }
 
@@ -1367,6 +1511,150 @@ const ADMIN_CS: Dict["admin"] = {
     inboxMarkDone: "Hotovo",
     inboxDecided: "Rozhodnuto",
     inboxProposalOnly: "Tohle je jen návrh. Schválením se nic neodešle.",
+
+    // Veritra · Reporty
+    repRow: "Reporty",
+    repRowHint: "Model, dodavatelé, cenové hladiny, konkurence",
+    repTitle: "Reporty",
+    repModelRow: "Model",
+    repModelRowHint: "Uložené predikce a kvalita modelu",
+    repSubjektyRow: "Dodavatelé a zadavatelé",
+    repSubjektyRowHint: "Registr subjektů a jejich profily",
+    repCenyRow: "Cenové hladiny",
+    repCenyRowHint: "Kvartily cen v segmentu země × CPV × roky",
+    repKonkRow: "Konkurence",
+    repKonkRowHint: "Kdo v segmentu soutěží a s kým se potkává",
+    repIntro: "Data Veritry (zadání a nabídky z evropských registrů), jen čtení.",
+    repNotDeployed: "Report zatím není na serveru dostupný — backend se teprve nasazuje. Zkus to za chvíli.",
+    repErrorTitle: "Report se nenačetl",
+    repRetry: "Zkusit znovu",
+    repEmpty: "Nic nenalezeno.",
+    repSearch: "Hledat",
+    repLoad: "Načíst",
+    repCountry: "Země",
+    repCpv: "CPV prefix",
+    repCpvHint: "2–5 číslic",
+    repCpvInvalid: "CPV prefix musí mít 2–5 číslic.",
+    repYearFrom: "Rok od",
+    repYearTo: "Rok do",
+    repNuts: "NUTS",
+    repOptional: "nepovinné",
+    repBuyerIco: "Zadavatel (IČ)",
+    repFilters: "Filtry",
+    repSample: "Vzorek",
+    repSegmentTooBig: "Segment je moc velký (přes {n} zadání). Zuž filtr — kratší rozmezí let, delší CPV prefix nebo NUTS.",
+    repSegmentEmpty: "V tomhle segmentu nejsou žádná zadání.",
+    repModelTitle: "Model",
+    repModelIntro: "Predikce se počítají mimo appku (Python) a ukládají do databáze — tady se jen čtou.",
+    repModelNoCountry: "Model pro tuto zemi není.",
+    repModelQ: "Zakázka — id nebo text v názvu",
+    repModelQPh: "1334139 / chodník",
+    repModelLatest: "Poslední uložené predikce",
+    repModelFound: "Nalezené zakázky",
+    repModelQuality: "Kvalita modelu po zemích",
+    repModelQualityHint: "U každé metriky je n = počet vzorků, ze kterých se počítá. Metrika bez n se neukazuje.",
+    repModelNoPredictions: "Žádné uložené predikce.",
+    repModelStored: "uložené predikce",
+    repModelNoEval: "Zatím není co vyhodnotit — žádná predikce nemá spárovaný skutečný výsledek.",
+    repPredictionsN: "Predikcí",
+    repWithP1: "S P1",
+    repEvaluated: "Vyhodnoceno",
+    repCoverage: "Pokrytí 80 %",
+    repP2Mae: "MAE počtu nabídek",
+    repP1Hit: "Zásah P1",
+    repAvgQ50: "Ø q50",
+    repAvgWidth: "Ø šířka q10–q90",
+    repVersion: "Verze",
+    repLastRun: "Poslední běh",
+    repDetailTitle: "Predikce zakázky",
+    repP1Title: "P1 · pravděpodobní uchazeči",
+    repP1None: "Uložená predikce nemá seznam uchazečů — model P1 se pro tuto zemi netrénoval.",
+    repP2Title: "P2 · očekávaný počet nabídek",
+    repP3Title: "P3 · očekávaná cena",
+    repP3Hint: "q10/q50/q90 je poměr k odhadu zadavatele; absolutní cena se z něj dopočítá.",
+    repNoEstimate: "Zakázka nemá odhad — absolutní cenu nelze dopočítat, zůstává jen poměr.",
+    repOlderPredictions: "Starší predikce",
+    repReality: "Skutečnost",
+    repNoLink: "Výsledek zatím není spárovaný — model se proti němu nedá vyhodnotit.",
+    repBidders: "Uchazeči",
+    repNoBidders: "Seznam uchazečů u výsledku není.",
+    repNoPrediction: "Pro tuto zakázku není uložená žádná predikce.",
+    repProbability: "Pravděpodobnost",
+    repEstimate: "Odhad",
+    repDeadline: "Lhůta",
+    repPublished: "Zveřejněno",
+    repProcedure: "Druh řízení",
+    repPortal: "Portál",
+    repActive: "Běží",
+    repClosed: "Uzavřeno",
+    repPredictedAt: "Predikováno",
+    repOpenSource: "Otevřít zdroj v prohlížeči",
+    repHasPrediction: "má predikci",
+    repSubjektyTitle: "Dodavatelé a zadavatelé",
+    repSubjQ: "Název nebo IČ",
+    repSubjQPh: "Strabag / 60838744",
+    repSubjResults: "Nalezené subjekty",
+    repSubjHint: "Vyber profil — dodavatel (co vyhrál a kde soutěží) nebo zadavatel (co zadává a komu).",
+    repSupplier: "Dodavatel",
+    repBuyer: "Zadavatel",
+    repProfileSupplier: "Profil dodavatele",
+    repProfileBuyer: "Profil zadavatele",
+    repWins: "Výher",
+    repParticipations: "Účastí",
+    repWinRate: "Podíl výher",
+    repVolumeWon: "Objem výher",
+    repTopBuyers: "Hlavní zadavatelé",
+    repTopWinners: "Hlavní vítězové",
+    repCpvMix: "CPV mix (3 číslice)",
+    repWinsByYear: "Výhry po letech",
+    repBidsByYear: "Účasti po letech",
+    repVolumeByYear: "Objem po letech",
+    repTendersByYear: "Soutěže po letech",
+    repLastAwards: "Poslední zadání",
+    repRivals: "Nejčastější konkurenti",
+    repLiveTenders: "Soutěže z portálů",
+    repRegistryNote: "Registr sčítá i názvové varianty subjektu, řádky níž jen to, co jde dohledat podle IČ nebo přesného názvu — čísla se nemusí rovnat.",
+    repAvgBids: "Ø nabídek",
+    repOneBidShare: "Podíl s jednou nabídkou",
+    repPriceVsEstimate: "Ø cena/odhad",
+    repCriteria: "Hodnotící kritéria",
+    repAwards: "Zadání",
+    repCompetitive: "V soutěži",
+    repDirect: "Přímé zadání",
+    repCancelled: "Zrušených",
+    repPeriod: "Období",
+    repAliases: "Názvů",
+    repRole: "Role",
+    repRegNo: "IČ",
+    repNotInRegistry: "Subjekt v registru pro tuhle zemi není.",
+    repCenyTitle: "Cenové hladiny",
+    repCenyPrices: "Vysoutěžená cena",
+    repCenyEstimates: "Odhad zadavatele",
+    repCenyRatio: "Poměr cena/odhad",
+    repCenyEurNote: "Ceny jsou přepočtené na EUR. Měny v segmentu: {meny}",
+    repBidDistribution: "Rozdělení počtu nabídek",
+    repBidsTenPlus: "10+",
+    repTrendByYear: "Trend po letech",
+    repMedianPrice: "Medián ceny",
+    repMedianRatio: "Medián poměru",
+    repQuartiles: "Kvartily",
+    repMin: "Min",
+    repQ1: "Q1",
+    repMedian: "Medián",
+    repQ3: "Q3",
+    repMax: "Max",
+    repPriceEqualsEstimate: "Cena = odhad",
+    repNoPriceData: "V segmentu nejsou ceny, ze kterých by šlo kvartily spočítat.",
+    repKonkTitle: "Konkurence",
+    repKonkFirms: "Firmy podle účastí",
+    repKonkWinners: "Vítězové v segmentu",
+    repKonkPairs: "Kdo se s kým potkává",
+    repKonkPairsHint: "Počet soutěží, ve kterých obě firmy podaly nabídku.",
+    repKonkTrend: "Účasti po letech",
+    repKonkCap: "Vzorek nabídek narazil na strop {n} — čísla jsou uříznutá, zuž filtr.",
+    repKonkNoBids: "V segmentu nejsou žádné nabídky — jen vítězové ze zadání.",
+    repTendersWithBids: "Soutěží s nabídkami",
+    repBidSample: "Vzorek nabídek",
 };
 
 const ADMIN_EN: Dict["admin"] = {
@@ -1599,6 +1887,150 @@ const ADMIN_EN: Dict["admin"] = {
     inboxMarkDone: "Done",
     inboxDecided: "Decided",
     inboxProposalOnly: "This is only a proposal. Approving sends nothing.",
+
+    // Veritra · Reporty
+    repRow: "Reports",
+    repRowHint: "Model, suppliers, price levels, competition",
+    repTitle: "Reports",
+    repModelRow: "Model",
+    repModelRowHint: "Stored predictions and model quality",
+    repSubjektyRow: "Suppliers and buyers",
+    repSubjektyRowHint: "Entity registry and profiles",
+    repCenyRow: "Price levels",
+    repCenyRowHint: "Price quartiles by country × CPV × years",
+    repKonkRow: "Competition",
+    repKonkRowHint: "Who competes in a segment and against whom",
+    repIntro: "Veritra data (awards and bids from European registries), read-only.",
+    repNotDeployed: "This report is not available on the server yet — the backend is still deploying. Try again shortly.",
+    repErrorTitle: "Report failed to load",
+    repRetry: "Try again",
+    repEmpty: "Nothing found.",
+    repSearch: "Search",
+    repLoad: "Load",
+    repCountry: "Country",
+    repCpv: "CPV prefix",
+    repCpvHint: "2–5 digits",
+    repCpvInvalid: "CPV prefix must have 2–5 digits.",
+    repYearFrom: "Year from",
+    repYearTo: "Year to",
+    repNuts: "NUTS",
+    repOptional: "optional",
+    repBuyerIco: "Buyer (reg. no.)",
+    repFilters: "Filters",
+    repSample: "Sample",
+    repSegmentTooBig: "Segment is too large (over {n} awards). Narrow the filter — shorter year range, longer CPV prefix or NUTS.",
+    repSegmentEmpty: "No awards in this segment.",
+    repModelTitle: "Model",
+    repModelIntro: "Predictions are computed outside the app (Python) and stored in the database — this only reads them.",
+    repModelNoCountry: "No model for this country.",
+    repModelQ: "Tender — id or text in the title",
+    repModelQPh: "1334139 / pavement",
+    repModelLatest: "Latest stored predictions",
+    repModelFound: "Matching tenders",
+    repModelQuality: "Model quality by country",
+    repModelQualityHint: "Each metric shows n = number of samples it is computed from. A metric without n is not shown.",
+    repModelNoPredictions: "No stored predictions.",
+    repModelStored: "stored predictions",
+    repModelNoEval: "Nothing to evaluate yet — no prediction has a matched real outcome.",
+    repPredictionsN: "Predictions",
+    repWithP1: "With P1",
+    repEvaluated: "Evaluated",
+    repCoverage: "80% coverage",
+    repP2Mae: "Bid count MAE",
+    repP1Hit: "P1 hit rate",
+    repAvgQ50: "Avg q50",
+    repAvgWidth: "Avg q10–q90 width",
+    repVersion: "Version",
+    repLastRun: "Last run",
+    repDetailTitle: "Tender prediction",
+    repP1Title: "P1 · likely bidders",
+    repP1None: "The stored prediction has no bidder list — the P1 model was not trained for this country.",
+    repP2Title: "P2 · expected number of bids",
+    repP3Title: "P3 · expected price",
+    repP3Hint: "q10/q50/q90 is the ratio to the buyer's estimate; the absolute price is derived from it.",
+    repNoEstimate: "The tender has no estimate — the absolute price cannot be derived, only the ratio.",
+    repOlderPredictions: "Older predictions",
+    repReality: "Actual outcome",
+    repNoLink: "The outcome is not matched yet — the model cannot be evaluated against it.",
+    repBidders: "Bidders",
+    repNoBidders: "No bidder list for this outcome.",
+    repNoPrediction: "No prediction is stored for this tender.",
+    repProbability: "Probability",
+    repEstimate: "Estimate",
+    repDeadline: "Deadline",
+    repPublished: "Published",
+    repProcedure: "Procedure",
+    repPortal: "Portal",
+    repActive: "Open",
+    repClosed: "Closed",
+    repPredictedAt: "Predicted at",
+    repOpenSource: "Open source in browser",
+    repHasPrediction: "has prediction",
+    repSubjektyTitle: "Suppliers and buyers",
+    repSubjQ: "Name or reg. no.",
+    repSubjQPh: "Strabag / 60838744",
+    repSubjResults: "Matching entities",
+    repSubjHint: "Pick a profile — supplier (what they won, where they bid) or buyer (what they award and to whom).",
+    repSupplier: "Supplier",
+    repBuyer: "Buyer",
+    repProfileSupplier: "Supplier profile",
+    repProfileBuyer: "Buyer profile",
+    repWins: "Wins",
+    repParticipations: "Bids",
+    repWinRate: "Win rate",
+    repVolumeWon: "Volume won",
+    repTopBuyers: "Top buyers",
+    repTopWinners: "Top winners",
+    repCpvMix: "CPV mix (3 digits)",
+    repWinsByYear: "Wins by year",
+    repBidsByYear: "Bids by year",
+    repVolumeByYear: "Volume by year",
+    repTendersByYear: "Awards by year",
+    repLastAwards: "Latest awards",
+    repRivals: "Most frequent rivals",
+    repLiveTenders: "Tenders from portals",
+    repRegistryNote: "The registry also counts name variants of the entity, the rows below only what can be matched by reg. no. or exact name — the numbers may differ.",
+    repAvgBids: "Avg bids",
+    repOneBidShare: "Single-bid share",
+    repPriceVsEstimate: "Avg price/estimate",
+    repCriteria: "Award criteria",
+    repAwards: "Awards",
+    repCompetitive: "Competitive",
+    repDirect: "Direct award",
+    repCancelled: "Cancelled",
+    repPeriod: "Period",
+    repAliases: "Names",
+    repRole: "Role",
+    repRegNo: "Reg. no.",
+    repNotInRegistry: "The entity is not in the registry for this country.",
+    repCenyTitle: "Price levels",
+    repCenyPrices: "Final price",
+    repCenyEstimates: "Buyer estimate",
+    repCenyRatio: "Price/estimate ratio",
+    repCenyEurNote: "Prices are converted to EUR. Currencies in the segment: {meny}",
+    repBidDistribution: "Bid count distribution",
+    repBidsTenPlus: "10+",
+    repTrendByYear: "Trend by year",
+    repMedianPrice: "Median price",
+    repMedianRatio: "Median ratio",
+    repQuartiles: "Quartiles",
+    repMin: "Min",
+    repQ1: "Q1",
+    repMedian: "Median",
+    repQ3: "Q3",
+    repMax: "Max",
+    repPriceEqualsEstimate: "Price = estimate",
+    repNoPriceData: "The segment has no prices to compute quartiles from.",
+    repKonkTitle: "Competition",
+    repKonkFirms: "Firms by participation",
+    repKonkWinners: "Winners in the segment",
+    repKonkPairs: "Who meets whom",
+    repKonkPairsHint: "Number of tenders where both firms submitted a bid.",
+    repKonkTrend: "Participation by year",
+    repKonkCap: "The bid sample hit the {n} cap — the numbers are truncated, narrow the filter.",
+    repKonkNoBids: "No bids in the segment — only winners from awards.",
+    repTendersWithBids: "Tenders with bids",
+    repBidSample: "Bid sample",
 };
 
 const cs: Dict = {
