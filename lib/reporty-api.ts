@@ -518,6 +518,23 @@ export const jePrazdno = (r: unknown): r is SegmentPrazdny =>
 export const jePrilisVelky = (r: unknown): r is SegmentPrilisVelky =>
   !!r && typeof r === "object" && (r as SegmentPrilisVelky).vice === true;
 
+/** Detail jednoho zadání (`kind=zadani`): řádek zadání + všichni uchazeči s cenou a výsledkem. */
+export interface ZadaniUchazec {
+  id: Num; bidder_name: string | null; bidder_reg: string | null; offered_value: Num;
+  currency: string | null; rank_no: Num; is_winner: number | null;
+}
+export interface ZadaniDetail {
+  zadani: Record<string, unknown> & {
+    id: Num; country: string; source: string; title: string | null; award_date: string | null; buyer_name: string | null;
+    buyer_reg: string | null; winner_name: string | null; winner_reg: string | null; est_value: Num; final_value: Num;
+    currency: string | null; bid_count: Num; is_competitive: Num; raw_ref: string | null; cpv: string | null;
+    procedure_type: string | null;
+  };
+  uchazeci: ZadaniUchazec[];
+  souteze: { tender_id: Num; method: string; confidence: Num; title: string | null; deadlineAt: string | null; isActive: Num }[];
+  pocty: { hlaseno: number | null; znamych: number; s_cenou: number };
+}
+
 // ── Klient ──────────────────────────────────────────────────────────────────
 
 type Params = Record<string, string | number | undefined>;
@@ -561,6 +578,8 @@ export const reportyApi = {
     nacti<ModelHledani>({ kind: "model-hledani", country, q }, signal),
   modelDetail: (id: string | number, signal?: AbortSignal) =>
     nacti<ModelDetail>({ kind: "model-detail", q: String(id) }, signal),
+  zadani: (id: string | number, signal?: AbortSignal) =>
+    nacti<ZadaniDetail>({ kind: "zadani", q: String(id) }, signal),
 
   subjektHledani: (country: string, q: string, signal?: AbortSignal) =>
     nacti<SubjektHledani>({ kind: "subjekt-hledani", country, q }, signal),

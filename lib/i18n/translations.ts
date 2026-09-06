@@ -1216,6 +1216,12 @@ export interface Dict {
     repOpenProfile: string;
     repOpenTender: string;
     repAwardDetail: string;
+    repPaywallTitle: string;
+    repPaywallBody: string;
+    repPaywallContact: string;
+    repBiddersTitle: string;
+    repBiddersIncomplete: string;
+    repBiddersNone: string;
     repAwardNotFound: string;
     repFilterYear: string;
     repBucketCompetitive: string;
@@ -1649,6 +1655,12 @@ const ADMIN_CS: Dict["admin"] = {
     repOpenProfile: "Profil",
     repOpenTender: "Detail zakázky",
     repAwardDetail: "Detail zadání",
+    repPaywallTitle: "Reporty jsou placená služba",
+    repPaywallBody: "Cenové hladiny, konkurence v segmentu, profily dodavatelů a zadavatelů a pravděpodobnostní model nad výsledky zadávacích řízení z celé EU. Přístup je součástí předplatného.",
+    repPaywallContact: "Pro zpřístupnění reportů nás kontaktujte v Nastavení → Podpora.",
+    repBiddersTitle: "Uchazeči",
+    repBiddersIncomplete: "Zdroj hlásí víc nabídek, než kolik uchazečů uvedl jménem. Seznam je neúplný.",
+    repBiddersNone: "Zdroj jména uchazečů neuvedl.",
     repAwardNotFound: "Zadání se nepodařilo otevřít.",
     repFilterYear: "Rok {rok}",
     repBucketCompetitive: "V soutěži",
@@ -2080,6 +2092,12 @@ const ADMIN_EN: Dict["admin"] = {
     repOpenProfile: "Profile",
     repOpenTender: "Tender detail",
     repAwardDetail: "Award detail",
+    repPaywallTitle: "Reports are a paid service",
+    repPaywallBody: "Price levels, competition by segment, supplier and buyer profiles and the probabilistic model over award results from across the EU. Access is part of the subscription.",
+    repPaywallContact: "To get access to reports, contact us via Settings → Support.",
+    repBiddersTitle: "Bidders",
+    repBiddersIncomplete: "The source reports more bids than the bidders it names. The list is incomplete.",
+    repBiddersNone: "The source did not name the bidders.",
     repAwardNotFound: "The award could not be opened.",
     repFilterYear: "Year {rok}",
     repBucketCompetitive: "Competitive",

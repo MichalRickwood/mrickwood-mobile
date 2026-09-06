@@ -102,7 +102,6 @@ export default function ReportSubjektyScreen() {
                   <Text style={s.orgName}>{zkrat(org.name, 70)}</Text>
                   <Text style={s.orgMeta}>
                     {[org.reg_no, org.sidlo ? zkrat(org.sidlo, 40) : null].filter(Boolean).join(" · ") || "–"} · {datum(org.first_seen)} – {datum(org.last_seen)}
-                    {num(org.n_aliases) ? ` · ${t("admin", "repAliases")}: ${cislo(org.n_aliases)}` : ""}
                   </Text>
                   <View style={s.orgStats}>
                     <RepBadge text={`${t("admin", "repWins")}: ${cislo(org.n_won)}`} />

@@ -23,7 +23,7 @@ export function naProfil(
   const ident = (p.ident ?? "").trim();
   if (!ident) return;
   router.push({
-    pathname: "/(tabs)/admin/reporty/subjekty/profil",
+    pathname: "/(tabs)/reporty/subjekty/profil",
     params: {
       country: p.country, ident, kind: p.kind, nazev: p.nazev ?? "",
       ...(p.spolu ? { spolu: p.spolu } : {}),
@@ -48,7 +48,7 @@ export function naZakazku(router: Router, tenderId: Num) {
 export function naPredikci(router: Router, tenderId: Num) {
   const id = Number(tenderId);
   if (!Number.isFinite(id)) return;
-  router.push({ pathname: "/(tabs)/admin/reporty/model/[id]", params: { id: String(id) } });
+  router.push({ pathname: "/(tabs)/reporty/model/[id]", params: { id: String(id) } });
 }
 
 /**
@@ -57,7 +57,7 @@ export function naPredikci(router: Router, tenderId: Num) {
  */
 export function naZadani(router: Router, radek: unknown, country: string) {
   router.push({
-    pathname: "/(tabs)/admin/reporty/zadani",
+    pathname: "/(tabs)/reporty/zadani",
     params: { country, row: JSON.stringify(radek) },
   });
 }
@@ -65,7 +65,7 @@ export function naZadani(router: Router, radek: unknown, country: string) {
 /** CPV prefix → cenové hladiny v segmentu. */
 export function naCenoveHladiny(router: Router, p: { country: string; cpv: string; rokOd?: number; rokDo?: number }) {
   router.push({
-    pathname: "/(tabs)/admin/reporty/cenove-hladiny",
+    pathname: "/(tabs)/reporty/cenove-hladiny",
     params: {
       country: p.country, cpv: p.cpv,
       ...(p.rokOd ? { od: String(p.rokOd) } : {}),
@@ -80,7 +80,7 @@ export function naKonkurenci(
   p: { country: string; cpv: string; buyer?: string | null; buyerNazev?: string | null },
 ) {
   router.push({
-    pathname: "/(tabs)/admin/reporty/konkurence",
+    pathname: "/(tabs)/reporty/konkurence",
     params: {
       country: p.country, cpv: p.cpv,
       ...(p.buyer ? { buyer: p.buyer } : {}),

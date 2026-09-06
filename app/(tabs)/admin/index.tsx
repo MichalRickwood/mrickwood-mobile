@@ -65,11 +65,6 @@ export default function AdminIndexScreen() {
             hint={t("admin", "socialRowHint")}
             onPress={() => router.push("/(tabs)/admin/social")}
           />
-          <AdminRow
-            label={t("admin", "repRow")}
-            hint={t("admin", "repRowHint")}
-            onPress={() => router.push("/(tabs)/admin/reporty")}
-          />
         </AdminCard>
 
         <AdminCard>

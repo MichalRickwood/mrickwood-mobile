@@ -1,13 +1,14 @@
 import { useMemo } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { useQuery } from "@tanstack/react-query";
 import { AppScrollView } from "@/components/AppScroll";
 import { RepBadge, RepHint, RepKpi, RepLink, RepRow, RepSection, RepState } from "@/components/ReportUi";
 import { castkaMena, cislo, datum, num, zkrat } from "@/lib/reporty-format";
 import { menaZeme } from "@/lib/countries";
 import { naProfil } from "@/lib/reporty-nav";
-import type { Num } from "@/lib/reporty-api";
+import { reportChyba, reportyApi, type Num } from "@/lib/reporty-api";
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme-context";
 import { fontSize, spacing, type Colors } from "@/constants/theme";
@@ -113,6 +114,8 @@ export default function ReportZadaniScreen() {
           </RepSection>
         ) : null}
 
+        <Uchazeci id={z.id} mena={mena} zeme={zeme} />
+
         <RepSection title={t("admin", "repBuyer")}>
           {z.buyer_name ? (
             <RepRow label={zkrat(z.buyer_name, 60)} value={z.buyer_reg ?? "–"} />
@@ -153,10 +156,77 @@ export default function ReportZadaniScreen() {
   );
 }
 
+/**
+ * Všichni uchazeči zadání s nabídnutou cenou, pořadím a výsledkem — dotahují se ze serveru
+ * (`kind=zadani`), protože řádek z tabulky nese jen naši účast. Každý uchazeč vede na svůj profil.
+ */
+function Uchazeci({ id, mena, zeme }: { id: Num | undefined; mena: string; zeme: string }) {
+  const router = useRouter();
+  const { t } = useI18n();
+  const { colors } = useTheme();
+  const s = useMemo(() => makeStyles(colors), [colors]);
+  const q = useQuery({
+    queryKey: ["reporty", "zadani", String(id)],
+    queryFn: ({ signal }) => reportyApi.zadani(String(id), signal),
+    enabled: num(id) !== null,
+  });
+
+  if (num(id) === null) return null;
+  if (q.isLoading) {
+    return (
+      <RepSection title={t("admin", "repBiddersTitle")}>
+        <ActivityIndicator color={colors.textSubtle} />
+      </RepSection>
+    );
+  }
+  if (q.isError) {
+    const ch = reportChyba(q.error);
+    return (
+      <RepSection title={t("admin", "repBiddersTitle")}>
+        <RepHint>{ch.chybiNaServeru ? t("admin", "repNotDeployed") : ch.zprava}</RepHint>
+      </RepSection>
+    );
+  }
+  const d = q.data;
+  if (!d) return null;
+  const neuplne = d.pocty.hlaseno !== null && d.pocty.znamych < d.pocty.hlaseno;
+
+  return (
+    <RepSection title={`${t("admin", "repBiddersTitle")} (${d.pocty.znamych}${d.pocty.hlaseno !== null ? ` / ${d.pocty.hlaseno}` : ""})`}>
+      {d.uchazeci.length === 0 ? <RepHint>{t("admin", "repBiddersNone")}</RepHint> : null}
+      {d.uchazeci.map((b) => {
+        const vysledek = b.is_winner === 1 ? t("admin", "repWon") : b.is_winner === 0 ? t("admin", "repLost") : t("admin", "repOutcomeUnknown");
+        return (
+          <View key={String(b.id)} style={s.bidder}>
+            <View style={s.bidderHead}>
+              <RepLink
+                onPress={() => naProfil(router, { country: zeme, ident: b.bidder_reg || b.bidder_name, kind: "dodavatel", nazev: b.bidder_name })}
+                title={zkrat(b.bidder_name ?? "–", 48)}
+              />
+              <RepBadge text={vysledek} tone={b.is_winner === 1 ? "yes" : b.is_winner === 0 ? "no" : "warn"} />
+            </View>
+            <Text style={s.bidderMeta}>
+              {[
+                b.bidder_reg ? `IČO ${b.bidder_reg}` : null,
+                num(b.offered_value) !== null ? castkaMena(b.offered_value, b.currency || mena) : "–",
+                num(b.rank_no) !== null ? `${t("admin", "repRank")} ${cislo(b.rank_no)}` : null,
+              ].filter(Boolean).join(" · ")}
+            </Text>
+          </View>
+        );
+      })}
+      {neuplne ? <RepHint>{t("admin", "repBiddersIncomplete")}</RepHint> : null}
+    </RepSection>
+  );
+}
+
 const makeStyles = (colors: Colors) =>
   StyleSheet.create({
     safe: { flex: 1, backgroundColor: colors.bg },
     scroll: { padding: spacing.lg },
     title: { fontSize: fontSize.lg, fontWeight: "700", color: colors.text, lineHeight: 24 },
     badges: { flexDirection: "row", flexWrap: "wrap", gap: spacing.xs },
+    bidder: { paddingVertical: spacing.sm, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
+    bidderHead: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: spacing.sm },
+    bidderMeta: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: 2 },
   });

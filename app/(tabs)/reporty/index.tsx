@@ -26,22 +26,22 @@ export default function ReportyIndexScreen() {
           <AdminRow
             label={t("admin", "repModelRow")}
             hint={t("admin", "repModelRowHint")}
-            onPress={() => router.push("/(tabs)/admin/reporty/model")}
+            onPress={() => router.push("/(tabs)/reporty/model")}
           />
           <AdminRow
             label={t("admin", "repSubjektyRow")}
             hint={t("admin", "repSubjektyRowHint")}
-            onPress={() => router.push("/(tabs)/admin/reporty/subjekty")}
+            onPress={() => router.push("/(tabs)/reporty/subjekty")}
           />
           <AdminRow
             label={t("admin", "repCenyRow")}
             hint={t("admin", "repCenyRowHint")}
-            onPress={() => router.push("/(tabs)/admin/reporty/cenove-hladiny")}
+            onPress={() => router.push("/(tabs)/reporty/cenove-hladiny")}
           />
           <AdminRow
             label={t("admin", "repKonkRow")}
             hint={t("admin", "repKonkRowHint")}
-            onPress={() => router.push("/(tabs)/admin/reporty/konkurence")}
+            onPress={() => router.push("/(tabs)/reporty/konkurence")}
           />
         </AdminCard>
         <View style={{ height: spacing.xl }} />

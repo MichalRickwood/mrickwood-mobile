@@ -36,6 +36,10 @@ export default function TabsLayout() {
           <Icon sf="doc.text.magnifyingglass" />
           <Label>{t("matches", "title")}</Label>
         </NativeTabs.Trigger>
+        <NativeTabs.Trigger name="reporty">
+          <Icon sf="chart.bar.xaxis" />
+          <Label>{t("admin", "repTitle")}</Label>
+        </NativeTabs.Trigger>
         <NativeTabs.Trigger name="settings">
           <Icon sf="gearshape" />
           <Label>{t("settings", "title")}</Label>
@@ -78,6 +82,13 @@ export default function TabsLayout() {
         options={{
           title: t("matches", "title"),
           tabBarIcon: ({ color }) => <TabGlyph color={color}>•</TabGlyph>,
+        }}
+      />
+      <Tabs.Screen
+        name="reporty"
+        options={{
+          title: t("admin", "repTitle"),
+          tabBarIcon: ({ color }) => <TabGlyph color={color}>▦</TabGlyph>,
         }}
       />
       <Tabs.Screen

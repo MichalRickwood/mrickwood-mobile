@@ -141,7 +141,6 @@ function Hlavicka({
         <RepBadge text={mena} />
       </View>
       <RepRow label={t("admin", "repPeriod")} value={`${datum(org.first_seen)} – ${datum(org.last_seen)}`} />
-      {num(org.n_aliases) ? <RepRow label={t("admin", "repAliases")} value={cislo(org.n_aliases)} /> : null}
       {!org.reg_no ? <RepHint>{t("admin", "repNoRegNoHint")}</RepHint> : null}
     </RepSection>
   );
