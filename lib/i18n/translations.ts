@@ -1300,6 +1300,8 @@ export interface Dict {
     repProfileSupplier: string;
     repProfileBuyer: string;
     repWins: string;
+    repWinsAwards: string;
+    repContractsInRegistry: string;
     repParticipations: string;
     repWinRate: string;
     repVolumeWon: string;
@@ -1756,6 +1758,8 @@ const ADMIN_CS: Dict["admin"] = {
     repProfileSupplier: "Profil dodavatele",
     repProfileBuyer: "Profil zadavatele",
     repWins: "Výher",
+    repWinsAwards: "Výher v řízeních",
+    repContractsInRegistry: "Smluv v registru",
     repParticipations: "Účastí",
     repWinRate: "Podíl výher",
     repVolumeWon: "Objem výher",
@@ -2210,6 +2214,8 @@ const ADMIN_EN: Dict["admin"] = {
     repProfileSupplier: "Supplier profile",
     repProfileBuyer: "Buyer profile",
     repWins: "Wins",
+    repWinsAwards: "Wins in tenders",
+    repContractsInRegistry: "Contracts in register",
     repParticipations: "Bids",
     repWinRate: "Win rate",
     repVolumeWon: "Volume won",

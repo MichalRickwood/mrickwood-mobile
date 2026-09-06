@@ -227,7 +227,8 @@ function Dodavatel({
       <RepSection title={t("admin", "repProfileSupplier")} hint={t("admin", "repRegistryNote")}>
         <RepKpi
           items={[
-            { label: t("admin", "repWins"), value: cislo(st.vyher), hint: st.vyher_s_ico != null ? t("admin", "repByIco", { n: cislo(st.vyher_s_ico) }) : undefined },
+            { label: t("admin", "repWinsAwards"), value: cislo(st.vyher), hint: st.vyher_s_ico != null ? t("admin", "repByIco", { n: cislo(st.vyher_s_ico) }) : undefined },
+            ...(num(data.smlouvy?.celkem) ? [{ label: t("admin", "repContractsInRegistry"), value: cislo(data.smlouvy?.celkem) }] : []),
             { label: t("admin", "repParticipations"), value: cislo(st.nabidek), hint: st.nabidek_s_ico != null ? t("admin", "repByIco", { n: cislo(st.nabidek_s_ico) }) : undefined },
             { label: t("admin", "repWinRate"), value: podil(st.uspesnost, 1) },
             { label: t("admin", "repVolumeWon"), value: castkaMenaKratce(st.objem ?? st.objem_eur, st.objem != null ? mena : "EUR") },
