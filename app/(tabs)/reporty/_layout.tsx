@@ -56,7 +56,7 @@ export default function ReportyLayout() {
     if (!maReporty(subs.data ?? [])) {
       return (
         <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }} edges={["top", "bottom"]}>
-          <ReportyPaywall onRecheck={() => void subs.refetch()} />
+          <ReportyPaywall onRecheck={() => void subs.refetch()} onActivated={() => void subs.refetch()} />
         </SafeAreaView>
       );
     }

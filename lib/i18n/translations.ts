@@ -1231,6 +1231,9 @@ export interface Dict {
     repPaywallBody: string;
     repPaywallContact: string;
     repPaywallWrite: string;
+    repActivating: string;
+    repActivated: string;
+    repActivateError: string;
     repBetaTitle: string;
     repBetaBody: string;
     repBiddersTitle: string;
@@ -1682,8 +1685,11 @@ const ADMIN_CS: Dict["admin"] = {
     repEnable: "Zapnout",
     repDisable: "Vypnout",
     repPaywallBody: "Cenové hladiny oborů, konkurence v segmentu, profily dodavatelů a zadavatelů a pravděpodobný počet nabídek a cena u živých zakázek, vše nad výsledky zadávacích řízení z celé EU.",
-    repPaywallContact: "Chcete do první neveřejné testovací verze? Napište nám na michal@rickwood.cz.",
-    repPaywallWrite: "Napsat e-mail",
+    repPaywallContact: "Chcete do první neveřejné testovací verze? Zapněte si ji jedním tlačítkem. Zůstane vám do oficiálního spuštění a jako dík dostanete po spuštění týden zdarma.",
+    repPaywallWrite: "Aktivovat testovací verzi",
+    repActivating: "Aktivuji…",
+    repActivated: "Hotovo, Reporty jsou zapnuté.",
+    repActivateError: "Aktivace se nepovedla, zkuste to za chvíli.",
     repBetaTitle: "První verze ve vývoji",
     repBetaBody: "Reporty jsou v testovacím provozu. Čísla vycházejí z výsledků zadávacích řízení, která průběžně doplňujeme a čistíme; něco může chybět nebo sedět jen přibližně. Každou nesrovnalost nám prosím napište.",
     repBiddersTitle: "Uchazeči",
@@ -2133,8 +2139,11 @@ const ADMIN_EN: Dict["admin"] = {
     repEnable: "Enable",
     repDisable: "Disable",
     repPaywallBody: "Price levels by sector, competition in a segment, supplier and buyer profiles and the likely number of bids and price for live tenders, all built on award results from across the EU.",
-    repPaywallContact: "Want to join the first private test version? Write to us at michal@rickwood.cz.",
-    repPaywallWrite: "Send an e-mail",
+    repPaywallContact: "Want to join the first private test version? Switch it on with one button. It stays yours until the official launch, and as a thank-you you get a free week after the launch.",
+    repPaywallWrite: "Activate the test version",
+    repActivating: "Activating…",
+    repActivated: "Done, Reports are on.",
+    repActivateError: "Activation failed, please try again in a moment.",
     repBetaTitle: "Early version in development",
     repBetaBody: "Reports are in test operation. The figures come from award results that we keep adding and cleaning; something may be missing or only approximate. Please tell us about any discrepancy.",
     repBiddersTitle: "Bidders",

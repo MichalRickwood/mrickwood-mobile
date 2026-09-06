@@ -1,5 +1,6 @@
-import { useMemo } from "react";
-import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useMemo, useState } from "react";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { api } from "@/lib/api";
 import { useTheme } from "@/lib/theme-context";
 import { useI18n } from "@/lib/i18n";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
@@ -10,10 +11,23 @@ import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
  * obsahu ukáže tahle obrazovka s cestou k předplatnému. Až bude služba prodejná,
  * rozhodne o přístupu entitlement ze serveru, ne role.
  */
-export default function ReportyPaywall({ onRecheck }: { onRecheck?: () => void } = {}) {
+export default function ReportyPaywall({ onRecheck, onActivated }: { onRecheck?: () => void; onActivated?: () => void } = {}) {
   const { colors } = useTheme();
   const { t } = useI18n();
   const styles = useMemo(() => makeStyles(colors), [colors]);
+  const [stav, setStav] = useState<"klid" | "bezi" | "hotovo" | "chyba">("klid");
+
+  // Aktivace testovací verze: server založí službu REPORTS (bez konce) a pošle děkovný e-mail.
+  async function aktivovat() {
+    setStav("bezi");
+    try {
+      await api.post("/api/v2/reporty/aktivace", {});
+      setStav("hotovo");
+      onActivated?.();
+    } catch {
+      setStav("chyba");
+    }
+  }
 
   return (
     <ScrollView style={styles.flex} contentContainerStyle={styles.scroll}>
@@ -22,13 +36,17 @@ export default function ReportyPaywall({ onRecheck }: { onRecheck?: () => void }
       </View>
       <Text style={styles.title}>{t("admin", "repPaywallTitle")}</Text>
       <Text style={styles.body}>{t("admin", "repPaywallBody")}</Text>
+      <Text style={styles.body}>{t("admin", "repPaywallContact")}</Text>
       <Pressable
-        onPress={() => void Linking.openURL(`mailto:michal@rickwood.cz?subject=${encodeURIComponent(t("admin", "repPaywallTitle"))}`)}
-        style={({ pressed }) => [styles.btnPrimary, pressed && { opacity: 0.85 }]}
+        onPress={() => void aktivovat()}
+        disabled={stav === "bezi" || stav === "hotovo"}
+        style={({ pressed }) => [styles.btnPrimary, (pressed || stav !== "klid") && { opacity: 0.85 }]}
       >
-        <Text style={styles.btnPrimaryText}>{t("admin", "repPaywallWrite")}</Text>
+        <Text style={styles.btnPrimaryText}>
+          {stav === "bezi" ? t("admin", "repActivating") : stav === "hotovo" ? t("admin", "repActivated") : t("admin", "repPaywallWrite")}
+        </Text>
       </Pressable>
-      <Text style={styles.fineprint}>{t("admin", "repPaywallContact")}</Text>
+      {stav === "chyba" ? <Text style={styles.fineprint}>{t("admin", "repActivateError")}</Text> : null}
       {onRecheck ? (
         <Pressable onPress={onRecheck} style={({ pressed }) => [styles.recheckBtn, pressed && { opacity: 0.6 }]}>
           <Text style={styles.recheckText}>{t("filters", "paywallRecheckBtn")}</Text>
