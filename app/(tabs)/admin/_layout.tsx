@@ -22,6 +22,7 @@ export default function AdminLayout() {
       }}
     >
       <Stack.Screen name="index" options={{ headerShown: false }} />
+      <Stack.Screen name="ukoly/index" options={{ title: t("admin", "ukolyTitle") }} />
       <Stack.Screen name="users/index" options={{ title: t("admin", "usersTitle") }} />
       <Stack.Screen name="users/[id]" options={{ title: t("admin", "userDetailTitle") }} />
       <Stack.Screen name="invoices/index" options={{ title: t("admin", "invoicesTitle") }} />

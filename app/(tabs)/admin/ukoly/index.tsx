@@ -4,6 +4,7 @@ import { AppScrollView } from "@/components/AppScroll";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi, type WorkItem, type WorkQueueId, type WorkStatusId } from "@/lib/admin-api";
+import FrontaPicker from "@/components/FrontaPicker";
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme-context";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
@@ -51,6 +52,8 @@ export default function AdminUkolyScreen() {
     if (fronta !== "VSE") setNovaFronta(fronta);
   }, [fronta]);
   const [busy, setBusy] = useState(false);
+  const [pickerFiltr, setPickerFiltr] = useState(false);
+  const [pickerCil, setPickerCil] = useState(false);
 
   const query = useQuery({
     queryKey: ["admin-ukoly", uzavrene],
@@ -87,36 +90,25 @@ export default function AdminUkolyScreen() {
             </Text>
           </Pressable>
         </View>
-        <AppScrollView horizontal contentContainerStyle={styles.tabs} showsHorizontalScrollIndicator={false}>
-          {([{ id: "VSE" as const, label: t("admin", "ukolyAll") }, ...FRONTY]).map((f) => (
-            <Pressable
-              key={f.id}
-              onPress={() => setFronta(f.id as WorkQueueId | "VSE")}
-              style={[styles.tab, fronta === f.id && styles.tabActive]}
-            >
-              <Text style={[styles.tabText, fronta === f.id && styles.tabTextActive]}>
-                {f.label}
-                {f.id !== "VSE" && pocet(f.id as WorkQueueId) > 0 ? ` ${pocet(f.id as WorkQueueId)}` : ""}
-              </Text>
-            </Pressable>
-          ))}
-        </AppScrollView>
+        <Pressable style={styles.select} onPress={() => setPickerFiltr(true)}>
+          <Text style={styles.selectText}>
+            {fronta === "VSE"
+              ? t("admin", "ukolyAll")
+              : `${FRONTY.find((f) => f.id === fronta)?.label} (${pocet(fronta)})`}
+          </Text>
+          <Text style={styles.selectArrow}>▾</Text>
+        </Pressable>
       </View>
 
       <AppScrollView contentContainerStyle={styles.list}>
         {/* Rychlé zadání — hlavní důvod, proč tahle obrazovka na mobilu je. */}
         <View style={styles.addBox}>
-          <View style={styles.addQueues}>
-            {FRONTY.map((f) => (
-              <Pressable
-                key={f.id}
-                onPress={() => setNovaFronta(f.id)}
-                style={[styles.chip, novaFronta === f.id && styles.chipActive]}
-              >
-                <Text style={[styles.chipText, novaFronta === f.id && styles.chipTextActive]}>{f.label}</Text>
-              </Pressable>
-            ))}
-          </View>
+          <Pressable style={styles.select} onPress={() => setPickerCil(true)}>
+            <Text style={styles.selectText}>
+              {t("admin", "ukolyTargetLabel")}: {FRONTY.find((f) => f.id === novaFronta)?.label}
+            </Text>
+            <Text style={styles.selectArrow}>▾</Text>
+          </Pressable>
           <View style={styles.addRow}>
             <TextInput
               value={novy}
@@ -211,6 +203,26 @@ export default function AdminUkolyScreen() {
           );
         })}
       </AppScrollView>
+
+      <FrontaPicker
+        visible={pickerFiltr}
+        title={t("admin", "ukolyFilterTitle")}
+        value={fronta}
+        options={[
+          { id: "VSE", label: t("admin", "ukolyAll") },
+          ...FRONTY.map((f) => ({ id: f.id, label: f.label, pocet: pocet(f.id) })),
+        ]}
+        onClose={() => setPickerFiltr(false)}
+        onPick={(id) => setFronta(id)}
+      />
+      <FrontaPicker
+        visible={pickerCil}
+        title={t("admin", "ukolyTargetTitle")}
+        value={novaFronta}
+        options={FRONTY.map((f) => ({ id: f.id, label: f.label, pocet: pocet(f.id) }))}
+        onClose={() => setPickerCil(false)}
+        onPick={(id) => { if (id !== "VSE") setNovaFronta(id); }}
+      />
     </SafeAreaView>
   );
 }
@@ -222,14 +234,13 @@ const makeStyles = (c: Colors) =>
     headerTop: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
     title: { fontSize: fontSize.xl, fontWeight: "700", color: c.text, marginBottom: spacing.sm },
     link: { fontSize: fontSize.sm, color: c.textSubtle },
-    tabs: { flexDirection: "row", gap: spacing.sm, paddingRight: spacing.lg },
-    tab: {
-      paddingHorizontal: spacing.md, paddingVertical: spacing.xs,
-      borderRadius: radius.sm, backgroundColor: c.card,
+    select: {
+      flexDirection: "row", alignItems: "center", justifyContent: "space-between",
+      paddingHorizontal: spacing.md, paddingVertical: spacing.sm,
+      borderRadius: radius.sm, borderWidth: 1, borderColor: c.border, backgroundColor: c.card,
     },
-    tabActive: { backgroundColor: c.accent },
-    tabText: { fontSize: fontSize.sm, color: c.textSubtle, fontWeight: "600" },
-    tabTextActive: { color: c.accentForeground },
+    selectText: { fontSize: fontSize.sm, color: c.text, fontWeight: "600" },
+    selectArrow: { fontSize: fontSize.sm, color: c.textSubtle },
     list: { padding: spacing.lg, gap: spacing.md, paddingBottom: spacing.xl },
     spinner: { marginTop: spacing.xl },
     muted: { color: c.textSubtle, fontSize: fontSize.sm, textAlign: "center", marginTop: spacing.xl },
@@ -237,7 +248,6 @@ const makeStyles = (c: Colors) =>
       backgroundColor: c.card, borderRadius: radius.md, padding: spacing.md,
       borderWidth: 1, borderColor: c.border, gap: spacing.sm,
     },
-    addQueues: { flexDirection: "row", flexWrap: "wrap", gap: spacing.xs },
     addRow: { flexDirection: "row", gap: spacing.sm, alignItems: "center" },
     input: {
       flex: 1, borderWidth: 1, borderColor: c.border, borderRadius: radius.sm,

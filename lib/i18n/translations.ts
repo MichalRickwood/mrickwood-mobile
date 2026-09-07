@@ -1116,6 +1116,9 @@ export interface Dict {
     ukolyTitle: string;
     ukolyEmpty: string;
     ukolyAll: string;
+    ukolyFilterTitle: string;
+    ukolyTargetTitle: string;
+    ukolyTargetLabel: string;
     ukolyShowClosed: string;
     ukolyHideClosed: string;
     ukolyPlaceholder: string;
@@ -1607,6 +1610,9 @@ const ADMIN_CS: Dict["admin"] = {
     ukolyTitle: "Fronty práce",
     ukolyEmpty: "Fronta je prázdná.",
     ukolyAll: "Vše",
+    ukolyFilterTitle: "Zobrazit frontu",
+    ukolyTargetTitle: "Zařadit do fronty",
+    ukolyTargetLabel: "Fronta",
     ukolyShowClosed: "Ukázat uzavřené",
     ukolyHideClosed: "Skrýt uzavřené",
     ukolyPlaceholder: "Co je potřeba udělat",
@@ -2097,6 +2103,9 @@ const ADMIN_EN: Dict["admin"] = {
     ukolyTitle: "Work queues",
     ukolyEmpty: "The queue is empty.",
     ukolyAll: "All",
+    ukolyFilterTitle: "Show queue",
+    ukolyTargetTitle: "Add to queue",
+    ukolyTargetLabel: "Queue",
     ukolyShowClosed: "Show closed",
     ukolyHideClosed: "Hide closed",
     ukolyPlaceholder: "What needs doing",
