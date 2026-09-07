@@ -1197,6 +1197,7 @@ export interface Dict {
     repOrigin_neurceno: string;
     repOrigin_soutez_odvozena: string;
     repOrigin_jina: string;
+    repOrigin_vedlejsi: string;
     repContractsFromCompetitions: string;
     repBuyerMatched: string;
     repCountryRows: string;
@@ -1669,6 +1670,7 @@ const ADMIN_CS: Dict["admin"] = {
     repOrigin_neurceno: "neurčeno",
     repOrigin_soutez_odvozena: "soutěž (odvozeno)",
     repOrigin_jina: "jiná",
+    repOrigin_vedlejsi: "dílčí plnění",
     repContractsFromCompetitions: "Smluv ze soutěží",
     repBuyerMatched: "Filtr se chytil na: {name}",
     repCountryRows: "{n} zadání",
@@ -2139,6 +2141,7 @@ const ADMIN_EN: Dict["admin"] = {
     repOrigin_neurceno: "unknown",
     repOrigin_soutez_odvozena: "competition (derived)",
     repOrigin_jina: "other",
+    repOrigin_vedlejsi: "partial performance",
     repContractsFromCompetitions: "Contracts from competitions",
     repBuyerMatched: "Filter matched: {name}",
     repCountryRows: "{n} awards",
