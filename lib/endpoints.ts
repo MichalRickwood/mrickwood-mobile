@@ -957,6 +957,9 @@ export const endpoints = {
   // ── Správa firemních profilů (multi-profil) ──
   companyProfilesList: () =>
     api.get<{ data: { profiles: ProfileSummary[]; maxProfiles: number } }>("/api/v2/account/company-profiles"),
+  /** Odvození výchozího filtru z IČO (běží na serveru na pozadí; odpověď nečekáme). */
+  autoFilter: (body: { ico?: string; country?: string }) =>
+    api.post<{ data: { spusteno: boolean } }>("/api/v2/account/auto-filter", body),
   companyProfileCreate: (body: { label?: string; ico?: string }) =>
     api.post<{ data: { profile: ProfileSummary } }>("/api/v2/account/company-profiles", body),
   companyProfileUpdate: (profileId: string, body: { label?: string; isDefault?: boolean }) =>

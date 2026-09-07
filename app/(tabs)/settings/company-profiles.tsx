@@ -46,6 +46,9 @@ export default function CompanyProfilesScreen() {
     setBusy(true);
     try {
       await endpoints.companyProfileCreate({ label: newLabel.trim() || undefined, ico: newIco.trim() || undefined });
+      // S IČO umíme rovnou odvodit výchozí filtr (obor, kraje, rozsah hodnot) — server
+      // to udělá na pozadí a jen když uživatel ještě žádný filtr nemá.
+      if (newIco.trim()) void endpoints.autoFilter({ ico: newIco.trim() }).catch(() => {});
       setAdding(false);
       setNewLabel("");
       setNewIco("");
