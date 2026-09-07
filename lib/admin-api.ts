@@ -260,6 +260,24 @@ export interface SocialReply {
 }
 
 // ---- Helper na rozbalení envelope ----
+/** Fronta práce jedné Claude session — viz mrickwood-web/src/lib/work/queue.ts. */
+export type WorkQueueId = "EPROTOKOL" | "JETCON" | "VERITRA" | "LEADS" | "OSTATNI";
+export type WorkStatusId = "NEW" | "IN_PROGRESS" | "BLOCKED" | "DONE" | "DROPPED";
+
+export interface WorkItem {
+  id: string;
+  queue: WorkQueueId;
+  title: string;
+  detail: string | null;
+  status: WorkStatusId;
+  /** Co udělat, až se k úkolu vrátíme. Jádro celé fronty. */
+  nextStep: string | null;
+  priority: number;
+  source: "MANUAL" | "MAIL" | "FEEDBACK" | "SESSION";
+  createdAt: string;
+  updatedAt: string;
+}
+
 type Env<T> = { data: T };
 
 // --- Triáž příchozí pošty ---------------------------------------------------
@@ -486,5 +504,24 @@ export const adminApi = {
   ) => {
     const r = await api.patch<Env<unknown>>(`${BASE}/inbox/${mailId}`, input);
     return r.data;
+  },
+
+  // Fronty práce
+  listUkoly: async (opts: { queue?: WorkQueueId; vse?: boolean }, signal?: AbortSignal) => {
+    const r = await api.get<Env<{ items: WorkItem[]; fronty: { id: string; label: string }[] }>>(
+      `${BASE}/ukoly`, { params: { queue: opts.queue, vse: opts.vse ? "1" : undefined }, signal },
+    );
+    return r.data;
+  },
+  createUkol: async (input: { queue: WorkQueueId; title: string; detail?: string }) => {
+    const r = await api.post<Env<{ item: WorkItem }>>(`${BASE}/ukoly`, input);
+    return r.data.item;
+  },
+  updateUkol: async (
+    id: string,
+    patch: { status?: WorkStatusId; nextStep?: string | null; queue?: WorkQueueId; title?: string; priority?: number },
+  ) => {
+    const r = await api.patch<Env<{ item: WorkItem }>>(`${BASE}/ukoly/${id}`, patch);
+    return r.data.item;
   },
 };

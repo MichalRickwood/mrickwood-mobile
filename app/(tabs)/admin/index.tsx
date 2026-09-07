@@ -34,6 +34,11 @@ export default function AdminIndexScreen() {
       <AppScrollView contentContainerStyle={styles.scroll}>
         <AdminCard>
           <AdminRow
+            label={t("admin", "ukolyRow")}
+            hint={t("admin", "ukolyRowHint")}
+            onPress={() => router.push("/(tabs)/admin/ukoly")}
+          />
+          <AdminRow
             label={t("admin", "usersRow")}
             hint={t("admin", "usersRowHint")}
             onPress={() => router.push("/(tabs)/admin/users")}

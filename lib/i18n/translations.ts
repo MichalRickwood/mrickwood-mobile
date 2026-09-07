@@ -1110,6 +1110,24 @@ export interface Dict {
     registerLinkLabel: string;
     platformsLabel: string;
     publishedAt: string;
+    // fronty práce (úkoly session)
+    ukolyRow: string;
+    ukolyRowHint: string;
+    ukolyTitle: string;
+    ukolyEmpty: string;
+    ukolyAll: string;
+    ukolyShowClosed: string;
+    ukolyHideClosed: string;
+    ukolyPlaceholder: string;
+    ukolyAdd: string;
+    ukolyNextStep: string;
+    ukolyNextStepHint: string;
+    ukolyStatusNEW: string;
+    ukolyStatusIN_PROGRESS: string;
+    ukolyStatusBLOCKED: string;
+    ukolyStatusDONE: string;
+    ukolyStatusDROPPED: string;
+    ukolySaveFailed: string;
     // triáž příchozí pošty
     inboxTitle: string;
     inboxRow: string;
@@ -1583,6 +1601,24 @@ const ADMIN_CS: Dict["admin"] = {
   registerLinkLabel: "Odkaz registrace",
   platformsLabel: "Sítě",
   publishedAt: "Publikováno",
+    // fronty práce (úkoly session)
+    ukolyRow: "Fronty práce",
+    ukolyRowHint: "Úkoly rozdělené po sessions",
+    ukolyTitle: "Fronty práce",
+    ukolyEmpty: "Fronta je prázdná.",
+    ukolyAll: "Vše",
+    ukolyShowClosed: "Ukázat uzavřené",
+    ukolyHideClosed: "Skrýt uzavřené",
+    ukolyPlaceholder: "Co je potřeba udělat",
+    ukolyAdd: "Přidat",
+    ukolyNextStep: "Další krok",
+    ukolyNextStepHint: "Co udělat, až se k úkolu vrátíš",
+    ukolyStatusNEW: "nový",
+    ukolyStatusIN_PROGRESS: "rozpracovaný",
+    ukolyStatusBLOCKED: "blokovaný",
+    ukolyStatusDONE: "hotový",
+    ukolyStatusDROPPED: "zahozený",
+    ukolySaveFailed: "Uložení se nepovedlo.",
     // triáž příchozí pošty
     inboxTitle: "Pošta",
     inboxRow: "Pošta",
@@ -2055,6 +2091,24 @@ const ADMIN_EN: Dict["admin"] = {
   platformsLabel: "Networks",
   publishedAt: "Published",
     // inbound mail triage
+    // work queues
+    ukolyRow: "Work queues",
+    ukolyRowHint: "Tasks split per session",
+    ukolyTitle: "Work queues",
+    ukolyEmpty: "The queue is empty.",
+    ukolyAll: "All",
+    ukolyShowClosed: "Show closed",
+    ukolyHideClosed: "Hide closed",
+    ukolyPlaceholder: "What needs doing",
+    ukolyAdd: "Add",
+    ukolyNextStep: "Next step",
+    ukolyNextStepHint: "What to do when you come back to it",
+    ukolyStatusNEW: "new",
+    ukolyStatusIN_PROGRESS: "in progress",
+    ukolyStatusBLOCKED: "blocked",
+    ukolyStatusDONE: "done",
+    ukolyStatusDROPPED: "dropped",
+    ukolySaveFailed: "Could not save.",
     inboxTitle: "Inbox",
     inboxRow: "Inbox",
     inboxRowHint: "Inbound mail triage proposals",
