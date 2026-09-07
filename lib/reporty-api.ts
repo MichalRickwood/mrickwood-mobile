@@ -375,6 +375,7 @@ export interface UcastRow extends ZadaniZaklad {
  * zdola oříznuté; v UI se to musí napsat.
  */
 export interface SmlouvyBlok {
+  podlePuvodu?: { puvod?: string | null; n?: Num; objem?: Num }[] | null;
   celkem: Num;
   objem: Num;
   mena?: string | null;
@@ -390,7 +391,7 @@ export interface SmlouvyBlok {
 export interface SmlouvaRow {
   id?: Num;
   /** soutez = spárováno se zadáním v našich datech; objednavka/dodatek/ramcova podle předmětu; jinak neurceno */
-  puvod?: "soutez" | "objednavka" | "dodatek" | "ramcova" | "neurceno" | null;
+  puvod?: "soutez" | "soutez_odvozena" | "objednavka" | "dodatek" | "ramcova" | "jina" | "neurceno" | null;
   award_id?: Num;
   datumUzavreni?: string | null;
   zadavatelNazev?: string | null;

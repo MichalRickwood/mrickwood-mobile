@@ -41,6 +41,9 @@ interface Zuzeni { od?: string; do?: string; rok?: number; kos?: Kos; spolu?: st
  * ne podle příznaku zdroje — ten u malých zakázek hlásí soutěž i tam, kde zadavatel
  * oslovil jedinou firmu.
  */
+const zeSoutezi = (p?: { puvod?: string | null; n?: number | string | null }[] | null) =>
+  (p ?? []).filter((r) => r.puvod === "soutez" || r.puvod === "soutez_odvozena").reduce((a, r) => a + Number(r.n ?? 0), 0);
+
 export default function ReportProfilScreen() {
   const { country, ident, kind, nazev, spolu, spoluNazev } = useLocalSearchParams<{
     country: string; ident: string; kind: Kind; nazev?: string;
@@ -260,6 +263,7 @@ function Dodavatel({
           items={[
             { label: t("admin", "repWinsAwards"), value: cislo(st.vyher), hint: st.vyher_s_ico != null ? t("admin", "repByIco", { n: cislo(st.vyher_s_ico) }) : undefined },
             ...(num(data.smlouvy?.celkem) ? [{ label: t("admin", "repContractsInRegistry"), value: cislo(data.smlouvy?.celkem) }] : []),
+            ...(zeSoutezi(data.smlouvy?.podlePuvodu) ? [{ label: t("admin", "repContractsFromCompetitions"), value: cislo(zeSoutezi(data.smlouvy?.podlePuvodu)) }] : []),
             { label: t("admin", "repParticipations"), value: cislo(st.nabidek), hint: st.nabidek_s_ico != null ? t("admin", "repByIco", { n: cislo(st.nabidek_s_ico) }) : undefined },
             { label: t("admin", "repWinRate"), value: podil(st.uspesnost, 1) },
             { label: t("admin", "repVolumeWon"), value: castkaMenaKratce(st.objem ?? st.objem_eur, st.objem != null ? mena : "EUR") },
