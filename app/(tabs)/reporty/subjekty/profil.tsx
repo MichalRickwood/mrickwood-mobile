@@ -4,6 +4,7 @@ import ReportyFirmaSheet, { type VyberFirmy } from "@/components/ReportyFirmaShe
 import { endpoints } from "@/lib/endpoints";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, useLocalSearchParams, useRouter, type Router } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import { AppScrollView } from "@/components/AppScroll";
 import {
@@ -54,7 +55,10 @@ export default function ReportProfilScreen() {
     country: String(country || "CZ"), ident: String(ident ?? ""), nazev: nazev ? String(nazev) : "",
     kind: kind === "zadavatel" ? "zadavatel" : "dodavatel",
   });
-  const [sheet, setSheet] = useState(false);
+  // Z menu (bez parametru) se nejdřív otevře okno s předvyplněnou mojí firmou a obdobím „vše";
+  // profil se načte až po „Použít". Z prokliku (s parametrem) rovnou.
+  const [sheet, setSheet] = useState(!ident);
+  const [potvrzeno, setPotvrzeno] = useState(!!ident);
   const jeDodavatel = vyber.kind !== "zadavatel";
   // Proklik z dvojice konkurentů otevře profil rovnou zúžený na společné zakázky.
   const [zuzeni, setZuzeni] = useState<Zuzeni>(
@@ -70,7 +74,6 @@ export default function ReportProfilScreen() {
     if (dotaz || !ucet.data) return;
     const a = ucet.data;
     if (a.ico || a.company) setVyber((v) => ({ ...v, country: (a.country || v.country).toUpperCase(), ident: a.ico || a.company || "", nazev: a.company || "" }));
-    else setSheet(true);
   }, [dotaz, ucet.data]);
 
   // Zúžení jde na server (kontrakt zná `rok`, `kos`, `spolu`) — filtruje se v celých
@@ -94,7 +97,7 @@ export default function ReportProfilScreen() {
       jeDodavatel
         ? reportyApi.dodavatel(zeme, dotaz, zaklad({ limit: STRANKA }), signal)
         : reportyApi.zadavatel(zeme, dotaz, zaklad({ limit: STRANKA }), signal),
-    enabled: !!zeme && !!dotaz,
+    enabled: !!zeme && !!dotaz && potvrzeno,
     retry: false,
   });
 
@@ -109,14 +112,29 @@ export default function ReportProfilScreen() {
 
   return (
     <SafeAreaView style={s.safe} edges={["bottom"]}>
-      <Stack.Screen options={{ title: vyber.nazev || t("admin", "repSubjektyTitle") }} />
+      <Stack.Screen
+        options={{
+          headerTitle: () => (
+            <Pressable onPress={() => setSheet(true)} hitSlop={8} style={s.headerTitleBtn}>
+              <Text style={s.headerTitleText} numberOfLines={1}>{vyber.nazev || t("admin", "repSubjektyTitle")}</Text>
+              <Ionicons name="chevron-down" size={16} color={colors.textSubtle} />
+            </Pressable>
+          ),
+          headerRight: () => (
+            <Pressable onPress={() => setSheet(true)} hitSlop={8} style={s.headerFilterBtn}>
+              <Ionicons name="options-outline" size={22} color={colors.text} />
+              {zuzeni.od || zuzeni.do ? <View style={s.headerBadge} /> : null}
+            </Pressable>
+          ),
+        }}
+      />
       <ReportyFirmaSheet
         visible={sheet}
         initial={{ ...vyber, od: zuzeni.od, do: zuzeni.do }}
         onClose={() => setSheet(false)}
-        onApply={(v) => { setVyber({ country: v.country, ident: v.ident, nazev: v.nazev, kind: v.kind }); setZuzeni((z) => ({ ...z, od: v.od, do: v.do })); }}
+        onApply={(v) => { setVyber({ country: v.country, ident: v.ident, nazev: v.nazev, kind: v.kind }); setZuzeni((z) => ({ ...z, od: v.od, do: v.do })); setPotvrzeno(true); }}
       />
-      {!dotaz && !ucet.isLoading ? (
+      {!potvrzeno && !sheet ? (
         <Pressable onPress={() => setSheet(true)} style={{ margin: spacing.lg }}>
           <Text style={{ color: colors.link, fontSize: fontSize.base }}>{t("admin", "repFirmaVybrat")} ›</Text>
         </Pressable>
@@ -135,7 +153,6 @@ export default function ReportProfilScreen() {
 
         {data ? (
           <>
-            <FirmaKarta nazev={data.org.name ?? vyber.nazev} kind={vyber.kind} od={zuzeni.od} do={zuzeni.do} bezIco={!data.org.reg_no} onPress={() => setSheet(true)} />
             <ZuzeniLista zuzeni={zuzeni} onZmen={setZuzeni} />
             {jeDodavatel ? (
               <Dodavatel data={data as ProfilDodavatele} zeme={zeme} mena={mena} router={router} zuzeni={zuzeni} onZuz={setZuzeni} str={str} />
@@ -154,25 +171,6 @@ export default function ReportProfilScreen() {
 
 type Str = ReturnType<typeof useStrankovani>;
 
-function FirmaKarta({ nazev, kind, od, do: doD, bezIco, onPress }: { nazev: string; kind: "dodavatel" | "zadavatel"; od?: string; do?: string; bezIco: boolean; onPress: () => void }) {
-  const { t } = useI18n();
-  const { colors } = useTheme();
-  const s = useMemo(() => makeStyles(colors), [colors]);
-  const fmt = (v?: string) => (v ? v.split("-").reverse().map((x, i) => (i < 2 ? String(Number(x)) : x)).join(". ") : "");
-  const obdobi = od || doD ? `${fmt(od) || "…"} – ${fmt(doD) || t("admin", "repObdobiDnes")}` : t("admin", "repObdobiVse");
-  return (
-    <Pressable onPress={onPress} style={({ pressed }) => [s.firmaKarta, pressed && { opacity: 0.8 }]}>
-      <View style={{ flex: 1 }}>
-        <Text style={s.title} numberOfLines={2}>{nazev || "–"}</Text>
-        <Text style={s.firmaMeta}>
-          {kind === "dodavatel" ? t("admin", "repSupplier") : t("admin", "repBuyer")} · {t("admin", "repObdobi")}: {obdobi}
-          {bezIco ? ` · ${t("admin", "repNoRegNo")}` : ""}
-        </Text>
-      </View>
-      <Text style={s.firmaChevron}>›</Text>
-    </Pressable>
-  );
-}
 
 /** Aktivní zúžení jako zrušitelné štítky. */
 function ZuzeniLista({ zuzeni, onZmen }: { zuzeni: Zuzeni; onZmen: (z: Zuzeni) => void }) {
@@ -677,9 +675,10 @@ const makeStyles = (colors: Colors) =>
     scroll: { padding: spacing.lg },
     title: { fontSize: fontSize.lg, fontWeight: "700", color: colors.text, lineHeight: 24 },
     badges: { flexDirection: "row", flexWrap: "wrap", gap: spacing.xs },
-    firmaKarta: { flexDirection: "row", alignItems: "center", gap: spacing.sm, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, backgroundColor: colors.card, padding: spacing.md, marginBottom: spacing.md },
-    firmaMeta: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: 4 },
-    firmaChevron: { fontSize: 26, color: colors.textSubtle },
+    headerTitleBtn: { flexDirection: "row", alignItems: "center", gap: 4, maxWidth: 220 },
+    headerTitleText: { fontSize: fontSize.base, fontWeight: "600", color: colors.text },
+    headerFilterBtn: { padding: 4 },
+    headerBadge: { position: "absolute", top: 2, right: 2, width: 8, height: 8, borderRadius: 4, backgroundColor: colors.accent },
     zuzeni: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: spacing.sm, marginBottom: spacing.lg },
     zuzeniChip: {
       backgroundColor: colors.accent,
