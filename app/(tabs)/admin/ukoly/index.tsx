@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { AppScrollView } from "@/components/AppScroll";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -44,6 +44,12 @@ export default function AdminUkolyScreen() {
   const [otevreny, setOtevreny] = useState<string | null>(null);
   const [novy, setNovy] = useState("");
   const [novaFronta, setNovaFronta] = useState<WorkQueueId>("OSTATNI");
+
+  // Rychlé zadání jde do fronty, na kterou se právě koukáš — jinak úkol spadne
+  // jinam a z pohledu uživatele se „neobjeví".
+  useEffect(() => {
+    if (fronta !== "VSE") setNovaFronta(fronta);
+  }, [fronta]);
   const [busy, setBusy] = useState(false);
 
   const query = useQuery({
@@ -122,8 +128,10 @@ export default function AdminUkolyScreen() {
             <Pressable
               disabled={busy || !novy.trim()}
               onPress={() => uloz(async () => {
-                await adminApi.createUkol({ queue: novaFronta, title: novy.trim() });
+                const ukol = await adminApi.createUkol({ queue: novaFronta, title: novy.trim() });
                 setNovy("");
+                // Ať je nový úkol vždycky vidět, i když byl zadán z jiné záložky.
+                if (fronta !== "VSE" && ukol.queue !== fronta) setFronta(ukol.queue);
               })}
               style={[styles.addBtn, (busy || !novy.trim()) && styles.addBtnOff]}
             >
