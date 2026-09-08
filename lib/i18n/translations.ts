@@ -1144,6 +1144,9 @@ export interface Dict {
     inboxReasons: string;
     inboxDeadline: string;
     inboxOffers: string;
+    inboxFix: string;
+    inboxFixHint: string;
+    inboxCopyCommand: string;
     inboxSuggestedReply: string;
     inboxReplyHint: string;
     inboxCopyReply: string;
@@ -1638,6 +1641,9 @@ const ADMIN_CS: Dict["admin"] = {
     inboxReasons: "Důvody",
     inboxDeadline: "Lhůta",
     inboxOffers: "Nabídky",
+    inboxFix: "Návrh opravy",
+    inboxFixHint: "Příkaz se sám nespouští — zkopíruj ho do konzole na serveru.",
+    inboxCopyCommand: "Kopírovat příkaz",
     inboxSuggestedReply: "Návrh odpovědi",
     inboxReplyHint: "Neodesílá se automaticky — zkopíruj a pošli sám.",
     inboxCopyReply: "Kopírovat odpověď",
@@ -2130,6 +2136,9 @@ const ADMIN_EN: Dict["admin"] = {
     inboxReasons: "Reasons",
     inboxDeadline: "Deadline",
     inboxOffers: "Quotes",
+    inboxFix: "Suggested fix",
+    inboxFixHint: "The command never runs by itself — copy it into the server console.",
+    inboxCopyCommand: "Copy command",
     inboxSuggestedReply: "Suggested reply",
     inboxReplyHint: "Not sent automatically — copy and send it yourself.",
     inboxCopyReply: "Copy reply",

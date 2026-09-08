@@ -1,11 +1,11 @@
 import { useMemo, useState } from "react";
 // eslint-disable-next-line @typescript-eslint/no-deprecated -- core Clipboard je v binárce (OTA-safe); expo-clipboard by chtěl nativní rebuild
-import { ActivityIndicator, Alert, Clipboard, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Alert, Clipboard, Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { AppScrollView } from "@/components/AppScroll";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Redirect, useLocalSearchParams, useRouter } from "expo-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { adminApi, type InboxDecision, type InboxOffer } from "@/lib/admin-api";
+import { adminApi, type InboxDecision, type InboxOffer, type InboxOprava } from "@/lib/admin-api";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth-context";
 import { isInboxOwner } from "@/lib/inbox-owner";
@@ -46,6 +46,11 @@ export default function AdminInboxDetailScreen() {
     },
     onError: () => Alert.alert(t("admin", "actionFailed")),
   });
+
+  function copyPrikaz(prikaz: string) {
+    Clipboard.setString(prikaz);
+    Alert.alert(t("admin", "inboxCopied"));
+  }
 
   function copyReply() {
     if (!content?.suggestedReply) return;
@@ -121,6 +126,29 @@ export default function AdminInboxDetailScreen() {
                 {!!o.note && <Text style={styles.offerWarn}>{o.note}</Text>}
               </View>
             ))}
+          </>
+        )}
+
+        {!!content.navrhOpravy?.length && (
+          <>
+            <Text style={styles.label}>{t("admin", "inboxFix")}</Text>
+            {content.navrhOpravy.map((o: InboxOprava, i: number) => (
+              <View key={i} style={styles.offer}>
+                <Text style={styles.offerName}>{o.co}</Text>
+                {!!o.kde && <Text style={styles.offerMeta}>{o.kde}</Text>}
+                {!!o.prikaz && (
+                  <>
+                    <Text style={styles.prikaz}>{o.prikaz}</Text>
+                    <Pressable style={styles.copyBtn} onPress={() => copyPrikaz(o.prikaz!)}>
+                      <Text style={styles.copyText}>{t("admin", "inboxCopyCommand")}</Text>
+                    </Pressable>
+                  </>
+                )}
+                {!!o.dopad && <Text style={styles.offerMeta}>{o.dopad}</Text>}
+                {!!o.riziko && <Text style={styles.offerWarn}>{o.riziko}</Text>}
+              </View>
+            ))}
+            <Text style={styles.hint}>{t("admin", "inboxFixHint")}</Text>
           </>
         )}
 
@@ -216,6 +244,10 @@ const makeStyles = (c: Colors) =>
     offerPrice: { fontSize: fontSize.base, fontWeight: "700", color: c.accent },
     offerMeta: { fontSize: fontSize.xs, color: c.textSubtle },
     offerWarn: { fontSize: fontSize.xs, color: c.text, fontStyle: "italic", marginTop: 2 },
+    prikaz: {
+      fontSize: fontSize.xs, color: c.text, fontFamily: Platform.OS === "ios" ? "Menlo" : "monospace",
+      backgroundColor: c.bg, padding: spacing.sm, borderRadius: radius.sm, marginTop: spacing.xs,
+    },
     replySubject: { fontSize: fontSize.sm, fontWeight: "700", color: c.text },
     hint: { fontSize: fontSize.xs, color: c.textSubtle, fontStyle: "italic", marginTop: spacing.sm },
     original: {

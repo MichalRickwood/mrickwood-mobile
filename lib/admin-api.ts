@@ -301,6 +301,15 @@ export interface InboxOffer {
   note?: string;
 }
 
+export interface InboxOprava {
+  co: string;
+  kde?: string;
+  prikaz?: string;
+  dopad?: string;
+  riziko?: string;
+  jistota?: "high" | "medium" | "low";
+}
+
 export interface InboxProposalContent {
   version: number;
   agenda: InboxAgenda;
@@ -311,6 +320,9 @@ export interface InboxProposalContent {
   reasons: string[];
   deadline?: string;
   offers?: InboxOffer[];
+  /** Kroky opravy na naší straně (schéma návrhu v1.1, 8. 9. 2026) — vedle
+   *  suggestedReply, aby z návrhu bylo poznat i CO opravit, ne jen co napsat. */
+  navrhOpravy?: InboxOprava[];
   evidence?: Record<string, unknown>;
   suggestedReply?: { locale: string; subject: string; body: string };
   createdAt?: string;
