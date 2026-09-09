@@ -13,6 +13,7 @@ import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 
 /** Agendy jsou doménové pojmy z triáže — krátké štítky do seznamu. */
 export const AGENDA_LABEL: Record<string, string> = {
+  MARKETING: "Reklama",
   POPTAVKA_ODPOVED: "Nabídka",
   POPTAVKA_PRICHOZI: "Poptávka",
   VYSVETLENI_ZD: "Vysvětlení ZD",

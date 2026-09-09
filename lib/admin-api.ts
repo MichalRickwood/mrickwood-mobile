@@ -289,6 +289,26 @@ export type InboxProposalStatus =
   "NEW" | "NOTIFIED" | "APPROVED" | "REJECTED" | "DONE" | "EXPIRED";
 export type InboxDecision = Extract<InboxProposalStatus, "APPROVED" | "REJECTED" | "DONE">;
 
+/** Jedna otázka a odpověď v doptání na triáž. */
+export interface InboxChatItem {
+  id: string;
+  question: string;
+  answer?: string | null;
+  status: "NEW" | "DONE" | "FAILED";
+  error?: string | null;
+  createdAt: string;
+  answeredAt?: string | null;
+}
+
+/** Odpověď serveru na rozhodnutí. `reply` je vyplněné jen u APPROVED s návrhem odpovědi. */
+export interface InboxDecisionResult {
+  id: string;
+  status: InboxProposalStatus;
+  decidedAt?: string | null;
+  decisionNote?: string | null;
+  reply?: { sent: boolean; to?: string; subject?: string; resendId?: string | null; reason?: string; error?: string };
+}
+
 /** Jedna nabídka ve srovnání. Ceny jsou STRINGY — píší se tak, jak přišly
  *  („128 000 Kč bez DPH"); RWX je neplátce DPH, přepočet by tiše lhal. */
 export interface InboxOffer {
@@ -512,9 +532,29 @@ export const adminApi = {
   },
   decideInboxProposal: async (
     mailId: string,
-    input: { proposalId: string; status: InboxDecision; decisionNote?: string },
+    input: {
+      proposalId: string;
+      status: InboxDecision;
+      decisionNote?: string;
+      /** Text odpovědi upravený v aplikaci; bez něj se odešle koncept z návrhu. */
+      replyBody?: string;
+      replySubject?: string;
+    },
   ) => {
-    const r = await api.patch<Env<unknown>>(`${BASE}/inbox/${mailId}`, input);
+    const r = await api.patch<Env<InboxDecisionResult>>(`${BASE}/inbox/${mailId}`, input);
+    return r.data;
+  },
+
+  /** Vlákno doptání na triáž. `canAsk` je false, když k návrhu není uložené sezení. */
+  getInboxChat: async (mailId: string, signal?: AbortSignal) => {
+    const r = await api.get<Env<{ canAsk: boolean; chat: InboxChatItem[] }>>(
+      `${BASE}/inbox/${mailId}/chat`, { signal },
+    );
+    return r.data;
+  },
+
+  askInbox: async (mailId: string, question: string) => {
+    const r = await api.post<Env<InboxChatItem>>(`${BASE}/inbox/${mailId}/chat`, { question });
     return r.data;
   },
 

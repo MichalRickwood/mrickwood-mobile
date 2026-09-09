@@ -1157,6 +1157,15 @@ export interface Dict {
     inboxMarkDone: string;
     inboxDecided: string;
     inboxProposalOnly: string;
+    inboxApproveSends: string;
+    inboxAsk: string;
+    inboxAskPlaceholder: string;
+    inboxAskSend: string;
+    inboxAskSending: string;
+    inboxAskPending: string;
+    inboxReplySubject: string;
+    inboxReplySent: string;
+    inboxReplyFailed: string;
 
     // Veritra · Reporty
     repRow: string;
@@ -1645,7 +1654,7 @@ const ADMIN_CS: Dict["admin"] = {
     inboxFixHint: "Příkaz se sám nespouští — zkopíruj ho do konzole na serveru.",
     inboxCopyCommand: "Kopírovat příkaz",
     inboxSuggestedReply: "Návrh odpovědi",
-    inboxReplyHint: "Neodesílá se automaticky — zkopíruj a pošli sám.",
+    inboxReplyHint: "Text můžeš přepsat, odešle se přesně to, co je tady.",
     inboxCopyReply: "Kopírovat odpověď",
     inboxCopied: "Zkopírováno",
     inboxDecisionNote: "Poznámka k rozhodnutí (nepovinné)",
@@ -1654,6 +1663,15 @@ const ADMIN_CS: Dict["admin"] = {
     inboxMarkDone: "Hotovo",
     inboxDecided: "Rozhodnuto",
     inboxProposalOnly: "Tohle je jen návrh. Schválením se nic neodešle.",
+    inboxApproveSends: "Schválením se odpověď rovnou odešle odesílateli.",
+    inboxAsk: "Doptat se na rozbor",
+    inboxAskPlaceholder: "Zeptej se na cokoli k tomuhle mailu…",
+    inboxAskSend: "Odeslat dotaz",
+    inboxAskSending: "Odesílám…",
+    inboxAskPending: "Přemýšlím nad odpovědí…",
+    inboxReplySubject: "Předmět odpovědi",
+    inboxReplySent: "Odpověď odeslána",
+    inboxReplyFailed: "Odpověď se nepodařilo odeslat",
 
     // Veritra · Reporty
     repRow: "Reporty",
@@ -2140,7 +2158,7 @@ const ADMIN_EN: Dict["admin"] = {
     inboxFixHint: "The command never runs by itself — copy it into the server console.",
     inboxCopyCommand: "Copy command",
     inboxSuggestedReply: "Suggested reply",
-    inboxReplyHint: "Not sent automatically — copy and send it yourself.",
+    inboxReplyHint: "You can edit the text — exactly what you see here is sent.",
     inboxCopyReply: "Copy reply",
     inboxCopied: "Copied",
     inboxDecisionNote: "Decision note (optional)",
@@ -2149,6 +2167,15 @@ const ADMIN_EN: Dict["admin"] = {
     inboxMarkDone: "Done",
     inboxDecided: "Decided",
     inboxProposalOnly: "This is only a proposal. Approving sends nothing.",
+    inboxApproveSends: "Approving sends the reply to the sender right away.",
+    inboxAsk: "Ask about the analysis",
+    inboxAskPlaceholder: "Ask anything about this email…",
+    inboxAskSend: "Send question",
+    inboxAskSending: "Sending…",
+    inboxAskPending: "Thinking about the answer…",
+    inboxReplySubject: "Reply subject",
+    inboxReplySent: "Reply sent",
+    inboxReplyFailed: "Reply could not be sent",
 
     // Veritra · Reporty
     repRow: "Reports",
