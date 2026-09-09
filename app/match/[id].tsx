@@ -188,13 +188,24 @@ export default function MatchDetailScreen() {
     setReporting(true);
     try {
       const detail = reportDetail.trim();
-      await endpoints.submitFeedback({
-        kind: "WRONG_TENDER",
-        tenderId: String(match.tender.id),
-        message:
-          `Neplatná zakázka — tender #${match.tender.id}\n${match.tender.title}\n${match.tender.url}` +
-          (detail ? `\n\nUpřesnění uživatele: ${detail}` : ""),
-      });
+      const odeslat = () =>
+        endpoints.submitFeedback({
+          kind: "WRONG_TENDER",
+          tenderId: String(match.tender.id),
+          message:
+            `Neplatná zakázka — tender #${match.tender.id}\n${match.tender.title}\n${match.tender.url}` +
+            (detail ? `\n\nUpřesnění uživatele: ${detail}` : ""),
+        });
+      try {
+        await odeslat();
+      } catch (e) {
+        // 9. 9. 2026: hlášení padalo na přechodné chybě serveru (databáze vyčerpala
+        // spojení, 500). Zpráva se přitom neuloží, takže jeden pokus navíc je bezpečný
+        // a uživatel o hlášení nepřijde. Chyby 4xx (validace) se neopakují.
+        if (!(e instanceof ApiError) || e.status < 500) throw e;
+        await new Promise((r) => setTimeout(r, 1500));
+        await odeslat();
+      }
       setReportModalOpen(false);
       Alert.alert(
         t("matchDetail", "emailSentTitle"),
