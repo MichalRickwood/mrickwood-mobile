@@ -22,6 +22,10 @@ export default function AdminInboxDetailScreen() {
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const [note, setNote] = useState("");
+  // Text odpovědi jde před schválením přepsat — schválení ho rovnou odešle,
+  // takže poslední slovo má to, co je vidět na obrazovce, ne koncept z triáže.
+  const [replyBody, setReplyBody] = useState<string | null>(null);
+  const [replySubject, setReplySubject] = useState<string | null>(null);
   const { user } = useAuth();
 
   const query = useQuery({
@@ -35,13 +39,23 @@ export default function AdminInboxDetailScreen() {
   const decide = useMutation({
     mutationFn: (status: InboxDecision) =>
       adminApi.decideInboxProposal(mailId, {
+        ...(status === "APPROVED" && replyBody != null ? { replyBody } : {}),
+        ...(status === "APPROVED" && replySubject != null ? { replySubject } : {}),
         proposalId: proposal!.id,
         status,
         ...(note.trim() ? { decisionNote: note.trim() } : {}),
       }),
-    onSuccess: () => {
+    onSuccess: (res) => {
       void qc.invalidateQueries({ queryKey: ["admin-inbox"] });
       void qc.invalidateQueries({ queryKey: ["admin-inbox-one", mailId] });
+      // Odeslání může selhat i po zapsaném rozhodnutí (Resend, chybějící text).
+      // Tichý návrat zpět by vypadal jako úspěch, proto se chyba ukáže a zůstane se na detailu.
+      const r = res?.reply;
+      if (r && !r.sent && (r.error || r.reason)) {
+        Alert.alert(t("admin", "inboxReplyFailed"), r.error ?? r.reason ?? "");
+        return;
+      }
+      if (r?.sent) Alert.alert(t("admin", "inboxReplySent"), r.to ?? "");
       router.back();
     },
     onError: () => Alert.alert(t("admin", "actionFailed")),
@@ -54,7 +68,7 @@ export default function AdminInboxDetailScreen() {
 
   function copyReply() {
     if (!content?.suggestedReply) return;
-    Clipboard.setString(content.suggestedReply.body);
+    Clipboard.setString(replyBody ?? content.suggestedReply.body);
     Alert.alert(t("admin", "inboxCopied"));
   }
 
@@ -155,9 +169,30 @@ export default function AdminInboxDetailScreen() {
         {!!content.suggestedReply && (
           <>
             <Text style={styles.label}>{t("admin", "inboxSuggestedReply")}</Text>
-            <Text style={styles.replySubject}>{content.suggestedReply.subject}</Text>
-            <Text style={styles.text}>{content.suggestedReply.body}</Text>
-            <Text style={styles.hint}>{t("admin", "inboxReplyHint")}</Text>
+            {decided ? (
+              <>
+                <Text style={styles.replySubject}>{content.suggestedReply.subject}</Text>
+                <Text style={styles.text}>{content.suggestedReply.body}</Text>
+              </>
+            ) : (
+              <>
+                <TextInput
+                  style={styles.replySubjectInput}
+                  value={replySubject ?? content.suggestedReply.subject ?? ""}
+                  onChangeText={setReplySubject}
+                  placeholder={t("admin", "inboxReplySubject")}
+                  placeholderTextColor={colors.textSubtle}
+                />
+                <TextInput
+                  style={styles.replyInput}
+                  value={replyBody ?? content.suggestedReply.body ?? ""}
+                  onChangeText={setReplyBody}
+                  multiline
+                  textAlignVertical="top"
+                />
+                <Text style={styles.hint}>{t("admin", "inboxReplyHint")}</Text>
+              </>
+            )}
             <Pressable style={styles.copyBtn} onPress={copyReply}>
               <Text style={styles.copyText}>{t("admin", "inboxCopyReply")}</Text>
             </Pressable>
@@ -178,7 +213,9 @@ export default function AdminInboxDetailScreen() {
           </Text>
         ) : (
           <>
-            <Text style={styles.hint}>{t("admin", "inboxProposalOnly")}</Text>
+            <Text style={styles.hint}>
+              {content.suggestedReply ? t("admin", "inboxApproveSends") : t("admin", "inboxProposalOnly")}
+            </Text>
             <TextInput
               style={styles.input}
               value={note}
@@ -259,11 +296,22 @@ const makeStyles = (c: Colors) =>
       paddingVertical: spacing.xs, borderRadius: radius.sm, borderWidth: 1, borderColor: c.border,
     },
     copyText: { fontSize: fontSize.xs, color: c.text, fontWeight: "600" },
+    replyInput: {
+      backgroundColor: c.card, borderRadius: radius.sm, borderWidth: 1, borderColor: c.border,
+      padding: spacing.md, color: c.text, fontSize: fontSize.sm, minHeight: 180,
+      marginBottom: spacing.xs, textAlignVertical: "top",
+    },
+    replySubjectInput: {
+      backgroundColor: c.card, borderRadius: radius.sm, borderWidth: 1, borderColor: c.border,
+      padding: spacing.md, color: c.text, fontSize: fontSize.sm, fontWeight: "600",
+      marginBottom: spacing.xs,
+    },
     input: {
       backgroundColor: c.card, borderRadius: radius.sm, borderWidth: 1, borderColor: c.border,
       padding: spacing.md, color: c.text, fontSize: fontSize.sm, minHeight: 64,
       marginTop: spacing.sm, textAlignVertical: "top",
     },
+
     actions: { flexDirection: "row", gap: spacing.sm, marginTop: spacing.md },
     btn: { flex: 1, paddingVertical: spacing.md, borderRadius: radius.md, alignItems: "center" },
     btnPrimary: { backgroundColor: c.accent },
