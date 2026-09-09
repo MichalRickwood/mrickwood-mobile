@@ -26,6 +26,7 @@ export default function AdminInboxDetailScreen() {
   // takže poslední slovo má to, co je vidět na obrazovce, ne koncept z triáže.
   const [replyBody, setReplyBody] = useState<string | null>(null);
   const [replySubject, setReplySubject] = useState<string | null>(null);
+  const [otazka, setOtazka] = useState("");
   const { user } = useAuth();
 
   const query = useQuery({
@@ -35,6 +36,23 @@ export default function AdminInboxDetailScreen() {
   const mail = query.data;
   const proposal = mail?.proposals[0];
   const content = proposal?.content;
+
+  // Doptání na triáž. Dokud čeká odpověď, ptáme se serveru každých 5 s — worker
+  // běží mimo aplikaci a odpověď může trvat i minutu.
+  const chat = useQuery({
+    queryKey: ["admin-inbox-chat", mailId],
+    queryFn: ({ signal }) => adminApi.getInboxChat(mailId, signal),
+    refetchInterval: (q) => (q.state.data?.chat.some((c) => c.status === "NEW") ? 5000 : false),
+  });
+
+  const ask = useMutation({
+    mutationFn: (q: string) => adminApi.askInbox(mailId, q),
+    onSuccess: () => {
+      setOtazka("");
+      void qc.invalidateQueries({ queryKey: ["admin-inbox-chat", mailId] });
+    },
+    onError: () => Alert.alert(t("admin", "actionFailed")),
+  });
 
   const decide = useMutation({
     mutationFn: (status: InboxDecision) =>
@@ -206,6 +224,41 @@ export default function AdminInboxDetailScreen() {
           </>
         )}
 
+        {chat.data?.canAsk && (
+          <>
+            <Text style={styles.label}>{t("admin", "inboxAsk")}</Text>
+            {chat.data.chat.map((c) => (
+              <View key={c.id} style={styles.chatItem}>
+                <Text style={styles.chatQ}>{c.question}</Text>
+                {c.status === "NEW" ? (
+                  <Text style={styles.chatPending}>{t("admin", "inboxAskPending")}</Text>
+                ) : c.status === "FAILED" ? (
+                  <Text style={styles.chatError}>{c.error ?? t("admin", "actionFailed")}</Text>
+                ) : (
+                  <Text style={styles.chatA}>{c.answer}</Text>
+                )}
+              </View>
+            ))}
+            <TextInput
+              style={styles.input}
+              value={otazka}
+              onChangeText={setOtazka}
+              placeholder={t("admin", "inboxAskPlaceholder")}
+              placeholderTextColor={colors.textSubtle}
+              multiline
+            />
+            <Pressable
+              style={styles.btnGhost}
+              disabled={ask.isPending || otazka.trim().length < 2}
+              onPress={() => ask.mutate(otazka.trim())}
+            >
+              <Text style={styles.btnGhostText}>
+                {ask.isPending ? t("admin", "inboxAskSending") : t("admin", "inboxAskSend")}
+              </Text>
+            </Pressable>
+          </>
+        )}
+
         {decided ? (
           <Text style={styles.decided}>
             ✓ {t("admin", "inboxDecided")}: {proposal!.status}
@@ -306,6 +359,14 @@ const makeStyles = (c: Colors) =>
       padding: spacing.md, color: c.text, fontSize: fontSize.sm, fontWeight: "600",
       marginBottom: spacing.xs,
     },
+    chatItem: {
+      backgroundColor: c.card, borderRadius: radius.sm, padding: spacing.md,
+      marginBottom: spacing.sm, borderLeftWidth: 3, borderLeftColor: c.accent,
+    },
+    chatQ: { fontSize: fontSize.sm, color: c.text, fontWeight: "600", marginBottom: spacing.xs },
+    chatA: { fontSize: fontSize.sm, color: c.text, lineHeight: 20 },
+    chatPending: { fontSize: fontSize.xs, color: c.textSubtle, fontStyle: "italic" },
+    chatError: { fontSize: fontSize.xs, color: c.danger ?? c.text },
     input: {
       backgroundColor: c.card, borderRadius: radius.sm, borderWidth: 1, borderColor: c.border,
       padding: spacing.md, color: c.text, fontSize: fontSize.sm, minHeight: 64,

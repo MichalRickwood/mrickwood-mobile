@@ -1158,6 +1158,11 @@ export interface Dict {
     inboxDecided: string;
     inboxProposalOnly: string;
     inboxApproveSends: string;
+    inboxAsk: string;
+    inboxAskPlaceholder: string;
+    inboxAskSend: string;
+    inboxAskSending: string;
+    inboxAskPending: string;
     inboxReplySubject: string;
     inboxReplySent: string;
     inboxReplyFailed: string;
@@ -1659,6 +1664,11 @@ const ADMIN_CS: Dict["admin"] = {
     inboxDecided: "Rozhodnuto",
     inboxProposalOnly: "Tohle je jen návrh. Schválením se nic neodešle.",
     inboxApproveSends: "Schválením se odpověď rovnou odešle odesílateli.",
+    inboxAsk: "Doptat se na rozbor",
+    inboxAskPlaceholder: "Zeptej se na cokoli k tomuhle mailu…",
+    inboxAskSend: "Odeslat dotaz",
+    inboxAskSending: "Odesílám…",
+    inboxAskPending: "Přemýšlím nad odpovědí…",
     inboxReplySubject: "Předmět odpovědi",
     inboxReplySent: "Odpověď odeslána",
     inboxReplyFailed: "Odpověď se nepodařilo odeslat",
@@ -2158,6 +2168,11 @@ const ADMIN_EN: Dict["admin"] = {
     inboxDecided: "Decided",
     inboxProposalOnly: "This is only a proposal. Approving sends nothing.",
     inboxApproveSends: "Approving sends the reply to the sender right away.",
+    inboxAsk: "Ask about the analysis",
+    inboxAskPlaceholder: "Ask anything about this email…",
+    inboxAskSend: "Send question",
+    inboxAskSending: "Sending…",
+    inboxAskPending: "Thinking about the answer…",
     inboxReplySubject: "Reply subject",
     inboxReplySent: "Reply sent",
     inboxReplyFailed: "Reply could not be sent",
