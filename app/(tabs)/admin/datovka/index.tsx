@@ -8,8 +8,14 @@ import { AdminCard } from "@/components/AdminRow";
 import { adminApi, type VymDopis } from "@/lib/admin-api";
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme-context";
-import { nacistMeta, nacistUdaje } from "@/lib/isds/credentials";
-import { odeslatDopisy, stahnoutOdpovedi, vychoziStazenoOd, type VymPrubeh } from "@/lib/isds/vymahani";
+import { nacistUcty } from "@/lib/isds/credentials";
+import {
+  chybejiciSchranky,
+  odeslatDopisy,
+  stahnoutOdpovedi,
+  type VymPrubeh,
+  type VymTexty,
+} from "@/lib/isds/vymahani";
 import { prepnoutVyrazeni, useVyrazene, vycistitVyrazeni } from "@/lib/isds/vyrazene";
 import { STUPEN_KLIC, formatCastka, formatDatum, jePlacenyPrijemce } from "@/lib/vymahani-format";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
@@ -37,11 +43,25 @@ export default function DatovkaIndexScreen() {
     queryKey: DAVKA_KEY,
     queryFn: ({ signal }) => adminApi.getVymahaniDavka(signal),
   });
-  const udaje = useQuery({ queryKey: ["ds-meta"], queryFn: () => nacistMeta() });
+  // Účty se čtou bez biometrie (hesla v seznamu nejsou), takže je můžeme
+  // držet v cache a hlídat, jestli má telefon údaje ke všem odesílatelům.
+  const ucty = useQuery({ queryKey: ["ds-ucty"], queryFn: () => nacistUcty() });
+  const chybi = useQuery({
+    queryKey: ["ds-chybejici", davka.data?.dopisy.length ?? 0, ucty.data?.length ?? 0],
+    queryFn: () => (davka.data ? chybejiciSchranky(davka.data) : Promise.resolve([])),
+    enabled: !!davka.data && !!ucty.data,
+  });
 
   const dopisy = davka.data?.dopisy ?? [];
   const kOdeslaniPocet = dopisy.filter((d) => !vyrazene.has(d.id)).length;
-  const bezUdaju = udaje.data ? !udaje.data.ulozeno : false;
+  const bezUdaju = ucty.data ? ucty.data.length === 0 : false;
+
+  /** Texty biometrických promptů a hlášek, které jdou serveru do `chyba`. */
+  const texty: VymTexty = {
+    odemknout: (schranka) => t("admin", "dsBiometrieOdemknout", { schranka }),
+    schrankaChybi: (dbId) => t("admin", "dsSchrankaChybi", { dbId }),
+    overeniOdmitnuto: (schranka) => t("admin", "dsOvereniOdmitnuto", { schranka }),
+  };
 
   function popisPrubehu(p: VymPrubeh): string {
     const i = p.hotovo + 1;
@@ -80,19 +100,15 @@ export default function DatovkaIndexScreen() {
   async function spustit() {
     setPrubeh({ faze: "overovani", hotovo: 0, celkem: kOdeslaniPocet });
     try {
-      // Údaje žijí jen uvnitř téhle funkce — do stavu komponenty nikdy.
-      const pristup = await nacistUdaje(t("admin", "dsBiometrieOdeslani"));
-      if (!pristup) {
-        Alert.alert(t("admin", "dsBiometrieZamitnuta"));
-        return;
-      }
       const kOdeslani = await adminApi.schvalitVymahaniDavku({
         dopisIds: dopisy.filter((d) => !vyrazene.has(d.id)).map((d) => d.id),
         vyradit: [...vyrazene],
       });
-      const odeslano = await odeslatDopisy(pristup, kOdeslani, dopisy, setPrubeh);
-      // Odpovědi se stahují rovnou po odeslání — jedna biometrie na celou dávku.
-      const stazeno = await stahnoutOdpovedi(pristup, vychoziStazenoOd(davka.data?.stazenoOd), setPrubeh);
+      // Hesla čte orchestrátor sám, jedno biometrické odemčení na schránku;
+      // do stavu komponenty se nikdy nedostanou.
+      const odeslano = await odeslatDopisy(kOdeslani, dopisy, texty, setPrubeh);
+      // Odpovědi se stahují rovnou po odeslání, ze všech nastavených schránek.
+      const stazeno = await stahnoutOdpovedi(davka.data?.stazenoOd ?? null, texty, setPrubeh);
 
       vycistitVyrazeni();
       void qc.invalidateQueries({ queryKey: DAVKA_KEY });
@@ -118,12 +134,7 @@ export default function DatovkaIndexScreen() {
     }
     setPrubeh({ faze: "seznam", hotovo: 0, celkem: 0 });
     try {
-      const pristup = await nacistUdaje(t("admin", "dsBiometrieStazeni"));
-      if (!pristup) {
-        Alert.alert(t("admin", "dsBiometrieZamitnuta"));
-        return;
-      }
-      const stazeno = await stahnoutOdpovedi(pristup, vychoziStazenoOd(davka.data?.stazenoOd), setPrubeh);
+      const stazeno = await stahnoutOdpovedi(davka.data?.stazenoOd ?? null, texty, setPrubeh);
       void qc.invalidateQueries({ queryKey: DAVKA_KEY });
       void qc.invalidateQueries({ queryKey: ["ds-prehled"] });
       Alert.alert(
@@ -186,6 +197,13 @@ export default function DatovkaIndexScreen() {
           <AdminCard style={styles.card}>
             <Text style={styles.souhrn}>{t("admin", "dsPocetPripadu", { n: davka.data.pocetPripadu })}</Text>
             {davka.data.cekaOdpovedi && <Text style={styles.hint}>{t("admin", "dsCekaOdpovedi")}</Text>}
+            {!!chybi.data?.length && (
+              <Text style={styles.varovaniText}>
+                {t("admin", "dsChybejiciSchranky", {
+                  seznam: chybi.data.map((s) => `${s.nazev} (${s.dbId})`).join(", "),
+                })}
+              </Text>
+            )}
           </AdminCard>
         )}
 
@@ -305,6 +323,7 @@ const makeStyles = (colors: Colors) =>
     souhrn: { fontSize: fontSize.base, color: colors.text, fontWeight: "600" },
     hint: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: spacing.xs },
     varovani: { fontSize: fontSize.base, color: colors.text },
+    varovaniText: { fontSize: fontSize.sm, color: colors.warning, marginTop: spacing.xs, fontWeight: "600" },
     prazdno: { fontSize: fontSize.base, color: colors.textSubtle, textAlign: "center", marginVertical: spacing.xl },
     headRow: { flexDirection: "row", alignItems: "center", gap: spacing.sm, marginBottom: spacing.xs },
     badge: {

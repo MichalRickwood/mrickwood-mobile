@@ -7,6 +7,7 @@ import {
   type IsdsFile,
   type IsdsFindDataBoxResult,
   type IsdsMessageRecord,
+  type IsdsOwnerInfo,
   type IsdsStatus,
   type IsdsUserInfo,
   ISDS_OK,
@@ -61,6 +62,19 @@ export function parseUserInfo(xml: string): IsdsUserInfo {
     userPrivils: textOf(u, "userPrivils"),
     ic: textOf(u, "ic"),
     firmName: textOf(u, "firmName"),
+  };
+}
+
+export function parseOwnerInfo(xml: string): IsdsOwnerInfo {
+  const { koren } = overitOdpoved(xml, "GetOwnerInfoFromLogin");
+  const o = najdi(koren, "dbOwnerInfo");
+  return {
+    dbID: textOf(o, "dbID"),
+    dbType: textOf(o, "dbType"),
+    ic: textOf(o, "ic"),
+    firmName: textOf(o, "firmName"),
+    pnGivenNames: textOf(o, "pnGivenNames"),
+    pnLastName: textOf(o, "pnLastName"),
   };
 }
 

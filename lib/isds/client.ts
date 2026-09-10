@@ -7,6 +7,7 @@ import {
   reqGetDeliveryInfo,
   reqGetListOfReceivedMessages,
   reqGetListOfSentMessages,
+  reqGetOwnerInfoFromLogin,
   reqGetPasswordInfo,
   reqGetUserInfoFromLogin,
   reqMessageDownload,
@@ -18,6 +19,7 @@ import {
   parseDeliveryInfo,
   parseFindDataBox,
   parseMessageDownload,
+  parseOwnerInfo,
   parsePasswordInfo,
   parseSeznamZprav,
   parseSignedMessageDownload,
@@ -33,6 +35,7 @@ import {
   type IsdsEnv,
   type IsdsFindDataBoxResult,
   type IsdsMessageRecord,
+  type IsdsOwnerInfo,
   type IsdsUserInfo,
 } from "./types";
 
@@ -114,6 +117,14 @@ export class IsdsClient {
   /** Ověření přihlašovacích údajů — vrátí jméno a typ oprávnění uživatele. */
   async getUserInfoFromLogin(): Promise<IsdsUserInfo> {
     return parseUserInfo(await this.volat(CESTA.pristup, reqGetUserInfoFromLogin(), true));
+  }
+
+  /**
+   * Údaje o schránce, do které jsme přihlášení — `dbID` a název držitele.
+   * Používá se při přidávání účtu, aby uživatel ID schránky neopisoval.
+   */
+  async getOwnerInfoFromLogin(): Promise<IsdsOwnerInfo> {
+    return parseOwnerInfo(await this.volat(CESTA.pristup, reqGetOwnerInfoFromLogin(), true));
   }
 
   /** Datum expirace hesla; null = heslo neexpiruje. */

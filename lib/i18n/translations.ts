@@ -896,6 +896,20 @@ export interface Dict {
   };
   admin: {
     // Datová schránka (vymáhání výsledků zakázek)
+    dsOvereniSelhaloId: string;
+    dsUctyTitle: string;
+    dsUctyPrazdne: string;
+    dsPridatTitle: string;
+    dsPridat: string;
+    dsPridanoOk: string;
+    dsPridatHint: string;
+    dsSmazatSchranku: string;
+    dsSmazatPotvrzeniSchranka: string;
+    dsBiometrieOdemknout: string;
+    dsSchrankaChybi: string;
+    dsOvereniOdmitnuto: string;
+    dsChybejiciSchranky: string;
+    dsSchrankaLabel: string;
     dsPlacenaZprava: string;
     dsPlacenaHint: string;
     dsBiometrieUlozeni: string;
@@ -907,7 +921,6 @@ export interface Dict {
     dsNastaveniTitle: string;
     dsPrehledTitle: string;
     dsDopisTitle: string;
-    dsDavkaTitle: string;
     dsDavkaEmpty: string;
     dsPocetPripadu: string;
     dsCekaOdpovedi: string;
@@ -919,22 +932,17 @@ export interface Dict {
     dsNastaveniBtn: string;
     dsVyradit: string;
     dsVratit: string;
-    dsVyrazeno: string;
     dsStupenLabel: string;
     dsStupen1: string;
     dsStupen2: string;
     dsStupen3: string;
     dsSpoustecSmlouva: string;
     dsSpoustec3m: string;
-    dsHodnota: string;
     dsLhuta: string;
     dsPotvrditTitle: string;
     dsPotvrditBody: string;
     dsPotvrditOk: string;
     dsZrusit: string;
-    dsBiometrieOdeslani: string;
-    dsBiometrieStazeni: string;
-    dsBiometrieOvereni: string;
     dsBiometrieZamitnuta: string;
     dsFazeOverovani: string;
     dsFazeOdesilani: string;
@@ -950,7 +958,6 @@ export interface Dict {
     dsPrijemce: string;
     dsZakazka: string;
     dsZnacka: string;
-    dsPredmet: string;
     dsOtevritPdf: string;
     dsTextDopisu: string;
     dsOtevritZakazku: string;
@@ -960,15 +967,9 @@ export interface Dict {
     dsProstredi: string;
     dsProstrediTest: string;
     dsProstrediProd: string;
-    dsUlozit: string;
     dsOverit: string;
-    dsSmazat: string;
-    dsSmazatPotvrzeni: string;
-    dsUlozeno: string;
-    dsNeulozeno: string;
     dsOverenoAt: string;
     dsBiometrieChybi: string;
-    dsUlozenoOk: string;
     dsOverenoOk: string;
     dsExpirace: string;
     dsSmazanoOk: string;
@@ -1003,7 +1004,6 @@ export interface Dict {
     dsTypRozhodnutiOOdmitnuti: string;
     dsTypZruseniRizeni: string;
     dsTypJine: string;
-    dsNacitani: string;
     dsChybaNacteni: string;
     dsZkusitZnovu: string;
     // common
@@ -1522,6 +1522,20 @@ export interface Dict {
 // Admin sekce je owner-only interní nástroj → reálné cs+en, jinde EN fallback.
 const ADMIN_CS: Dict["admin"] = {
   // Datová schránka (vymáhání výsledků zakázek)
+  dsOvereniSelhaloId: "ISDS nevrátilo ID schránky — přihlášení funguje, ale schránku nelze identifikovat.",
+  dsUctyTitle: "Nastavené schránky",
+  dsUctyPrazdne: "Zatím není nastavená žádná schránka.",
+  dsPridatTitle: "Přidat schránku",
+  dsPridat: "Přidat a ověřit",
+  dsPridanoOk: "Schránka {nazev} ({dbId}) uložena.",
+  dsPridatHint: "ID schránky a název držitele si aplikace zjistí sama z ISDS — neopisuj je.",
+  dsSmazatSchranku: "Smazat schránku",
+  dsSmazatPotvrzeniSchranka: "Opravdu smazat údaje ke schránce {nazev} z telefonu?",
+  dsBiometrieOdemknout: "Odemkni heslo ke schránce {schranka}",
+  dsSchrankaChybi: "Schránka {dbId} není v telefonu nastavená — dopisy přeskočeny.",
+  dsOvereniOdmitnuto: "Ověření pro schránku {schranka} se nezdařilo — přeskočeno.",
+  dsChybejiciSchranky: "Chybí údaje ke schránkám: {seznam}",
+  dsSchrankaLabel: "Schránka",
   dsPlacenaZprava: "placená zpráva",
   dsPlacenaHint: "Schránka není OVM — půjde Poštovní datová zpráva placená z kreditu (10 Kč).",
   dsBiometrieUlozeni: "Potvrď uložení údajů k datové schránce",
@@ -1533,34 +1547,28 @@ const ADMIN_CS: Dict["admin"] = {
   dsNastaveniTitle: "Nastavení datové schránky",
   dsPrehledTitle: "Přehled vymáhání",
   dsDopisTitle: "Dopis",
-  dsDavkaTitle: "Dnešní návrh",
   dsDavkaEmpty: "Žádné dopisy nečekají na schválení.",
   dsPocetPripadu: "Otevřených případů: {n}",
   dsCekaOdpovedi: "Čekají odpovědi ke stažení.",
-  dsNoCreds: "Údaje k datové schránce nejsou v telefonu uložené.",
-  dsNoCredsBtn: "Zadat údaje",
+  dsNoCreds: "V telefonu není nastavená žádná datová schránka.",
+  dsNoCredsBtn: "Nastavit schránku",
   dsSchvalitBtn: "Schválit a odeslat ({n})",
   dsStahnoutBtn: "Jen stáhnout odpovědi",
   dsPrehledBtn: "Přehled případů",
   dsNastaveniBtn: "Nastavení",
   dsVyradit: "Vyřadit",
   dsVratit: "Vrátit do dávky",
-  dsVyrazeno: "Vyřazeno",
   dsStupenLabel: "Stupeň {n}",
   dsStupen1: "připomínka § 217",
   dsStupen2: "žádost podle InfZ",
   dsStupen3: "stížnost § 16a",
   dsSpoustecSmlouva: "Smlouva v registru",
   dsSpoustec3m: "3 měsíce bez výsledku",
-  dsHodnota: "Hodnota",
   dsLhuta: "Lhůta",
   dsPotvrditTitle: "Odeslat dopisy?",
   dsPotvrditBody: "Do datových schránek zadavatelů odejde {n} dopisů. Odeslání nejde vzít zpět.",
   dsPotvrditOk: "Odeslat",
   dsZrusit: "Zrušit",
-  dsBiometrieOdeslani: "Potvrď odeslání dopisů z datové schránky",
-  dsBiometrieStazeni: "Potvrď stažení zpráv z datové schránky",
-  dsBiometrieOvereni: "Potvrď ověření přihlášení do datové schránky",
   dsBiometrieZamitnuta: "Ověření se nezdařilo — akce zrušena.",
   dsFazeOverovani: "Ověřuji příjemce {i}/{n}",
   dsFazeOdesilani: "Odesílám {i}/{n}",
@@ -1576,25 +1584,18 @@ const ADMIN_CS: Dict["admin"] = {
   dsPrijemce: "Příjemce",
   dsZakazka: "Zakázka",
   dsZnacka: "Naše značka",
-  dsPredmet: "Věc",
   dsOtevritPdf: "Otevřít PDF",
   dsTextDopisu: "Text dopisu",
   dsOtevritZakazku: "Otevřít zakázku",
   dsLogin: "Přihlašovací jméno",
   dsHeslo: "Heslo",
-  dsHesloHint: "Heslo se uloží do zabezpečeného úložiště telefonu za biometrii. Na server se neposílá nikdy.",
+  dsHesloHint: "Heslo se uloží do zabezpečeného úložiště telefonu za biometrii, zvlášť pro každou schránku. Na server se neposílá nikdy.",
   dsProstredi: "Prostředí",
   dsProstrediTest: "Testovací",
   dsProstrediProd: "Ostrá schránka",
-  dsUlozit: "Uložit údaje",
   dsOverit: "Ověřit přihlášení",
-  dsSmazat: "Smazat údaje z telefonu",
-  dsSmazatPotvrzeni: "Opravdu smazat přihlašovací údaje k datové schránce z telefonu?",
-  dsUlozeno: "Údaje jsou v telefonu uložené ({prostredi}).",
-  dsNeulozeno: "Údaje zatím uložené nejsou.",
   dsOverenoAt: "Naposledy ověřeno {kdy}",
   dsBiometrieChybi: "Zařízení nemá nastavenou biometrii ani zámek obrazovky — údaje k datové schránce nelze bezpečně uložit.",
-  dsUlozenoOk: "Údaje uloženy.",
   dsOverenoOk: "Přihlášení funguje: {jmeno}, role {role}.",
   dsExpirace: "Heslo vyprší {kdy}.",
   dsSmazanoOk: "Údaje z telefonu smazány.",
@@ -1629,7 +1630,6 @@ const ADMIN_CS: Dict["admin"] = {
   dsTypRozhodnutiOOdmitnuti: "Rozhodnutí o odmítnutí",
   dsTypZruseniRizeni: "Zrušení řízení",
   dsTypJine: "Jiné",
-  dsNacitani: "Načítám…",
   dsChybaNacteni: "Data se nepodařilo načíst.",
   dsZkusitZnovu: "Zkusit znovu",
   title: "Admin",
@@ -2137,6 +2137,20 @@ const ADMIN_CS: Dict["admin"] = {
 
 const ADMIN_EN: Dict["admin"] = {
   // Data box (chasing tender results)
+  dsOvereniSelhaloId: "ISDS returned no box ID — the sign-in works but the box cannot be identified.",
+  dsUctyTitle: "Configured boxes",
+  dsUctyPrazdne: "No box configured yet.",
+  dsPridatTitle: "Add a box",
+  dsPridat: "Add and check",
+  dsPridanoOk: "Box {nazev} ({dbId}) saved.",
+  dsPridatHint: "The app reads the box ID and the holder's name from ISDS itself — no need to type them.",
+  dsSmazatSchranku: "Delete box",
+  dsSmazatPotvrzeniSchranka: "Really delete the credentials for {nazev} from this phone?",
+  dsBiometrieOdemknout: "Unlock the password for {schranka}",
+  dsSchrankaChybi: "Box {dbId} is not configured on this phone — letters skipped.",
+  dsOvereniOdmitnuto: "Authentication for {schranka} failed — skipped.",
+  dsChybejiciSchranky: "Missing credentials for: {seznam}",
+  dsSchrankaLabel: "Box",
   dsPlacenaZprava: "paid message",
   dsPlacenaHint: "The box is not a public authority — this goes as a paid Postal data message from credit (CZK 10).",
   dsBiometrieUlozeni: "Confirm saving the data box credentials",
@@ -2148,34 +2162,28 @@ const ADMIN_EN: Dict["admin"] = {
   dsNastaveniTitle: "Data box settings",
   dsPrehledTitle: "Chasing overview",
   dsDopisTitle: "Letter",
-  dsDavkaTitle: "Today's proposal",
   dsDavkaEmpty: "No letters are waiting for approval.",
   dsPocetPripadu: "Open cases: {n}",
   dsCekaOdpovedi: "There are replies waiting to be downloaded.",
-  dsNoCreds: "Data box credentials are not stored on this phone.",
-  dsNoCredsBtn: "Enter credentials",
+  dsNoCreds: "No data box is configured on this phone.",
+  dsNoCredsBtn: "Set up a box",
   dsSchvalitBtn: "Approve and send ({n})",
   dsStahnoutBtn: "Only download replies",
   dsPrehledBtn: "Case overview",
   dsNastaveniBtn: "Settings",
   dsVyradit: "Drop",
   dsVratit: "Return to batch",
-  dsVyrazeno: "Dropped",
   dsStupenLabel: "Level {n}",
   dsStupen1: "§ 217 reminder",
   dsStupen2: "freedom-of-information request",
   dsStupen3: "§ 16a complaint",
   dsSpoustecSmlouva: "Contract in the register",
   dsSpoustec3m: "3 months with no result",
-  dsHodnota: "Value",
   dsLhuta: "Deadline",
   dsPotvrditTitle: "Send the letters?",
   dsPotvrditBody: "{n} letters will be sent to the buyers' data boxes. Sending cannot be undone.",
   dsPotvrditOk: "Send",
   dsZrusit: "Cancel",
-  dsBiometrieOdeslani: "Confirm sending letters from the data box",
-  dsBiometrieStazeni: "Confirm downloading messages from the data box",
-  dsBiometrieOvereni: "Confirm the data box sign-in check",
   dsBiometrieZamitnuta: "Authentication failed — action cancelled.",
   dsFazeOverovani: "Verifying recipient {i}/{n}",
   dsFazeOdesilani: "Sending {i}/{n}",
@@ -2191,25 +2199,18 @@ const ADMIN_EN: Dict["admin"] = {
   dsPrijemce: "Recipient",
   dsZakazka: "Tender",
   dsZnacka: "Our reference",
-  dsPredmet: "Subject",
   dsOtevritPdf: "Open PDF",
   dsTextDopisu: "Letter text",
   dsOtevritZakazku: "Open tender",
   dsLogin: "Login name",
   dsHeslo: "Password",
-  dsHesloHint: "The password is stored in the phone's secure storage behind biometrics. It is never sent to the server.",
+  dsHesloHint: "The password is stored in the phone's secure storage behind biometrics, separately per box. It is never sent to the server.",
   dsProstredi: "Environment",
   dsProstrediTest: "Test",
   dsProstrediProd: "Live box",
-  dsUlozit: "Save credentials",
   dsOverit: "Check sign-in",
-  dsSmazat: "Delete credentials from the phone",
-  dsSmazatPotvrzeni: "Really delete the data box credentials from this phone?",
-  dsUlozeno: "Credentials are stored on this phone ({prostredi}).",
-  dsNeulozeno: "No credentials stored yet.",
   dsOverenoAt: "Last checked {kdy}",
   dsBiometrieChybi: "This device has no biometrics or screen lock set up — data box credentials cannot be stored safely.",
-  dsUlozenoOk: "Credentials saved.",
   dsOverenoOk: "Sign-in works: {jmeno}, role {role}.",
   dsExpirace: "The password expires on {kdy}.",
   dsSmazanoOk: "Credentials deleted from the phone.",
@@ -2244,7 +2245,6 @@ const ADMIN_EN: Dict["admin"] = {
   dsTypRozhodnutiOOdmitnuti: "Refusal decision",
   dsTypZruseniRizeni: "Procedure cancelled",
   dsTypJine: "Other",
-  dsNacitani: "Loading…",
   dsChybaNacteni: "The data could not be loaded.",
   dsZkusitZnovu: "Try again",
   title: "Admin",

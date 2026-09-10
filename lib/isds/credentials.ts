@@ -3,21 +3,40 @@ import * as SecureStore from "expo-secure-store";
 import type { IsdsCredentials, IsdsEnv } from "./types";
 
 /**
- * Přihlašovací údaje do datové schránky žijí VÝHRADNĚ v telefonu.
+ * Přihlašovací údaje k datovým schránkám žijí VÝHRADNĚ v telefonu.
  *
- * - `expo-secure-store` s `requireAuthentication: true` → položka v Keychain /
- *   Keystore je svázaná s biometrií, samotné čtení vyvolá prompt.
- * - Navíc `expo-local-authentication` před čtením, aby prompt přišel i tam,
- *   kde SecureStore biometrii sám nevynutí.
- * - Heslo se nikdy neloguje, neposílá na server ani nedrží v React stavu —
- *   načte se těsně před akcí a po jejím dokončení se zahodí.
+ * Michal má přístup k několika schránkám (RWX, Bricky, Cloud IS, Ordinea…),
+ * proto se údaje vedou per schránka:
+ *  - `isds.ucty` — seznam účtů (dbId, název, login, prostředí). Nechráněný,
+ *    ať jde Nastavení a kontrola „mám ke všem odesílatelům údaje?" udělat
+ *    bez biometrického promptu. Heslo v něm NENÍ.
+ *  - `isds.heslo.<dbId>` — heslo, `requireAuthentication: true` (Keychain /
+ *    Keystore za biometrií; každé čtení vyvolá prompt). Navíc
+ *    `expo-local-authentication` před čtením, aby prompt přišel i tam, kde
+ *    SecureStore biometrii sám nevynutí.
+ *
+ * Heslo se nikdy neloguje, neposílá na server ani nedrží v React stavu —
+ * načte se těsně před akcí a po jejím dokončení se zahodí.
  */
 
-const KLIC_LOGIN = "isds.login";
-const KLIC_HESLO = "isds.password";
-const KLIC_PROSTREDI = "isds.env";
-/** Nechráněný příznak, ať jde v Nastavení ukázat stav bez biometrie. */
-const KLIC_META = "isds.meta";
+const KLIC_UCTY = "isds.ucty";
+const PREFIX_HESLO = "isds.heslo.";
+
+/** Klíče z jednoschránkové verze — po migraci se jen zahodí (viz `uklidStareKlice`). */
+const STARE_KLICE = ["isds.login", "isds.password", "isds.env", "isds.meta"];
+
+export interface IsdsUcet {
+  /** ID datové schránky (7 znaků) — primární klíč účtu, z GetOwnerInfoFromLogin. */
+  dbId: string;
+  /** Název držitele schránky (firma), z GetOwnerInfoFromLogin. */
+  nazev: string;
+  login: string;
+  env: IsdsEnv;
+  /** Kdy naposledy prošlo „Ověřit přihlášení". */
+  overenoAt: string | null;
+  /** Jméno přihlášené osoby z GetUserInfoFromLogin (jen pro zobrazení). */
+  uzivatel: string | null;
+}
 
 /**
  * Volby chráněné položky. `requireAuthentication` a `keychainService` musí být
@@ -32,16 +51,10 @@ function chranene(prompt: string): SecureStore.SecureStoreOptions {
   };
 }
 
-export interface IsdsMeta {
-  ulozeno: boolean;
-  env: IsdsEnv;
-  /** Kdy naposledy prošlo „Ověřit přihlášení". */
-  overenoAt: string | null;
-  /** Jméno uživatele z GetUserInfoFromLogin (jen pro zobrazení). */
-  jmeno: string | null;
+/** SecureStore pouští v klíči jen alfanumerické znaky a `.`, `-`, `_`. */
+function klicHesla(dbId: string): string {
+  return `${PREFIX_HESLO}${dbId.replace(/[^A-Za-z0-9._-]/g, "")}`;
 }
-
-const PRAZDNA_META: IsdsMeta = { ulozeno: false, env: "test", overenoAt: null, jmeno: null };
 
 /** Umí zařízení biometrii a je nějaká zaregistrovaná? */
 export async function biometrieDostupna(): Promise<boolean> {
@@ -65,7 +78,6 @@ export async function overitBiometrii(duvod: string): Promise<boolean> {
     const res = await LocalAuthentication.authenticateAsync({
       promptMessage: duvod,
       disableDeviceFallback: false,
-      cancelLabel: undefined,
     });
     return res.success;
   } catch {
@@ -73,71 +85,108 @@ export async function overitBiometrii(duvod: string): Promise<boolean> {
   }
 }
 
-export async function nacistMeta(): Promise<IsdsMeta> {
+function normalizovatUcet(x: Partial<IsdsUcet>): IsdsUcet | null {
+  if (!x || typeof x.dbId !== "string" || !x.dbId.trim()) return null;
+  if (typeof x.login !== "string" || !x.login.trim()) return null;
+  return {
+    dbId: x.dbId.trim(),
+    nazev: typeof x.nazev === "string" && x.nazev.trim() ? x.nazev.trim() : x.dbId.trim(),
+    login: x.login.trim(),
+    env: x.env === "prod" ? "prod" : "test",
+    overenoAt: typeof x.overenoAt === "string" ? x.overenoAt : null,
+    uzivatel: typeof x.uzivatel === "string" ? x.uzivatel : null,
+  };
+}
+
+/** Seznam nastavených schránek. Bez biometrie — hesla v něm nejsou. */
+export async function nacistUcty(): Promise<IsdsUcet[]> {
   try {
-    const raw = await SecureStore.getItemAsync(KLIC_META);
-    if (!raw) return PRAZDNA_META;
-    const parsed = JSON.parse(raw) as Partial<IsdsMeta>;
-    return {
-      ulozeno: parsed.ulozeno === true,
-      env: parsed.env === "prod" ? "prod" : "test",
-      overenoAt: parsed.overenoAt ?? null,
-      jmeno: parsed.jmeno ?? null,
-    };
+    const raw = await SecureStore.getItemAsync(KLIC_UCTY);
+    if (!raw) return [];
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .map((x) => normalizovatUcet(x as Partial<IsdsUcet>))
+      .filter((x): x is IsdsUcet => x !== null);
   } catch {
-    return PRAZDNA_META;
+    return [];
   }
 }
 
-async function zapsatMeta(meta: IsdsMeta): Promise<void> {
-  await SecureStore.setItemAsync(KLIC_META, JSON.stringify(meta));
+async function zapsatUcty(ucty: IsdsUcet[]): Promise<void> {
+  await SecureStore.setItemAsync(KLIC_UCTY, JSON.stringify(ucty));
 }
 
-/** Uloží údaje. Bez zaregistrované biometrie se ukládat nesmí. */
-export async function ulozitUdaje(udaje: IsdsCredentials, prompt: string): Promise<void> {
-  const opts = chranene(prompt);
-  await SecureStore.setItemAsync(KLIC_LOGIN, udaje.login, opts);
-  await SecureStore.setItemAsync(KLIC_HESLO, udaje.password, opts);
-  await SecureStore.setItemAsync(KLIC_PROSTREDI, udaje.env, opts);
-  const meta = await nacistMeta();
-  await zapsatMeta({ ...meta, ulozeno: true, env: udaje.env });
+/** Jeden účet podle ID schránky. */
+export async function najitUcet(dbId: string): Promise<IsdsUcet | null> {
+  const ucty = await nacistUcty();
+  return ucty.find((u) => u.dbId === dbId) ?? null;
 }
 
 /**
- * Načte údaje po biometrickém potvrzení. Vrací null, když uživatel biometrii
- * odmítl nebo údaje nejsou uložené. Volající je smí držet jen po dobu akce.
+ * Uloží (nebo přepíše) účet i s heslem. Účty se rozlišují podle `dbId`, které
+ * přišlo z GetOwnerInfoFromLogin — dvakrát zadaná táž schránka se přepíše,
+ * nezaloží se duplicita.
  */
-export async function nacistUdaje(duvod: string): Promise<IsdsCredentials | null> {
-  const meta = await nacistMeta();
-  if (!meta.ulozeno) return null;
+export async function ulozitUcet(ucet: IsdsUcet, heslo: string, prompt: string): Promise<void> {
+  await SecureStore.setItemAsync(klicHesla(ucet.dbId), heslo, chranene(prompt));
+  const ucty = await nacistUcty();
+  const bezStareho = ucty.filter((u) => u.dbId !== ucet.dbId);
+  await zapsatUcty([...bezStareho, ucet]);
+}
+
+/**
+ * Načte údaje jedné schránky po biometrickém potvrzení. Vrací null, když
+ * schránka není nastavená nebo uživatel ověření odmítl. Volající je smí držet
+ * jen po dobu akce.
+ */
+export async function nacistUdajeSchranky(dbId: string, duvod: string): Promise<IsdsCredentials | null> {
+  const ucet = await najitUcet(dbId);
+  if (!ucet) return null;
   if (!(await overitBiometrii(duvod))) return null;
-  const opts = chranene(duvod);
   try {
-    const [login, password, env] = await Promise.all([
-      SecureStore.getItemAsync(KLIC_LOGIN, opts),
-      SecureStore.getItemAsync(KLIC_HESLO, opts),
-      SecureStore.getItemAsync(KLIC_PROSTREDI, opts),
-    ]);
-    if (!login || !password) return null;
-    return { login, password, env: env === "prod" ? "prod" : "test" };
+    const heslo = await SecureStore.getItemAsync(klicHesla(dbId), chranene(duvod));
+    if (!heslo) return null;
+    return { login: ucet.login, password: heslo, env: ucet.env };
   } catch {
     return null;
   }
 }
 
 /** Zapíše výsledek posledního ověření přihlášení (jen pro zobrazení). */
-export async function zapsatOvereni(jmeno: string | null): Promise<void> {
-  const meta = await nacistMeta();
-  await zapsatMeta({ ...meta, overenoAt: new Date().toISOString(), jmeno });
+export async function zapsatOvereniUctu(dbId: string, uzivatel: string | null): Promise<void> {
+  const ucty = await nacistUcty();
+  const novy = ucty.map((u) =>
+    u.dbId === dbId ? { ...u, overenoAt: new Date().toISOString(), uzivatel } : u,
+  );
+  await zapsatUcty(novy);
 }
 
-/** Smaže všechno, co k datové schránce v telefonu je. */
-export async function smazatUdaje(prompt: string): Promise<void> {
-  const opts = chranene(prompt);
-  await Promise.all([
-    SecureStore.deleteItemAsync(KLIC_LOGIN, opts),
-    SecureStore.deleteItemAsync(KLIC_HESLO, opts),
-    SecureStore.deleteItemAsync(KLIC_PROSTREDI, opts),
-    SecureStore.deleteItemAsync(KLIC_META),
-  ]);
+/** Smaže jednu schránku — účet i heslo. */
+export async function smazatUcet(dbId: string, prompt: string): Promise<void> {
+  await SecureStore.deleteItemAsync(klicHesla(dbId), chranene(prompt));
+  const ucty = await nacistUcty();
+  await zapsatUcty(ucty.filter((u) => u.dbId !== dbId));
+}
+
+/**
+ * Migrace z jednoschránkové verze. Build s klíči `isds.login` / `isds.password`
+ * / `isds.env` se nikam nedostal, takže je nemáme kam převádět (bez `dbID` by
+ * účet stejně nešel založit) — jen je zahodíme, ať v Keychainu neleží heslo,
+ * ke kterému už nic nesahá. Volá se při otevření sekce.
+ */
+export async function uklidStareKlice(): Promise<void> {
+  for (const klic of STARE_KLICE) {
+    try {
+      await SecureStore.deleteItemAsync(klic);
+      // Heslo bylo uložené s `requireAuthentication` a keychainService —
+      // smazání musí proběhnout se stejnými volbami, jinak položku nenajde.
+      await SecureStore.deleteItemAsync(klic, {
+        requireAuthentication: true,
+        keychainService: "cz.mrickwood.veritra.isds",
+      });
+    } catch {
+      // Nic k zahození nebo zamítnutá biometrie — migrace nesmí blokovat sekci.
+    }
+  }
 }

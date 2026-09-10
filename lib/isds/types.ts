@@ -80,6 +80,26 @@ export interface IsdsUserInfo {
   firmName: string | null;
 }
 
+/**
+ * GetOwnerInfoFromLogin — údaje o schránce, do které jsme přihlášení.
+ * Odsud bereme `dbID` a název držitele při přidávání účtu, ať je uživatel
+ * neopisuje ručně (GetUserInfoFromLogin `dbID` nevrací vůbec).
+ */
+export interface IsdsOwnerInfo {
+  dbID: string | null;
+  dbType: string | null;
+  ic: string | null;
+  firmName: string | null;
+  pnGivenNames: string | null;
+  pnLastName: string | null;
+}
+
+/** Zobrazitelný název držitele schránky. */
+export function nazevDrzitele(owner: IsdsOwnerInfo): string {
+  const jmeno = [owner.pnGivenNames, owner.pnLastName].filter(Boolean).join(" ").trim();
+  return owner.firmName?.trim() || jmeno || owner.dbID || "";
+}
+
 /** FindDataBox — jeden nalezený záznam (struktura tDbOwnerInfoExt). */
 export interface IsdsDataBox {
   dbID: string | null;

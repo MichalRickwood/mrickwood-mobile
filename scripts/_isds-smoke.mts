@@ -10,7 +10,7 @@
  */
 
 import { IsdsClient } from "../lib/isds/client";
-import { jeIsdsError, jeIsdsHttpError, jeOvm } from "../lib/isds/types";
+import { jeIsdsError, jeIsdsHttpError, jeOvm, nazevDrzitele } from "../lib/isds/types";
 
 function arg(nazev: string): string | undefined {
   const i = process.argv.indexOf(`--${nazev}`);
@@ -43,11 +43,18 @@ async function main(): Promise<void> {
       (uzivatel.firmName ? ` · ${uzivatel.firmName}` : ""),
   );
 
-  // 2) Expirace hesla — ať nás nepřekvapí uprostřed dávky
+  // 2) Do které schránky jsme přihlášení — odsud bere aplikace dbID i název
+  const drzitel = await klient.getOwnerInfoFromLogin();
+  console.log(
+    `  GetOwnerInfoFromLogin: ${drzitel.dbID ?? "?"} · ${drzitel.dbType ?? "?"} · ` +
+      `${nazevDrzitele(drzitel)}${drzitel.ic ? ` · IČO ${drzitel.ic}` : ""}`,
+  );
+
+  // 3) Expirace hesla — ať nás nepřekvapí uprostřed dávky
   const expirace = await klient.getPasswordInfo();
   console.log(`  GetPasswordInfo: ${expirace ?? "heslo neexpiruje"}`);
 
-  // 3) Vyhledání schránky (ověření příjemce před odesláním dopisu)
+  // 4) Vyhledání schránky (ověření příjemce před odesláním dopisu)
   const dbid = arg("dbid");
   const ico = arg("ico") ?? (dbid ? undefined : "00075370");
   const vysledek = dbid ? await klient.findDataBoxById(dbid) : await klient.findDataBoxByIco(ico!);

@@ -9,27 +9,32 @@ import { useTheme } from "@/lib/theme-context";
 import { IsdsClient } from "@/lib/isds/client";
 import {
   biometrieDostupna,
-  nacistMeta,
-  nacistUdaje,
-  smazatUdaje,
-  ulozitUdaje,
-  zapsatOvereni,
-  type IsdsMeta,
+  nacistUcty,
+  nacistUdajeSchranky,
+  smazatUcet,
+  uklidStareKlice,
+  ulozitUcet,
+  zapsatOvereniUctu,
+  type IsdsUcet,
 } from "@/lib/isds/credentials";
-import { jeIsdsHttpError, type IsdsEnv } from "@/lib/isds/types";
+import { jeIsdsHttpError, nazevDrzitele, type IsdsEnv } from "@/lib/isds/types";
+import { formatDatumCas } from "@/lib/vymahani-format";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 
 /**
- * Přihlašovací údaje do datové schránky. Zůstávají výhradně v telefonu
- * (SecureStore za biometrií), server o nich nesmí vědět. Heslo drží stav
- * jen do stisku „Uložit" a hned se z něj maže.
+ * Seznam datových schránek, ke kterým má telefon údaje (RWX, Bricky, Cloud IS…).
+ *
+ * Údaje zůstávají výhradně v telefonu, heslo zvlášť pro každou schránku za
+ * biometrií. ID schránky a název držitele se berou z GetOwnerInfoFromLogin,
+ * aby je uživatel neopisoval — a aby se schránka nedala založit s ID, které
+ * k zadanému přihlášení nepatří.
  */
 export default function DatovkaNastaveniScreen() {
   const { t, locale } = useI18n();
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
 
-  const [meta, setMeta] = useState<IsdsMeta | null>(null);
+  const [ucty, setUcty] = useState<IsdsUcet[] | null>(null);
   const [login, setLogin] = useState("");
   const [heslo, setHeslo] = useState("");
   const [prostredi, setProstredi] = useState<IsdsEnv>("test");
@@ -38,10 +43,11 @@ export default function DatovkaNastaveniScreen() {
   const nacti = useCallback(() => {
     let zive = true;
     void (async () => {
-      const m = await nacistMeta();
-      if (!zive) return;
-      setMeta(m);
-      setProstredi(m.env);
+      // Pozůstatky jednoschránkové verze v Keychainu zahodíme, ať se k nim
+      // nikdo nedostane; nikdo je nestihl naplnit (build se nedistribuoval).
+      await uklidStareKlice();
+      const u = await nacistUcty();
+      if (zive) setUcty(u);
     })();
     return () => {
       zive = false;
@@ -49,7 +55,11 @@ export default function DatovkaNastaveniScreen() {
   }, []);
   useFocusEffect(nacti);
 
-  async function ulozit() {
+  const prostrediLabel = (e: IsdsEnv) =>
+    e === "prod" ? t("admin", "dsProstrediProd") : t("admin", "dsProstrediTest");
+
+  /** Přidání schránky = ověření údajů proti ISDS a teprve pak uložení. */
+  async function pridat() {
     if (!login.trim() || !heslo) {
       Alert.alert(t("admin", "dsVyplnUdaje"));
       return;
@@ -60,33 +70,59 @@ export default function DatovkaNastaveniScreen() {
     }
     setBusy(true);
     try {
-      await ulozitUdaje({ login: login.trim(), password: heslo, env: prostredi }, t("admin", "dsBiometrieUlozeni"));
+      const klient = new IsdsClient({ login: login.trim(), password: heslo, env: prostredi });
+      const drzitel = await klient.getOwnerInfoFromLogin();
+      if (!drzitel.dbID) {
+        Alert.alert(t("admin", "dsChybaTitle"), t("admin", "dsOvereniSelhaloId"));
+        return;
+      }
+      // Jméno přihlášené osoby je jen pro zobrazení — nesmí shodit přidání.
+      let uzivatel: string | null = null;
+      try {
+        const u = await klient.getUserInfoFromLogin();
+        uzivatel = [u.pnGivenNames, u.pnLastName].filter(Boolean).join(" ") || null;
+      } catch {
+        uzivatel = null;
+      }
+
+      const nazev = nazevDrzitele(drzitel);
+      await ulozitUcet(
+        {
+          dbId: drzitel.dbID,
+          nazev,
+          login: login.trim(),
+          env: prostredi,
+          overenoAt: new Date().toISOString(),
+          uzivatel,
+        },
+        heslo,
+        t("admin", "dsBiometrieUlozeni"),
+      );
       // Heslo v paměti obrazovky nedržíme ani o vteřinu déle, než je nutné.
       setHeslo("");
       setLogin("");
-      setMeta(await nacistMeta());
-      Alert.alert(t("admin", "dsUlozenoOk"));
+      setUcty(await nacistUcty());
+      Alert.alert(t("admin", "dsHotovoTitle"), t("admin", "dsPridanoOk", { nazev, dbId: drzitel.dbID }));
     } catch (e) {
-      Alert.alert(t("admin", "dsChybaTitle"), (e as Error).message);
+      Alert.alert(t("admin", "dsChybaTitle"), chybaText(e, t));
     } finally {
       setBusy(false);
     }
   }
 
-  async function overit() {
+  async function overit(ucet: IsdsUcet) {
     setBusy(true);
     try {
-      const udaje = await nacistUdaje(t("admin", "dsBiometrieOvereni"));
-      if (!udaje) {
+      const pristup = await nacistUdajeSchranky(ucet.dbId, t("admin", "dsBiometrieOdemknout", { schranka: ucet.nazev }));
+      if (!pristup) {
         Alert.alert(t("admin", "dsBiometrieZamitnuta"));
         return;
       }
-      const klient = new IsdsClient(udaje);
-      const uzivatel = await klient.getUserInfoFromLogin();
-      const jmeno =
-        [uzivatel.pnGivenNames, uzivatel.pnLastName].filter(Boolean).join(" ") || (uzivatel.firmName ?? "—");
-      await zapsatOvereni(jmeno);
-      setMeta(await nacistMeta());
+      const klient = new IsdsClient(pristup);
+      const u = await klient.getUserInfoFromLogin();
+      const jmeno = [u.pnGivenNames, u.pnLastName].filter(Boolean).join(" ") || (u.firmName ?? "—");
+      await zapsatOvereniUctu(ucet.dbId, jmeno);
+      setUcty(await nacistUcty());
 
       // Expirace hesla je hezká, ale nesmí shodit výsledek ověření.
       let expirace: string | null = null;
@@ -95,57 +131,75 @@ export default function DatovkaNastaveniScreen() {
       } catch {
         expirace = null;
       }
-      const zprava =
-        t("admin", "dsOverenoOk", { jmeno, role: uzivatel.userType ?? "—" }) +
-        (expirace ? `\n${t("admin", "dsExpirace", { kdy: formatDatum(expirace, locale) })}` : "");
-      Alert.alert(t("admin", "dsHotovoTitle"), zprava);
-    } catch (e) {
       Alert.alert(
-        t("admin", "dsChybaTitle"),
-        jeIsdsHttpError(e) && e.status === 401 ? t("admin", "dsSpatneUdaje") : (e as Error).message,
+        t("admin", "dsHotovoTitle"),
+        t("admin", "dsOverenoOk", { jmeno, role: u.userType ?? "—" }) +
+          (expirace ? `\n${t("admin", "dsExpirace", { kdy: formatDatumCas(expirace, locale) })}` : ""),
       );
+    } catch (e) {
+      Alert.alert(t("admin", "dsChybaTitle"), chybaText(e, t));
     } finally {
       setBusy(false);
     }
   }
 
-  function smazat() {
-    Alert.alert(t("admin", "dsSmazat"), t("admin", "dsSmazatPotvrzeni"), [
-      { text: t("admin", "dsZrusit"), style: "cancel" },
-      {
-        text: t("admin", "dsSmazat"),
-        style: "destructive",
-        onPress: () => {
-          void (async () => {
-            await smazatUdaje(t("admin", "dsBiometrieSmazani"));
-            setMeta(await nacistMeta());
-            Alert.alert(t("admin", "dsSmazanoOk"));
-          })();
+  function smazat(ucet: IsdsUcet) {
+    Alert.alert(
+      t("admin", "dsSmazatSchranku"),
+      t("admin", "dsSmazatPotvrzeniSchranka", { nazev: ucet.nazev }),
+      [
+        { text: t("admin", "dsZrusit"), style: "cancel" },
+        {
+          text: t("admin", "dsSmazatSchranku"),
+          style: "destructive",
+          onPress: () => {
+            void (async () => {
+              await smazatUcet(ucet.dbId, t("admin", "dsBiometrieSmazani"));
+              setUcty(await nacistUcty());
+              Alert.alert(t("admin", "dsSmazanoOk"));
+            })();
+          },
         },
-      },
-    ]);
+      ],
+    );
   }
-
-  const prostrediLabel = (e: IsdsEnv) =>
-    e === "prod" ? t("admin", "dsProstrediProd") : t("admin", "dsProstrediTest");
 
   return (
     <SafeAreaView style={styles.safe} edges={["bottom"]}>
       <AppScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-        <AdminCard style={styles.card}>
-          <Text style={styles.stav}>
-            {meta?.ulozeno
-              ? t("admin", "dsUlozeno", { prostredi: prostrediLabel(meta.env) })
-              : t("admin", "dsNeulozeno")}
-          </Text>
-          {!!meta?.overenoAt && (
-            <Text style={styles.hint}>
-              {t("admin", "dsOverenoAt", { kdy: formatDatum(meta.overenoAt, locale) })}
-              {meta.jmeno ? ` · ${meta.jmeno}` : ""}
-            </Text>
-          )}
-        </AdminCard>
+        <Text style={styles.sekce}>{t("admin", "dsUctyTitle")}</Text>
 
+        {ucty === null && <ActivityIndicator color={colors.accent} />}
+        {ucty !== null && ucty.length === 0 && (
+          <AdminCard style={styles.card}>
+            <Text style={styles.hint}>{t("admin", "dsUctyPrazdne")}</Text>
+          </AdminCard>
+        )}
+
+        {(ucty ?? []).map((u) => (
+          <AdminCard key={u.dbId} style={styles.card}>
+            <Text style={styles.nazev}>{u.nazev}</Text>
+            <Text style={styles.meta}>
+              {t("admin", "dsSchrankaLabel")} {u.dbId} · {u.login} · {prostrediLabel(u.env)}
+            </Text>
+            {!!u.overenoAt && (
+              <Text style={styles.hint}>
+                {t("admin", "dsOverenoAt", { kdy: formatDatumCas(u.overenoAt, locale) })}
+                {u.uzivatel ? ` · ${u.uzivatel}` : ""}
+              </Text>
+            )}
+            <View style={styles.radaAkci}>
+              <Pressable onPress={() => void overit(u)} disabled={busy} style={[styles.btn, busy && styles.btnOff]}>
+                <Text style={styles.btnText}>{t("admin", "dsOverit")}</Text>
+              </Pressable>
+              <Pressable onPress={() => smazat(u)} disabled={busy} style={[styles.btn, busy && styles.btnOff]}>
+                <Text style={[styles.btnText, styles.btnTextDanger]}>{t("admin", "dsSmazatSchranku")}</Text>
+              </Pressable>
+            </View>
+          </AdminCard>
+        ))}
+
+        <Text style={styles.sekce}>{t("admin", "dsPridatTitle")}</Text>
         <AdminCard style={styles.card}>
           <Text style={styles.label}>{t("admin", "dsLogin")}</Text>
           <TextInput
@@ -178,32 +232,14 @@ export default function DatovkaNastaveniScreen() {
                 onPress={() => setProstredi(e)}
                 style={[styles.chip, prostredi === e && styles.chipAktivni]}
               >
-                <Text style={[styles.chipText, prostredi === e && styles.chipTextAktivni]}>
-                  {prostrediLabel(e)}
-                </Text>
+                <Text style={[styles.chipText, prostredi === e && styles.chipTextAktivni]}>{prostrediLabel(e)}</Text>
               </Pressable>
             ))}
           </View>
 
-          <Pressable onPress={ulozit} disabled={busy} style={[styles.btn, styles.btnPrimary, busy && styles.btnOff]}>
-            <Text style={[styles.btnText, styles.btnTextPrimary]}>{t("admin", "dsUlozit")}</Text>
-          </Pressable>
-        </AdminCard>
-
-        <AdminCard style={styles.card}>
-          <Pressable
-            onPress={overit}
-            disabled={busy || !meta?.ulozeno}
-            style={[styles.btn, (busy || !meta?.ulozeno) && styles.btnOff]}
-          >
-            <Text style={styles.btnText}>{t("admin", "dsOverit")}</Text>
-          </Pressable>
-          <Pressable
-            onPress={smazat}
-            disabled={busy || !meta?.ulozeno}
-            style={[styles.btn, (busy || !meta?.ulozeno) && styles.btnOff]}
-          >
-            <Text style={[styles.btnText, styles.btnTextDanger]}>{t("admin", "dsSmazat")}</Text>
+          <Text style={styles.hint}>{t("admin", "dsPridatHint")}</Text>
+          <Pressable onPress={() => void pridat()} disabled={busy} style={[styles.btn, styles.btnPrimary, busy && styles.btnOff]}>
+            <Text style={[styles.btnText, styles.btnTextPrimary]}>{t("admin", "dsPridat")}</Text>
           </Pressable>
         </AdminCard>
 
@@ -213,20 +249,21 @@ export default function DatovkaNastaveniScreen() {
   );
 }
 
-/** Datum a čas v jazyce aplikace; nečitelný vstup vrátíme beze změny. */
-function formatDatum(iso: string, locale: string): string {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleString(locale, { dateStyle: "medium", timeStyle: "short" });
+/** 401 z ISDS má vlastní hlášku — je to nejčastější chyba při zadávání údajů. */
+function chybaText(e: unknown, t: (s: "admin", k: "dsSpatneUdaje") => string): string {
+  if (jeIsdsHttpError(e) && e.status === 401) return t("admin", "dsSpatneUdaje");
+  return (e as Error).message;
 }
 
 const makeStyles = (colors: Colors) =>
   StyleSheet.create({
     safe: { flex: 1, backgroundColor: colors.bg },
     scroll: { padding: spacing.xl },
+    sekce: { fontSize: fontSize.sm, color: colors.textSubtle, fontWeight: "600", marginBottom: spacing.sm },
     card: { padding: spacing.lg },
-    stav: { fontSize: fontSize.base, color: colors.text, fontWeight: "600" },
+    nazev: { fontSize: fontSize.base, color: colors.text, fontWeight: "600" },
     label: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: spacing.md, marginBottom: spacing.xs },
+    meta: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: 2 },
     hint: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: spacing.xs },
     input: {
       backgroundColor: colors.bg,
@@ -249,8 +286,10 @@ const makeStyles = (colors: Colors) =>
     chipAktivni: { backgroundColor: colors.accent, borderColor: colors.accent },
     chipText: { fontSize: fontSize.sm, color: colors.text },
     chipTextAktivni: { color: colors.accentForeground, fontWeight: "600" },
+    radaAkci: { flexDirection: "row", gap: spacing.sm },
     btn: {
-      marginTop: spacing.lg,
+      flex: 1,
+      marginTop: spacing.md,
       paddingVertical: spacing.md,
       borderRadius: radius.md,
       borderWidth: 1,

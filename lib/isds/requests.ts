@@ -21,6 +21,14 @@ export function reqGetUserInfoFromLogin(): string {
   return soapEnvelope(`<v:GetUserInfoFromLogin>${elPrazdny("dbDummy")}</v:GetUserInfoFromLogin>`);
 }
 
+/**
+ * GetOwnerInfoFromLogin — údaje o schránce přihlášeného uživatele.
+ * Vstup je stejný prázdný `dbDummy` jako u GetUserInfoFromLogin.
+ */
+export function reqGetOwnerInfoFromLogin(): string {
+  return soapEnvelope(`<v:GetOwnerInfoFromLogin>${elPrazdny("dbDummy")}</v:GetOwnerInfoFromLogin>`);
+}
+
 /** GetPasswordInfo — datum budoucí expirace hesla. */
 export function reqGetPasswordInfo(): string {
   return soapEnvelope(`<v:GetPasswordInfo>${elPrazdny("dbDummy")}</v:GetPasswordInfo>`);

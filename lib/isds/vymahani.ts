@@ -1,22 +1,27 @@
 import {
   adminApi,
+  type VymDavka,
   type VymDopis,
   type VymOdeslani,
   type VymPrijataZprava,
   type VymVysledekOdeslani,
 } from "../admin-api";
 import { IsdsClient } from "./client";
-import { jeIsdsError, jeIsdsHttpError, jePovolenyPrijemce, type IsdsCredentials } from "./types";
+import { nacistUcty, nacistUdajeSchranky, type IsdsUcet } from "./credentials";
+import { schrankaOdesilatele, stazenoOdSchranky } from "./schranky";
+import { jeIsdsError, jeIsdsHttpError, jePovolenyPrijemce } from "./types";
 
 /**
  * Průběh dávky vymáhání — telefon dělá ruce (ISDS), server mozek.
  *
  * Modul stojí mezi obrazovkou a klientem ISDS: zajišťuje pojistky, které
  * nesmí záviset na tom, co která obrazovka zavolá.
- *  - před každým dopisem FindDataBox a kontrola, že příjemce je OVM,
+ *  - před každým dopisem FindDataBox a kontrola, že příjemce je aktivní
+ *    schránka povoleného typu (OVM* nebo PO),
  *  - CreateMessage se po nejasném výsledku NEOPAKUJE, jen se ověří podle
  *    naší značky přes GetListOfSentMessages,
- *  - přihlašovací údaje sem přijdou jen na dobu jedné dávky.
+ *  - přihlašovací údaje se čtou per odesílající schránka, jedna biometrie
+ *    na schránku, a žijí jen po dobu dávky.
  */
 
 export type VymFaze =
@@ -31,11 +36,21 @@ export interface VymPrubeh {
   faze: VymFaze;
   hotovo: number;
   celkem: number;
-  /** Doplňující text — jméno příjemce, věc zprávy. */
+  /** Doplňující text — jméno příjemce, věc zprávy, název schránky. */
   popis?: string;
 }
 
 export type NaProbeh = (p: VymPrubeh) => void;
+
+/** Texty biometrických promptů dodává obrazovka (patří do i18n, ne sem). */
+export interface VymTexty {
+  /** Prompt pro odemčení hesla ke konkrétní schránce. */
+  odemknout: (schranka: string) => string;
+  /** Chyba nahlášená serveru, když schránka v telefonu není. */
+  schrankaChybi: (dbId: string) => string;
+  /** Chyba nahlášená serveru, když uživatel biometrii odmítl. */
+  overeniOdmitnuto: (schranka: string) => string;
+}
 
 /** Stavy došlé zprávy, ve kterých ji lze stáhnout (kap. 2.6.1 příručky ISDS). */
 const STAHOVATELNE = [5, 6, 7, 10];
@@ -46,12 +61,6 @@ function textChyby(e: unknown): string {
   return (e as Error)?.message ?? "Neznámá chyba";
 }
 
-export interface VysledekOdeslani {
-  odeslano: number;
-  chyby: number;
-  vysledky: VymVysledekOdeslani[];
-}
-
 /**
  * Ověření příjemce před odesláním — pojistka proti podstrčené schránce.
  *
@@ -60,11 +69,7 @@ export interface VysledekOdeslani {
  * schránka s tímtéž ID, je aktivní a má povolený typ (OVM* nebo PO).
  * Vrací null při úspěchu, jinak důvod přeskočení.
  */
-async function overitPrijemce(
-  klient: IsdsClient,
-  ico: string,
-  databoxId: string,
-): Promise<string | null> {
+async function overitPrijemce(klient: IsdsClient, ico: string, databoxId: string): Promise<string | null> {
   const nalez = await klient.findDataBoxByIco(ico);
   // 0009 = schránka existuje, ale Poštovní datovou zprávu do ní z naší
   // schránky poslat nelze; údaje o ní se ani nevracejí.
@@ -85,84 +90,124 @@ async function overitPrijemce(
   return null;
 }
 
+export interface VysledekOdeslani {
+  odeslano: number;
+  chyby: number;
+  vysledky: VymVysledekOdeslani[];
+}
+
+/** Dopisy rozdělené podle naší odesílající schránky. */
+function seskupitPodleOdesilatele(kOdeslani: VymOdeslani[]): Map<string, VymOdeslani[]> {
+  const skupiny = new Map<string, VymOdeslani[]>();
+  for (const d of kOdeslani) {
+    const dbId = schrankaOdesilatele(d.odesilatelDb);
+    const skupina = skupiny.get(dbId);
+    if (skupina) skupina.push(d);
+    else skupiny.set(dbId, [d]);
+  }
+  return skupiny;
+}
+
 /**
- * Odešle schválené dopisy do datových schránek a nahlásí výsledky serveru.
- * Chyba jednoho dopisu nezastaví dávku — zapíše se a pokračuje se dál.
+ * Odešle schválené dopisy a nahlásí výsledky serveru.
  *
- * `navrh` je dnešní dávka z `/davka`; bereme z ní IČO zadavatele, které
- * `OdeslaniDto` neobsahuje.
+ * Dopisy se rozdělí podle odesílající schránky; ke každé se heslo odemyká
+ * jednou (jedna biometrie na schránku). Schránka, kterou telefon nemá
+ * nastavenou, znamená přeskočení jejích dopisů s nahlášenou chybou — ne pád
+ * celé dávky. `navrh` je dnešní dávka z `/davka`, bereme z ní IČO zadavatele,
+ * které `OdeslaniDto` nenese.
  */
 export async function odeslatDopisy(
-  udaje: IsdsCredentials,
   kOdeslani: VymOdeslani[],
   navrh: VymDopis[],
+  texty: VymTexty,
   naProbeh: NaProbeh,
 ): Promise<VysledekOdeslani> {
-  const klient = new IsdsClient(udaje);
   const vysledky: VymVysledekOdeslani[] = [];
   const icoPodleDopisu = new Map(navrh.map((d) => [d.id, d.prijemce.ico]));
+  const ucty = await nacistUcty();
+  const celkem = kOdeslani.length;
+  let hotovo = 0;
 
-  for (let i = 0; i < kOdeslani.length; i++) {
-    const dopis = kOdeslani[i];
-    naProbeh({ faze: "overovani", hotovo: i, celkem: kOdeslani.length, popis: dopis.predmet });
-
-    const ico = icoPodleDopisu.get(dopis.dopisId);
-    if (!ico) {
-      vysledky.push({ dopisId: dopis.dopisId, chyba: "K dopisu chybí IČO zadavatele — příjemce nelze ověřit." });
+  for (const [dbId, dopisy] of seskupitPodleOdesilatele(kOdeslani)) {
+    const ucet = ucty.find((u) => u.dbId === dbId);
+    if (!ucet) {
+      for (const d of dopisy) vysledky.push({ dopisId: d.dopisId, chyba: texty.schrankaChybi(dbId) });
+      hotovo += dopisy.length;
       continue;
     }
-    try {
-      const duvod = await overitPrijemce(klient, ico, dopis.databoxId);
-      if (duvod) {
-        vysledky.push({ dopisId: dopis.dopisId, chyba: duvod });
-        continue;
-      }
-    } catch (e) {
-      vysledky.push({ dopisId: dopis.dopisId, chyba: `Ověření příjemce selhalo — ${textChyby(e)}` });
+    const pristup = await nacistUdajeSchranky(dbId, texty.odemknout(ucet.nazev));
+    if (!pristup) {
+      for (const d of dopisy) vysledky.push({ dopisId: d.dopisId, chyba: texty.overeniOdmitnuto(ucet.nazev) });
+      hotovo += dopisy.length;
       continue;
     }
 
-    // 2) Odeslání
-    naProbeh({ faze: "odesilani", hotovo: i, celkem: kOdeslani.length, popis: dopis.predmet });
-    const kdy = new Date();
-    try {
-      const dmId = await klient.createMessage({
-        dbIDRecipient: dopis.databoxId,
-        dmAnnotation: dopis.predmet,
-        dmSenderRefNumber: dopis.naseZnacka,
-        files: [
-          {
-            dmFileDescr: dopis.pdf.name,
-            dmMimeType: "application/pdf",
-            dmFileMetaType: "main",
-            dmEncodedContent: dopis.pdf.base64,
-          },
-        ],
-      });
-      vysledky.push({ dopisId: dopis.dopisId, dmId });
-    } catch (e) {
-      if (jeIsdsError(e)) {
-        // ISDS odpovědělo — zpráva nevznikla, opakovat by bylo bezpečné,
-        // ale to je na příštím běhu, ne teď.
-        vysledky.push({ dopisId: dopis.dopisId, chyba: textChyby(e) });
+    const klient = new IsdsClient(pristup);
+    for (const dopis of dopisy) {
+      naProbeh({ faze: "overovani", hotovo, celkem, popis: dopis.predmet });
+
+      const ico = icoPodleDopisu.get(dopis.dopisId);
+      if (!ico) {
+        vysledky.push({ dopisId: dopis.dopisId, chyba: "K dopisu chybí IČO zadavatele — příjemce nelze ověřit." });
+        hotovo++;
         continue;
       }
-      // Nejasný výsledek (timeout, spadlé spojení): zpráva mohla projít.
-      // NIKDY neposílat znovu — zjistíme to podle naší značky.
       try {
-        const dmId = await klient.overitOdeslani(dopis.naseZnacka, kdy);
-        if (dmId) vysledky.push({ dopisId: dopis.dopisId, dmId });
-        else vysledky.push({ dopisId: dopis.dopisId, chyba: `Nejasný výsledek odeslání — ${textChyby(e)}` });
-      } catch {
-        vysledky.push({
-          dopisId: dopis.dopisId,
-          chyba: `Nejasný výsledek odeslání a ověření selhalo — ${textChyby(e)}. Zkontroluj schránku ručně.`,
-        });
+        const duvod = await overitPrijemce(klient, ico, dopis.databoxId);
+        if (duvod) {
+          vysledky.push({ dopisId: dopis.dopisId, chyba: duvod });
+          hotovo++;
+          continue;
+        }
+      } catch (e) {
+        vysledky.push({ dopisId: dopis.dopisId, chyba: `Ověření příjemce selhalo — ${textChyby(e)}` });
+        hotovo++;
+        continue;
       }
+
+      naProbeh({ faze: "odesilani", hotovo, celkem, popis: dopis.predmet });
+      const kdy = new Date();
+      try {
+        const dmId = await klient.createMessage({
+          dbIDRecipient: dopis.databoxId,
+          dmAnnotation: dopis.predmet,
+          dmSenderRefNumber: dopis.naseZnacka,
+          files: [
+            {
+              dmFileDescr: dopis.pdf.name,
+              dmMimeType: "application/pdf",
+              dmFileMetaType: "main",
+              dmEncodedContent: dopis.pdf.base64,
+            },
+          ],
+        });
+        vysledky.push({ dopisId: dopis.dopisId, dmId });
+      } catch (e) {
+        if (jeIsdsError(e)) {
+          // ISDS odpovědělo — zpráva nevznikla, opakovat by bylo bezpečné,
+          // ale to je na příštím běhu, ne teď.
+          vysledky.push({ dopisId: dopis.dopisId, chyba: textChyby(e) });
+        } else {
+          // Nejasný výsledek (timeout, spadlé spojení): zpráva mohla projít.
+          // NIKDY neposílat znovu — zjistíme to podle naší značky.
+          try {
+            const dmId = await klient.overitOdeslani(dopis.naseZnacka, kdy);
+            if (dmId) vysledky.push({ dopisId: dopis.dopisId, dmId });
+            else vysledky.push({ dopisId: dopis.dopisId, chyba: `Nejasný výsledek odeslání — ${textChyby(e)}` });
+          } catch {
+            vysledky.push({
+              dopisId: dopis.dopisId,
+              chyba: `Nejasný výsledek odeslání a ověření selhalo — ${textChyby(e)}. Zkontroluj schránku ručně.`,
+            });
+          }
+        }
+      }
+      hotovo++;
     }
   }
 
-  naProbeh({ faze: "hlaseni", hotovo: kOdeslani.length, celkem: kOdeslani.length });
+  naProbeh({ faze: "hlaseni", hotovo: celkem, celkem });
   await adminApi.nahlasitOdeslane(vysledky);
 
   const odeslano = vysledky.filter((v) => v.dmId).length;
@@ -177,36 +222,89 @@ export interface VysledekStazeni {
 }
 
 /**
- * Stáhne došlé zprávy od `stazenoOd` a předá je serveru po jedné.
+ * Stáhne došlé zprávy ze VŠECH nastavených schránek a předá je serveru po
+ * jedné. Ke každé schránce jedna biometrie; schránka, kterou uživatel
+ * neodemkne, se přeskočí a zapíše se to do chyb.
  *
  * POZOR: GetListOfReceivedMessages doručuje ze zákona dodané zprávy — proto
  * jen na výslovný pokyn uživatele, nikdy na pozadí.
  */
 export async function stahnoutOdpovedi(
-  udaje: IsdsCredentials,
-  stazenoOd: Date,
+  stazenoOd: VymDavka["stazenoOd"],
+  texty: VymTexty,
   naProbeh: NaProbeh,
 ): Promise<VysledekStazeni> {
-  const klient = new IsdsClient(udaje);
   const chyby: string[] = [];
   let stazeno = 0;
   let preskoceno = 0;
+  let dorucenky = 0;
 
-  naProbeh({ faze: "seznam", hotovo: 0, celkem: 0 });
+  const ucty = await nacistUcty();
+  if (ucty.length === 0) return { stazeno, preskoceno, dorucenky, chyby };
+
+  // Doručenky jdou stáhnout jen z odesílající schránky. Kontrakt `/doruceni`
+  // odesílatele (zatím) nenese, proto se seznam projde u každé schránky a
+  // vyřízené kusy se z něj odeberou.
+  let kDoruceni: { dopisId: number; dmId: string; odesilatelDb?: string }[] = [];
+  try {
+    kDoruceni = await adminApi.getVymahaniDoruceni();
+  } catch {
+    kDoruceni = []; // endpoint zatím nemusí existovat — dávku to nemá shodit
+  }
+
+  for (const ucet of ucty) {
+    const pristup = await nacistUdajeSchranky(ucet.dbId, texty.odemknout(ucet.nazev));
+    if (!pristup) {
+      chyby.push(texty.overeniOdmitnuto(ucet.nazev));
+      continue;
+    }
+    const klient = new IsdsClient(pristup);
+    const vysledek = await stahnoutProSchranku(klient, ucet, stazenoOd, chyby, naProbeh);
+    stazeno += vysledek.stazeno;
+    preskoceno += vysledek.preskoceno;
+
+    const zbyva = kDoruceni.filter((d) => !d.odesilatelDb || d.odesilatelDb === ucet.dbId);
+    if (zbyva.length > 0) {
+      const hotove = await stahnoutDorucenky(klient, zbyva, chyby, naProbeh);
+      dorucenky += hotove.size;
+      kDoruceni = kDoruceni.filter((d) => !hotove.has(d.dopisId));
+    }
+  }
+
+  return { stazeno, preskoceno, dorucenky, chyby };
+}
+
+/** Došlé zprávy jedné schránky. */
+async function stahnoutProSchranku(
+  klient: IsdsClient,
+  ucet: IsdsUcet,
+  stazenoOd: VymDavka["stazenoOd"],
+  chyby: string[],
+  naProbeh: NaProbeh,
+): Promise<{ stazeno: number; preskoceno: number }> {
+  naProbeh({ faze: "seznam", hotovo: 0, celkem: 0, popis: ucet.nazev });
+
   // Minutový překryv intervalu doporučuje kap. 2.9.1 — jinak může zpráva
   // vypadnout z obou po sobě jdoucích seznamů.
   const minuta = 60_000;
-  const od = new Date(stazenoOd.getTime() - minuta);
+  const od = new Date(stazenoOdSchranky(stazenoOd, ucet.dbId).getTime() - minuta);
   const doo = new Date(Date.now() + minuta);
   const stazenoAt = new Date().toISOString();
-  const seznam = await klient.getListOfReceivedMessages({ od, do: doo, limit: 1000 });
+
+  let seznam;
+  try {
+    seznam = await klient.getListOfReceivedMessages({ od, do: doo, limit: 1000 });
+  } catch (e) {
+    chyby.push(`${ucet.nazev}: ${textChyby(e)}`);
+    return { stazeno: 0, preskoceno: 0 };
+  }
 
   const kestazeni = seznam.filter((z) => {
     // VoDZ se stahuje jinou službou na jiném endpointu — sem nepatří.
     if (z.vodz) return false;
     return z.dmMessageStatus === null || STAHOVATELNE.includes(z.dmMessageStatus);
   });
-  preskoceno = seznam.length - kestazeni.length;
+  let stazeno = 0;
 
   for (let i = 0; i < kestazeni.length; i++) {
     const zaznam = kestazeni[i];
@@ -237,34 +335,39 @@ export async function stahnoutOdpovedi(
         })),
         zfoBase64,
       };
-      await adminApi.nahlasitPrijate([prijata], stazenoAt);
+      await adminApi.nahlasitPrijate([prijata], stazenoAt, ucet.dbId);
       stazeno++;
     } catch (e) {
       chyby.push(`Zpráva ${zaznam.dmID}: ${textChyby(e)}`);
     }
   }
 
-  // I když nic nepřišlo, ať server posune posledni_stazeni_prijatych.
-  if (kestazeni.length === 0) await adminApi.nahlasitPrijate([], stazenoAt);
+  // I když nic nepřišlo, ať server posune posledni_stazeni_prijatych:<dbId>.
+  if (kestazeni.length === 0) {
+    try {
+      await adminApi.nahlasitPrijate([], stazenoAt, ucet.dbId);
+    } catch (e) {
+      chyby.push(`${ucet.nazev}: ${textChyby(e)}`);
+    }
+  }
 
-  const dorucenky = await stahnoutDorucenky(klient, naProbeh, chyby);
-  return { stazeno, preskoceno, dorucenky, chyby };
+  return { stazeno, preskoceno: seznam.length - kestazeni.length };
 }
 
 /**
  * Doručenky k odeslaným dopisům, u kterých server ještě neví, zda dorazily.
  * Doručení fikcí i doručení přihlášením pozná podle `dmAcceptanceTime`.
+ * Vrací ID dopisů, které se z téhle schránky podařilo vyřídit.
  */
-async function stahnoutDorucenky(klient: IsdsClient, naProbeh: NaProbeh, chyby: string[]): Promise<number> {
-  let dopisy: { dopisId: number; dmId: string }[] = [];
-  try {
-    dopisy = await adminApi.getVymahaniDoruceni();
-  } catch {
-    return 0; // endpoint zatím nemusí existovat — dávku to nemá shodit
-  }
-  if (dopisy.length === 0) return 0;
-
+async function stahnoutDorucenky(
+  klient: IsdsClient,
+  dopisy: { dopisId: number; dmId: string }[],
+  chyby: string[],
+  naProbeh: NaProbeh,
+): Promise<Set<number>> {
   const vysledky: { dopisId: number; dorucenoAt?: string; stav?: string }[] = [];
+  const hotove = new Set<number>();
+
   for (let i = 0; i < dopisy.length; i++) {
     const d = dopisy[i];
     naProbeh({ faze: "dorucenky", hotovo: i, celkem: dopisy.length, popis: d.dmId });
@@ -276,19 +379,39 @@ async function stahnoutDorucenky(klient: IsdsClient, naProbeh: NaProbeh, chyby: 
         // Schránka adresáta byla zpětně znepřístupněna — nedoručitelné.
         vysledky.push({ dopisId: d.dopisId, stav: "CHYBA" });
       }
+      // Doručenka se stáhla, i když zpráva zatím jen leží ve stavu „dodáno" —
+      // z jiné schránky ji už zkoušet nemusíme.
+      hotove.add(d.dopisId);
     } catch (e) {
-      chyby.push(`Doručenka ${d.dmId}: ${textChyby(e)}`);
+      // Cizí zpráva (patří jiné naší schránce) skončí chybou ISDS — zkusí se
+      // u další schránky, do chyb ji proto nezapisujeme.
+      if (!jeIsdsError(e)) chyby.push(`Doručenka ${d.dmId}: ${textChyby(e)}`);
     }
   }
-  if (vysledky.length > 0) await adminApi.nahlasitDoruceni(vysledky);
-  return vysledky.length;
+
+  if (vysledky.length > 0) {
+    try {
+      await adminApi.nahlasitDoruceni(vysledky);
+    } catch (e) {
+      chyby.push(`Doručenky: ${textChyby(e)}`);
+    }
+  }
+  return hotove;
 }
 
-/** Výchozí okno, když server `stazenoOd` neposílá (ISDS drží zprávy 90 dnů). */
-export function vychoziStazenoOd(stazenoOd?: string | null): Date {
-  if (stazenoOd) {
-    const d = new Date(stazenoOd);
-    if (!Number.isNaN(d.getTime())) return d;
-  }
-  return new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+/**
+ * Které schránky z dnešního návrhu telefon nemá nastavené. Seznam `schranky`
+ * dodává server; když chybí, odvodí se z odesílatelů jednotlivých dopisů.
+ */
+export async function chybejiciSchranky(davka: VymDavka): Promise<{ dbId: string; nazev: string }[]> {
+  const ucty = await nacistUcty();
+  const zname = new Set(ucty.map((u) => u.dbId));
+  const zNavrhu =
+    davka.schranky?.length > 0
+      ? davka.schranky
+      : [...new Set(davka.dopisy.map((d) => schrankaOdesilatele(d.odesilatelDb)))].map((dbId) => ({
+          dbId,
+          nazev: dbId,
+        }));
+  return zNavrhu.filter((s) => !zname.has(s.dbId));
 }

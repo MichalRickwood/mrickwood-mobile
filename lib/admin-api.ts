@@ -408,6 +408,8 @@ export interface VymZakazka {
 export interface VymDopis {
   id: number;
   pripadId: number;
+  /** ID naší schránky, ze které se má dopis odeslat (`vym_pripad.odesilatel_db`). */
+  odesilatelDb: string;
   /** 1 připomínka § 217, 2 žádost podle InfZ, 3 stížnost § 16a. */
   stupen: number;
   predmet: string;
@@ -425,16 +427,21 @@ export interface VymDavka {
   dopisy: VymDopis[];
   pocetPripadu: number;
   cekaOdpovedi: boolean;
+  /** Odesílatelé, kteří se v dnešním návrhu vyskytují — pro kontrolu nastavení. */
+  schranky: { dbId: string; nazev: string }[];
   /**
-   * Od kdy stahovat došlé zprávy (`vym_stav.posledni_stazeni_prijatych`).
-   * `null` = ještě nikdy neběželo → telefon si vezme okno 30 dnů zpět.
+   * Od kdy stahovat došlé zprávy (`vym_stav.posledni_stazeni_prijatych:<dbId>`).
+   * `null` u schránky = ještě nikdy neběželo → telefon si vezme okno 30 dnů zpět.
+   * Holý `string` je starší tvar a platí pro schránku RWX.
    */
-  stazenoOd: string | null;
+  stazenoOd: Record<string, string | null> | string | null;
 }
 
 /** Dopis schválený k odeslání — PDF přichází rovnou v těle. */
 export interface VymOdeslani {
   dopisId: number;
+  /** Naše schránka, ze které dopis odchází. */
+  odesilatelDb: string;
   databoxId: string;
   predmet: string;
   naseZnacka: string;
@@ -510,10 +517,16 @@ export interface VymPrehled {
   pripady: VymPripad[];
 }
 
-/** Odeslaný dopis, ke kterému ještě nemáme doručenku. */
+/**
+ * Odeslaný dopis, ke kterému ještě nemáme doručenku.
+ * `odesilatelDb` kontrakt (kap. 5) zatím nemá — doručenka jde stáhnout jen
+ * z odesílající schránky, telefon proto zkouší schránky, které má právě
+ * odemčené (viz poznámka v SPEC §10).
+ */
 export interface VymKDoruceni {
   dopisId: number;
   dmId: string;
+  odesilatelDb?: string;
 }
 
 export const adminApi = {
@@ -741,10 +754,10 @@ export const adminApi = {
    * Předání došlých zpráv. Posílá se po jedné — přílohy v base64 se do
    * limitu těla Next.js (~4,5 MB) jinak nevejdou.
    */
-  nahlasitPrijate: async (zpravy: VymPrijataZprava[], stazenoAt: string) => {
+  nahlasitPrijate: async (zpravy: VymPrijataZprava[], stazenoAt: string, schrankaDb: string) => {
     const r = await api.post<Env<unknown>>(
       `${BASE}/vymahani/prijate`,
-      { zpravy, stazenoAt },
+      { zpravy, stazenoAt, schrankaDb },
       { timeoutMs: LONG_TIMEOUT_MS },
     );
     return r.data;

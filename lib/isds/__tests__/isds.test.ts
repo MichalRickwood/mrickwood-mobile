@@ -16,6 +16,7 @@ import {
   reqGetDeliveryInfo,
   reqGetListOfReceivedMessages,
   reqGetListOfSentMessages,
+  reqGetOwnerInfoFromLogin,
   reqGetUserInfoFromLogin,
   reqMessageDownload,
   reqSignedMessageDownload,
@@ -25,12 +26,14 @@ import {
   parseDeliveryInfo,
   parseFindDataBox,
   parseMessageDownload,
+  parseOwnerInfo,
   parsePasswordInfo,
   parseSeznamZprav,
   parseSignedMessageDownload,
   parseUserInfo,
 } from "../responses";
-import { jeIsdsError, jeOvm, jePlacenaZprava, jePovolenyPrijemce } from "../types";
+import { jeIsdsError, jeOvm, jePlacenaZprava, jePovolenyPrijemce, nazevDrzitele } from "../types";
+import { VYCHOZI_SCHRANKA, schrankaOdesilatele, stazenoOdSchranky } from "../schranky";
 import { jePlacenyPrijemce } from "../../vymahani-format";
 
 let bezi = 0;
@@ -112,6 +115,13 @@ test("FindDataBox drží pořadí elementů tDbOwnerInfo", () => {
   ]);
   // nepovinné elementy schématu neposíláme vůbec
   if (xml.includes("<v:email")) throw new Error("email se posílat nemá");
+});
+
+test("GetOwnerInfoFromLogin má stejný prázdný vstup jako GetUserInfoFromLogin", () => {
+  obsahuje(
+    reqGetOwnerInfoFromLogin(),
+    "<v:GetOwnerInfoFromLogin><v:dbDummy></v:dbDummy></v:GetOwnerInfoFromLogin>",
+  );
 });
 
 test("FindDataBox podle IČO hledá přes všechny typy schránek", () => {
@@ -256,6 +266,36 @@ test("GetPasswordInfo — datum expirace i NIL", () => {
     '<p:pswExpDate xsi:nil="true"/>',
   );
   equal(parsePasswordInfo(bezExpirace), null, "heslo neexpiruje");
+});
+
+test("GetOwnerInfoFromLogin — ID schránky a název držitele", () => {
+  // tGetOwnInfoOutput = dbOwnerInfo (tDbOwnerInfo) + dbStatus; GetUserInfoFromLogin
+  // dbID nevrací vůbec, proto se účet zakládá z téhle služby.
+  const s = `<p:GetOwnerInfoFromLoginResponse xmlns:p="http://isds.czechpoint.cz/v20"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <p:dbOwnerInfo>
+    <p:dbID>c8nc4q5</p:dbID>
+    <p:dbType>PO</p:dbType>
+    <p:ic>14235111</p:ic>
+    <p:pnFirstName xsi:nil="true"/>
+    <p:pnLastName xsi:nil="true"/>
+    <p:firmName>RWX, s.r.o.</p:firmName>
+    <p:adCity>Česká Třebová</p:adCity>
+    <p:dbState>1</p:dbState>
+  </p:dbOwnerInfo>
+  <p:dbStatus><p:dbStatusCode>0000</p:dbStatusCode><p:dbStatusMessage>Provedeno úspěšně.</p:dbStatusMessage></p:dbStatus>
+</p:GetOwnerInfoFromLoginResponse>`;
+  const o = parseOwnerInfo(s);
+  equal(o.dbID, "c8nc4q5", "dbID");
+  equal(o.dbType, "PO", "typ schránky");
+  equal(o.ic, "14235111", "IČO");
+  equal(nazevDrzitele(o), "RWX, s.r.o.", "název z firmName");
+});
+
+test("nazevDrzitele padá na jméno osoby a nakonec na ID schránky", () => {
+  const zaklad = { dbID: "ab12cd3", dbType: "PFO", ic: null, firmName: null };
+  equal(nazevDrzitele({ ...zaklad, pnGivenNames: "Jan", pnLastName: "Novák" }), "Jan Novák", "jméno osoby");
+  equal(nazevDrzitele({ ...zaklad, pnGivenNames: null, pnLastName: null }), "ab12cd3", "fallback na dbID");
 });
 
 test("FindDataBox — nalezená OVM schránka", () => {
@@ -548,6 +588,30 @@ test("jePlacenyPrijemce čte texty z veřejného seznamu schránek", () => {
   equal(jePlacenyPrijemce("Právnická osoba"), true, "PO");
   equal(jePlacenyPrijemce("PO"), true, "zkratka PO");
   equal(jePlacenyPrijemce(null), false, "neznámý typ štítek nezobrazuje");
+});
+
+test("schrankaOdesilatele padá na RWX, dokud server pole neposílá", () => {
+  equal(schrankaOdesilatele("abc1234"), "abc1234", "vyplněná schránka");
+  equal(schrankaOdesilatele(undefined), VYCHOZI_SCHRANKA, "chybějící pole");
+  equal(schrankaOdesilatele("  "), VYCHOZI_SCHRANKA, "prázdný řetězec");
+});
+
+test("stazenoOdSchranky čte mapu i starší tvar kontraktu", () => {
+  const ted = Date.UTC(2026, 8, 11, 12, 0, 0);
+  const okno = new Date(ted - 30 * 24 * 60 * 60 * 1000).toISOString();
+  const mapa = { c8nc4q5: "2026-09-01T08:00:00Z", xy12ab3: null };
+
+  equal(stazenoOdSchranky(mapa, "c8nc4q5", ted).toISOString(), "2026-09-01T08:00:00.000Z", "hodnota z mapy");
+  equal(stazenoOdSchranky(mapa, "xy12ab3", ted).toISOString(), okno, "null v mapě = okno 30 dnů");
+  equal(stazenoOdSchranky(mapa, "neznama", ted).toISOString(), okno, "schránka mimo mapu");
+  // starší tvar: holý string patří schránce RWX, ostatní schránky o něm nevědí
+  equal(
+    stazenoOdSchranky("2026-09-02T06:30:00Z", VYCHOZI_SCHRANKA, ted).toISOString(),
+    "2026-09-02T06:30:00.000Z",
+    "starší string pro RWX",
+  );
+  equal(stazenoOdSchranky("2026-09-02T06:30:00Z", "jina123", ted).toISOString(), okno, "starší string pro jinou schránku");
+  equal(stazenoOdSchranky(null, VYCHOZI_SCHRANKA, ted).toISOString(), okno, "null");
 });
 
 test("base64Utf8 zvládne diakritiku i doplňkové znaky", () => {
