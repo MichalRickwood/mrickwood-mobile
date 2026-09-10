@@ -3,6 +3,8 @@ import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, TextInput, View 
 import { AppScrollView } from "@/components/AppScroll";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "expo-router";
+import * as Updates from "expo-updates";
+import Constants from "expo-constants";
 import { useQueryClient } from "@tanstack/react-query";
 import { AdminCard } from "@/components/AdminRow";
 import { useI18n } from "@/lib/i18n";
@@ -41,6 +43,7 @@ export default function DatovkaNastaveniScreen() {
   const [heslo, setHeslo] = useState("");
   const [prostredi, setProstredi] = useState<IsdsEnv>("test");
   const [busy, setBusy] = useState(false);
+  const [hledaAktualizaci, setHledaAktualizaci] = useState(false);
 
   /** Přečíst účty a zároveň zneplatnit cache, ze které čte obrazovka Dnešní návrh. */
   const obnovUcty = useCallback(async () => {
@@ -63,6 +66,34 @@ export default function DatovkaNastaveniScreen() {
     };
   }, []);
   useFocusEffect(nacti);
+
+  /**
+   * Která verze kódu právě běží. Opravy se do telefonu posílají jako
+   * aktualizace přes vzduch (EAS Update) a ta se použije až při dalším startu —
+   * bez tohohle řádku se nedá poznat, jestli hlášená chyba platí, nebo je to
+   * ještě starý kód (10. 9. 2026: biometrie „pořád dvakrát" byla stará verze).
+   */
+  const verzeApp = Constants.expoConfig?.version ?? "?";
+  const aktualizaceZ = Updates.createdAt ? formatDatumCas(Updates.createdAt.toISOString(), locale) : null;
+
+  /** Stáhne novou verzi kódu a restartuje aplikaci. */
+  async function zkontrolovatAktualizaci() {
+    setHledaAktualizaci(true);
+    try {
+      const vysledek = await Updates.checkForUpdateAsync();
+      if (!vysledek.isAvailable) {
+        Alert.alert(t("admin", "dsVerzeTitle"), t("admin", "dsAktualizaceZadna"));
+        return;
+      }
+      Alert.alert(t("admin", "dsVerzeTitle"), t("admin", "dsAktualizaceStahuje"));
+      await Updates.fetchUpdateAsync();
+      await Updates.reloadAsync();
+    } catch (e) {
+      Alert.alert(t("admin", "dsChybaTitle"), t("admin", "dsAktualizaceChyba", { duvod: (e as Error).message }));
+    } finally {
+      setHledaAktualizaci(false);
+    }
+  }
 
   const prostrediLabel = (e: IsdsEnv) =>
     e === "prod" ? t("admin", "dsProstrediProd") : t("admin", "dsProstrediTest");
@@ -252,6 +283,23 @@ export default function DatovkaNastaveniScreen() {
           </Pressable>
         </AdminCard>
 
+        <Text style={[styles.sekce, styles.sekceOdsazena]}>{t("admin", "dsVerzeTitle")}</Text>
+        <AdminCard style={styles.card}>
+          <Text style={styles.meta}>{t("admin", "dsVerzeApp", { verze: verzeApp })}</Text>
+          <Text style={styles.hint}>
+            {aktualizaceZ
+              ? t("admin", "dsVerzeAktualizace", { kdy: aktualizaceZ })
+              : t("admin", "dsVerzeVestavena")}
+          </Text>
+          <Pressable
+            onPress={() => void zkontrolovatAktualizaci()}
+            disabled={hledaAktualizaci}
+            style={[styles.btn, hledaAktualizaci && styles.btnOff]}
+          >
+            <Text style={styles.btnText}>{t("admin", "dsZkontrolovatAktualizaci")}</Text>
+          </Pressable>
+        </AdminCard>
+
         {busy && <ActivityIndicator color={colors.accent} />}
       </AppScrollView>
     </SafeAreaView>
@@ -269,6 +317,7 @@ const makeStyles = (colors: Colors) =>
     safe: { flex: 1, backgroundColor: colors.bg },
     scroll: { padding: spacing.xl },
     sekce: { fontSize: fontSize.sm, color: colors.textSubtle, fontWeight: "600", marginBottom: spacing.sm },
+    sekceOdsazena: { marginTop: spacing.xl },
     card: { padding: spacing.lg },
     nazev: { fontSize: fontSize.base, color: colors.text, fontWeight: "600" },
     label: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: spacing.md, marginBottom: spacing.xs },

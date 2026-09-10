@@ -964,6 +964,14 @@ export interface Dict {
     dsLogin: string;
     dsHeslo: string;
     dsHesloHint: string;
+    dsVerzeTitle: string;
+    dsVerzeApp: string;
+    dsVerzeAktualizace: string;
+    dsVerzeVestavena: string;
+    dsZkontrolovatAktualizaci: string;
+    dsAktualizaceStahuje: string;
+    dsAktualizaceZadna: string;
+    dsAktualizaceChyba: string;
     dsProstredi: string;
     dsProstrediTest: string;
     dsProstrediProd: string;
@@ -1590,6 +1598,14 @@ const ADMIN_CS: Dict["admin"] = {
   dsLogin: "Přihlašovací jméno",
   dsHeslo: "Heslo",
   dsHesloHint: "Heslo se uloží do zabezpečeného úložiště telefonu za biometrii, zvlášť pro každou schránku. Na server se neposílá nikdy.",
+  dsVerzeTitle: "Verze aplikace",
+  dsVerzeApp: "Aplikace {verze}",
+  dsVerzeAktualizace: "Aktualizace z {kdy}",
+  dsVerzeVestavena: "Běží vestavěná verze z instalace, žádná aktualizace zatím nedošla.",
+  dsZkontrolovatAktualizaci: "Zkontrolovat aktualizaci",
+  dsAktualizaceStahuje: "Stahuji novou verzi, aplikace se za chvíli sama restartuje.",
+  dsAktualizaceZadna: "Máš nejnovější verzi.",
+  dsAktualizaceChyba: "Aktualizaci se nepodařilo stáhnout: {duvod}",
   dsProstredi: "Prostředí",
   dsProstrediTest: "Testovací",
   dsProstrediProd: "Ostrá schránka",
@@ -2205,6 +2221,14 @@ const ADMIN_EN: Dict["admin"] = {
   dsLogin: "Login name",
   dsHeslo: "Password",
   dsHesloHint: "The password is stored in the phone's secure storage behind biometrics, separately per box. It is never sent to the server.",
+  dsVerzeTitle: "App version",
+  dsVerzeApp: "App {verze}",
+  dsVerzeAktualizace: "Update from {kdy}",
+  dsVerzeVestavena: "Running the built-in version, no update has arrived yet.",
+  dsZkontrolovatAktualizaci: "Check for update",
+  dsAktualizaceStahuje: "Downloading a new version, the app will restart shortly.",
+  dsAktualizaceZadna: "You have the latest version.",
+  dsAktualizaceChyba: "Could not download the update: {duvod}",
   dsProstredi: "Environment",
   dsProstrediTest: "Test",
   dsProstrediProd: "Live box",
