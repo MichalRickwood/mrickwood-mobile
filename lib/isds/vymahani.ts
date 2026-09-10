@@ -7,7 +7,7 @@ import {
   type VymVysledekOdeslani,
 } from "../admin-api";
 import { IsdsClient } from "./client";
-import { nacistUcty, nacistUdajeSchranky, type IsdsUcet } from "./credentials";
+import { OdemceneSchranky, nacistUcty, type IsdsUcet } from "./credentials";
 import { schrankaOdesilatele, stazenoOdSchranky } from "./schranky";
 import { jeIsdsError, jeIsdsHttpError, jePovolenyPrijemce } from "./types";
 
@@ -122,6 +122,7 @@ export async function odeslatDopisy(
   navrh: VymDopis[],
   texty: VymTexty,
   naProbeh: NaProbeh,
+  relace: OdemceneSchranky = new OdemceneSchranky(),
 ): Promise<VysledekOdeslani> {
   const vysledky: VymVysledekOdeslani[] = [];
   const icoPodleDopisu = new Map(navrh.map((d) => [d.id, d.prijemce.ico]));
@@ -136,7 +137,7 @@ export async function odeslatDopisy(
       hotovo += dopisy.length;
       continue;
     }
-    const pristup = await nacistUdajeSchranky(dbId, texty.odemknout(ucet.nazev));
+    const pristup = await relace.ziskej(dbId, texty.odemknout(ucet.nazev));
     if (!pristup) {
       for (const d of dopisy) vysledky.push({ dopisId: d.dopisId, chyba: texty.overeniOdmitnuto(ucet.nazev) });
       hotovo += dopisy.length;
@@ -233,6 +234,7 @@ export async function stahnoutOdpovedi(
   stazenoOd: VymDavka["stazenoOd"],
   texty: VymTexty,
   naProbeh: NaProbeh,
+  relace: OdemceneSchranky = new OdemceneSchranky(),
 ): Promise<VysledekStazeni> {
   const chyby: string[] = [];
   let stazeno = 0;
@@ -253,7 +255,7 @@ export async function stahnoutOdpovedi(
   }
 
   for (const ucet of ucty) {
-    const pristup = await nacistUdajeSchranky(ucet.dbId, texty.odemknout(ucet.nazev));
+    const pristup = await relace.ziskej(ucet.dbId, texty.odemknout(ucet.nazev));
     if (!pristup) {
       chyby.push(texty.overeniOdmitnuto(ucet.nazev));
       continue;

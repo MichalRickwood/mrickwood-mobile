@@ -8,7 +8,7 @@ import { AdminCard } from "@/components/AdminRow";
 import { adminApi, type VymDopis } from "@/lib/admin-api";
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme-context";
-import { nacistUcty } from "@/lib/isds/credentials";
+import { OdemceneSchranky, nacistUcty } from "@/lib/isds/credentials";
 import {
   chybejiciSchranky,
   odeslatDopisy,
@@ -113,6 +113,9 @@ export default function DatovkaIndexScreen() {
 
   async function spustit() {
     setPrubeh({ faze: "overovani", hotovo: 0, celkem: kOdeslaniPocet });
+    // Jedno biometrické odemčení na celou dávku: odeslání i stažení odpovědí
+    // sáhne do téže relace a heslo se po doběhnutí zahodí.
+    const relace = new OdemceneSchranky();
     try {
       const kOdeslani = await adminApi.schvalitVymahaniDavku({
         dopisIds: dopisy.filter((d) => !vyrazene.has(d.id)).map((d) => d.id),
@@ -120,9 +123,9 @@ export default function DatovkaIndexScreen() {
       });
       // Hesla čte orchestrátor sám, jedno biometrické odemčení na schránku;
       // do stavu komponenty se nikdy nedostanou.
-      const odeslano = await odeslatDopisy(kOdeslani, dopisy, texty, setPrubeh);
+      const odeslano = await odeslatDopisy(kOdeslani, dopisy, texty, setPrubeh, relace);
       // Odpovědi se stahují rovnou po odeslání, ze všech nastavených schránek.
-      const stazeno = await stahnoutOdpovedi(davka.data?.stazenoOd ?? null, texty, setPrubeh);
+      const stazeno = await stahnoutOdpovedi(davka.data?.stazenoOd ?? null, texty, setPrubeh, relace);
 
       vycistitVyrazeni();
       void qc.invalidateQueries({ queryKey: DAVKA_KEY });
@@ -136,6 +139,7 @@ export default function DatovkaIndexScreen() {
     } catch (e) {
       Alert.alert(t("admin", "dsChybaTitle"), (e as Error).message);
     } finally {
+      relace.zapomen();
       setPrubeh(null);
     }
   }

@@ -143,7 +143,9 @@ export async function ulozitUcet(ucet: IsdsUcet, heslo: string, prompt: string):
 export async function nacistUdajeSchranky(dbId: string, duvod: string): Promise<IsdsCredentials | null> {
   const ucet = await najitUcet(dbId);
   if (!ucet) return null;
-  if (!(await overitBiometrii(duvod))) return null;
+  // Biometrii vynutí sám Keychain/Keystore při čtení chráněné položky
+  // (`requireAuthentication`). Volat před tím ještě `overitBiometrii` znamenalo
+  // DVA prompty na jedno odemčení — proto tu není.
   try {
     const heslo = await SecureStore.getItemAsync(klicHesla(dbId), chranene(duvod));
     if (!heslo) return null;
@@ -188,5 +190,30 @@ export async function uklidStareKlice(): Promise<void> {
     } catch {
       // Nic k zahození nebo zamítnutá biometrie — migrace nesmí blokovat sekci.
     }
+  }
+}
+
+/**
+ * Odemčené schránky po dobu jedné akce (dávka = odeslání + stažení odpovědí).
+ *
+ * Bez ní si heslo sahalo do Keychainu každé kolo zvlášť a uživatel potvrzoval
+ * biometrii několikrát za sebou (11. 9. 2026: čtyřikrát na jednu dávku).
+ * Držení hesla v paměti je vědomý kompromis: žije jen po dobu běhu akce a
+ * `zapomen()` v `finally` ho zahodí. Na disk ani na server se nedostane.
+ */
+export class OdemceneSchranky {
+  private cache = new Map<string, IsdsCredentials>();
+
+  /** Údaje ke schránce — biometrie jen při prvním sáhnutí v rámci akce. */
+  async ziskej(dbId: string, duvod: string): Promise<IsdsCredentials | null> {
+    const znami = this.cache.get(dbId);
+    if (znami) return znami;
+    const pristup = await nacistUdajeSchranky(dbId, duvod);
+    if (pristup) this.cache.set(dbId, pristup);
+    return pristup;
+  }
+
+  zapomen(): void {
+    this.cache.clear();
   }
 }
