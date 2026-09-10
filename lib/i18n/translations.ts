@@ -895,6 +895,115 @@ export interface Dict {
     it: string;
   };
   admin: {
+    // Datová schránka (vymáhání výsledků zakázek)
+    dsBiometrieUlozeni: string;
+    dsBiometrieSmazani: string;
+    dsSpatneUdaje: string;
+    dsRow: string;
+    dsRowHint: string;
+    dsTitle: string;
+    dsNastaveniTitle: string;
+    dsPrehledTitle: string;
+    dsDopisTitle: string;
+    dsDavkaTitle: string;
+    dsDavkaEmpty: string;
+    dsPocetPripadu: string;
+    dsCekaOdpovedi: string;
+    dsNoCreds: string;
+    dsNoCredsBtn: string;
+    dsSchvalitBtn: string;
+    dsStahnoutBtn: string;
+    dsPrehledBtn: string;
+    dsNastaveniBtn: string;
+    dsVyradit: string;
+    dsVratit: string;
+    dsVyrazeno: string;
+    dsStupenLabel: string;
+    dsStupen1: string;
+    dsStupen2: string;
+    dsStupen3: string;
+    dsSpoustecSmlouva: string;
+    dsSpoustec3m: string;
+    dsHodnota: string;
+    dsLhuta: string;
+    dsPotvrditTitle: string;
+    dsPotvrditBody: string;
+    dsPotvrditOk: string;
+    dsZrusit: string;
+    dsBiometrieOdeslani: string;
+    dsBiometrieStazeni: string;
+    dsBiometrieOvereni: string;
+    dsBiometrieZamitnuta: string;
+    dsFazeOverovani: string;
+    dsFazeOdesilani: string;
+    dsFazeHlaseni: string;
+    dsFazeSeznam: string;
+    dsFazeStahovani: string;
+    dsFazeDorucenky: string;
+    dsHotovoTitle: string;
+    dsHotovoOdeslano: string;
+    dsHotovoStazeno: string;
+    dsChybyTitle: string;
+    dsChybaTitle: string;
+    dsPrijemce: string;
+    dsZakazka: string;
+    dsZnacka: string;
+    dsPredmet: string;
+    dsOtevritPdf: string;
+    dsTextDopisu: string;
+    dsOtevritZakazku: string;
+    dsLogin: string;
+    dsHeslo: string;
+    dsHesloHint: string;
+    dsProstredi: string;
+    dsProstrediTest: string;
+    dsProstrediProd: string;
+    dsUlozit: string;
+    dsOverit: string;
+    dsSmazat: string;
+    dsSmazatPotvrzeni: string;
+    dsUlozeno: string;
+    dsNeulozeno: string;
+    dsOverenoAt: string;
+    dsBiometrieChybi: string;
+    dsUlozenoOk: string;
+    dsOverenoOk: string;
+    dsExpirace: string;
+    dsSmazanoOk: string;
+    dsVyplnUdaje: string;
+    dsSouhrnOtevrene: string;
+    dsSouhrnOdpovezeno: string;
+    dsSouhrnVyreseno: string;
+    dsSouhrnNedorucitelne: string;
+    dsSouhrnCekaNavrh: string;
+    dsFiltrVse: string;
+    dsPrehledEmpty: string;
+    dsDopisyLabel: string;
+    dsOdpovediLabel: string;
+    dsZadneOdpovedi: string;
+    dsVytezeno: string;
+    dsVitez: string;
+    dsUcastnici: string;
+    dsJistota: string;
+    dsStavOTEVRENY: string;
+    dsStavODPOVEZENO: string;
+    dsStavVYRESENO: string;
+    dsStavZAMITNUTO: string;
+    dsStavNEDORUCITELNY: string;
+    dsDopisNAVRH: string;
+    dsDopisSCHVALENO: string;
+    dsDopisODESLANO: string;
+    dsDopisDORUCENO: string;
+    dsDopisCHYBA: string;
+    dsDopisVYRAZENO: string;
+    dsTypPisemnaZprava: string;
+    dsTypOznameniOVyberu: string;
+    dsTypRozhodnutiOOdmitnuti: string;
+    dsTypZruseniRizeni: string;
+    dsTypJine: string;
+    dsNacitani: string;
+    dsChybaNacteni: string;
+    dsZkusitZnovu: string;
     // common
     title: string;
     back: string;
@@ -1410,6 +1519,115 @@ export interface Dict {
 
 // Admin sekce je owner-only interní nástroj → reálné cs+en, jinde EN fallback.
 const ADMIN_CS: Dict["admin"] = {
+  // Datová schránka (vymáhání výsledků zakázek)
+  dsBiometrieUlozeni: "Potvrď uložení údajů k datové schránce",
+  dsBiometrieSmazani: "Potvrď smazání údajů k datové schránce",
+  dsSpatneUdaje: "Přihlášení odmítnuto (HTTP 401) — zkontroluj jméno a heslo. Opakované pokusy vedou k dočasné blokaci.",
+  dsRow: "Datová schránka",
+  dsRowHint: "Vymáhání výsledků zakázek",
+  dsTitle: "Datová schránka",
+  dsNastaveniTitle: "Nastavení datové schránky",
+  dsPrehledTitle: "Přehled vymáhání",
+  dsDopisTitle: "Dopis",
+  dsDavkaTitle: "Dnešní návrh",
+  dsDavkaEmpty: "Žádné dopisy nečekají na schválení.",
+  dsPocetPripadu: "Otevřených případů: {n}",
+  dsCekaOdpovedi: "Čekají odpovědi ke stažení.",
+  dsNoCreds: "Údaje k datové schránce nejsou v telefonu uložené.",
+  dsNoCredsBtn: "Zadat údaje",
+  dsSchvalitBtn: "Schválit a odeslat ({n})",
+  dsStahnoutBtn: "Jen stáhnout odpovědi",
+  dsPrehledBtn: "Přehled případů",
+  dsNastaveniBtn: "Nastavení",
+  dsVyradit: "Vyřadit",
+  dsVratit: "Vrátit do dávky",
+  dsVyrazeno: "Vyřazeno",
+  dsStupenLabel: "Stupeň {n}",
+  dsStupen1: "připomínka § 217",
+  dsStupen2: "žádost podle InfZ",
+  dsStupen3: "stížnost § 16a",
+  dsSpoustecSmlouva: "Smlouva v registru",
+  dsSpoustec3m: "3 měsíce bez výsledku",
+  dsHodnota: "Hodnota",
+  dsLhuta: "Lhůta",
+  dsPotvrditTitle: "Odeslat dopisy?",
+  dsPotvrditBody: "Do datových schránek zadavatelů odejde {n} dopisů. Odeslání nejde vzít zpět.",
+  dsPotvrditOk: "Odeslat",
+  dsZrusit: "Zrušit",
+  dsBiometrieOdeslani: "Potvrď odeslání dopisů z datové schránky",
+  dsBiometrieStazeni: "Potvrď stažení zpráv z datové schránky",
+  dsBiometrieOvereni: "Potvrď ověření přihlášení do datové schránky",
+  dsBiometrieZamitnuta: "Ověření se nezdařilo — akce zrušena.",
+  dsFazeOverovani: "Ověřuji příjemce {i}/{n}",
+  dsFazeOdesilani: "Odesílám {i}/{n}",
+  dsFazeHlaseni: "Zapisuji výsledky",
+  dsFazeSeznam: "Načítám seznam došlých zpráv",
+  dsFazeStahovani: "Stahuji odpověď {i}/{n}",
+  dsFazeDorucenky: "Stahuji doručenky {i}/{n}",
+  dsHotovoTitle: "Hotovo",
+  dsHotovoOdeslano: "Odesláno {odeslano}, chyby {chyby}.",
+  dsHotovoStazeno: "Staženo {stazeno} odpovědí, doručenek {dorucenky}.",
+  dsChybyTitle: "Chyby",
+  dsChybaTitle: "Nepovedlo se",
+  dsPrijemce: "Příjemce",
+  dsZakazka: "Zakázka",
+  dsZnacka: "Naše značka",
+  dsPredmet: "Věc",
+  dsOtevritPdf: "Otevřít PDF",
+  dsTextDopisu: "Text dopisu",
+  dsOtevritZakazku: "Otevřít zakázku",
+  dsLogin: "Přihlašovací jméno",
+  dsHeslo: "Heslo",
+  dsHesloHint: "Heslo se uloží do zabezpečeného úložiště telefonu za biometrii. Na server se neposílá nikdy.",
+  dsProstredi: "Prostředí",
+  dsProstrediTest: "Testovací",
+  dsProstrediProd: "Ostrá schránka",
+  dsUlozit: "Uložit údaje",
+  dsOverit: "Ověřit přihlášení",
+  dsSmazat: "Smazat údaje z telefonu",
+  dsSmazatPotvrzeni: "Opravdu smazat přihlašovací údaje k datové schránce z telefonu?",
+  dsUlozeno: "Údaje jsou v telefonu uložené ({prostredi}).",
+  dsNeulozeno: "Údaje zatím uložené nejsou.",
+  dsOverenoAt: "Naposledy ověřeno {kdy}",
+  dsBiometrieChybi: "Zařízení nemá nastavenou biometrii ani zámek obrazovky — údaje k datové schránce nelze bezpečně uložit.",
+  dsUlozenoOk: "Údaje uloženy.",
+  dsOverenoOk: "Přihlášení funguje: {jmeno}, role {role}.",
+  dsExpirace: "Heslo vyprší {kdy}.",
+  dsSmazanoOk: "Údaje z telefonu smazány.",
+  dsVyplnUdaje: "Vyplň přihlašovací jméno i heslo.",
+  dsSouhrnOtevrene: "Otevřené",
+  dsSouhrnOdpovezeno: "Odpovězeno",
+  dsSouhrnVyreseno: "Vyřešeno",
+  dsSouhrnNedorucitelne: "Nedoručitelné",
+  dsSouhrnCekaNavrh: "Čeká návrh",
+  dsFiltrVse: "Vše",
+  dsPrehledEmpty: "Žádné případy.",
+  dsDopisyLabel: "Dopisy",
+  dsOdpovediLabel: "Odpovědi",
+  dsZadneOdpovedi: "Zatím bez odpovědi.",
+  dsVytezeno: "Vytěženo",
+  dsVitez: "Vítěz",
+  dsUcastnici: "Účastníci",
+  dsJistota: "Jistota",
+  dsStavOTEVRENY: "Otevřený",
+  dsStavODPOVEZENO: "Odpovězeno",
+  dsStavVYRESENO: "Vyřešeno",
+  dsStavZAMITNUTO: "Zamítnuto",
+  dsStavNEDORUCITELNY: "Nedoručitelný",
+  dsDopisNAVRH: "Návrh",
+  dsDopisSCHVALENO: "Schváleno",
+  dsDopisODESLANO: "Odesláno",
+  dsDopisDORUCENO: "Doručeno",
+  dsDopisCHYBA: "Chyba",
+  dsDopisVYRAZENO: "Vyřazeno",
+  dsTypPisemnaZprava: "Písemná zpráva zadavatele",
+  dsTypOznameniOVyberu: "Oznámení o výběru",
+  dsTypRozhodnutiOOdmitnuti: "Rozhodnutí o odmítnutí",
+  dsTypZruseniRizeni: "Zrušení řízení",
+  dsTypJine: "Jiné",
+  dsNacitani: "Načítám…",
+  dsChybaNacteni: "Data se nepodařilo načíst.",
+  dsZkusitZnovu: "Zkusit znovu",
   title: "Admin",
   back: "Zpět",
   loading: "Načítám…",
@@ -1914,6 +2132,115 @@ const ADMIN_CS: Dict["admin"] = {
 };
 
 const ADMIN_EN: Dict["admin"] = {
+  // Data box (chasing tender results)
+  dsBiometrieUlozeni: "Confirm saving the data box credentials",
+  dsBiometrieSmazani: "Confirm deleting the data box credentials",
+  dsSpatneUdaje: "Sign-in rejected (HTTP 401) — check the name and password. Repeated attempts lead to a temporary block.",
+  dsRow: "Data box",
+  dsRowHint: "Chasing tender results",
+  dsTitle: "Data box",
+  dsNastaveniTitle: "Data box settings",
+  dsPrehledTitle: "Chasing overview",
+  dsDopisTitle: "Letter",
+  dsDavkaTitle: "Today's proposal",
+  dsDavkaEmpty: "No letters are waiting for approval.",
+  dsPocetPripadu: "Open cases: {n}",
+  dsCekaOdpovedi: "There are replies waiting to be downloaded.",
+  dsNoCreds: "Data box credentials are not stored on this phone.",
+  dsNoCredsBtn: "Enter credentials",
+  dsSchvalitBtn: "Approve and send ({n})",
+  dsStahnoutBtn: "Only download replies",
+  dsPrehledBtn: "Case overview",
+  dsNastaveniBtn: "Settings",
+  dsVyradit: "Drop",
+  dsVratit: "Return to batch",
+  dsVyrazeno: "Dropped",
+  dsStupenLabel: "Level {n}",
+  dsStupen1: "§ 217 reminder",
+  dsStupen2: "freedom-of-information request",
+  dsStupen3: "§ 16a complaint",
+  dsSpoustecSmlouva: "Contract in the register",
+  dsSpoustec3m: "3 months with no result",
+  dsHodnota: "Value",
+  dsLhuta: "Deadline",
+  dsPotvrditTitle: "Send the letters?",
+  dsPotvrditBody: "{n} letters will be sent to the buyers' data boxes. Sending cannot be undone.",
+  dsPotvrditOk: "Send",
+  dsZrusit: "Cancel",
+  dsBiometrieOdeslani: "Confirm sending letters from the data box",
+  dsBiometrieStazeni: "Confirm downloading messages from the data box",
+  dsBiometrieOvereni: "Confirm the data box sign-in check",
+  dsBiometrieZamitnuta: "Authentication failed — action cancelled.",
+  dsFazeOverovani: "Verifying recipient {i}/{n}",
+  dsFazeOdesilani: "Sending {i}/{n}",
+  dsFazeHlaseni: "Recording results",
+  dsFazeSeznam: "Loading the list of incoming messages",
+  dsFazeStahovani: "Downloading reply {i}/{n}",
+  dsFazeDorucenky: "Downloading delivery receipts {i}/{n}",
+  dsHotovoTitle: "Done",
+  dsHotovoOdeslano: "Sent {odeslano}, errors {chyby}.",
+  dsHotovoStazeno: "Downloaded {stazeno} replies, {dorucenky} delivery receipts.",
+  dsChybyTitle: "Errors",
+  dsChybaTitle: "It did not work",
+  dsPrijemce: "Recipient",
+  dsZakazka: "Tender",
+  dsZnacka: "Our reference",
+  dsPredmet: "Subject",
+  dsOtevritPdf: "Open PDF",
+  dsTextDopisu: "Letter text",
+  dsOtevritZakazku: "Open tender",
+  dsLogin: "Login name",
+  dsHeslo: "Password",
+  dsHesloHint: "The password is stored in the phone's secure storage behind biometrics. It is never sent to the server.",
+  dsProstredi: "Environment",
+  dsProstrediTest: "Test",
+  dsProstrediProd: "Live box",
+  dsUlozit: "Save credentials",
+  dsOverit: "Check sign-in",
+  dsSmazat: "Delete credentials from the phone",
+  dsSmazatPotvrzeni: "Really delete the data box credentials from this phone?",
+  dsUlozeno: "Credentials are stored on this phone ({prostredi}).",
+  dsNeulozeno: "No credentials stored yet.",
+  dsOverenoAt: "Last checked {kdy}",
+  dsBiometrieChybi: "This device has no biometrics or screen lock set up — data box credentials cannot be stored safely.",
+  dsUlozenoOk: "Credentials saved.",
+  dsOverenoOk: "Sign-in works: {jmeno}, role {role}.",
+  dsExpirace: "The password expires on {kdy}.",
+  dsSmazanoOk: "Credentials deleted from the phone.",
+  dsVyplnUdaje: "Fill in both the login name and the password.",
+  dsSouhrnOtevrene: "Open",
+  dsSouhrnOdpovezeno: "Answered",
+  dsSouhrnVyreseno: "Resolved",
+  dsSouhrnNedorucitelne: "Undeliverable",
+  dsSouhrnCekaNavrh: "Proposal waiting",
+  dsFiltrVse: "All",
+  dsPrehledEmpty: "No cases.",
+  dsDopisyLabel: "Letters",
+  dsOdpovediLabel: "Replies",
+  dsZadneOdpovedi: "No reply yet.",
+  dsVytezeno: "Extracted",
+  dsVitez: "Winner",
+  dsUcastnici: "Bidders",
+  dsJistota: "Confidence",
+  dsStavOTEVRENY: "Open",
+  dsStavODPOVEZENO: "Answered",
+  dsStavVYRESENO: "Resolved",
+  dsStavZAMITNUTO: "Refused",
+  dsStavNEDORUCITELNY: "Undeliverable",
+  dsDopisNAVRH: "Proposal",
+  dsDopisSCHVALENO: "Approved",
+  dsDopisODESLANO: "Sent",
+  dsDopisDORUCENO: "Delivered",
+  dsDopisCHYBA: "Error",
+  dsDopisVYRAZENO: "Dropped",
+  dsTypPisemnaZprava: "Contracting authority report",
+  dsTypOznameniOVyberu: "Award notice",
+  dsTypRozhodnutiOOdmitnuti: "Refusal decision",
+  dsTypZruseniRizeni: "Procedure cancelled",
+  dsTypJine: "Other",
+  dsNacitani: "Loading…",
+  dsChybaNacteni: "The data could not be loaded.",
+  dsZkusitZnovu: "Try again",
   title: "Admin",
   back: "Back",
   loading: "Loading…",

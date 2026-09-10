@@ -19,11 +19,18 @@ const KLIC_PROSTREDI = "isds.env";
 /** Nechráněný příznak, ať jde v Nastavení ukázat stav bez biometrie. */
 const KLIC_META = "isds.meta";
 
-const CHRANENE: SecureStore.SecureStoreOptions = {
-  requireAuthentication: true,
-  keychainService: "cz.mrickwood.veritra.isds",
-  authenticationPrompt: "Přístup k údajům datové schránky",
-};
+/**
+ * Volby chráněné položky. `requireAuthentication` a `keychainService` musí být
+ * u zápisu, čtení i mazání stejné, jinak se položka nenajde. Text promptu si
+ * přináší volající — hlášky patří do i18n, ne sem.
+ */
+function chranene(prompt: string): SecureStore.SecureStoreOptions {
+  return {
+    requireAuthentication: true,
+    keychainService: "cz.mrickwood.veritra.isds",
+    authenticationPrompt: prompt,
+  };
+}
 
 export interface IsdsMeta {
   ulozeno: boolean;
@@ -87,10 +94,11 @@ async function zapsatMeta(meta: IsdsMeta): Promise<void> {
 }
 
 /** Uloží údaje. Bez zaregistrované biometrie se ukládat nesmí. */
-export async function ulozitUdaje(udaje: IsdsCredentials): Promise<void> {
-  await SecureStore.setItemAsync(KLIC_LOGIN, udaje.login, CHRANENE);
-  await SecureStore.setItemAsync(KLIC_HESLO, udaje.password, CHRANENE);
-  await SecureStore.setItemAsync(KLIC_PROSTREDI, udaje.env, CHRANENE);
+export async function ulozitUdaje(udaje: IsdsCredentials, prompt: string): Promise<void> {
+  const opts = chranene(prompt);
+  await SecureStore.setItemAsync(KLIC_LOGIN, udaje.login, opts);
+  await SecureStore.setItemAsync(KLIC_HESLO, udaje.password, opts);
+  await SecureStore.setItemAsync(KLIC_PROSTREDI, udaje.env, opts);
   const meta = await nacistMeta();
   await zapsatMeta({ ...meta, ulozeno: true, env: udaje.env });
 }
@@ -103,11 +111,12 @@ export async function nacistUdaje(duvod: string): Promise<IsdsCredentials | null
   const meta = await nacistMeta();
   if (!meta.ulozeno) return null;
   if (!(await overitBiometrii(duvod))) return null;
+  const opts = chranene(duvod);
   try {
     const [login, password, env] = await Promise.all([
-      SecureStore.getItemAsync(KLIC_LOGIN, CHRANENE),
-      SecureStore.getItemAsync(KLIC_HESLO, CHRANENE),
-      SecureStore.getItemAsync(KLIC_PROSTREDI, CHRANENE),
+      SecureStore.getItemAsync(KLIC_LOGIN, opts),
+      SecureStore.getItemAsync(KLIC_HESLO, opts),
+      SecureStore.getItemAsync(KLIC_PROSTREDI, opts),
     ]);
     if (!login || !password) return null;
     return { login, password, env: env === "prod" ? "prod" : "test" };
@@ -123,11 +132,12 @@ export async function zapsatOvereni(jmeno: string | null): Promise<void> {
 }
 
 /** Smaže všechno, co k datové schránce v telefonu je. */
-export async function smazatUdaje(): Promise<void> {
+export async function smazatUdaje(prompt: string): Promise<void> {
+  const opts = chranene(prompt);
   await Promise.all([
-    SecureStore.deleteItemAsync(KLIC_LOGIN, CHRANENE),
-    SecureStore.deleteItemAsync(KLIC_HESLO, CHRANENE),
-    SecureStore.deleteItemAsync(KLIC_PROSTREDI, CHRANENE),
+    SecureStore.deleteItemAsync(KLIC_LOGIN, opts),
+    SecureStore.deleteItemAsync(KLIC_HESLO, opts),
+    SecureStore.deleteItemAsync(KLIC_PROSTREDI, opts),
     SecureStore.deleteItemAsync(KLIC_META),
   ]);
 }

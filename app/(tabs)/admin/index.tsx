@@ -55,6 +55,14 @@ export default function AdminIndexScreen() {
               onPress={() => router.push("/(tabs)/admin/inbox")}
             />
           )}
+          {/* Datová schránka je vázaná na schránku RWX — vidí ji jen její majitel. */}
+          {isInboxOwner(user) && (
+            <AdminRow
+              label={t("admin", "dsRow")}
+              hint={t("admin", "dsRowHint")}
+              onPress={() => router.push("/(tabs)/admin/datovka")}
+            />
+          )}
           <AdminRow
             label={t("admin", "feedbackRow")}
             hint={t("admin", "feedbackRowHint")}

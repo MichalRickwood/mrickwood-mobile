@@ -234,6 +234,9 @@ function routeFor(d: Record<string, unknown> | null): PushTarget | null {
       const feedbackId = str("feedbackId");
       return feedbackId ? { pathname: `/(tabs)/admin/feedback/${feedbackId}` } : null;
     }
+    case "vymahani":
+      // „N dopisů čeká na schválení" → rovnou dnešní návrh v Datové schránce.
+      return { pathname: "/(tabs)/admin/datovka" };
     default:
       return null;
   }
