@@ -12,6 +12,7 @@ import {
   isdsCas,
   reqCreateMessage,
   reqFindDataBoxById,
+  reqFindDataBoxByIco,
   reqGetDeliveryInfo,
   reqGetListOfReceivedMessages,
   reqGetListOfSentMessages,
@@ -29,7 +30,8 @@ import {
   parseSignedMessageDownload,
   parseUserInfo,
 } from "../responses";
-import { jeIsdsError, jeOvm } from "../types";
+import { jeIsdsError, jeOvm, jePlacenaZprava, jePovolenyPrijemce } from "../types";
+import { jePlacenyPrijemce } from "../../vymahani-format";
 
 let bezi = 0;
 let padlo = 0;
@@ -110,6 +112,15 @@ test("FindDataBox drží pořadí elementů tDbOwnerInfo", () => {
   ]);
   // nepovinné elementy schématu neposíláme vůbec
   if (xml.includes("<v:email")) throw new Error("email se posílat nemá");
+});
+
+test("FindDataBox podle IČO hledá přes všechny typy schránek", () => {
+  const xml = reqFindDataBoxByIco("14235111");
+  obsahuje(xml, "<v:ic>14235111</v:ic>");
+  // prázdný dbType = speciální hodnota „přes všechny typy" (kap. 2.1 příručky);
+  // zadavatel může mít vedle OVM schránky i schránku typu PO
+  obsahuje(xml, '<v:dbType xsi:nil="true"/>');
+  obsahuje(xml, '<v:dbID xsi:nil="true"/>');
 });
 
 test("CreateMessage drží pořadí obálky podle ukázky v příručce", () => {
@@ -514,6 +525,29 @@ test("jeOvm pustí jen schránky orgánu veřejné moci", () => {
   for (const t of ["PO", "PO_REQ", "PFO", "PFO_ADVOK", "FO", "", null, undefined]) {
     if (jeOvm(t)) throw new Error(`${String(t)} nemá projít`);
   }
+});
+
+test("jePovolenyPrijemce pouští OVM i PO, nikdy FO/PFO", () => {
+  for (const t of ["OVM", "OVM_PO", "OVM_REQ", "OVM_FO", "OVM_PFO", "PO", "po"]) {
+    if (!jePovolenyPrijemce(t)) throw new Error(`${t} má projít`);
+  }
+  for (const t of ["FO", "PFO", "PFO_ADVOK", "PO_REQ", "", null, undefined]) {
+    if (jePovolenyPrijemce(t)) throw new Error(`${String(t)} nemá projít`);
+  }
+});
+
+test("jePlacenaZprava značí všechno mimo OVM", () => {
+  equal(jePlacenaZprava("OVM"), false, "OVM je zdarma");
+  equal(jePlacenaZprava("OVM_PO"), false, "podtyp OVM je zdarma");
+  equal(jePlacenaZprava("PO"), true, "PO je Poštovní DZ z kreditu");
+});
+
+test("jePlacenyPrijemce čte texty z veřejného seznamu schránek", () => {
+  equal(jePlacenyPrijemce("OVM"), false, "OVM");
+  equal(jePlacenyPrijemce("OVM - Právnická osoba"), false, "podtyp OVM");
+  equal(jePlacenyPrijemce("Právnická osoba"), true, "PO");
+  equal(jePlacenyPrijemce("PO"), true, "zkratka PO");
+  equal(jePlacenyPrijemce(null), false, "neznámý typ štítek nezobrazuje");
 });
 
 test("base64Utf8 zvládne diakritiku i doplňkové znaky", () => {

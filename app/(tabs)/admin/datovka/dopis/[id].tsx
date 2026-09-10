@@ -10,7 +10,7 @@ import { adminApi } from "@/lib/admin-api";
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme-context";
 import { prepnoutVyrazeni, useVyrazene } from "@/lib/isds/vyrazene";
-import { STUPEN_KLIC, formatCastka, formatDatum } from "@/lib/vymahani-format";
+import { STUPEN_KLIC, formatCastka, formatDatum, jePlacenyPrijemce } from "@/lib/vymahani-format";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 
 /**
@@ -75,6 +75,12 @@ export default function DatovkaDopisScreen() {
             IČO {dopis.prijemce.ico} · {dopis.prijemce.databoxId}
             {dopis.prijemce.typ ? ` · ${dopis.prijemce.typ}` : ""}
           </Text>
+          {jePlacenyPrijemce(dopis.prijemce.typ) && (
+            <>
+              <Text style={styles.placena}>{t("admin", "dsPlacenaZprava")}</Text>
+              <Text style={styles.meta}>{t("admin", "dsPlacenaHint")}</Text>
+            </>
+          )}
 
           <Text style={styles.label}>{t("admin", "dsZakazka")}</Text>
           <Text style={styles.hodnota}>{dopis.zakazka.nazev}</Text>
@@ -139,6 +145,18 @@ const makeStyles = (colors: Colors) =>
     hodnota: { fontSize: fontSize.base, color: colors.text, fontWeight: "500" },
     meta: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: 2 },
     odkaz: { fontSize: fontSize.sm, color: colors.link, marginTop: spacing.xs, fontWeight: "600" },
+    placena: {
+      alignSelf: "flex-start",
+      marginTop: spacing.xs,
+      fontSize: fontSize.xs,
+      fontWeight: "700",
+      color: colors.warning,
+      backgroundColor: colors.warningBg,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 2,
+      borderRadius: radius.sm,
+      overflow: "hidden",
+    },
     text: { fontSize: fontSize.sm, color: colors.textMuted, lineHeight: 21, marginTop: spacing.xs },
     btn: {
       marginTop: spacing.md,

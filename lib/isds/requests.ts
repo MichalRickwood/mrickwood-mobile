@@ -72,10 +72,11 @@ export function reqFindDataBoxById(dbID: string): string {
 }
 
 /**
- * FindDataBox podle IČO. Z neOVM schránky (RWX je PO) se takto dají najít
- * jen schránky OVM — což je přesně náš případ.
+ * FindDataBox podle IČO. Prázdný `dbType` je podle příručky speciální hodnota
+ * „přes všechny typy schránek" — potřebujeme ji, protože zadavatel může mít
+ * vedle OVM schránky i schránku typu PO.
  */
-export function reqFindDataBoxByIco(ic: string, dbType: string | null = "OVM"): string {
+export function reqFindDataBoxByIco(ic: string, dbType: string | null = null): string {
   return soapEnvelope(
     `<v:FindDataBox><v:dbOwnerInfo>${dbOwnerInfo({ ic, dbType })}</v:dbOwnerInfo></v:FindDataBox>`,
   );

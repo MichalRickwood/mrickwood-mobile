@@ -11,7 +11,7 @@ import { useTheme } from "@/lib/theme-context";
 import { nacistMeta, nacistUdaje } from "@/lib/isds/credentials";
 import { odeslatDopisy, stahnoutOdpovedi, vychoziStazenoOd, type VymPrubeh } from "@/lib/isds/vymahani";
 import { prepnoutVyrazeni, useVyrazene, vycistitVyrazeni } from "@/lib/isds/vyrazene";
-import { STUPEN_KLIC, formatCastka, formatDatum } from "@/lib/vymahani-format";
+import { STUPEN_KLIC, formatCastka, formatDatum, jePlacenyPrijemce } from "@/lib/vymahani-format";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 
 export const DAVKA_KEY = ["ds-davka"] as const;
@@ -90,7 +90,7 @@ export default function DatovkaIndexScreen() {
         dopisIds: dopisy.filter((d) => !vyrazene.has(d.id)).map((d) => d.id),
         vyradit: [...vyrazene],
       });
-      const odeslano = await odeslatDopisy(pristup, kOdeslani, setPrubeh);
+      const odeslano = await odeslatDopisy(pristup, kOdeslani, dopisy, setPrubeh);
       // Odpovědi se stahují rovnou po odeslání — jedna biometrie na celou dávku.
       const stazeno = await stahnoutOdpovedi(pristup, vychoziStazenoOd(davka.data?.stazenoOd), setPrubeh);
 
@@ -272,7 +272,12 @@ function RadekDopisu({
             {t("admin", dopis.spoustec === "smlouva_v_registru" ? "dsSpoustecSmlouva" : "dsSpoustec3m")}
           </Text>
         </View>
-        <Text style={styles.prijemce}>{dopis.prijemce.nazev}</Text>
+        <View style={styles.prijemceRada}>
+          <Text style={styles.prijemce}>{dopis.prijemce.nazev}</Text>
+          {jePlacenyPrijemce(dopis.prijemce.typ) && (
+            <Text style={styles.placena}>{t("admin", "dsPlacenaZprava")}</Text>
+          )}
+        </View>
         <Text style={styles.zakazkaNazev} numberOfLines={2}>
           {dopis.zakazka.nazev}
         </Text>
@@ -313,7 +318,18 @@ const makeStyles = (colors: Colors) =>
       overflow: "hidden",
     },
     spoustec: { fontSize: fontSize.xs, color: colors.textSubtle, flex: 1 },
+    prijemceRada: { flexDirection: "row", alignItems: "center", gap: spacing.sm, flexWrap: "wrap" },
     prijemce: { fontSize: fontSize.base, color: colors.text, fontWeight: "600" },
+    placena: {
+      fontSize: fontSize.xs,
+      fontWeight: "700",
+      color: colors.warning,
+      backgroundColor: colors.warningBg,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 2,
+      borderRadius: radius.sm,
+      overflow: "hidden",
+    },
     zakazkaNazev: { fontSize: fontSize.sm, color: colors.textMuted, marginTop: 2 },
     meta: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: spacing.xs },
     vyraditBtn: { marginTop: spacing.md, alignSelf: "flex-start" },

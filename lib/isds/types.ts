@@ -189,3 +189,22 @@ export function jeOvm(dbType: string | null | undefined): boolean {
   if (!dbType) return false;
   return (OVM_TYPY as readonly string[]).includes(dbType.trim().toUpperCase());
 }
+
+/**
+ * Typy schránek, do kterých smí dopis odejít. Kromě OVM i `PO` — zadavatelé
+ * jako Správa železnic nebo krajské nemocnice mají schránku právnické osoby,
+ * ale povinným subjektem podle InfZ jsou (dry-run 10. 9. 2026: 2 z 5).
+ * `FO` a `PFO` nikdy.
+ */
+export function jePovolenyPrijemce(dbType: string | null | undefined): boolean {
+  if (!dbType) return false;
+  return jeOvm(dbType) || dbType.trim().toUpperCase() === "PO";
+}
+
+/**
+ * Do schránky, která není OVM, jde Poštovní datová zpráva — placená z kreditu
+ * odesílatele (dnes 10 Kč). Michal to musí vidět, než dávku schválí.
+ */
+export function jePlacenaZprava(dbType: string | null | undefined): boolean {
+  return !jeOvm(dbType);
+}

@@ -1,6 +1,12 @@
-import { adminApi, type VymOdeslani, type VymPrijataZprava, type VymVysledekOdeslani } from "../admin-api";
+import {
+  adminApi,
+  type VymDopis,
+  type VymOdeslani,
+  type VymPrijataZprava,
+  type VymVysledekOdeslani,
+} from "../admin-api";
 import { IsdsClient } from "./client";
-import { jeIsdsError, jeIsdsHttpError, jeOvm, type IsdsCredentials } from "./types";
+import { jeIsdsError, jeIsdsHttpError, jePovolenyPrijemce, type IsdsCredentials } from "./types";
 
 /**
  * Průběh dávky vymáhání — telefon dělá ruce (ISDS), server mozek.
@@ -47,42 +53,68 @@ export interface VysledekOdeslani {
 }
 
 /**
+ * Ověření příjemce před odesláním — pojistka proti podstrčené schránce.
+ *
+ * Hledá se podle IČO zadavatele z návrhu (ne podle ID schránky, to by jen
+ * potvrdilo, co server poslal) a dopis odejde jen tehdy, když je mezi nálezy
+ * schránka s tímtéž ID, je aktivní a má povolený typ (OVM* nebo PO).
+ * Vrací null při úspěchu, jinak důvod přeskočení.
+ */
+async function overitPrijemce(
+  klient: IsdsClient,
+  ico: string,
+  databoxId: string,
+): Promise<string | null> {
+  const nalez = await klient.findDataBoxByIco(ico);
+  // 0009 = schránka existuje, ale Poštovní datovou zprávu do ní z naší
+  // schránky poslat nelze; údaje o ní se ani nevracejí.
+  if (nalez.status.code === "0009") {
+    return `Do schránky ${databoxId} nelze poslat Poštovní datovou zprávu (ISDS 0009).`;
+  }
+  const schranka = nalez.schranky.find((s) => s.dbID === databoxId);
+  if (!schranka) {
+    const nalezene = nalez.schranky.map((s) => `${s.dbID ?? "?"}/${s.dbType ?? "?"}`).join(", ") || "žádná";
+    return `IČO ${ico} neodpovídá schránce ${databoxId} (ISDS ${nalez.status.code}, nalezeno: ${nalezene}).`;
+  }
+  if (!jePovolenyPrijemce(schranka.dbType)) {
+    return `Nepovolený typ schránky ${schranka.dbType ?? "?"} (povoleno jen OVM a PO) — dopis přeskočen.`;
+  }
+  if (schranka.dbState !== null && schranka.dbState !== 1) {
+    return `Schránka ${databoxId} není aktivní (stav ${schranka.dbState}).`;
+  }
+  return null;
+}
+
+/**
  * Odešle schválené dopisy do datových schránek a nahlásí výsledky serveru.
  * Chyba jednoho dopisu nezastaví dávku — zapíše se a pokračuje se dál.
+ *
+ * `navrh` je dnešní dávka z `/davka`; bereme z ní IČO zadavatele, které
+ * `OdeslaniDto` neobsahuje.
  */
 export async function odeslatDopisy(
   udaje: IsdsCredentials,
   kOdeslani: VymOdeslani[],
+  navrh: VymDopis[],
   naProbeh: NaProbeh,
 ): Promise<VysledekOdeslani> {
   const klient = new IsdsClient(udaje);
   const vysledky: VymVysledekOdeslani[] = [];
+  const icoPodleDopisu = new Map(navrh.map((d) => [d.id, d.prijemce.ico]));
 
   for (let i = 0; i < kOdeslani.length; i++) {
     const dopis = kOdeslani[i];
     naProbeh({ faze: "overovani", hotovo: i, celkem: kOdeslani.length, popis: dopis.predmet });
 
-    // 1) Ověření příjemce. Pojistka proti podstrčené schránce: server může
-    //    poslat jakékoli ID, ale dopis odejde jen do aktivní schránky OVM.
+    const ico = icoPodleDopisu.get(dopis.dopisId);
+    if (!ico) {
+      vysledky.push({ dopisId: dopis.dopisId, chyba: "K dopisu chybí IČO zadavatele — příjemce nelze ověřit." });
+      continue;
+    }
     try {
-      const nalez = await klient.findDataBoxById(dopis.databoxId);
-      const schranka = nalez.schranky[0];
-      if (!schranka) {
-        vysledky.push({ dopisId: dopis.dopisId, chyba: `Schránka ${dopis.databoxId} nenalezena (${nalez.status.code}).` });
-        continue;
-      }
-      if (!jeOvm(schranka.dbType)) {
-        vysledky.push({
-          dopisId: dopis.dopisId,
-          chyba: `Příjemce není OVM (typ schránky ${schranka.dbType ?? "?"}) — dopis přeskočen.`,
-        });
-        continue;
-      }
-      if (schranka.dbState !== null && schranka.dbState !== 1) {
-        vysledky.push({
-          dopisId: dopis.dopisId,
-          chyba: `Schránka ${dopis.databoxId} není aktivní (stav ${schranka.dbState}).`,
-        });
+      const duvod = await overitPrijemce(klient, ico, dopis.databoxId);
+      if (duvod) {
+        vysledky.push({ dopisId: dopis.dopisId, chyba: duvod });
         continue;
       }
     } catch (e) {

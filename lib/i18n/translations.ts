@@ -896,6 +896,8 @@ export interface Dict {
   };
   admin: {
     // Datová schránka (vymáhání výsledků zakázek)
+    dsPlacenaZprava: string;
+    dsPlacenaHint: string;
     dsBiometrieUlozeni: string;
     dsBiometrieSmazani: string;
     dsSpatneUdaje: string;
@@ -1520,6 +1522,8 @@ export interface Dict {
 // Admin sekce je owner-only interní nástroj → reálné cs+en, jinde EN fallback.
 const ADMIN_CS: Dict["admin"] = {
   // Datová schránka (vymáhání výsledků zakázek)
+  dsPlacenaZprava: "placená zpráva",
+  dsPlacenaHint: "Schránka není OVM — půjde Poštovní datová zpráva placená z kreditu (10 Kč).",
   dsBiometrieUlozeni: "Potvrď uložení údajů k datové schránce",
   dsBiometrieSmazani: "Potvrď smazání údajů k datové schránce",
   dsSpatneUdaje: "Přihlášení odmítnuto (HTTP 401) — zkontroluj jméno a heslo. Opakované pokusy vedou k dočasné blokaci.",
@@ -2133,6 +2137,8 @@ const ADMIN_CS: Dict["admin"] = {
 
 const ADMIN_EN: Dict["admin"] = {
   // Data box (chasing tender results)
+  dsPlacenaZprava: "paid message",
+  dsPlacenaHint: "The box is not a public authority — this goes as a paid Postal data message from credit (CZK 10).",
   dsBiometrieUlozeni: "Confirm saving the data box credentials",
   dsBiometrieSmazani: "Confirm deleting the data box credentials",
   dsSpatneUdaje: "Sign-in rejected (HTTP 401) — check the name and password. Repeated attempts lead to a temporary block.",

@@ -427,9 +427,9 @@ export interface VymDavka {
   cekaOdpovedi: boolean;
   /**
    * Od kdy stahovat došlé zprávy (`vym_stav.posledni_stazeni_prijatych`).
-   * Nepovinné — dokud ho server neposílá, telefon si bere okno 30 dnů zpět.
+   * `null` = ještě nikdy neběželo → telefon si vezme okno 30 dnů zpět.
    */
-  stazenoOd?: string | null;
+  stazenoOd: string | null;
 }
 
 /** Dopis schválený k odeslání — PDF přichází rovnou v těle. */

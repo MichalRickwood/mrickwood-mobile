@@ -37,6 +37,20 @@ export const TYP_VYTEZENI_KLIC: Record<VymVytezeno["typ"], AdminKlic> = {
   jine: "dsTypJine",
 };
 
+/**
+ * Do schránky, která není OVM, jde Poštovní datová zpráva placená z kreditu
+ * (dnes 10 Kč) — návrh to musí ukázat, než Michal dávku schválí.
+ *
+ * Server posílá `prijemce.typ` tak, jak ho má veřejný seznam schránek: „OVM",
+ * „OVM - Právnická osoba", „Právnická osoba"… Bereme proto prefix, ne rovnost.
+ * Neznámý typ (null) štítek nezobrazuje — skutečnou kontrolu dělá FindDataBox
+ * těsně před odesláním.
+ */
+export function jePlacenyPrijemce(typ: string | null | undefined): boolean {
+  if (!typ) return false;
+  return !typ.trim().toUpperCase().startsWith("OVM");
+}
+
 /** Datum bez času; nečitelný vstup vrátíme beze změny. */
 export function formatDatum(iso: string | null | undefined, locale: string): string {
   if (!iso) return "—";
