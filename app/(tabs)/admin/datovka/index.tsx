@@ -1,8 +1,8 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { ActivityIndicator, Alert, Pressable, RefreshControl, StyleSheet, Text, View } from "react-native";
 import { AppScrollView } from "@/components/AppScroll";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AdminCard } from "@/components/AdminRow";
 import { adminApi, type VymDopis } from "@/lib/admin-api";
@@ -45,12 +45,26 @@ export default function DatovkaIndexScreen() {
   });
   // Účty se čtou bez biometrie (hesla v seznamu nejsou), takže je můžeme
   // držet v cache a hlídat, jestli má telefon údaje ke všem odesílatelům.
-  const ucty = useQuery({ queryKey: ["ds-ucty"], queryFn: () => nacistUcty() });
+  const ucty = useQuery({
+    queryKey: ["ds-ucty"],
+    queryFn: () => nacistUcty(),
+    // Účty se mění na sousední obrazovce (Nastavení). Bez `staleTime: 0` a
+    // refetchi při návratu držela cache prázdný seznam z doby před přidáním
+    // schránky a „Schválit a odeslat" pak jen skočilo zpátky do Nastavení.
+    staleTime: 0,
+  });
   const chybi = useQuery({
     queryKey: ["ds-chybejici", davka.data?.dopisy.length ?? 0, ucty.data?.length ?? 0],
     queryFn: () => (davka.data ? chybejiciSchranky(davka.data) : Promise.resolve([])),
     enabled: !!davka.data && !!ucty.data,
   });
+
+  // Návrat z Nastavení: přečíst účty znovu, ať tlačítko ví o právě přidané schránce.
+  useFocusEffect(
+    useCallback(() => {
+      void ucty.refetch();
+    }, [ucty]),
+  );
 
   const dopisy = davka.data?.dopisy ?? [];
   const kOdeslaniPocet = dopisy.filter((d) => !vyrazene.has(d.id)).length;
@@ -170,7 +184,10 @@ export default function DatovkaIndexScreen() {
         refreshControl={
           <RefreshControl
             refreshing={davka.isRefetching}
-            onRefresh={() => void davka.refetch()}
+            onRefresh={() => {
+              void davka.refetch();
+              void ucty.refetch();
+            }}
             tintColor={colors.textSubtle}
           />
         }

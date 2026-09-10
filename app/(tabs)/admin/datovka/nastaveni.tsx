@@ -3,6 +3,7 @@ import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, TextInput, View 
 import { AppScrollView } from "@/components/AppScroll";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "expo-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { AdminCard } from "@/components/AdminRow";
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme-context";
@@ -34,11 +35,19 @@ export default function DatovkaNastaveniScreen() {
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
 
+  const qc = useQueryClient();
   const [ucty, setUcty] = useState<IsdsUcet[] | null>(null);
   const [login, setLogin] = useState("");
   const [heslo, setHeslo] = useState("");
   const [prostredi, setProstredi] = useState<IsdsEnv>("test");
   const [busy, setBusy] = useState(false);
+
+  /** Přečíst účty a zároveň zneplatnit cache, ze které čte obrazovka Dnešní návrh. */
+  const obnovUcty = useCallback(async () => {
+    setUcty(await nacistUcty());
+    await qc.invalidateQueries({ queryKey: ["ds-ucty"] });
+    await qc.invalidateQueries({ queryKey: ["ds-chybejici"] });
+  }, [qc]);
 
   const nacti = useCallback(() => {
     let zive = true;
@@ -101,7 +110,7 @@ export default function DatovkaNastaveniScreen() {
       // Heslo v paměti obrazovky nedržíme ani o vteřinu déle, než je nutné.
       setHeslo("");
       setLogin("");
-      setUcty(await nacistUcty());
+      await obnovUcty();
       Alert.alert(t("admin", "dsHotovoTitle"), t("admin", "dsPridanoOk", { nazev, dbId: drzitel.dbID }));
     } catch (e) {
       Alert.alert(t("admin", "dsChybaTitle"), chybaText(e, t));
@@ -122,7 +131,7 @@ export default function DatovkaNastaveniScreen() {
       const u = await klient.getUserInfoFromLogin();
       const jmeno = [u.pnGivenNames, u.pnLastName].filter(Boolean).join(" ") || (u.firmName ?? "—");
       await zapsatOvereniUctu(ucet.dbId, jmeno);
-      setUcty(await nacistUcty());
+      await obnovUcty();
 
       // Expirace hesla je hezká, ale nesmí shodit výsledek ověření.
       let expirace: string | null = null;
@@ -155,7 +164,7 @@ export default function DatovkaNastaveniScreen() {
           onPress: () => {
             void (async () => {
               await smazatUcet(ucet.dbId, t("admin", "dsBiometrieSmazani"));
-              setUcty(await nacistUcty());
+              await obnovUcty();
               Alert.alert(t("admin", "dsSmazanoOk"));
             })();
           },
