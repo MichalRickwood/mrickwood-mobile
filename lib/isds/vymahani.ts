@@ -367,7 +367,13 @@ async function stahnoutDorucenky(
   chyby: string[],
   naProbeh: NaProbeh,
 ): Promise<Set<number>> {
-  const vysledky: { dopisId: number; dorucenoAt?: string; stav?: string }[] = [];
+  const vysledky: {
+    dopisId: number;
+    dorucenoAt?: string;
+    dodanoAt?: string;
+    stavZpravy?: number;
+    stav?: string;
+  }[] = [];
   const hotove = new Set<number>();
 
   for (let i = 0; i < dopisy.length; i++) {
@@ -375,12 +381,14 @@ async function stahnoutDorucenky(
     naProbeh({ faze: "dorucenky", hotovo: i, celkem: dopisy.length, popis: d.dmId });
     try {
       const info = await klient.getDeliveryInfo(d.dmId);
-      if (info.dmAcceptanceTime) {
-        vysledky.push({ dopisId: d.dopisId, dorucenoAt: info.dmAcceptanceTime, stav: "DORUCENO" });
-      } else if (info.dmMessageStatus === 8) {
-        // Schránka adresáta byla zpětně znepřístupněna — nedoručitelné.
-        vysledky.push({ dopisId: d.dopisId, stav: "CHYBA" });
-      }
+      // Telefon jen opíše, co ISDS řekl. Jestli je zpráva doručená, rozhodne
+      // server — u úřadu (OVM) stačí dodání, u firmy se čeká na převzetí.
+      vysledky.push({
+        dopisId: d.dopisId,
+        ...(info.dmAcceptanceTime ? { dorucenoAt: info.dmAcceptanceTime } : {}),
+        ...(info.dmDeliveryTime ? { dodanoAt: info.dmDeliveryTime } : {}),
+        ...(info.dmMessageStatus !== null ? { stavZpravy: info.dmMessageStatus } : {}),
+      });
       // Doručenka se stáhla, i když zpráva zatím jen leží ve stavu „dodáno" —
       // z jiné schránky ji už zkoušet nemusíme.
       hotove.add(d.dopisId);

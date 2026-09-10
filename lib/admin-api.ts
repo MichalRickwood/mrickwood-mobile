@@ -778,7 +778,15 @@ export const adminApi = {
     return r.data.dopisy;
   },
 
-  nahlasitDoruceni: async (vysledky: { dopisId: number; dorucenoAt?: string; stav?: string }[]) => {
+  nahlasitDoruceni: async (
+    vysledky: {
+      dopisId: number;
+      dorucenoAt?: string;
+      dodanoAt?: string;
+      stavZpravy?: number;
+      stav?: string;
+    }[],
+  ) => {
     const r = await api.post<Env<unknown>>(`${BASE}/vymahani/doruceni`, { vysledky });
     return r.data;
   },
