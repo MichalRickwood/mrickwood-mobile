@@ -12,27 +12,50 @@
  * místo holých ScrollView/FlatList (vertikální; horizontální chip-scrollery
  * se nechávají jako ScrollView). Ruční `paddingBottom: 100` hacky nedělat.
  */
-import { forwardRef, type ReactElement, type Ref } from "react";
-import { FlatList, ScrollView, type FlatListProps, type ScrollViewProps } from "react-native";
+import { BottomTabBarHeightContext } from "@react-navigation/bottom-tabs";
+import { forwardRef, useContext, type ReactElement, type Ref } from "react";
+import {
+  FlatList, Platform, ScrollView, StyleSheet,
+  type FlatListProps, type ScrollViewProps, type StyleProp, type ViewStyle,
+} from "react-native";
+
+/**
+ * Spodní odsazení pod plovoucím tab barem. Na iOSu ho spočítá UIKit sám
+ * (`contentInsetAdjustmentBehavior`), na Androidu ne — od 11. 9. 2026 tam bar
+ * plave nad obsahem kvůli sklu, takže by poslední řádek seznamu zůstal schovaný.
+ * Mimo záložky vrací kontext `undefined` a nepřičítá se nic.
+ */
+function useOdsazeniPodBarem(): number {
+  const vyska = useContext(BottomTabBarHeightContext);
+  return Platform.OS === "android" ? (vyska ?? 0) : 0;
+}
+
+function sOdsazenim(style: StyleProp<ViewStyle>, paddingBottom: number): StyleProp<ViewStyle> {
+  return paddingBottom > 0 ? StyleSheet.compose(style, { paddingBottom }) : style;
+}
 
 export const AppScrollView = forwardRef<ScrollView, ScrollViewProps>(
   function AppScrollView(props, ref) {
+    const odsazeni = useOdsazeniPodBarem();
     return (
       <ScrollView
         ref={ref}
         contentInsetAdjustmentBehavior="automatic"
         {...props}
+        contentContainerStyle={sOdsazenim(props.contentContainerStyle, odsazeni)}
       />
     );
   },
 );
 
 function AppFlatListInner<T>(props: FlatListProps<T>, ref: Ref<FlatList<T>>) {
+  const odsazeni = useOdsazeniPodBarem();
   return (
     <FlatList
       ref={ref}
       contentInsetAdjustmentBehavior="automatic"
       {...props}
+      contentContainerStyle={sOdsazenim(props.contentContainerStyle, odsazeni)}
     />
   );
 }

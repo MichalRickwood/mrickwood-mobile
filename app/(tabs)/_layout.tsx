@@ -1,6 +1,7 @@
 import { Tabs } from "expo-router";
 import { NativeTabs, Icon, Label } from "expo-router/unstable-native-tabs";
-import { Platform, Text } from "react-native";
+import { BlurView } from "expo-blur";
+import { Platform, StyleSheet, Text } from "react-native";
 import { useTheme } from "@/lib/theme-context";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth-context";
@@ -11,7 +12,13 @@ export const unstable_settings = { initialRouteName: "matches" };
 
 /**
  * iOS 18+ na iPhone má nativní glass tab bar (UIKit Liquid Glass).
- * Mimo to (iPad, iOS <18, Android) fallback na klasický Tabs.
+ * Mimo to (iPad, iOS <18, Android) fallback na klasický Tabs — ten má od
+ * 11. 9. 2026 sklo taky: bar plave nad obsahem a pozadí dělá BlurView.
+ * Na Androidu se skutečné rozostření zapíná `experimentalBlurMethod`, bez něj
+ * knihovna jen ztmaví plochu.
+ *
+ * Aby se obsah pod plovoucím barem neschovával, přidává `AppScrollView` /
+ * `AppFlatList` spodní odsazení podle výšky baru (viz components/AppScroll.tsx).
  */
 function supportsNativeTabs(): boolean {
   if (Platform.OS !== "ios") return false;
@@ -21,7 +28,7 @@ function supportsNativeTabs(): boolean {
 }
 
 export default function TabsLayout() {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   const { t } = useI18n();
   const isAdmin = useAuth().user?.role === "ADMIN";
 
@@ -61,9 +68,20 @@ export default function TabsLayout() {
         tabBarActiveTintColor: colors.text,
         tabBarInactiveTintColor: colors.textSubtle,
         tabBarStyle: {
-          backgroundColor: colors.card,
+          position: "absolute",
+          backgroundColor: "transparent",
           borderTopColor: colors.border,
+          // Android kreslí u tab baru stín přes obsah; u skla by vznikl šedý pruh.
+          elevation: 0,
         },
+        tabBarBackground: () => (
+          <BlurView
+            intensity={Platform.OS === "android" ? 60 : 40}
+            tint={isDark ? "dark" : "light"}
+            experimentalBlurMethod="dimezisBlurView"
+            style={StyleSheet.absoluteFill}
+          />
+        ),
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: "500",
