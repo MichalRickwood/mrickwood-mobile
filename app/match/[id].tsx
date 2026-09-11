@@ -70,8 +70,21 @@ export default function MatchDetailScreen() {
     staleTime: 0,
   });
 
-  const match =
-    cached ?? fallback.data?.matches.find((m) => m.matchId === id) ?? null;
+  const zeSeznamu = cached ?? fallback.data?.matches.find((m) => m.matchId === id) ?? null;
+
+  // Odkaz `live-<tenderId>` míří na zakázku, kterou uživatel nemusí mít mezi
+  // shodami (marketing capture, Reporty, admin). Když ji seznam nezná, dotáhne
+  // se detail zakázky napřímo.
+  const zivaZakazka = /^live-(\d+)$/.exec(String(id ?? ""));
+  const zivy = useQuery({
+    queryKey: ["match-live", zivaZakazka?.[1] ?? ""],
+    queryFn: () => endpoints.liveTenderDetail(Number(zivaZakazka![1])),
+    enabled: !zeSeznamu && !!zivaZakazka && !fallback.isLoading && !fallback.isFetching,
+    staleTime: 60_000,
+    retry: false,
+  });
+
+  const match = zeSeznamu ?? zivy.data ?? null;
 
   const markViewed = useMutation({
     mutationFn: (matchId: string) => endpoints.markViewed(matchId),
@@ -242,7 +255,7 @@ export default function MatchDetailScreen() {
   }
 
   if (!match) {
-    if (fallback.isLoading || fallback.isFetching) {
+    if (fallback.isLoading || fallback.isFetching || zivy.isLoading || zivy.isFetching) {
       return (
         <SafeAreaView style={styles.safe}>
           <Stack.Screen

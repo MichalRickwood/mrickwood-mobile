@@ -879,6 +879,26 @@ export const endpoints = {
       `/api/v2/leads/tenders/${tenderId}/documents/unzip`,
       { params: { jobId } },
     ),
+  /**
+   * Detail jedné zakázky bez vazby na shody uživatele — pro odkazy `live-<id>`
+   * (marketing capture, sekce Reporty, admin Zpětná vazba). Bez toho obrazovka
+   * uměla jen zakázky, které už měl uživatel v seznamu, a na cokoli jiného
+   * hlásila „Zakázka nenalezena" (nález 11. 9. 2026 při focení screenshotů).
+   */
+  liveTenderDetail: async (tenderId: number): Promise<LeadMatchRow | null> => {
+    const r = await api.get<{ data: PublicTender | null }>(`/api/v2/leads/tenders/${tenderId}`);
+    if (!r?.data) return null;
+    return {
+      matchId: `live-${tenderId}`,
+      filterId: "",
+      filterName: "",
+      matchedAt: new Date().toISOString(),
+      delivered: true,
+      viewedAt: null,
+      tender: r.data,
+    };
+  },
+
   tenderDocuments: async (tenderId: number): Promise<TenderDocument[]> => {
     const r = await api.get<{ data: { documents: TenderDocument[] } }>(`/api/v2/leads/tenders/${tenderId}`);
     return r.data.documents ?? [];
