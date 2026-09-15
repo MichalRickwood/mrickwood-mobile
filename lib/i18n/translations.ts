@@ -1195,6 +1195,10 @@ export interface Dict {
     deletePostMsg: string;
     repliesTitle: string;
     repliesBtn: string;
+    actionsBtn: string;
+    filterStatus: string;
+    filterKind: string;
+    filterCountry: string;
     repliesEmpty: string;
     replyApprove: string;
     replyReject: string;
@@ -1820,6 +1824,10 @@ const ADMIN_CS: Dict["admin"] = {
   deletePostMsg: "Opravdu smazat tento příspěvek?",
   repliesTitle: "Odpovědi (X)",
   repliesBtn: "Odpovědi",
+  actionsBtn: "Akce",
+  filterStatus: "Stav",
+  filterKind: "Druh",
+  filterCountry: "Země",
   repliesEmpty: "Žádné odpovědi ke schválení.",
   replyApprove: "Schválit a odeslat",
   replyReject: "Odmítnout",
@@ -2443,6 +2451,10 @@ const ADMIN_EN: Dict["admin"] = {
   deletePostMsg: "Really delete this post?",
   repliesTitle: "Replies (X)",
   repliesBtn: "Replies",
+  actionsBtn: "Actions",
+  filterStatus: "Status",
+  filterKind: "Type",
+  filterCountry: "Country",
   repliesEmpty: "No replies to review.",
   replyApprove: "Approve & send",
   replyReject: "Reject",
