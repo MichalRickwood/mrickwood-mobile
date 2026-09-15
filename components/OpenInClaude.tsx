@@ -36,6 +36,9 @@ export default function OpenInClaude({
         await Linking.openURL(d.url);
       } catch {
         // Claude appka není nainstalovaná (nebo iOS odmítl scheme) — ukaž zadání.
+        // `d` je tu zaručeně platné, nactiClaudeSession jinak hodí výjimku;
+        // dřív tenhle catch sahal na `d.prompt` naslepo a když bylo `d`
+        // prázdné, přebil tím skutečnou chybu hláškou o `prompt`.
         setFallback(d.prompt);
       }
     } catch (e) {

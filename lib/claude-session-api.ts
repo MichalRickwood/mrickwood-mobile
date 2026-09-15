@@ -24,5 +24,11 @@ export async function nactiClaudeSession(
     params: { kind, ...(id ? { id } : {}) },
     signal,
   });
+  // Bez téhle kontroly se rozbitá odpověď (404 stránka, jiný obal) projeví
+  // až o dva kroky dál jako nesrozumitelné „Cannot read property … of
+  // undefined". Radši jasná hláška hned.
+  if (!r?.data?.url || !r.data.prompt) {
+    throw new Error("Server nevrátil zadání pro Claude — zkus to znovu, nebo to nahlas.");
+  }
   return r.data;
 }
