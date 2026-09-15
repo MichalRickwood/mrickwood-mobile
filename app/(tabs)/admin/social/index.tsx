@@ -101,6 +101,10 @@ export default function AdminSocialScreen() {
           {item.caption}
         </Text>
       </View>
+      {/* Session nad tímhle konkrétním příspěvkem — bez otevírání detailu. */}
+      <View style={styles.rowAkce}>
+        <OpenInClaude kind="social-post" id={item.id} variant="ikona" />
+      </View>
     </Pressable>
   );
 
@@ -202,7 +206,8 @@ const makeStyles = (colors: Colors) =>
   StyleSheet.create({
     safe: { flex: 1, backgroundColor: colors.bg },
     controls: { padding: spacing.lg, gap: spacing.sm },
-      toolbar: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
+      rowAkce: { justifyContent: "center", paddingLeft: spacing.sm },
+    toolbar: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
     toolbarPill: {
       flexDirection: "row", alignItems: "center", gap: spacing.xs, flexShrink: 1,
       paddingHorizontal: spacing.md, paddingVertical: spacing.sm,

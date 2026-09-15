@@ -5,6 +5,7 @@ import {
   spustSessionNaServeru,
   stavSessionNaServeru,
 } from "@/lib/claude-session-api";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "@/lib/theme-context";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 
@@ -26,8 +27,9 @@ export default function OpenInClaude({
 }: {
   kind: string;
   id?: string;
-  label: string;
-  variant?: "primary" | "ghost";
+  /** Prázdný popisek = jen ikona (do řádku seznamu, kde není místo). */
+  label?: string;
+  variant?: "primary" | "ghost" | "ikona";
 }) {
   const { colors } = useTheme();
   const styles = makeStyles(colors);
@@ -76,14 +78,35 @@ export default function OpenInClaude({
   return (
     <>
       <Pressable
-        onPress={stiskni}
+        onPress={(e) => {
+          // V řádku seznamu je tlačítko uvnitř Pressable, který otevírá detail —
+          // bez tohohle by klik udělal obojí.
+          e.stopPropagation();
+          void stiskni();
+        }}
         disabled={busy}
-        style={[styles.btn, variant === "primary" && styles.btnPrimary, busy && styles.btnBusy]}
+        style={[
+          styles.btn,
+          variant === "primary" && styles.btnPrimary,
+          variant === "ikona" && styles.btnIkona,
+          busy && styles.btnBusy,
+        ]}
       >
         {busy ? (
           <ActivityIndicator size="small" color={variant === "primary" ? colors.bg : colors.textSubtle} />
         ) : (
-          <Text style={[styles.btnText, variant === "primary" && styles.btnTextPrimary]}>{label}</Text>
+          <View style={styles.btnObsah}>
+            {/* Hvězdička je značka, kterou se Claude označuje ve vlastním rozhraní.
+                Až bude po ruce oficiální symbol Anthropic, vymění se jen tady. */}
+            <MaterialCommunityIcons
+              name="asterisk"
+              size={variant === "ikona" ? 18 : 14}
+              color={variant === "primary" ? colors.bg : colors.text}
+            />
+            {label ? (
+              <Text style={[styles.btnText, variant === "primary" && styles.btnTextPrimary]}>{label}</Text>
+            ) : null}
+          </View>
         )}
       </Pressable>
 
@@ -137,6 +160,8 @@ const makeStyles = (colors: Colors) =>
       justifyContent: "center",
     },
     btnPrimary: { backgroundColor: colors.text, borderColor: colors.text },
+    btnIkona: { paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, borderColor: colors.border },
+    btnObsah: { flexDirection: "row", alignItems: "center", gap: spacing.xs },
     btnBusy: { opacity: 0.6 },
     btnText: { color: colors.text, fontSize: fontSize.sm, fontWeight: "600" },
     btnTextPrimary: { color: colors.bg },
