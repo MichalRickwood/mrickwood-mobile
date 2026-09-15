@@ -8,6 +8,7 @@ import { adminApi } from "@/lib/admin-api";
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme-context";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
+import OpenInClaude from "@/components/OpenInClaude";
 
 export default function AdminSocialDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -170,6 +171,7 @@ export default function AdminSocialDetailScreen() {
           <Pressable onPress={() => generateMutation.mutate()} disabled={generateMutation.isPending} style={styles.actionBtn}>
             <Text style={styles.actionText}>{generateMutation.isPending ? t("admin", "generating") : t("admin", "generate")}</Text>
           </Pressable>
+          <OpenInClaude kind="social-post" id={postId} label="Probrat v Claude" />
           <Pressable onPress={confirmDelete} style={[styles.actionBtn, styles.dangerBtn]}>
             <Text style={[styles.actionText, styles.dangerText]}>{t("admin", "delete")}</Text>
           </Pressable>

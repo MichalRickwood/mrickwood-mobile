@@ -8,6 +8,7 @@ import { adminApi, type SocialPost, type SocialStatus } from "@/lib/admin-api";
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme-context";
 import { AdminBadge } from "@/components/AdminRow";
+import OpenInClaude from "@/components/OpenInClaude";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 
 const STATUSES: SocialStatus[] = ["DRAFT", "PENDING_REVIEW", "SCHEDULED", "PUBLISHED", "FAILED", "REJECTED", "ARCHIVED"];
@@ -109,6 +110,9 @@ export default function AdminSocialScreen() {
             <Text style={[styles.topBtnText, styles.topBtnTextPrimary]}>{generateMutation.isPending ? t("admin", "generating") : t("admin", "generate")}</Text>
           </Pressable>
         </View>
+        <View style={styles.claudeRow}>
+          <OpenInClaude kind="social-queue" label="Otevřít marketing v Claude" variant="primary" />
+        </View>
         <View style={styles.cycleRow}>
           <Pressable onPress={() => confirmCycle("approve")} style={[styles.cycleBtn, styles.cycleApprove]}>
             <Text style={styles.cycleApproveText}>{t("admin", "cycleApprove")}</Text>
@@ -179,6 +183,7 @@ const makeStyles = (colors: Colors) =>
     topBtnPrimary: { backgroundColor: colors.accent, borderColor: colors.accent },
     topBtnText: { fontSize: fontSize.sm, color: colors.text, fontWeight: "600" },
     topBtnTextPrimary: { color: colors.accentForeground },
+      claudeRow: { marginBottom: spacing.sm },
     cycleRow: { flexDirection: "row", gap: spacing.sm },
     cycleBtn: { flex: 1, alignItems: "center", paddingVertical: spacing.sm, borderRadius: radius.md },
     cycleApprove: { backgroundColor: colors.successBg },
