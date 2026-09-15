@@ -32,3 +32,30 @@ export async function nactiClaudeSession(
   }
   return r.data;
 }
+
+/** Stav požadavku na session běžící na serveru. */
+export interface StavSession {
+  status: "NEW" | "RUNNING" | "FAILED";
+  sessionName: string | null;
+  errorMsg: string | null;
+}
+
+/**
+ * Požádá server, ať spustí Claude session NA SERVERU (ne chat v appce).
+ * Vrací id požadavku; runner na stroji ho vyzvedne do ~10 vteřin.
+ */
+export async function spustSessionNaServeru(kind: string, id?: string): Promise<{ id: string; status: string }> {
+  const r = await api.post<{ data: { id: string; kind: string; status: string } }>(
+    "/api/v2/admin/claude-session/spawn",
+    { kind, ...(id ? { id } : {}) },
+  );
+  if (!r?.data?.id) throw new Error("Server nepotvrdil založení session.");
+  return r.data;
+}
+
+export async function stavSessionNaServeru(requestId: string): Promise<StavSession> {
+  const r = await api.get<{ data: StavSession }>("/api/v2/admin/claude-session/spawn", {
+    params: { requestId },
+  });
+  return r.data;
+}

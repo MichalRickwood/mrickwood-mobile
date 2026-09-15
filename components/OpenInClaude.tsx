@@ -1,16 +1,22 @@
 import { useState } from "react";
 import { ActivityIndicator, Linking, Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { nactiClaudeSession } from "@/lib/claude-session-api";
+import {
+  nactiClaudeSession,
+  spustSessionNaServeru,
+  stavSessionNaServeru,
+} from "@/lib/claude-session-api";
 import { useTheme } from "@/lib/theme-context";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 
 /**
- * Tlačítko „otevřít v Claude". Vyžádá si ze serveru předvyplněné zadání
- * i s kontextem a otevře `claude://` — appka zadání jen předvyplní, neodesílá.
+ * Tlačítko „otevřít v Claude".
  *
- * Kdo Claude nainstalovaný nemá, dostane zadání v modalu jako vybíratelný text
- * (schránka by znamenala nativní závislost navíc a kvůli jednomu tlačítku se
- * nevyplatí přebuildovat appku).
+ * Spustí Claude session NA SERVERU — tedy session s přístupem k repozitářům,
+ * databázi a nástrojům, ne obyčejný chat s předvyplněným textem. Server ji
+ * zvedne do ~10 vteřin a session se objeví v appce Claude pod Remote Control.
+ *
+ * Když se to nepovede, spadneme na starou cestu: zadání jako text, který si
+ * uživatel vloží do běžné konverzace. Lepší než nic, ale bez přístupu k datům.
  */
 export default function OpenInClaude({
   kind,
@@ -26,23 +32,42 @@ export default function OpenInClaude({
   const { colors } = useTheme();
   const styles = makeStyles(colors);
   const [busy, setBusy] = useState(false);
+  const [hotovo, setHotovo] = useState<string | null>(null);
   const [fallback, setFallback] = useState<string | null>(null);
+
+  /** Počká, až runner session zvedne. Delší čekání = strop souběžných session. */
+  async function pockejNaSpusteni(requestId: string): Promise<string | null> {
+    for (let i = 0; i < 12; i++) {
+      await new Promise((r) => setTimeout(r, 2500));
+      const stav = await stavSessionNaServeru(requestId).catch(() => null);
+      if (stav?.status === "RUNNING") return stav.sessionName ?? "session";
+      if (stav?.status === "FAILED") throw new Error(stav.errorMsg || "Session se nepodařilo spustit.");
+    }
+    return null;
+  }
 
   async function stiskni() {
     setBusy(true);
     try {
-      const d = await nactiClaudeSession(kind, id);
-      try {
-        await Linking.openURL(d.url);
-      } catch {
-        // Claude appka není nainstalovaná (nebo iOS odmítl scheme) — ukaž zadání.
-        // `d` je tu zaručeně platné, nactiClaudeSession jinak hodí výjimku;
-        // dřív tenhle catch sahal na `d.prompt` naslepo a když bylo `d`
-        // prázdné, přebil tím skutečnou chybu hláškou o `prompt`.
-        setFallback(d.prompt);
-      }
+      const req = await spustSessionNaServeru(kind, id);
+      const jmeno = await pockejNaSpusteni(req.id);
+      setHotovo(
+        jmeno
+          ? `Session ${jmeno} běží na serveru. Otevři appku Claude — najdeš ji pod Remote Control.`
+          : "Session je ve frontě. Na serveru běží maximum session naráz; jakmile se uvolní místo, naskočí. Zkus za chvíli appku Claude.",
+      );
     } catch (e) {
-      setFallback(e instanceof Error ? e.message : "Zadání se nepodařilo připravit.");
+      // Nepovedlo se spustit na serveru — nabídni aspoň text do běžné konverzace.
+      try {
+        const d = await nactiClaudeSession(kind, id);
+        setFallback(
+          `Session na serveru se spustit nepodařila (${e instanceof Error ? e.message : "neznámá chyba"}).\n\n` +
+            `Níže je zadání — označ, zkopíruj a vlož do nové konverzace v Claude. Nebude mít přístup k datům, ale poradí.\n\n` +
+            d.prompt,
+        );
+      } catch {
+        setFallback(e instanceof Error ? e.message : "Session se nepodařilo spustit.");
+      }
     } finally {
       setBusy(false);
     }
@@ -62,12 +87,30 @@ export default function OpenInClaude({
         )}
       </Pressable>
 
+      <Modal visible={hotovo !== null} transparent animationType="fade" onRequestClose={() => setHotovo(null)}>
+        <Pressable style={styles.overlay} onPress={() => setHotovo(null)}>
+          <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
+            <Text style={styles.sheetTitle}>Session běží na serveru</Text>
+            <Text style={styles.sheetText}>{hotovo}</Text>
+            <Pressable
+              onPress={() => {
+                setHotovo(null);
+                void Linking.openURL("claude://").catch(() => {});
+              }}
+              style={[styles.btn, styles.btnPrimary, styles.sheetBtn]}
+            >
+              <Text style={[styles.btnText, styles.btnTextPrimary]}>Otevřít Claude</Text>
+            </Pressable>
+            <Pressable onPress={() => setHotovo(null)} style={[styles.btn, styles.sheetBtn]}>
+              <Text style={styles.btnText}>Zavřít</Text>
+            </Pressable>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
       <Modal visible={fallback !== null} animationType="slide" onRequestClose={() => setFallback(null)}>
         <View style={styles.modal}>
           <Text style={styles.modalTitle}>Zadání pro Claude</Text>
-          <Text style={styles.modalHint}>
-            Claude appku se nepodařilo otevřít. Označ text níže, zkopíruj a vlož do nové konverzace.
-          </Text>
           <ScrollView style={styles.modalBody}>
             <Text selectable style={styles.modalText}>
               {fallback}
@@ -97,9 +140,13 @@ const makeStyles = (colors: Colors) =>
     btnBusy: { opacity: 0.6 },
     btnText: { color: colors.text, fontSize: fontSize.sm, fontWeight: "600" },
     btnTextPrimary: { color: colors.bg },
+    overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", padding: spacing.lg },
+    sheet: { backgroundColor: colors.card, borderRadius: radius.lg, padding: spacing.lg, gap: spacing.md },
+    sheetTitle: { color: colors.text, fontSize: fontSize.lg, fontWeight: "700" },
+    sheetText: { color: colors.textSubtle, fontSize: fontSize.sm, lineHeight: 20 },
+    sheetBtn: { marginTop: spacing.xs },
     modal: { flex: 1, backgroundColor: colors.bg, padding: spacing.lg, gap: spacing.md },
     modalTitle: { color: colors.text, fontSize: fontSize.lg, fontWeight: "700", marginTop: spacing.xxl },
-    modalHint: { color: colors.textSubtle, fontSize: fontSize.sm },
     modalBody: { flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: spacing.md },
     modalText: { color: colors.text, fontSize: fontSize.sm, lineHeight: 20 },
   });
