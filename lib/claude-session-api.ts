@@ -37,6 +37,8 @@ export async function nactiClaudeSession(
 export interface StavSession {
   status: "NEW" | "RUNNING" | "FAILED";
   sessionName: string | null;
+  /** Adresa session na claude.ai — otevře appku Claude rovnou v téhle session. */
+  sessionUrl: string | null;
   errorMsg: string | null;
 }
 

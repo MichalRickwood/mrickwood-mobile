@@ -7,6 +7,7 @@ import {
 } from "@/lib/claude-session-api";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "@/lib/theme-context";
+import { useI18n } from "@/lib/i18n";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 
 /**
@@ -32,43 +33,56 @@ export default function OpenInClaude({
   variant?: "primary" | "ghost" | "ikona";
 }) {
   const { colors } = useTheme();
+  const { t } = useI18n();
   const styles = makeStyles(colors);
   const [busy, setBusy] = useState(false);
   const [hotovo, setHotovo] = useState<string | null>(null);
+  const [url, setUrl] = useState<string | null>(null);
   const [fallback, setFallback] = useState<string | null>(null);
 
-  /** Počká, až runner session zvedne. Delší čekání = strop souběžných session. */
+  /**
+   * Počká na runner a pak na adresu session.
+   *
+   * Přicházejí odděleně: nejdřív se session spustí, teprve při připojení
+   * Remote Control jí claude.ai přidělí adresu. Teprve ta otevře appku přímo
+   * v téhle session — bez ní bychom uživatele poslali hledat ji do seznamu.
+   */
   async function pockejNaSpusteni(requestId: string): Promise<string | null> {
-    for (let i = 0; i < 12; i++) {
+    let jmeno: string | null = null;
+    for (let i = 0; i < 40; i++) {
       await new Promise((r) => setTimeout(r, 2500));
       const stav = await stavSessionNaServeru(requestId).catch(() => null);
-      if (stav?.status === "RUNNING") return stav.sessionName ?? "session";
       if (stav?.status === "FAILED") throw new Error(stav.errorMsg || "Session se nepodařilo spustit.");
+      if (stav?.status === "RUNNING") jmeno = stav.sessionName ?? "session";
+      if (stav?.sessionUrl) {
+        setUrl(stav.sessionUrl);
+        return jmeno;
+      }
     }
-    return null;
+    return jmeno;
   }
 
   async function stiskni() {
     setBusy(true);
+    setUrl(null);
     try {
       const req = await spustSessionNaServeru(kind, id);
       const jmeno = await pockejNaSpusteni(req.id);
       setHotovo(
-        jmeno
-          ? `Session ${jmeno} běží na serveru. Otevři appku Claude — najdeš ji pod Remote Control.`
-          : "Session je ve frontě. Na serveru běží maximum session naráz; jakmile se uvolní místo, naskočí. Zkus za chvíli appku Claude.",
+        jmeno ? t("admin", "claudeBezi", { jmeno }) : t("admin", "claudeFronta"),
       );
     } catch (e) {
       // Nepovedlo se spustit na serveru — nabídni aspoň text do běžné konverzace.
       try {
         const d = await nactiClaudeSession(kind, id);
         setFallback(
-          `Session na serveru se spustit nepodařila (${e instanceof Error ? e.message : "neznámá chyba"}).\n\n` +
-            `Níže je zadání — označ, zkopíruj a vlož do nové konverzace v Claude. Nebude mít přístup k datům, ale poradí.\n\n` +
-            d.prompt,
+          t("admin", "claudeFallback", {
+            chyba: e instanceof Error ? e.message : "?",
+            zadani: d.prompt,
+          }),
         );
       } catch {
-        setFallback(e instanceof Error ? e.message : "Session se nepodařilo spustit.");
+        setFallback(e instanceof Error ? e.message : t("admin", "claudeSelhaloObecne"));
       }
     } finally {
       setBusy(false);
@@ -113,19 +127,25 @@ export default function OpenInClaude({
       <Modal visible={hotovo !== null} transparent animationType="fade" onRequestClose={() => setHotovo(null)}>
         <Pressable style={styles.overlay} onPress={() => setHotovo(null)}>
           <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
-            <Text style={styles.sheetTitle}>Session běží na serveru</Text>
-            <Text style={styles.sheetText}>{hotovo}</Text>
+            <Text style={styles.sheetTitle}>{t("admin", "claudeTitulek")}</Text>
+            <Text style={styles.sheetText}>
+              {hotovo}
+              {url ? "" : t("admin", "claudeBezAdresy")}
+            </Text>
             <Pressable
               onPress={() => {
                 setHotovo(null);
-                void Linking.openURL("claude://").catch(() => {});
+                // S adresou skočíme rovnou do téhle session, bez ní aspoň do appky.
+                void Linking.openURL(url ?? "claude://").catch(() => {});
               }}
               style={[styles.btn, styles.btnPrimary, styles.sheetBtn]}
             >
-              <Text style={[styles.btnText, styles.btnTextPrimary]}>Otevřít Claude</Text>
+              <Text style={[styles.btnText, styles.btnTextPrimary]}>
+                {url ? t("admin", "claudeOtevritSession") : t("admin", "claudeOtevritClaude")}
+              </Text>
             </Pressable>
             <Pressable onPress={() => setHotovo(null)} style={[styles.btn, styles.sheetBtn]}>
-              <Text style={styles.btnText}>Zavřít</Text>
+              <Text style={styles.btnText}>{t("admin", "claudeZavrit")}</Text>
             </Pressable>
           </Pressable>
         </Pressable>
@@ -133,14 +153,14 @@ export default function OpenInClaude({
 
       <Modal visible={fallback !== null} animationType="slide" onRequestClose={() => setFallback(null)}>
         <View style={styles.modal}>
-          <Text style={styles.modalTitle}>Zadání pro Claude</Text>
+          <Text style={styles.modalTitle}>{t("admin", "claudeZadaniTitulek")}</Text>
           <ScrollView style={styles.modalBody}>
             <Text selectable style={styles.modalText}>
               {fallback}
             </Text>
           </ScrollView>
           <Pressable onPress={() => setFallback(null)} style={[styles.btn, styles.btnPrimary]}>
-            <Text style={[styles.btnText, styles.btnTextPrimary]}>Zavřít</Text>
+            <Text style={[styles.btnText, styles.btnTextPrimary]}>{t("admin", "claudeZavrit")}</Text>
           </Pressable>
         </View>
       </Modal>

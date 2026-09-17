@@ -1196,6 +1196,17 @@ export interface Dict {
     repliesTitle: string;
     repliesBtn: string;
     actionsBtn: string;
+    // Claude session běžící na serveru (components/OpenInClaude.tsx)
+    claudeTitulek: string;
+    claudeBezi: string;
+    claudeFronta: string;
+    claudeBezAdresy: string;
+    claudeOtevritSession: string;
+    claudeOtevritClaude: string;
+    claudeZadaniTitulek: string;
+    claudeZavrit: string;
+    claudeFallback: string;
+    claudeSelhaloObecne: string;
     filterStatus: string;
     filterKind: string;
     filterCountry: string;
@@ -1825,6 +1836,16 @@ const ADMIN_CS: Dict["admin"] = {
   repliesTitle: "Odpovědi (X)",
   repliesBtn: "Odpovědi",
   actionsBtn: "Akce",
+  claudeTitulek: "Session běží na serveru",
+  claudeBezi: "Session {jmeno} běží na serveru.",
+  claudeFronta: "Session je ve frontě. Na serveru běží maximum session naráz; jakmile se uvolní místo, naskočí. Zkus to za chvíli.",
+  claudeBezAdresy: " Adresa session ještě nedorazila — najdeš ji v appce Claude pod Remote Control.",
+  claudeOtevritSession: "Otevřít session",
+  claudeOtevritClaude: "Otevřít Claude",
+  claudeZadaniTitulek: "Zadání pro Claude",
+  claudeZavrit: "Zavřít",
+  claudeFallback: "Session na serveru se spustit nepodařila ({chyba}).\n\nNíže je zadání — označ, zkopíruj a vlož do nové konverzace v Claude. Nebude mít přístup k datům, ale poradí.\n\n{zadani}",
+  claudeSelhaloObecne: "Session se nepodařilo spustit.",
   filterStatus: "Stav",
   filterKind: "Druh",
   filterCountry: "Země",
@@ -2452,6 +2473,16 @@ const ADMIN_EN: Dict["admin"] = {
   repliesTitle: "Replies (X)",
   repliesBtn: "Replies",
   actionsBtn: "Actions",
+  claudeTitulek: "Session is running on the server",
+  claudeBezi: "Session {jmeno} is running on the server.",
+  claudeFronta: "The session is queued. Only a limited number run at once; it will start as soon as a slot frees up. Try again shortly.",
+  claudeBezAdresy: " The session address hasn't arrived yet — find it in the Claude app under Remote Control.",
+  claudeOtevritSession: "Open session",
+  claudeOtevritClaude: "Open Claude",
+  claudeZadaniTitulek: "Prompt for Claude",
+  claudeZavrit: "Close",
+  claudeFallback: "The server session could not be started ({chyba}).\n\nBelow is the prompt — select it, copy it and paste it into a new Claude conversation. It won't have access to your data, but it can still help.\n\n{zadani}",
+  claudeSelhaloObecne: "Could not start the session.",
   filterStatus: "Status",
   filterKind: "Type",
   filterCountry: "Country",
