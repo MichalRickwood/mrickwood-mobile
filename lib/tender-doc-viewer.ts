@@ -1,3 +1,4 @@
+import { Alert, Linking } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 import type { Router } from "expo-router";
 import type { TenderDocument } from "./endpoints";
@@ -105,12 +106,21 @@ export async function openTenderDocument(
   // a vrátí URL, kterou SFSafari/Chrome Custom Tab otevře — polling, ať
   // první otevření na NEN (desítky sekund) nespadne na timeout.
   const cached = await resolveCachedDocUrl(url, kind === "pdf" ? "pdf" : "raw");
-  if (cached) {
+  if (cached.url) {
     if (ext && OFFICE_VIEWER_EXTS.includes(ext)) {
-      await WebBrowser.openBrowserAsync(officeViewerUrl(cached));
+      await WebBrowser.openBrowserAsync(officeViewerUrl(cached.url));
       return;
     }
-    await WebBrowser.openBrowserAsync(cached);
+    await WebBrowser.openBrowserAsync(cached.url);
+    return;
+  }
+  // Server ví, že portál soubor nevydal (chybová stránka místo přílohy) —
+  // otevřít původní odkaz by ukázalo tutéž chybu, radši to řekneme rovnou.
+  if (cached.chyba) {
+    Alert.alert("Příloha není dostupná", cached.chyba, [
+      { text: "Otevřít na portálu", onPress: () => void Linking.openURL(url) },
+      { text: "Zavřít", style: "cancel" },
+    ]);
     return;
   }
   // Cache selhala → aspoň původní odkaz (u NEN nemusí vést k souboru).
@@ -157,7 +167,10 @@ function officeViewerUrl(url: string): string {
 }
 
 /** Získá signed inline URL z preview endpointu (Bearer auth), nebo null při chybě. */
-async function resolveCachedDocUrl(url: string, kind: "pdf" | "raw"): Promise<string | null> {
+async function resolveCachedDocUrl(
+  url: string,
+  kind: "pdf" | "raw",
+): Promise<{ url?: string; chyba?: string }> {
   try {
     const token = await getToken();
     const endpoint = `${API_BASE_URL}/api/v2/leads/documents/preview?url=${encodeURIComponent(
@@ -170,13 +183,17 @@ async function resolveCachedDocUrl(url: string, kind: "pdf" | "raw"): Promise<st
       });
       if (res.status === 200) {
         const data = (await res.json()) as { url?: string };
-        return data?.url ?? null;
+        return data?.url ? { url: data.url } : {};
       }
-      if (res.status !== 202) return null;
+      if (res.status === 404) {
+        const data = (await res.json().catch(() => null)) as { error?: { message?: string } } | null;
+        return { chyba: data?.error?.message ?? "Portál soubor nevydal." };
+      }
+      if (res.status !== 202) return {};
       await new Promise((r) => setTimeout(r, 3000));
     }
-    return null;
+    return {};
   } catch {
-    return null;
+    return {};
   }
 }
