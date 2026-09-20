@@ -29,6 +29,7 @@ export default function SettingsLayout() {
         }}
       />
       <Stack.Screen name="company-profile" options={{ title: t("companyProfile", "screenTitle") }} />
+      <Stack.Screen name="ai-connectors" options={{ title: t("aiShare", "screenTitle") }} />
       <Stack.Screen name="bid-identity" options={{ title: t("bidIdentity", "screenTitle") }} />
       <Stack.Screen name="invoice-pdf" options={{ title: t("settings", "billingInvoicesSection") }} />
       <Stack.Screen name="feedback" options={{ title: t("feedback", "title") }} />

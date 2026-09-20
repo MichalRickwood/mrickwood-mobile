@@ -84,6 +84,13 @@ export default function SettingsIndexScreen() {
             hint={t("companyProfiles", "menuHint")}
             onPress={() => router.push("/(tabs)/settings/company-profiles")}
           />
+          <SectionRow
+            styles={styles}
+            icon={sectionIcon("sparkles-outline")}
+            label={t("aiShare", "settingsRow")}
+            hint={t("aiShare", "settingsRowHint")}
+            onPress={() => router.push("/(tabs)/settings/ai-connectors")}
+          />
         </View>
 
         <View style={styles.group}>

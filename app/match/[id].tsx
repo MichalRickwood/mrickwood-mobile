@@ -18,6 +18,7 @@ import {
 } from "@/lib/tender-doc-viewer";
 import { useI18n } from "@/lib/i18n";
 import { ApiError } from "@/lib/api";
+import AiOpenSheet from "@/components/AiOpenSheet";
 
 // Jazyk(y) země zakázky (ISO country → app locales). Země bez UI jazyka
 // (SE/NO/FI/DK…) překlad nabízejí vždy.
@@ -106,6 +107,7 @@ export default function MatchDetailScreen() {
   const [translation, setTranslation] = useState<{ title: string; description: string | null } | null>(null);
   const [showTranslation, setShowTranslation] = useState(true);
   const [translateBusy, setTranslateBusy] = useState(false);
+  const [aiSheetOpen, setAiSheetOpen] = useState(false);
   const [translateQuota, setTranslateQuota] = useState<{
     remainingFree: number;
     price: number;
@@ -506,6 +508,13 @@ export default function MatchDetailScreen() {
             <Text style={styles.aiBtnText}>{t("matchDetail", "btnAiDocPrep")}</Text>
             <Text style={styles.docChevron}>›</Text>
           </Pressable>
+          {/* Cizí asistent (ChatGPT, Claude, Gemini…): zakázka odchází jako tokenovaný balíček, viz AiOpenSheet */}
+          <Pressable onPress={() => setAiSheetOpen(true)} style={({ pressed }) => [styles.aiBtn, pressed && { opacity: 0.85 }]}>
+            <Text style={styles.aiBtnIcon}>✨</Text>
+            <Text style={styles.aiBtnText}>{t("aiShare", "btnOpen")}</Text>
+            <Text style={styles.docChevron}>›</Text>
+          </Pressable>
+          <AiOpenSheet visible={aiSheetOpen} tenderId={tender.id} onClose={() => setAiSheetOpen(false)} />
         </View>
           );
         })()}

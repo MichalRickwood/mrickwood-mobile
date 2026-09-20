@@ -339,6 +339,46 @@ export interface Dict {
     insufficientBody: string;
     topUpWeb: string;
   };
+  aiShare: {
+    btnOpen: string;
+    sheetTitle: string;
+    sheetHint: string;
+    includeProfile: string;
+    preparing: string;
+    preparingDocs: string;
+    opening: string;
+    copiedHint: string;
+    copyPrompt: string;
+    copied: string;
+    noPrefill: string;
+    errorTitle: string;
+    cancel: string;
+    settingsRow: string;
+    settingsRowHint: string;
+    screenTitle: string;
+    defaultProvider: string;
+    defaultProviderHint: string;
+    askEveryTime: string;
+    includeProfileHint: string;
+    promptTitle: string;
+    promptHint: string;
+    promptPlaceholder: string;
+    save: string;
+    saved: string;
+    mcpTitle: string;
+    mcpHint: string;
+    mcpCopy: string;
+    linksTitle: string;
+    linksHint: string;
+    linksEmpty: string;
+    linkActive: string;
+    linkRevoked: string;
+    linkExpired: string;
+    linkOpens: string;
+    revoke: string;
+    revokeConfirm: string;
+    loadFailed: string;
+  };
   companyProfiles: {
     menuLabel: string;
     menuHint: string;
@@ -2735,6 +2775,46 @@ const cs: Dict = {
     insufficientBody: "Dobijte si AI kredit na veritra.io a zkuste to znovu.",
     topUpWeb: "Dobít kredit na veritra.io",
   },
+  aiShare: {
+    btnOpen: "Otevřít v AI asistentovi",
+    sheetTitle: "Otevřít zakázku v AI",
+    sheetHint: "Vybraný asistent dostane odkaz na podklady zakázky (údaje, dokumenty, profil firmy) a rovnou ji zanalyzuje.",
+    includeProfile: "Přibalit profil firmy",
+    preparing: "Připravuji podklady…",
+    preparingDocs: "Stahuji přílohy {cached}/{total}…",
+    opening: "Otevírám {name}…",
+    copiedHint: "Zadání je i ve schránce — kdyby se v asistentovi nepředvyplnilo, vložte ho.",
+    copyPrompt: "Jen zkopírovat zadání",
+    copied: "Zkopírováno do schránky",
+    noPrefill: "{name} neumí převzít zadání z odkazu. Zadání je ve schránce — vložte ho do chatu.",
+    errorTitle: "Podklady se nepodařilo připravit",
+    cancel: "Zrušit",
+    settingsRow: "AI asistenti",
+    settingsRowHint: "ChatGPT, Claude, Gemini… a konektor MCP",
+    screenTitle: "AI asistenti",
+    defaultProvider: "Výchozí asistent",
+    defaultProviderHint: "Použije se rovnou po ťuknutí na „Otevřít v AI asistentovi“. Bez výchozího se vždy zobrazí výběr.",
+    askEveryTime: "Vždy se zeptat",
+    includeProfileHint: "Do podkladů se přidá profil vaší firmy, aby AI posoudila vhodnost zakázky. Odkaz je chráněn náhodným kódem a platí 7 dní.",
+    promptTitle: "Vlastní zadání",
+    promptHint: "Text první zprávy pro asistenta. {url} se nahradí odkazem na podklady. Prázdné = výchozí analýza (soutěž, produkt, vhodnost).",
+    promptPlaceholder: "Nechat výchozí zadání",
+    save: "Uložit",
+    saved: "Uloženo",
+    mcpTitle: "Konektor pro Claude a ChatGPT (MCP)",
+    mcpHint: "Přidejte Veritru jako konektor: v Claude Nastavení → Konektory → Přidat vlastní, v ChatGPT Nastavení → Konektory → Vytvořit. Vložte adresu níže a přihlaste se svým účtem Veritra. Asistent pak umí hledat vaše shody a číst dokumenty zakázek.",
+    mcpCopy: "Zkopírovat adresu",
+    linksTitle: "Vydané odkazy",
+    linksHint: "Každý odkaz vede na podklady jedné zakázky. Zneplatněte ho, když ho už nechcete nechat přístupný.",
+    linksEmpty: "Zatím žádné odkazy.",
+    linkActive: "platí do {date}",
+    linkRevoked: "zneplatněn",
+    linkExpired: "vypršel",
+    linkOpens: "otevřeno {count}×",
+    revoke: "Zneplatnit",
+    revokeConfirm: "Zneplatnit odkaz? Asistent už podklady neotevře.",
+    loadFailed: "Nastavení se nepodařilo načíst.",
+  },
   companyProfiles: {
     menuLabel: "Firemní profily",
     menuHint: "Více firem na jednom účtu",
@@ -3599,6 +3679,46 @@ const en: Dict = {
     insufficientTitle: "Insufficient credit",
     insufficientBody: "Top up your AI credit on veritra.io and try again.",
     topUpWeb: "Top up credit on veritra.io",
+  },
+  aiShare: {
+    btnOpen: "Open in an AI assistant",
+    sheetTitle: "Open tender in AI",
+    sheetHint: "The chosen assistant gets a link to the tender briefing (facts, documents, company profile) and analyses it right away.",
+    includeProfile: "Attach company profile",
+    preparing: "Preparing the briefing…",
+    preparingDocs: "Fetching attachments {cached}/{total}…",
+    opening: "Opening {name}…",
+    copiedHint: "The prompt is also on your clipboard — paste it if the assistant does not prefill it.",
+    copyPrompt: "Just copy the prompt",
+    copied: "Copied to clipboard",
+    noPrefill: "{name} cannot take the prompt from a link. The prompt is on your clipboard — paste it into the chat.",
+    errorTitle: "Could not prepare the briefing",
+    cancel: "Cancel",
+    settingsRow: "AI assistants",
+    settingsRowHint: "ChatGPT, Claude, Gemini… and the MCP connector",
+    screenTitle: "AI assistants",
+    defaultProvider: "Default assistant",
+    defaultProviderHint: "Used immediately when you tap “Open in an AI assistant”. Without a default you always get the picker.",
+    askEveryTime: "Always ask",
+    includeProfileHint: "Your company profile is added to the briefing so the AI can assess suitability. The link is protected by a random code and valid for 7 days.",
+    promptTitle: "Custom prompt",
+    promptHint: "Text of the first message to the assistant. {url} is replaced with the briefing link. Empty = default analysis (competition, product, suitability).",
+    promptPlaceholder: "Keep the default prompt",
+    save: "Save",
+    saved: "Saved",
+    mcpTitle: "Connector for Claude and ChatGPT (MCP)",
+    mcpHint: "Add Veritra as a connector: in Claude Settings → Connectors → Add custom, in ChatGPT Settings → Connectors → Create. Paste the address below and sign in with your Veritra account. The assistant can then search your matches and read tender documents.",
+    mcpCopy: "Copy address",
+    linksTitle: "Issued links",
+    linksHint: "Each link leads to one tender's briefing. Revoke it when you no longer want it accessible.",
+    linksEmpty: "No links yet.",
+    linkActive: "valid until {date}",
+    linkRevoked: "revoked",
+    linkExpired: "expired",
+    linkOpens: "opened {count}×",
+    revoke: "Revoke",
+    revokeConfirm: "Revoke this link? The assistant will no longer be able to open the briefing.",
+    loadFailed: "Could not load settings.",
   },
   companyProfiles: {
     menuLabel: "Company profiles",
@@ -4467,6 +4587,46 @@ const de: Dict = {
     insufficientBody: "Laden Sie Ihr KI-Guthaben auf veritra.io auf und versuchen Sie es erneut.",
     topUpWeb: "Guthaben auf veritra.io aufladen",
   },
+  aiShare: {
+    btnOpen: "In KI-Assistent öffnen",
+    sheetTitle: "Ausschreibung in KI öffnen",
+    sheetHint: "Der gewählte Assistent erhält einen Link zu den Unterlagen (Daten, Dokumente, Firmenprofil) und analysiert sie sofort.",
+    includeProfile: "Firmenprofil beilegen",
+    preparing: "Unterlagen werden vorbereitet…",
+    preparingDocs: "Anhänge werden geladen {cached}/{total}…",
+    opening: "{name} wird geöffnet…",
+    copiedHint: "Der Prompt liegt auch in der Zwischenablage — fügen Sie ihn ein, falls er nicht vorausgefüllt wird.",
+    copyPrompt: "Nur Prompt kopieren",
+    copied: "In die Zwischenablage kopiert",
+    noPrefill: "{name} kann den Prompt nicht aus dem Link übernehmen. Er liegt in der Zwischenablage — fügen Sie ihn in den Chat ein.",
+    errorTitle: "Unterlagen konnten nicht vorbereitet werden",
+    cancel: "Abbrechen",
+    settingsRow: "KI-Assistenten",
+    settingsRowHint: "ChatGPT, Claude, Gemini… und MCP-Konnektor",
+    screenTitle: "KI-Assistenten",
+    defaultProvider: "Standard-Assistent",
+    defaultProviderHint: "Wird direkt beim Tippen auf „In KI-Assistent öffnen“ verwendet. Ohne Standard erscheint immer die Auswahl.",
+    askEveryTime: "Immer fragen",
+    includeProfileHint: "Ihr Firmenprofil wird den Unterlagen beigelegt, damit die KI die Eignung beurteilen kann. Der Link ist durch einen Zufallscode geschützt und 7 Tage gültig.",
+    promptTitle: "Eigener Prompt",
+    promptHint: "Text der ersten Nachricht an den Assistenten. {url} wird durch den Link ersetzt. Leer = Standardanalyse (Wettbewerb, Produkt, Eignung).",
+    promptPlaceholder: "Standard-Prompt behalten",
+    save: "Speichern",
+    saved: "Gespeichert",
+    mcpTitle: "Konnektor für Claude und ChatGPT (MCP)",
+    mcpHint: "Fügen Sie Veritra als Konnektor hinzu: in Claude Einstellungen → Konnektoren → Eigenen hinzufügen, in ChatGPT Einstellungen → Konnektoren → Erstellen. Adresse unten einfügen und mit Ihrem Veritra-Konto anmelden. Der Assistent kann dann Ihre Treffer durchsuchen und Dokumente lesen.",
+    mcpCopy: "Adresse kopieren",
+    linksTitle: "Ausgestellte Links",
+    linksHint: "Jeder Link führt zu den Unterlagen einer Ausschreibung. Widerrufen Sie ihn, wenn er nicht mehr zugänglich sein soll.",
+    linksEmpty: "Noch keine Links.",
+    linkActive: "gültig bis {date}",
+    linkRevoked: "widerrufen",
+    linkExpired: "abgelaufen",
+    linkOpens: "{count}× geöffnet",
+    revoke: "Widerrufen",
+    revokeConfirm: "Link widerrufen? Der Assistent kann die Unterlagen dann nicht mehr öffnen.",
+    loadFailed: "Einstellungen konnten nicht geladen werden.",
+  },
   companyProfiles: {
     menuLabel: "Firmenprofile",
     menuHint: "Mehrere Firmen in einem Konto",
@@ -5331,6 +5491,46 @@ const sk: Dict = {
     insufficientTitle: "Nedostatok kreditu",
     insufficientBody: "Dobite si AI kredit na veritra.io a skúste to znova.",
     topUpWeb: "Dobiť kredit na veritra.io",
+  },
+  aiShare: {
+    btnOpen: "Otvoriť v AI asistentovi",
+    sheetTitle: "Otvoriť zákazku v AI",
+    sheetHint: "Vybraný asistent dostane odkaz na podklady zákazky (údaje, dokumenty, profil firmy) a hneď ju zanalyzuje.",
+    includeProfile: "Pribaliť profil firmy",
+    preparing: "Pripravujem podklady…",
+    preparingDocs: "Sťahujem prílohy {cached}/{total}…",
+    opening: "Otváram {name}…",
+    copiedHint: "Zadanie je aj v schránke — ak sa v asistentovi nepredvyplní, vložte ho.",
+    copyPrompt: "Len skopírovať zadanie",
+    copied: "Skopírované do schránky",
+    noPrefill: "{name} nevie prevziať zadanie z odkazu. Zadanie je v schránke — vložte ho do chatu.",
+    errorTitle: "Podklady sa nepodarilo pripraviť",
+    cancel: "Zrušiť",
+    settingsRow: "AI asistenti",
+    settingsRowHint: "ChatGPT, Claude, Gemini… a konektor MCP",
+    screenTitle: "AI asistenti",
+    defaultProvider: "Predvolený asistent",
+    defaultProviderHint: "Použije sa hneď po ťuknutí na „Otvoriť v AI asistentovi“. Bez predvoleného sa vždy zobrazí výber.",
+    askEveryTime: "Vždy sa opýtať",
+    includeProfileHint: "Do podkladov sa pridá profil vašej firmy, aby AI posúdila vhodnosť zákazky. Odkaz je chránený náhodným kódom a platí 7 dní.",
+    promptTitle: "Vlastné zadanie",
+    promptHint: "Text prvej správy pre asistenta. {url} sa nahradí odkazom na podklady. Prázdne = predvolená analýza (súťaž, produkt, vhodnosť).",
+    promptPlaceholder: "Nechať predvolené zadanie",
+    save: "Uložiť",
+    saved: "Uložené",
+    mcpTitle: "Konektor pre Claude a ChatGPT (MCP)",
+    mcpHint: "Pridajte Veritru ako konektor: v Claude Nastavenia → Konektory → Pridať vlastný, v ChatGPT Nastavenia → Konektory → Vytvoriť. Vložte adresu nižšie a prihláste sa svojím účtom Veritra. Asistent potom vie hľadať vaše zhody a čítať dokumenty zákaziek.",
+    mcpCopy: "Skopírovať adresu",
+    linksTitle: "Vydané odkazy",
+    linksHint: "Každý odkaz vedie na podklady jednej zákazky. Zneplatnite ho, keď ho už nechcete nechať prístupný.",
+    linksEmpty: "Zatiaľ žiadne odkazy.",
+    linkActive: "platí do {date}",
+    linkRevoked: "zneplatnený",
+    linkExpired: "vypršal",
+    linkOpens: "otvorené {count}×",
+    revoke: "Zneplatniť",
+    revokeConfirm: "Zneplatniť odkaz? Asistent už podklady neotvorí.",
+    loadFailed: "Nastavenia sa nepodarilo načítať.",
   },
   companyProfiles: {
     menuLabel: "Firemné profily",
@@ -6197,6 +6397,46 @@ const fr: Dict = {
     insufficientBody: "Rechargez votre crédit IA sur veritra.io et réessayez.",
     topUpWeb: "Recharger sur veritra.io",
   },
+  aiShare: {
+    btnOpen: "Ouvrir dans un assistant IA",
+    sheetTitle: "Ouvrir l'appel d'offres dans l'IA",
+    sheetHint: "L'assistant choisi reçoit un lien vers le dossier (données, documents, profil d'entreprise) et l'analyse immédiatement.",
+    includeProfile: "Joindre le profil d'entreprise",
+    preparing: "Préparation du dossier…",
+    preparingDocs: "Téléchargement des pièces {cached}/{total}…",
+    opening: "Ouverture de {name}…",
+    copiedHint: "La consigne est aussi dans le presse-papiers — collez-la si l'assistant ne la préremplit pas.",
+    copyPrompt: "Copier seulement la consigne",
+    copied: "Copié dans le presse-papiers",
+    noPrefill: "{name} ne peut pas reprendre la consigne depuis un lien. Elle est dans le presse-papiers — collez-la dans le chat.",
+    errorTitle: "Impossible de préparer le dossier",
+    cancel: "Annuler",
+    settingsRow: "Assistants IA",
+    settingsRowHint: "ChatGPT, Claude, Gemini… et connecteur MCP",
+    screenTitle: "Assistants IA",
+    defaultProvider: "Assistant par défaut",
+    defaultProviderHint: "Utilisé directement en touchant « Ouvrir dans un assistant IA ». Sans défaut, le choix s'affiche toujours.",
+    askEveryTime: "Toujours demander",
+    includeProfileHint: "Le profil de votre entreprise est ajouté au dossier pour que l'IA évalue la pertinence. Le lien est protégé par un code aléatoire et valable 7 jours.",
+    promptTitle: "Consigne personnalisée",
+    promptHint: "Texte du premier message à l'assistant. {url} est remplacé par le lien du dossier. Vide = analyse par défaut (concurrence, produit, pertinence).",
+    promptPlaceholder: "Garder la consigne par défaut",
+    save: "Enregistrer",
+    saved: "Enregistré",
+    mcpTitle: "Connecteur pour Claude et ChatGPT (MCP)",
+    mcpHint: "Ajoutez Veritra comme connecteur : dans Claude Paramètres → Connecteurs → Ajouter personnalisé, dans ChatGPT Paramètres → Connecteurs → Créer. Collez l'adresse ci-dessous et connectez-vous avec votre compte Veritra. L'assistant pourra chercher vos correspondances et lire les documents.",
+    mcpCopy: "Copier l'adresse",
+    linksTitle: "Liens émis",
+    linksHint: "Chaque lien mène au dossier d'un appel d'offres. Révoquez-le si vous ne voulez plus le laisser accessible.",
+    linksEmpty: "Aucun lien pour l'instant.",
+    linkActive: "valable jusqu'au {date}",
+    linkRevoked: "révoqué",
+    linkExpired: "expiré",
+    linkOpens: "ouvert {count}×",
+    revoke: "Révoquer",
+    revokeConfirm: "Révoquer ce lien ? L'assistant ne pourra plus ouvrir le dossier.",
+    loadFailed: "Impossible de charger les paramètres.",
+  },
   companyProfiles: {
     menuLabel: "Profils de société",
     menuHint: "Plusieurs sociétés sur un compte",
@@ -7061,6 +7301,46 @@ const it: Dict = {
     insufficientTitle: "Credito insufficiente",
     insufficientBody: "Ricarica il credito IA su veritra.io e riprova.",
     topUpWeb: "Ricarica su veritra.io",
+  },
+  aiShare: {
+    btnOpen: "Apri in un assistente IA",
+    sheetTitle: "Apri la gara nell'IA",
+    sheetHint: "L'assistente scelto riceve un link al fascicolo (dati, documenti, profilo aziendale) e lo analizza subito.",
+    includeProfile: "Allega profilo aziendale",
+    preparing: "Preparazione del fascicolo…",
+    preparingDocs: "Scarico gli allegati {cached}/{total}…",
+    opening: "Apro {name}…",
+    copiedHint: "Il prompt è anche negli appunti — incollalo se l'assistente non lo precompila.",
+    copyPrompt: "Copia solo il prompt",
+    copied: "Copiato negli appunti",
+    noPrefill: "{name} non può prendere il prompt dal link. È negli appunti — incollalo nella chat.",
+    errorTitle: "Impossibile preparare il fascicolo",
+    cancel: "Annulla",
+    settingsRow: "Assistenti IA",
+    settingsRowHint: "ChatGPT, Claude, Gemini… e connettore MCP",
+    screenTitle: "Assistenti IA",
+    defaultProvider: "Assistente predefinito",
+    defaultProviderHint: "Usato subito toccando “Apri in un assistente IA”. Senza predefinito compare sempre la scelta.",
+    askEveryTime: "Chiedi sempre",
+    includeProfileHint: "Il profilo della tua azienda viene aggiunto al fascicolo perché l'IA valuti l'idoneità. Il link è protetto da un codice casuale e vale 7 giorni.",
+    promptTitle: "Prompt personalizzato",
+    promptHint: "Testo del primo messaggio all'assistente. {url} viene sostituito dal link al fascicolo. Vuoto = analisi predefinita (concorrenza, prodotto, idoneità).",
+    promptPlaceholder: "Mantieni il prompt predefinito",
+    save: "Salva",
+    saved: "Salvato",
+    mcpTitle: "Connettore per Claude e ChatGPT (MCP)",
+    mcpHint: "Aggiungi Veritra come connettore: in Claude Impostazioni → Connettori → Aggiungi personalizzato, in ChatGPT Impostazioni → Connettori → Crea. Incolla l'indirizzo qui sotto e accedi con il tuo account Veritra. L'assistente potrà cercare le tue corrispondenze e leggere i documenti.",
+    mcpCopy: "Copia indirizzo",
+    linksTitle: "Link emessi",
+    linksHint: "Ogni link porta al fascicolo di una gara. Revocalo quando non vuoi più lasciarlo accessibile.",
+    linksEmpty: "Nessun link finora.",
+    linkActive: "valido fino al {date}",
+    linkRevoked: "revocato",
+    linkExpired: "scaduto",
+    linkOpens: "aperto {count}×",
+    revoke: "Revoca",
+    revokeConfirm: "Revocare il link? L'assistente non potrà più aprire il fascicolo.",
+    loadFailed: "Impossibile caricare le impostazioni.",
   },
   companyProfiles: {
     menuLabel: "Profili aziendali",

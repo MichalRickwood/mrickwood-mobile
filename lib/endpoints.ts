@@ -303,6 +303,43 @@ export interface AiCreditView {
   transactions: AiCreditTxn[];
 }
 
+// ── AI asistenti (ChatGPT, Claude, Gemini…) — balíček zakázky na tokenovaném odkazu ──
+export interface AiProviderView {
+  id: string;
+  name: string;
+  hint: string;
+  canPrefill: boolean;
+  homeUrl: string;
+  color: string;
+}
+export interface AiSharePrefs {
+  provider: string | null;
+  includeProfile: boolean;
+  promptTemplate: string | null;
+}
+export interface AiShareLinkView {
+  id: string;
+  tenderId: number;
+  tenderTitle: string;
+  provider: string | null;
+  providerName: string | null;
+  url: string;
+  expiresAt: string;
+  revokedAt: string | null;
+  accessCount: number;
+  lastAccessAt: string | null;
+  createdAt: string;
+  active: boolean;
+}
+export interface AiShareCreateResult {
+  link: AiShareLinkView;
+  prompt: string;
+  openUrl: string | null;
+  providerHomeUrl: string | null;
+  docs: { total: number; cached: number };
+  profileIncluded: boolean;
+}
+
 export const endpoints = {
   // Auth — výměna jednorázového kódu z veritra.io redirectu za mobilní
   // session (JWT + user). Přihlášení/registrace probíhá na webu, appka jen
@@ -870,6 +907,18 @@ export const endpoints = {
     );
     return r.data;
   },
+
+  // ── AI asistenti: vydání odkazu na balíček zakázky + nastavení ──
+  aiShareCreate: (tenderId: number, body: { provider?: string | null; includeProfile?: boolean; locale?: string }) =>
+    api.post<{ data: AiShareCreateResult }>(`/api/v2/leads/tenders/${tenderId}/ai-share`, body),
+  aiShareDocsStatus: (linkId: string) =>
+    api.get<{ data: { total: number; cached: number } }>(`/api/v2/account/ai-share/${linkId}`),
+  aiShareSettings: () =>
+    api.get<{ data: { prefs: AiSharePrefs; providers: AiProviderView[]; links: AiShareLinkView[] } }>("/api/v2/account/ai-share"),
+  aiSharePrefsSave: (patch: Partial<AiSharePrefs>) =>
+    api.patch<{ data: { prefs: AiSharePrefs } }>("/api/v2/account/ai-share", patch),
+  aiShareRevoke: (linkId: string) =>
+    api.delete<{ data: { link: AiShareLinkView } }>(`/api/v2/account/ai-share/${linkId}`),
 
   // ── On-demand rozbalení ZIP přílohy (worker rozbalí, soubory nahradí ZIP v seznamu) ──
   docUnzipRequest: (tenderId: number, url: string) =>
