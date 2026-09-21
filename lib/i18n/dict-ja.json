@@ -175,7 +175,9 @@
     "loadingTitle": "入札案件を検索中…",
     "loadingBody": "条件に最適な案件を選定しています。",
     "errorTitle": "読み込めませんでした",
-    "errorBody": "引っ張って更新をお試しください。"
+    "errorBody": "引っ張って更新をお試しください。",
+    "filterFormStrict": "厳密モード",
+    "filterFormStrictHelp": "ノイズを減らします。業種は発注者が公開したコードのみから判定し、キーワードで絞り込みます。案件数は減ります。"
   },
   "matchDetail": {
     "headerLabel": "入札案件",

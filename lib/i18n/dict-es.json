@@ -383,7 +383,9 @@
     "loadingTitle": "Buscando licitaciones…",
     "loadingBody": "Seleccionando las mejores coincidencias para sus criterios.",
     "errorTitle": "No se pudo cargar",
-    "errorBody": "Intente deslizar para actualizar."
+    "errorBody": "Intente deslizar para actualizar.",
+    "filterFormStrict": "Modo estricto",
+    "filterFormStrictHelp": "Menos ruido: el sector solo se toma de códigos publicados por la entidad y las palabras clave lo acotan. Menos licitaciones."
   },
   "matchDetail": {
     "headerLabel": "Licitación",

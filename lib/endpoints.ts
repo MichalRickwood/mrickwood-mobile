@@ -70,6 +70,8 @@ export interface LeadFilterRow {
   keywords: string[];
   categories: string[];
   industryTags: string[];
+  /** Režim zařazení: loose = dnešní chování, strict = ignoruje CPV od klasifikátoru, klíčovky upřesňují CPV, negativní hinty. */
+  matchMode?: "loose" | "strict";
   zadavatelIcos: string[];
   minValue: number | null;
   maxValue: number | null;
@@ -87,6 +89,7 @@ export interface LeadFilterInput {
   maxValue?: number | null;
   includeUnknownValue?: boolean;
   emailDigest?: boolean;
+  matchMode?: "loose" | "strict";
   active?: boolean;
 }
 

@@ -383,7 +383,9 @@
     "loadingTitle": "u",
     "loadingBody": "Wybieranie najlepszych dopasowań do Twoich kryteriów.",
     "errorTitle": "Nie można załadować",
-    "errorBody": "Spróbuj odświeżyć, przeciągając w dół."
+    "errorBody": "Spróbuj odświeżyć, przeciągając w dół.",
+    "filterFormStrict": "Tryb ścisły",
+    "filterFormStrictHelp": "Mniej szumu: branża tylko z kodów opublikowanych przez zamawiającego, słowa kluczowe ją zawężają. Mniej przetargów."
   },
   "matchDetail": {
     "headerLabel": "Przetarg",

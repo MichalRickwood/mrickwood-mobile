@@ -188,6 +188,8 @@ export interface Dict {
     filterFormMaxPlaceholder: string;
     filterFormEmailDigest: string;
     filterFormEmailDigestHelp: string;
+    filterFormStrict: string;
+    filterFormStrictHelp: string;
     filterFormSave: string;
     filterFormSaving: string;
     filterFormDelete: string;
@@ -2583,6 +2585,8 @@ const cs: Dict = {
     filterFormMaxPlaceholder: "Do",
     filterFormEmailDigest: "Denní email s novými",
     filterFormEmailDigestHelp: "Jednou denně dostanete email se zakázkami z tohoto filtru.",
+    filterFormStrict: "Přísný režim",
+    filterFormStrictHelp: "Méně šumu: obor se bere jen z kódů zveřejněných zadavatelem a klíčová slova obor upřesňují. Zakázek bude méně.",
     filterFormSave: "Uložit",
     filterFormSaving: "Ukládám…",
     filterFormDelete: "Smazat filtr",
@@ -3449,6 +3453,8 @@ const en: Dict = {
     filterFormMaxPlaceholder: "To",
     filterFormEmailDigest: "Daily email of new matches",
     filterFormEmailDigestHelp: "Once a day you'll receive an email with tenders from this filter.",
+    filterFormStrict: "Strict mode",
+    filterFormStrictHelp: "Less noise: industry is taken only from codes published by the authority and keywords narrow it down. Fewer tenders.",
     filterFormSave: "Save",
     filterFormSaving: "Saving…",
     filterFormDelete: "Delete filter",
@@ -4314,6 +4320,8 @@ const de: Dict = {
     filterFormMaxPlaceholder: "Bis",
     filterFormEmailDigest: "Tägliche E-Mail mit neuen Treffern",
     filterFormEmailDigestHelp: "Einmal täglich erhalten Sie eine E-Mail mit Ausschreibungen aus diesem Filter.",
+    filterFormStrict: "Strenger Modus",
+    filterFormStrictHelp: "Weniger Rauschen: Branche nur aus vom Auftraggeber veröffentlichten Codes, Stichwörter grenzen ein. Weniger Ausschreibungen.",
     filterFormSave: "Speichern",
     filterFormSaving: "Speichere…",
     filterFormDelete: "Filter löschen",
@@ -5181,6 +5189,8 @@ const sk: Dict = {
     filterFormMaxPlaceholder: "Do",
     filterFormEmailDigest: "Denný e-mail s novými zhodami",
     filterFormEmailDigestHelp: "Raz denne dostanete e-mail so zákazkami z tohto filtra.",
+    filterFormStrict: "Prísny režim",
+    filterFormStrictHelp: "Menej šumu: odbor sa berie len z kódov zverejnených zadávateľom a kľúčové slová ho upresňujú. Zákaziek bude menej.",
     filterFormSave: "Uložiť",
     filterFormSaving: "Ukladám…",
     filterFormDelete: "Odstrániť filter",
@@ -6046,6 +6056,8 @@ const fr: Dict = {
     filterFormMaxPlaceholder: "À",
     filterFormEmailDigest: "E-mail quotidien des nouveaux résultats",
     filterFormEmailDigestHelp: "Une fois par jour, vous recevrez un e-mail avec les appels d'offres de ce filtre.",
+    filterFormStrict: "Mode strict",
+    filterFormStrictHelp: "Moins de bruit : le secteur vient uniquement des codes publiés par l'acheteur et les mots-clés l'affinent. Moins d'appels d'offres.",
     filterFormSave: "Enregistrer",
     filterFormSaving: "Enregistrement…",
     filterFormDelete: "Supprimer le filtre",
@@ -6911,6 +6923,8 @@ const it: Dict = {
     filterFormMaxPlaceholder: "A",
     filterFormEmailDigest: "Email giornaliera delle nuove corrispondenze",
     filterFormEmailDigestHelp: "Una volta al giorno riceverai un'email con le gare di questo filtro.",
+    filterFormStrict: "Modalità rigorosa",
+    filterFormStrictHelp: "Meno rumore: il settore deriva solo dai codici pubblicati dall'ente e le parole chiave lo restringono. Meno gare.",
     filterFormSave: "Salva",
     filterFormSaving: "Salvataggio…",
     filterFormDelete: "Elimina filtro",
