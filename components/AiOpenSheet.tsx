@@ -53,6 +53,11 @@ export default function AiOpenSheet({ visible, tenderId, onClose }: Props) {
 
   async function waitForDocs(res: AiShareCreateResult): Promise<void> {
     let { total, cached } = res.docs;
+    // total < 0 = server stav nestihl zjistit (strop 6 s) → zeptáme se hned.
+    if (total < 0) {
+      const st = await endpoints.aiShareDocsStatus(res.link.id).catch(() => null);
+      if (st?.data) { total = st.data.total; cached = st.data.cached; } else total = 0;
+    }
     for (let i = 0; i < WAIT_ROUNDS && cached < total; i++) {
       setStatus(t("aiShare", "preparingDocs", { cached, total }));
       await new Promise((r) => setTimeout(r, WAIT_MS));
