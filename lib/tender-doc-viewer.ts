@@ -1,3 +1,4 @@
+import { Alert, Linking } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 import type { Router } from "expo-router";
 import type { TenderDocument } from "./endpoints";
@@ -97,23 +98,36 @@ export async function openTenderDocument(
   // na externím workeru). Zakázkové dokumenty jsou veřejné → otevřeme je přes
   // Microsoft Office web viewer (plná věrnost, bez vlastní infra). Vyžaduje
   // veřejně dostupnou URL (resolver i portály jsou public).
+  // Všechno ostatní jde přes naši cache (signed URL ze Spaces), ne přes portál:
+  //  - PDF z RWX resolveru chodí s `attachment` dispozicí (prohlížeč stahuje),
+  //  - NEN u přímého odkazu na ZIP/DOC vrací HTML stránku místo souboru a
+  //    Office viewer si z NEN nic nestáhne (Václav 19. 9. 2026, zakázka 1527263).
+  // Server soubor stáhne (u portálů blokujících DC IP přes worker), uloží
+  // a vrátí URL, kterou SFSafari/Chrome Custom Tab otevře — polling, ať
+  // první otevření na NEN (desítky sekund) nespadne na timeout.
+  const cached = await resolveCachedDocUrl(url, kind === "pdf" ? "pdf" : "raw");
+  if (cached.url) {
+    if (ext && OFFICE_VIEWER_EXTS.includes(ext)) {
+      await WebBrowser.openBrowserAsync(officeViewerUrl(cached.url));
+      return;
+    }
+    await WebBrowser.openBrowserAsync(cached.url);
+    return;
+  }
+  // Server ví, že portál soubor nevydal (chybová stránka místo přílohy) —
+  // otevřít původní odkaz by ukázalo tutéž chybu, radši to řekneme rovnou.
+  if (cached.chyba) {
+    Alert.alert("Příloha není dostupná", cached.chyba, [
+      { text: "Otevřít na portálu", onPress: () => void Linking.openURL(url) },
+      { text: "Zavřít", style: "cancel" },
+    ]);
+    return;
+  }
+  // Cache selhala → aspoň původní odkaz (u NEN nemusí vést k souboru).
   if (ext && OFFICE_VIEWER_EXTS.includes(ext)) {
     await WebBrowser.openBrowserAsync(officeViewerUrl(url));
     return;
   }
-  // PDF přes RWX resolver (vasedio.cz) chodí s `Content-Disposition: attachment`,
-  // takže in-app prohlížeč soubor stáhne místo zobrazení. Protáhneme ho naším
-  // inline-proxy endpointem (uloží do Spaces jako application/pdf bez attachment)
-  // a otevřeme výslednou signed URL — SFSafari/Chrome Custom Tab ji vykreslí inline.
-  if (kind === "pdf" && isResolverHost(url)) {
-    const inlineUrl = await resolveInlinePdfUrl(url);
-    if (inlineUrl) {
-      await WebBrowser.openBrowserAsync(inlineUrl);
-      return;
-    }
-    // fallthrough: kdyby proxy selhala, otevři aspoň původní URL
-  }
-  // PDF i ostatní typy přes SFSafariViewController.
   await WebBrowser.openBrowserAsync(url);
 }
 
@@ -152,29 +166,34 @@ function officeViewerUrl(url: string): string {
   return `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(url)}`;
 }
 
-/** True pro dokumenty servírované přes RWX resolver (potřebují inline-proxy). */
-function isResolverHost(url: string): boolean {
-  try {
-    return new URL(url).host.toLowerCase().endsWith("vasedio.cz");
-  } catch {
-    return false;
-  }
-}
-
 /** Získá signed inline URL z preview endpointu (Bearer auth), nebo null při chybě. */
-async function resolveInlinePdfUrl(url: string): Promise<string | null> {
+async function resolveCachedDocUrl(
+  url: string,
+  kind: "pdf" | "raw",
+): Promise<{ url?: string; chyba?: string }> {
   try {
     const token = await getToken();
     const endpoint = `${API_BASE_URL}/api/v2/leads/documents/preview?url=${encodeURIComponent(
       url,
-    )}&kind=pdf&redirect=json`;
-    const res = await fetch(endpoint, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    });
-    if (!res.ok) return null;
-    const data = (await res.json()) as { url?: string };
-    return data?.url ?? null;
+    )}&kind=${kind}&redirect=json&nowait=1`;
+    // 202 = server teprve stahuje (worker) → zkoušíme dál, nejvýš ~90 s.
+    for (let i = 0; i < 30; i++) {
+      const res = await fetch(endpoint, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (res.status === 200) {
+        const data = (await res.json()) as { url?: string };
+        return data?.url ? { url: data.url } : {};
+      }
+      if (res.status === 404) {
+        const data = (await res.json().catch(() => null)) as { error?: { message?: string } } | null;
+        return { chyba: data?.error?.message ?? "Portál soubor nevydal." };
+      }
+      if (res.status !== 202) return {};
+      await new Promise((r) => setTimeout(r, 3000));
+    }
+    return {};
   } catch {
-    return null;
+    return {};
   }
 }

@@ -1,4 +1,4 @@
-import { api } from "./api";
+import { api, LONG_TIMEOUT_MS } from "./api";
 
 /**
  * Typovaný klient pro /api/v2/admin/* endpointy (owner-only, ADMIN role).
@@ -379,6 +379,156 @@ export interface InboxMailDetail extends Omit<InboxMailListItem, "proposals"> {
   proposals: InboxProposal[];
 }
 
+/* ---------------- Vymáhání výsledků zakázek (datová schránka) ---------------- */
+
+/** Proč případ vznikl: v registru smluv je smlouva × od lhůty uplynuly 3 měsíce. */
+export type VymSpoustec = "smlouva_v_registru" | "3_mesice";
+
+export type VymStavPripadu = "OTEVRENY" | "ODPOVEZENO" | "VYRESENO" | "ZAMITNUTO" | "NEDORUCITELNY";
+
+export type VymStavDopisu = "NAVRH" | "SCHVALENO" | "ODESLANO" | "DORUCENO" | "CHYBA" | "VYRAZENO";
+
+export interface VymPrijemce {
+  databoxId: string;
+  /** Typ schránky ze seznamu DS; před odesláním ho znovu ověřujeme přes FindDataBox. */
+  typ: string | null;
+  nazev: string;
+  ico: string;
+}
+
+export interface VymZakazka {
+  tenderId: number;
+  nazev: string;
+  lhutaAt: string | null;
+  hodnota: number | null;
+  url: string | null;
+}
+
+/** Dopis ve stavu NAVRH — položka dnešní dávky. */
+export interface VymDopis {
+  id: number;
+  pripadId: number;
+  /** ID naší schránky, ze které se má dopis odeslat (`vym_pripad.odesilatel_db`). */
+  odesilatelDb: string;
+  /** 1 připomínka § 217, 2 žádost podle InfZ, 3 stížnost § 16a. */
+  stupen: number;
+  predmet: string;
+  text: string;
+  /** Podepsaná URL do Spaces, platí 1 hodinu. */
+  pdfUrl: string;
+  naseZnacka: string;
+  prijemce: VymPrijemce;
+  zakazka: VymZakazka;
+  spoustec: VymSpoustec;
+  navrhAt: string;
+}
+
+export interface VymDavka {
+  dopisy: VymDopis[];
+  pocetPripadu: number;
+  cekaOdpovedi: boolean;
+  /** Odesílatelé, kteří se v dnešním návrhu vyskytují — pro kontrolu nastavení. */
+  schranky: { dbId: string; nazev: string }[];
+  /**
+   * Od kdy stahovat došlé zprávy (`vym_stav.posledni_stazeni_prijatych:<dbId>`).
+   * `null` u schránky = ještě nikdy neběželo → telefon si vezme okno 30 dnů zpět.
+   * Holý `string` je starší tvar a platí pro schránku RWX.
+   */
+  stazenoOd: Record<string, string | null> | string | null;
+}
+
+/** Dopis schválený k odeslání — PDF přichází rovnou v těle. */
+export interface VymOdeslani {
+  dopisId: number;
+  /** Naše schránka, ze které dopis odchází. */
+  odesilatelDb: string;
+  databoxId: string;
+  predmet: string;
+  naseZnacka: string;
+  pdf: { name: string; base64: string };
+}
+
+export interface VymVysledekOdeslani {
+  dopisId: number;
+  dmId?: string;
+  chyba?: string;
+}
+
+/** Došlá zpráva předávaná serveru — posílá se po jedné (limit těla ~4,5 MB). */
+export interface VymPrijataZprava {
+  dmId: string;
+  odesilatelDb: string;
+  odesilatel: string | null;
+  predmet: string | null;
+  dodanoAt: string | null;
+  /** `dmRecipientRefNumber` = naše značka, podle ní server páruje případ. */
+  recipientRef?: string | null;
+  prilohy: { name: string; mime: string; base64: string }[];
+  zfoBase64?: string | null;
+}
+
+/** Vytěžený obsah odpovědi (AI na serveru). */
+export interface VymVytezeno {
+  typ: "pisemna_zprava" | "oznameni_o_vyberu" | "rozhodnuti_o_odmitnuti" | "zruseni_rizeni" | "jine";
+  vitez?: { nazev: string; ico?: string; cena?: number; mena?: string };
+  ucastnici?: { nazev: string; ico?: string; nabidkovaCena?: number }[];
+  vylouceni?: { nazev: string; duvod?: string }[];
+  druhRizeni?: string;
+  pocetNabidek?: number;
+  datumUzavreni?: string;
+  poznamka?: string;
+  jistota: number;
+}
+
+export interface VymPripad {
+  id: number;
+  nazev: string;
+  zadavatel: string;
+  ico: string;
+  databoxId: string | null;
+  spoustec: VymSpoustec;
+  stav: VymStavPripadu;
+  stupen: number;
+  lhutaAt: string | null;
+  vytvorenoAt: string;
+  dopisy: {
+    stupen: number;
+    stav: VymStavDopisu;
+    odeslanoAt: string | null;
+    dorucenoAt: string | null;
+    dmId: string | null;
+  }[];
+  odpovedi: {
+    dmId: string;
+    dodanoAt: string | null;
+    predmet: string | null;
+    vytezeno: VymVytezeno | null;
+  }[];
+}
+
+export interface VymPrehled {
+  souhrn: {
+    otevrene: number;
+    odpovezeno: number;
+    vyreseno: number;
+    nedorucitelne: number;
+    cekaNavrh: number;
+  };
+  pripady: VymPripad[];
+}
+
+/**
+ * Odeslaný dopis, ke kterému ještě nemáme doručenku.
+ * `odesilatelDb` kontrakt (kap. 5) zatím nemá — doručenka jde stáhnout jen
+ * z odesílající schránky, telefon proto zkouší schránky, které má právě
+ * odemčené (viz poznámka v SPEC §10).
+ */
+export interface VymKDoruceni {
+  dopisId: number;
+  dmId: string;
+  odesilatelDb?: string;
+}
+
 export const adminApi = {
   // Users
   listUsers: async (status: "active" | "inactive" | "all", signal?: AbortSignal) => {
@@ -575,5 +725,69 @@ export const adminApi = {
   ) => {
     const r = await api.patch<Env<{ item: WorkItem }>>(`${BASE}/ukoly/${id}`, patch);
     return r.data.item;
+  },
+
+  /* ------------------ Vymáhání výsledků (datová schránka) ------------------ */
+
+  /** Dnešní návrh — dopisy ve stavu NAVRH, stupeň 3 → 1. */
+  getVymahaniDavka: async (signal?: AbortSignal) => {
+    const r = await api.get<Env<VymDavka>>(`${BASE}/vymahani/davka`, { signal });
+    return r.data;
+  },
+
+  /**
+   * Schválení dávky. Server označí dopisy SCHVALENO / VYRAZENO a vrátí je
+   * i s PDF v base64 — telefon je odešle do ISDS bez dalšího stahování.
+   */
+  schvalitVymahaniDavku: async (input: { dopisIds: number[]; vyradit?: number[] }) => {
+    const r = await api.post<Env<{ kOdeslani: VymOdeslani[] }>>(`${BASE}/vymahani/davka/schvalit`, input);
+    return r.data.kOdeslani;
+  },
+
+  /** Výsledky odeslání (dmId, nebo text chyby u přeskočeného dopisu). */
+  nahlasitOdeslane: async (vysledky: VymVysledekOdeslani[]) => {
+    const r = await api.post<Env<unknown>>(`${BASE}/vymahani/odeslano`, { vysledky });
+    return r.data;
+  },
+
+  /**
+   * Předání došlých zpráv. Posílá se po jedné — přílohy v base64 se do
+   * limitu těla Next.js (~4,5 MB) jinak nevejdou.
+   */
+  nahlasitPrijate: async (zpravy: VymPrijataZprava[], stazenoAt: string, schrankaDb: string) => {
+    const r = await api.post<Env<unknown>>(
+      `${BASE}/vymahani/prijate`,
+      { zpravy, stazenoAt, schrankaDb },
+      { timeoutMs: LONG_TIMEOUT_MS },
+    );
+    return r.data;
+  },
+
+  /** Přehled případů (souhrn + seznam), volitelně filtr na stav. */
+  getVymahaniPrehled: async (opts: { stav?: VymStavPripadu; limit?: number } = {}, signal?: AbortSignal) => {
+    const r = await api.get<Env<VymPrehled>>(`${BASE}/vymahani/prehled`, {
+      params: { stav: opts.stav, limit: opts.limit },
+      signal,
+    });
+    return r.data;
+  },
+
+  /** Odeslané dopisy bez doručenky — pro ně telefon zavolá GetDeliveryInfo. */
+  getVymahaniDoruceni: async (signal?: AbortSignal) => {
+    const r = await api.get<Env<{ dopisy: VymKDoruceni[] }>>(`${BASE}/vymahani/doruceni`, { signal });
+    return r.data.dopisy;
+  },
+
+  nahlasitDoruceni: async (
+    vysledky: {
+      dopisId: number;
+      dorucenoAt?: string;
+      dodanoAt?: string;
+      stavZpravy?: number;
+      stav?: string;
+    }[],
+  ) => {
+    const r = await api.post<Env<unknown>>(`${BASE}/vymahani/doruceni`, { vysledky });
+    return r.data;
   },
 };

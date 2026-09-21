@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ActivityIndicator, Alert, Image, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Alert, Image, Modal, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
 import { AppFlatList } from "@/components/AppScroll";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -8,6 +8,8 @@ import { adminApi, type SocialPost, type SocialStatus } from "@/lib/admin-api";
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme-context";
 import { AdminBadge } from "@/components/AdminRow";
+import OpenInClaude from "@/components/OpenInClaude";
+import AdminMenu from "@/components/AdminMenu";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 
 const STATUSES: SocialStatus[] = ["DRAFT", "PENDING_REVIEW", "SCHEDULED", "PUBLISHED", "FAILED", "REJECTED", "ARCHIVED"];
@@ -33,6 +35,13 @@ export default function AdminSocialScreen() {
   const [kind, setKind] = useState<"" | "POST" | "AD_CREATIVE">("");
   const [country, setCountry] = useState("");
   const [showTranslations, setShowTranslations] = useState(false);
+  const [filtryOpen, setFiltryOpen] = useState(false);
+
+  /** Co je zapnuté, shrnuté do jedné pilulky — jinak není po zabalení filtrů vidět. */
+  const filtrPopis = useMemo(() => {
+    const casti = [status || "vše", kind === "POST" ? "posty" : kind === "AD_CREATIVE" ? "reklamy" : null, country || null];
+    return `Filtry: ${casti.filter(Boolean).join(" · ")}`;
+  }, [status, kind, country]);
 
   const query = useQuery({
     queryKey: ["admin-social", status, kind, country],
@@ -92,65 +101,88 @@ export default function AdminSocialScreen() {
           {item.caption}
         </Text>
       </View>
+      {/* Session nad tímhle konkrétním příspěvkem — bez otevírání detailu. */}
+      <View style={styles.rowAkce}>
+        <OpenInClaude kind="social-post" id={item.id} variant="ikona" />
+      </View>
     </Pressable>
   );
 
   return (
     <SafeAreaView style={styles.safe} edges={["bottom"]}>
       <View style={styles.controls}>
-        <View style={styles.topActions}>
-          <Pressable onPress={() => router.push("/(tabs)/admin/social/replies")} style={styles.topBtn}>
-            <Text style={styles.topBtnText}>{t("admin", "repliesBtn")}</Text>
+        {/* Dvě pilulky místo sedmi řad ovládání — filtry a akce se rozbalí do
+            modalu. Na telefonu se jinak na obsah nedostane bez scrollování. */}
+        <View style={styles.toolbar}>
+          <Pressable onPress={() => setFiltryOpen(true)} style={styles.toolbarPill}>
+            <Text style={styles.toolbarPillText} numberOfLines={1}>{filtrPopis}</Text>
+            <Text style={styles.toolbarCaret}>⌄</Text>
           </Pressable>
-          <Pressable onPress={() => router.push("/(tabs)/admin/social/published")} style={styles.topBtn}>
-            <Text style={styles.topBtnText}>{t("admin", "perfBtn")}</Text>
-          </Pressable>
-          <Pressable onPress={confirmGenerate} disabled={generateMutation.isPending} style={[styles.topBtn, styles.topBtnPrimary]}>
-            <Text style={[styles.topBtnText, styles.topBtnTextPrimary]}>{generateMutation.isPending ? t("admin", "generating") : t("admin", "generate")}</Text>
-          </Pressable>
+          <AdminMenu
+            label={t("admin", "actionsBtn")}
+            polozky={[
+              { label: t("admin", "generate"), onPress: confirmGenerate, disabled: generateMutation.isPending, primary: true, popis: "Vyrobí nový příspěvek do fronty" },
+              { label: t("admin", "cycleApprove"), onPress: () => confirmCycle("approve"), popis: "Schválí celý čekající cyklus" },
+              { label: t("admin", "cycleReject"), onPress: () => confirmCycle("reject"), destructive: true, popis: "Odmítne celý čekající cyklus" },
+              { label: t("admin", "repliesBtn"), onPress: () => router.push("/(tabs)/admin/social/replies") },
+              { label: t("admin", "perfBtn"), onPress: () => router.push("/(tabs)/admin/social/published") },
+            ]}
+          />
+          <OpenInClaude kind="social-queue" label="Claude" variant="primary" />
         </View>
-        <View style={styles.cycleRow}>
-          <Pressable onPress={() => confirmCycle("approve")} style={[styles.cycleBtn, styles.cycleApprove]}>
-            <Text style={styles.cycleApproveText}>{t("admin", "cycleApprove")}</Text>
-          </Pressable>
-          <Pressable onPress={() => confirmCycle("reject")} style={[styles.cycleBtn, styles.cycleReject]}>
-            <Text style={styles.cycleRejectText}>{t("admin", "cycleReject")}</Text>
-          </Pressable>
-        </View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
-          <Pressable onPress={() => setStatus("")} style={[styles.chip, status === "" && styles.chipActive]}>
-            <Text style={[styles.chipText, status === "" && styles.chipTextActive]}>{t("admin", "filterAll")}</Text>
-          </Pressable>
-          {STATUSES.map((s) => (
-            <Pressable key={s} onPress={() => setStatus(s)} style={[styles.chip, status === s && styles.chipActive]}>
-              <Text style={[styles.chipText, status === s && styles.chipTextActive]}>{s}</Text>
-            </Pressable>
-          ))}
-        </ScrollView>
-        <View style={styles.segment}>
-          {([["", "filterAll"], ["POST", "kindPost"], ["AD_CREATIVE", "kindAd"]] as const).map(([val, key]) => (
-            <Pressable key={val} onPress={() => setKind(val)} style={[styles.segmentBtn, kind === val && styles.segmentBtnActive]}>
-              <Text style={[styles.segmentText, kind === val && styles.segmentTextActive]}>{t("admin", key)}</Text>
-            </Pressable>
-          ))}
-        </View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
-          <Pressable onPress={() => setCountry("")} style={[styles.chip, country === "" && styles.chipActive]}>
-            <Text style={[styles.chipText, country === "" && styles.chipTextActive]}>{t("admin", "allCountries")}</Text>
-          </Pressable>
-          {COUNTRIES.map((c) => (
-            <Pressable key={c} onPress={() => setCountry(c)} style={[styles.chip, country === c && styles.chipActive]}>
-              <Text style={[styles.chipText, country === c && styles.chipTextActive]}>{c}</Text>
-            </Pressable>
-          ))}
-        </ScrollView>
-        <Pressable onPress={() => setShowTranslations((v) => !v)} style={styles.translToggle}>
-          <Text style={styles.translToggleText}>
-            {showTranslations ? "☑" : "☐"} {t("admin", "showTranslations")}
-            {!showTranslations && hiddenCount > 0 ? ` (${hiddenCount})` : ""}
-          </Text>
-        </Pressable>
       </View>
+
+      <Modal visible={filtryOpen} transparent animationType="fade" onRequestClose={() => setFiltryOpen(false)}>
+        <Pressable style={styles.filtryOverlay} onPress={() => setFiltryOpen(false)}>
+          <Pressable style={styles.filtrySheet} onPress={(e) => e.stopPropagation()}>
+            <ScrollView>
+              <Text style={styles.filtryNadpis}>{t("admin", "filterStatus")}</Text>
+              <View style={styles.filtryChips}>
+                <Pressable onPress={() => setStatus("")} style={[styles.chip, status === "" && styles.chipActive]}>
+                  <Text style={[styles.chipText, status === "" && styles.chipTextActive]}>{t("admin", "filterAll")}</Text>
+                </Pressable>
+                {STATUSES.map((sx) => (
+                  <Pressable key={sx} onPress={() => setStatus(sx)} style={[styles.chip, status === sx && styles.chipActive]}>
+                    <Text style={[styles.chipText, status === sx && styles.chipTextActive]}>{sx}</Text>
+                  </Pressable>
+                ))}
+              </View>
+
+              <Text style={styles.filtryNadpis}>{t("admin", "filterKind")}</Text>
+              <View style={styles.segment}>
+                {([["", "filterAll"], ["POST", "kindPost"], ["AD_CREATIVE", "kindAd"]] as const).map(([val, key]) => (
+                  <Pressable key={val} onPress={() => setKind(val)} style={[styles.segmentBtn, kind === val && styles.segmentBtnActive]}>
+                    <Text style={[styles.segmentText, kind === val && styles.segmentTextActive]}>{t("admin", key)}</Text>
+                  </Pressable>
+                ))}
+              </View>
+
+              <Text style={styles.filtryNadpis}>{t("admin", "filterCountry")}</Text>
+              <View style={styles.filtryChips}>
+                <Pressable onPress={() => setCountry("")} style={[styles.chip, country === "" && styles.chipActive]}>
+                  <Text style={[styles.chipText, country === "" && styles.chipTextActive]}>{t("admin", "allCountries")}</Text>
+                </Pressable>
+                {COUNTRIES.map((c) => (
+                  <Pressable key={c} onPress={() => setCountry(c)} style={[styles.chip, country === c && styles.chipActive]}>
+                    <Text style={[styles.chipText, country === c && styles.chipTextActive]}>{c}</Text>
+                  </Pressable>
+                ))}
+              </View>
+
+              <Pressable onPress={() => setShowTranslations((v) => !v)} style={styles.translToggle}>
+                <Text style={styles.translToggleText}>
+                  {showTranslations ? "☑" : "☐"} {t("admin", "showTranslations")}
+                  {!showTranslations && hiddenCount > 0 ? ` (${hiddenCount})` : ""}
+                </Text>
+              </Pressable>
+
+              <Pressable onPress={() => setFiltryOpen(false)} style={styles.filtryHotovo}>
+                <Text style={styles.filtryHotovoText}>{t("admin", "done")}</Text>
+              </Pressable>
+            </ScrollView>
+          </Pressable>
+        </Pressable>
+      </Modal>
 
       <AppFlatList
         data={visible}
@@ -174,18 +206,21 @@ const makeStyles = (colors: Colors) =>
   StyleSheet.create({
     safe: { flex: 1, backgroundColor: colors.bg },
     controls: { padding: spacing.lg, gap: spacing.sm },
-    topActions: { flexDirection: "row", gap: spacing.sm },
-    topBtn: { flex: 1, alignItems: "center", paddingVertical: spacing.sm, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card },
-    topBtnPrimary: { backgroundColor: colors.accent, borderColor: colors.accent },
-    topBtnText: { fontSize: fontSize.sm, color: colors.text, fontWeight: "600" },
-    topBtnTextPrimary: { color: colors.accentForeground },
-    cycleRow: { flexDirection: "row", gap: spacing.sm },
-    cycleBtn: { flex: 1, alignItems: "center", paddingVertical: spacing.sm, borderRadius: radius.md },
-    cycleApprove: { backgroundColor: colors.successBg },
-    cycleApproveText: { color: colors.success, fontSize: fontSize.sm, fontWeight: "600" },
-    cycleReject: { backgroundColor: colors.dangerBg },
-    cycleRejectText: { color: colors.danger, fontSize: fontSize.sm, fontWeight: "600" },
-    chipRow: { gap: spacing.sm, paddingVertical: 2 },
+      rowAkce: { justifyContent: "center", paddingLeft: spacing.sm },
+    toolbar: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
+    toolbarPill: {
+      flexDirection: "row", alignItems: "center", gap: spacing.xs, flexShrink: 1,
+      paddingHorizontal: spacing.md, paddingVertical: spacing.sm,
+      borderRadius: radius.full, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card,
+    },
+    toolbarPillText: { color: colors.text, fontSize: fontSize.sm, fontWeight: "600", flexShrink: 1 },
+    toolbarCaret: { color: colors.textSubtle, fontSize: fontSize.sm },
+    filtryOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", padding: spacing.lg },
+    filtrySheet: { backgroundColor: colors.card, borderRadius: radius.lg, maxHeight: "80%", padding: spacing.lg },
+    filtryNadpis: { color: colors.textSubtle, fontSize: fontSize.xs, fontWeight: "700", textTransform: "uppercase", marginTop: spacing.md, marginBottom: spacing.sm },
+    filtryChips: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
+    filtryHotovo: { marginTop: spacing.lg, backgroundColor: colors.text, borderRadius: radius.md, paddingVertical: spacing.md, alignItems: "center" },
+    filtryHotovoText: { color: colors.bg, fontSize: fontSize.base, fontWeight: "700" },
     chip: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.full, paddingHorizontal: spacing.md, paddingVertical: spacing.xs, backgroundColor: colors.card },
     chipActive: { backgroundColor: colors.accent, borderColor: colors.accent },
     chipText: { fontSize: fontSize.xs, color: colors.text, fontWeight: "500" },

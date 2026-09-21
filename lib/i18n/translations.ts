@@ -935,6 +935,125 @@ export interface Dict {
     it: string;
   };
   admin: {
+    // Datová schránka (vymáhání výsledků zakázek)
+    dsOvereniSelhaloId: string;
+    dsUctyTitle: string;
+    dsUctyPrazdne: string;
+    dsPridatTitle: string;
+    dsPridat: string;
+    dsPridanoOk: string;
+    dsPridatHint: string;
+    dsSmazatSchranku: string;
+    dsSmazatPotvrzeniSchranka: string;
+    dsBiometrieOdemknout: string;
+    dsSchrankaChybi: string;
+    dsOvereniOdmitnuto: string;
+    dsChybejiciSchranky: string;
+    dsSchrankaLabel: string;
+    dsPlacenaZprava: string;
+    dsPlacenaHint: string;
+    dsBiometrieUlozeni: string;
+    dsBiometrieSmazani: string;
+    dsSpatneUdaje: string;
+    dsRow: string;
+    dsRowHint: string;
+    dsTitle: string;
+    dsNastaveniTitle: string;
+    dsPrehledTitle: string;
+    dsDopisTitle: string;
+    dsDavkaEmpty: string;
+    dsPocetPripadu: string;
+    dsCekaOdpovedi: string;
+    dsNoCreds: string;
+    dsNoCredsBtn: string;
+    dsSchvalitBtn: string;
+    dsStahnoutBtn: string;
+    dsPrehledBtn: string;
+    dsNastaveniBtn: string;
+    dsVyradit: string;
+    dsVratit: string;
+    dsStupenLabel: string;
+    dsStupen1: string;
+    dsStupen2: string;
+    dsStupen3: string;
+    dsSpoustecSmlouva: string;
+    dsSpoustec3m: string;
+    dsLhuta: string;
+    dsPotvrditTitle: string;
+    dsPotvrditBody: string;
+    dsPotvrditOk: string;
+    dsZrusit: string;
+    dsBiometrieZamitnuta: string;
+    dsFazeOverovani: string;
+    dsFazeOdesilani: string;
+    dsFazeHlaseni: string;
+    dsFazeSeznam: string;
+    dsFazeStahovani: string;
+    dsFazeDorucenky: string;
+    dsHotovoTitle: string;
+    dsHotovoOdeslano: string;
+    dsHotovoStazeno: string;
+    dsChybyTitle: string;
+    dsChybaTitle: string;
+    dsPrijemce: string;
+    dsZakazka: string;
+    dsZnacka: string;
+    dsOtevritPdf: string;
+    dsTextDopisu: string;
+    dsOtevritZakazku: string;
+    dsLogin: string;
+    dsHeslo: string;
+    dsHesloHint: string;
+    dsVerzeTitle: string;
+    dsVerzeApp: string;
+    dsVerzeAktualizace: string;
+    dsVerzeVestavena: string;
+    dsZkontrolovatAktualizaci: string;
+    dsAktualizaceStahuje: string;
+    dsAktualizaceZadna: string;
+    dsAktualizaceChyba: string;
+    dsProstredi: string;
+    dsProstrediTest: string;
+    dsProstrediProd: string;
+    dsOverit: string;
+    dsOverenoAt: string;
+    dsBiometrieChybi: string;
+    dsOverenoOk: string;
+    dsExpirace: string;
+    dsSmazanoOk: string;
+    dsVyplnUdaje: string;
+    dsSouhrnOtevrene: string;
+    dsSouhrnOdpovezeno: string;
+    dsSouhrnVyreseno: string;
+    dsSouhrnNedorucitelne: string;
+    dsSouhrnCekaNavrh: string;
+    dsFiltrVse: string;
+    dsPrehledEmpty: string;
+    dsDopisyLabel: string;
+    dsOdpovediLabel: string;
+    dsZadneOdpovedi: string;
+    dsVytezeno: string;
+    dsVitez: string;
+    dsUcastnici: string;
+    dsJistota: string;
+    dsStavOTEVRENY: string;
+    dsStavODPOVEZENO: string;
+    dsStavVYRESENO: string;
+    dsStavZAMITNUTO: string;
+    dsStavNEDORUCITELNY: string;
+    dsDopisNAVRH: string;
+    dsDopisSCHVALENO: string;
+    dsDopisODESLANO: string;
+    dsDopisDORUCENO: string;
+    dsDopisCHYBA: string;
+    dsDopisVYRAZENO: string;
+    dsTypPisemnaZprava: string;
+    dsTypOznameniOVyberu: string;
+    dsTypRozhodnutiOOdmitnuti: string;
+    dsTypZruseniRizeni: string;
+    dsTypJine: string;
+    dsChybaNacteni: string;
+    dsZkusitZnovu: string;
     // common
     title: string;
     back: string;
@@ -1116,6 +1235,21 @@ export interface Dict {
     deletePostMsg: string;
     repliesTitle: string;
     repliesBtn: string;
+    actionsBtn: string;
+    // Claude session běžící na serveru (components/OpenInClaude.tsx)
+    claudeTitulek: string;
+    claudeBezi: string;
+    claudeFronta: string;
+    claudeBezAdresy: string;
+    claudeOtevritSession: string;
+    claudeOtevritClaude: string;
+    claudeZadaniTitulek: string;
+    claudeZavrit: string;
+    claudeFallback: string;
+    claudeSelhaloObecne: string;
+    filterStatus: string;
+    filterKind: string;
+    filterCountry: string;
     repliesEmpty: string;
     replyApprove: string;
     replyReject: string;
@@ -1450,6 +1584,125 @@ export interface Dict {
 
 // Admin sekce je owner-only interní nástroj → reálné cs+en, jinde EN fallback.
 const ADMIN_CS: Dict["admin"] = {
+  // Datová schránka (vymáhání výsledků zakázek)
+  dsOvereniSelhaloId: "ISDS nevrátilo ID schránky — přihlášení funguje, ale schránku nelze identifikovat.",
+  dsUctyTitle: "Nastavené schránky",
+  dsUctyPrazdne: "Zatím není nastavená žádná schránka.",
+  dsPridatTitle: "Přidat schránku",
+  dsPridat: "Přidat a ověřit",
+  dsPridanoOk: "Schránka {nazev} ({dbId}) uložena.",
+  dsPridatHint: "ID schránky a název držitele si aplikace zjistí sama z ISDS — neopisuj je.",
+  dsSmazatSchranku: "Smazat schránku",
+  dsSmazatPotvrzeniSchranka: "Opravdu smazat údaje ke schránce {nazev} z telefonu?",
+  dsBiometrieOdemknout: "Odemkni heslo ke schránce {schranka}",
+  dsSchrankaChybi: "Schránka {dbId} není v telefonu nastavená — dopisy přeskočeny.",
+  dsOvereniOdmitnuto: "Ověření pro schránku {schranka} se nezdařilo — přeskočeno.",
+  dsChybejiciSchranky: "Chybí údaje ke schránkám: {seznam}",
+  dsSchrankaLabel: "Schránka",
+  dsPlacenaZprava: "placená zpráva",
+  dsPlacenaHint: "Schránka není OVM — půjde Poštovní datová zpráva placená z kreditu (10 Kč).",
+  dsBiometrieUlozeni: "Potvrď uložení údajů k datové schránce",
+  dsBiometrieSmazani: "Potvrď smazání údajů k datové schránce",
+  dsSpatneUdaje: "Přihlášení odmítnuto (HTTP 401) — zkontroluj jméno a heslo. Opakované pokusy vedou k dočasné blokaci.",
+  dsRow: "Datová schránka",
+  dsRowHint: "Vymáhání výsledků zakázek",
+  dsTitle: "Datová schránka",
+  dsNastaveniTitle: "Nastavení datové schránky",
+  dsPrehledTitle: "Přehled vymáhání",
+  dsDopisTitle: "Dopis",
+  dsDavkaEmpty: "Žádné dopisy nečekají na schválení.",
+  dsPocetPripadu: "Otevřených případů: {n}",
+  dsCekaOdpovedi: "Čekají odpovědi ke stažení.",
+  dsNoCreds: "V telefonu není nastavená žádná datová schránka.",
+  dsNoCredsBtn: "Nastavit schránku",
+  dsSchvalitBtn: "Schválit a odeslat ({n})",
+  dsStahnoutBtn: "Jen stáhnout odpovědi",
+  dsPrehledBtn: "Přehled případů",
+  dsNastaveniBtn: "Nastavení",
+  dsVyradit: "Vyřadit",
+  dsVratit: "Vrátit do dávky",
+  dsStupenLabel: "Stupeň {n}",
+  dsStupen1: "připomínka § 217",
+  dsStupen2: "žádost podle InfZ",
+  dsStupen3: "stížnost § 16a",
+  dsSpoustecSmlouva: "Smlouva v registru",
+  dsSpoustec3m: "3 měsíce bez výsledku",
+  dsLhuta: "Lhůta",
+  dsPotvrditTitle: "Odeslat dopisy?",
+  dsPotvrditBody: "Do datových schránek zadavatelů odejde {n} dopisů. Odeslání nejde vzít zpět.",
+  dsPotvrditOk: "Odeslat",
+  dsZrusit: "Zrušit",
+  dsBiometrieZamitnuta: "Ověření se nezdařilo — akce zrušena.",
+  dsFazeOverovani: "Ověřuji příjemce {i}/{n}",
+  dsFazeOdesilani: "Odesílám {i}/{n}",
+  dsFazeHlaseni: "Zapisuji výsledky",
+  dsFazeSeznam: "Načítám seznam došlých zpráv",
+  dsFazeStahovani: "Stahuji odpověď {i}/{n}",
+  dsFazeDorucenky: "Stahuji doručenky {i}/{n}",
+  dsHotovoTitle: "Hotovo",
+  dsHotovoOdeslano: "Odesláno {odeslano}, chyby {chyby}.",
+  dsHotovoStazeno: "Staženo {stazeno} odpovědí, doručenek {dorucenky}.",
+  dsChybyTitle: "Chyby",
+  dsChybaTitle: "Nepovedlo se",
+  dsPrijemce: "Příjemce",
+  dsZakazka: "Zakázka",
+  dsZnacka: "Naše značka",
+  dsOtevritPdf: "Otevřít PDF",
+  dsTextDopisu: "Text dopisu",
+  dsOtevritZakazku: "Otevřít zakázku",
+  dsLogin: "Přihlašovací jméno",
+  dsHeslo: "Heslo",
+  dsHesloHint: "Heslo se uloží do zabezpečeného úložiště telefonu za biometrii, zvlášť pro každou schránku. Na server se neposílá nikdy.",
+  dsVerzeTitle: "Verze aplikace",
+  dsVerzeApp: "Aplikace {verze}",
+  dsVerzeAktualizace: "Aktualizace z {kdy}",
+  dsVerzeVestavena: "Běží vestavěná verze z instalace, žádná aktualizace zatím nedošla.",
+  dsZkontrolovatAktualizaci: "Zkontrolovat aktualizaci",
+  dsAktualizaceStahuje: "Stahuji novou verzi, aplikace se za chvíli sama restartuje.",
+  dsAktualizaceZadna: "Máš nejnovější verzi.",
+  dsAktualizaceChyba: "Aktualizaci se nepodařilo stáhnout: {duvod}",
+  dsProstredi: "Prostředí",
+  dsProstrediTest: "Testovací",
+  dsProstrediProd: "Ostrá schránka",
+  dsOverit: "Ověřit přihlášení",
+  dsOverenoAt: "Naposledy ověřeno {kdy}",
+  dsBiometrieChybi: "Zařízení nemá nastavenou biometrii ani zámek obrazovky — údaje k datové schránce nelze bezpečně uložit.",
+  dsOverenoOk: "Přihlášení funguje: {jmeno}, role {role}.",
+  dsExpirace: "Heslo vyprší {kdy}.",
+  dsSmazanoOk: "Údaje z telefonu smazány.",
+  dsVyplnUdaje: "Vyplň přihlašovací jméno i heslo.",
+  dsSouhrnOtevrene: "Otevřené",
+  dsSouhrnOdpovezeno: "Odpovězeno",
+  dsSouhrnVyreseno: "Vyřešeno",
+  dsSouhrnNedorucitelne: "Nedoručitelné",
+  dsSouhrnCekaNavrh: "Čeká návrh",
+  dsFiltrVse: "Vše",
+  dsPrehledEmpty: "Žádné případy.",
+  dsDopisyLabel: "Dopisy",
+  dsOdpovediLabel: "Odpovědi",
+  dsZadneOdpovedi: "Zatím bez odpovědi.",
+  dsVytezeno: "Vytěženo",
+  dsVitez: "Vítěz",
+  dsUcastnici: "Účastníci",
+  dsJistota: "Jistota",
+  dsStavOTEVRENY: "Otevřený",
+  dsStavODPOVEZENO: "Odpovězeno",
+  dsStavVYRESENO: "Vyřešeno",
+  dsStavZAMITNUTO: "Zamítnuto",
+  dsStavNEDORUCITELNY: "Nedoručitelný",
+  dsDopisNAVRH: "Návrh",
+  dsDopisSCHVALENO: "Schváleno",
+  dsDopisODESLANO: "Odesláno",
+  dsDopisDORUCENO: "Doručeno",
+  dsDopisCHYBA: "Chyba",
+  dsDopisVYRAZENO: "Vyřazeno",
+  dsTypPisemnaZprava: "Písemná zpráva zadavatele",
+  dsTypOznameniOVyberu: "Oznámení o výběru",
+  dsTypRozhodnutiOOdmitnuti: "Rozhodnutí o odmítnutí",
+  dsTypZruseniRizeni: "Zrušení řízení",
+  dsTypJine: "Jiné",
+  dsChybaNacteni: "Data se nepodařilo načíst.",
+  dsZkusitZnovu: "Zkusit znovu",
   title: "Admin",
   back: "Zpět",
   loading: "Načítám…",
@@ -1622,6 +1875,20 @@ const ADMIN_CS: Dict["admin"] = {
   deletePostMsg: "Opravdu smazat tento příspěvek?",
   repliesTitle: "Odpovědi (X)",
   repliesBtn: "Odpovědi",
+  actionsBtn: "Akce",
+  claudeTitulek: "Session běží na serveru",
+  claudeBezi: "Session {jmeno} běží na serveru.",
+  claudeFronta: "Session je ve frontě. Na serveru běží maximum session naráz; jakmile se uvolní místo, naskočí. Zkus to za chvíli.",
+  claudeBezAdresy: " Adresa session ještě nedorazila — najdeš ji v appce Claude pod Remote Control.",
+  claudeOtevritSession: "Otevřít session",
+  claudeOtevritClaude: "Otevřít Claude",
+  claudeZadaniTitulek: "Zadání pro Claude",
+  claudeZavrit: "Zavřít",
+  claudeFallback: "Session na serveru se spustit nepodařila ({chyba}).\n\nNíže je zadání — označ, zkopíruj a vlož do nové konverzace v Claude. Nebude mít přístup k datům, ale poradí.\n\n{zadani}",
+  claudeSelhaloObecne: "Session se nepodařilo spustit.",
+  filterStatus: "Stav",
+  filterKind: "Druh",
+  filterCountry: "Země",
   repliesEmpty: "Žádné odpovědi ke schválení.",
   replyApprove: "Schválit a odeslat",
   replyReject: "Odmítnout",
@@ -1954,6 +2221,125 @@ const ADMIN_CS: Dict["admin"] = {
 };
 
 const ADMIN_EN: Dict["admin"] = {
+  // Data box (chasing tender results)
+  dsOvereniSelhaloId: "ISDS returned no box ID — the sign-in works but the box cannot be identified.",
+  dsUctyTitle: "Configured boxes",
+  dsUctyPrazdne: "No box configured yet.",
+  dsPridatTitle: "Add a box",
+  dsPridat: "Add and check",
+  dsPridanoOk: "Box {nazev} ({dbId}) saved.",
+  dsPridatHint: "The app reads the box ID and the holder's name from ISDS itself — no need to type them.",
+  dsSmazatSchranku: "Delete box",
+  dsSmazatPotvrzeniSchranka: "Really delete the credentials for {nazev} from this phone?",
+  dsBiometrieOdemknout: "Unlock the password for {schranka}",
+  dsSchrankaChybi: "Box {dbId} is not configured on this phone — letters skipped.",
+  dsOvereniOdmitnuto: "Authentication for {schranka} failed — skipped.",
+  dsChybejiciSchranky: "Missing credentials for: {seznam}",
+  dsSchrankaLabel: "Box",
+  dsPlacenaZprava: "paid message",
+  dsPlacenaHint: "The box is not a public authority — this goes as a paid Postal data message from credit (CZK 10).",
+  dsBiometrieUlozeni: "Confirm saving the data box credentials",
+  dsBiometrieSmazani: "Confirm deleting the data box credentials",
+  dsSpatneUdaje: "Sign-in rejected (HTTP 401) — check the name and password. Repeated attempts lead to a temporary block.",
+  dsRow: "Data box",
+  dsRowHint: "Chasing tender results",
+  dsTitle: "Data box",
+  dsNastaveniTitle: "Data box settings",
+  dsPrehledTitle: "Chasing overview",
+  dsDopisTitle: "Letter",
+  dsDavkaEmpty: "No letters are waiting for approval.",
+  dsPocetPripadu: "Open cases: {n}",
+  dsCekaOdpovedi: "There are replies waiting to be downloaded.",
+  dsNoCreds: "No data box is configured on this phone.",
+  dsNoCredsBtn: "Set up a box",
+  dsSchvalitBtn: "Approve and send ({n})",
+  dsStahnoutBtn: "Only download replies",
+  dsPrehledBtn: "Case overview",
+  dsNastaveniBtn: "Settings",
+  dsVyradit: "Drop",
+  dsVratit: "Return to batch",
+  dsStupenLabel: "Level {n}",
+  dsStupen1: "§ 217 reminder",
+  dsStupen2: "freedom-of-information request",
+  dsStupen3: "§ 16a complaint",
+  dsSpoustecSmlouva: "Contract in the register",
+  dsSpoustec3m: "3 months with no result",
+  dsLhuta: "Deadline",
+  dsPotvrditTitle: "Send the letters?",
+  dsPotvrditBody: "{n} letters will be sent to the buyers' data boxes. Sending cannot be undone.",
+  dsPotvrditOk: "Send",
+  dsZrusit: "Cancel",
+  dsBiometrieZamitnuta: "Authentication failed — action cancelled.",
+  dsFazeOverovani: "Verifying recipient {i}/{n}",
+  dsFazeOdesilani: "Sending {i}/{n}",
+  dsFazeHlaseni: "Recording results",
+  dsFazeSeznam: "Loading the list of incoming messages",
+  dsFazeStahovani: "Downloading reply {i}/{n}",
+  dsFazeDorucenky: "Downloading delivery receipts {i}/{n}",
+  dsHotovoTitle: "Done",
+  dsHotovoOdeslano: "Sent {odeslano}, errors {chyby}.",
+  dsHotovoStazeno: "Downloaded {stazeno} replies, {dorucenky} delivery receipts.",
+  dsChybyTitle: "Errors",
+  dsChybaTitle: "It did not work",
+  dsPrijemce: "Recipient",
+  dsZakazka: "Tender",
+  dsZnacka: "Our reference",
+  dsOtevritPdf: "Open PDF",
+  dsTextDopisu: "Letter text",
+  dsOtevritZakazku: "Open tender",
+  dsLogin: "Login name",
+  dsHeslo: "Password",
+  dsHesloHint: "The password is stored in the phone's secure storage behind biometrics, separately per box. It is never sent to the server.",
+  dsVerzeTitle: "App version",
+  dsVerzeApp: "App {verze}",
+  dsVerzeAktualizace: "Update from {kdy}",
+  dsVerzeVestavena: "Running the built-in version, no update has arrived yet.",
+  dsZkontrolovatAktualizaci: "Check for update",
+  dsAktualizaceStahuje: "Downloading a new version, the app will restart shortly.",
+  dsAktualizaceZadna: "You have the latest version.",
+  dsAktualizaceChyba: "Could not download the update: {duvod}",
+  dsProstredi: "Environment",
+  dsProstrediTest: "Test",
+  dsProstrediProd: "Live box",
+  dsOverit: "Check sign-in",
+  dsOverenoAt: "Last checked {kdy}",
+  dsBiometrieChybi: "This device has no biometrics or screen lock set up — data box credentials cannot be stored safely.",
+  dsOverenoOk: "Sign-in works: {jmeno}, role {role}.",
+  dsExpirace: "The password expires on {kdy}.",
+  dsSmazanoOk: "Credentials deleted from the phone.",
+  dsVyplnUdaje: "Fill in both the login name and the password.",
+  dsSouhrnOtevrene: "Open",
+  dsSouhrnOdpovezeno: "Answered",
+  dsSouhrnVyreseno: "Resolved",
+  dsSouhrnNedorucitelne: "Undeliverable",
+  dsSouhrnCekaNavrh: "Proposal waiting",
+  dsFiltrVse: "All",
+  dsPrehledEmpty: "No cases.",
+  dsDopisyLabel: "Letters",
+  dsOdpovediLabel: "Replies",
+  dsZadneOdpovedi: "No reply yet.",
+  dsVytezeno: "Extracted",
+  dsVitez: "Winner",
+  dsUcastnici: "Bidders",
+  dsJistota: "Confidence",
+  dsStavOTEVRENY: "Open",
+  dsStavODPOVEZENO: "Answered",
+  dsStavVYRESENO: "Resolved",
+  dsStavZAMITNUTO: "Refused",
+  dsStavNEDORUCITELNY: "Undeliverable",
+  dsDopisNAVRH: "Proposal",
+  dsDopisSCHVALENO: "Approved",
+  dsDopisODESLANO: "Sent",
+  dsDopisDORUCENO: "Delivered",
+  dsDopisCHYBA: "Error",
+  dsDopisVYRAZENO: "Dropped",
+  dsTypPisemnaZprava: "Contracting authority report",
+  dsTypOznameniOVyberu: "Award notice",
+  dsTypRozhodnutiOOdmitnuti: "Refusal decision",
+  dsTypZruseniRizeni: "Procedure cancelled",
+  dsTypJine: "Other",
+  dsChybaNacteni: "The data could not be loaded.",
+  dsZkusitZnovu: "Try again",
   title: "Admin",
   back: "Back",
   loading: "Loading…",
@@ -2126,6 +2512,20 @@ const ADMIN_EN: Dict["admin"] = {
   deletePostMsg: "Really delete this post?",
   repliesTitle: "Replies (X)",
   repliesBtn: "Replies",
+  actionsBtn: "Actions",
+  claudeTitulek: "Session is running on the server",
+  claudeBezi: "Session {jmeno} is running on the server.",
+  claudeFronta: "The session is queued. Only a limited number run at once; it will start as soon as a slot frees up. Try again shortly.",
+  claudeBezAdresy: " The session address hasn't arrived yet — find it in the Claude app under Remote Control.",
+  claudeOtevritSession: "Open session",
+  claudeOtevritClaude: "Open Claude",
+  claudeZadaniTitulek: "Prompt for Claude",
+  claudeZavrit: "Close",
+  claudeFallback: "The server session could not be started ({chyba}).\n\nBelow is the prompt — select it, copy it and paste it into a new Claude conversation. It won't have access to your data, but it can still help.\n\n{zadani}",
+  claudeSelhaloObecne: "Could not start the session.",
+  filterStatus: "Status",
+  filterKind: "Type",
+  filterCountry: "Country",
   repliesEmpty: "No replies to review.",
   replyApprove: "Approve & send",
   replyReject: "Reject",

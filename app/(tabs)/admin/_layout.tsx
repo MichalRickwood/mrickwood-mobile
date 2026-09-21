@@ -28,6 +28,10 @@ export default function AdminLayout() {
       <Stack.Screen name="invoices/index" options={{ title: t("admin", "invoicesTitle") }} />
       <Stack.Screen name="inbox/index" options={{ title: t("admin", "inboxTitle") }} />
       <Stack.Screen name="inbox/[id]" options={{ title: t("admin", "inboxTitle") }} />
+      <Stack.Screen name="datovka/index" options={{ title: t("admin", "dsTitle") }} />
+      <Stack.Screen name="datovka/nastaveni" options={{ title: t("admin", "dsNastaveniTitle") }} />
+      <Stack.Screen name="datovka/prehled" options={{ title: t("admin", "dsPrehledTitle") }} />
+      <Stack.Screen name="datovka/dopis/[id]" options={{ title: t("admin", "dsDopisTitle") }} />
       <Stack.Screen name="feedback/index" options={{ title: t("admin", "feedbackTitle") }} />
       <Stack.Screen name="feedback/[id]" options={{ title: t("admin", "feedbackDetailTitle") }} />
       <Stack.Screen name="communications/index" options={{ title: t("admin", "commsTitle") }} />
