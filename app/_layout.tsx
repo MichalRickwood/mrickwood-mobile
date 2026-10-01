@@ -14,6 +14,7 @@ import { I18nProvider, useI18n } from "@/lib/i18n";
 import { ThemeProvider, useTheme } from "@/lib/theme-context";
 import { endpoints } from "@/lib/endpoints";
 import { trackScreen, reportClientError } from "@/lib/tracker";
+import { nahlasChybyUpdatu } from "@/lib/updates-health";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 
 const queryClient = new QueryClient({
@@ -194,9 +195,17 @@ const makeGuardStyles = (c: Colors) =>
 function ScreenTracker() {
   const { status } = useAuth();
   const pathname = usePathname();
+  const updatyNahlaseny = useRef(false);
   useEffect(() => {
     if (status === "authenticated") trackScreen(pathname);
   }, [status, pathname]);
+  // Chyby expo-updates z minulého běhu — jednou za spuštění, po přihlášení
+  // (bez tokenu tracker eventy zahazuje). Viz lib/updates-health.ts.
+  useEffect(() => {
+    if (status !== "authenticated" || updatyNahlaseny.current) return;
+    updatyNahlaseny.current = true;
+    void nahlasChybyUpdatu();
+  }, [status]);
   return null;
 }
 
