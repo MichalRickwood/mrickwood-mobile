@@ -887,7 +887,9 @@
     "yearly": "Jaarlijks",
     "autoRenew": "Het abonnement wordt automatisch verlengd totdat u het opzegt. Beheer of annuleer op elk gewenst moment via de App Store-instellingen.",
     "terms": "Gebruiksvoorwaarden (EULA)",
-    "privacy": "Privacybeleid"
+    "privacy": "Privacybeleid",
+    "partnerManagedTitle": "Uw abonnement wordt beheerd door uw leverancier",
+    "partnerManagedBody": "De landen van dit account worden ingesteld door het bedrijf via wie u toegang kreeg. Vraag hen om extra landen — u hoeft hier niets te activeren of te kopen."
   },
   "onboardingCountries": {
     "title": "Landen selecteren",

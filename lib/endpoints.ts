@@ -365,6 +365,8 @@ export const endpoints = {
         isComplete: boolean;
         consentRequired: boolean;
         isOauth: boolean;
+        /** Účet založil partner — země spravuje on, nákup a aktivace se v appce nenabízí. */
+        partnerManaged?: boolean;
       };
     }>("/api/v2/account/profile");
     return r.data;

@@ -887,7 +887,9 @@
     "yearly": "Anual",
     "autoRenew": "La suscripción se renueva automáticamente hasta que se cancele. Gestione o cancele en cualquier momento desde los ajustes del App Store.",
     "terms": "Condiciones de uso (EULA)",
-    "privacy": "Política de privacidad"
+    "privacy": "Política de privacidad",
+    "partnerManagedTitle": "Su suscripción la gestiona su proveedor",
+    "partnerManagedBody": "Los países de esta cuenta los configura la empresa a través de la cual obtuvo el acceso. Pídale que añada más países: aquí no tiene que activar ni comprar nada."
   },
   "onboardingCountries": {
     "title": "Seleccionar países",

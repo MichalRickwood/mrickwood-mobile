@@ -679,7 +679,9 @@
     "yearly": "年額",
     "autoRenew": "サブスクリプションはキャンセルするまで自動更新されます。App Storeの設定からいつでも管理・キャンセルできます。",
     "terms": "利用規約（EULA）",
-    "privacy": "プライバシーポリシー"
+    "privacy": "プライバシーポリシー",
+    "partnerManagedTitle": "ご契約はご提供元が管理しています",
+    "partnerManagedBody": "このアカウントの対象国は、アクセスを提供した企業が設定しています。国の追加はその企業にご依頼ください。ここで有効化や購入をする必要はありません。"
   },
   "onboardingCountries": {
     "title": "国を選択する",

@@ -724,6 +724,8 @@ export interface Dict {
   };
   purchase: {
     title: string;
+    partnerManagedTitle: string;
+    partnerManagedBody: string;
     subtitle: string;
     monthlyOpt: string;
     yearlyOpt: string;
@@ -3517,6 +3519,8 @@ const cs: Dict = {
     consentGdprLink: "zásadami zpracování osobních údajů",
   },
   purchase: {
+    partnerManagedTitle: "Předplatné spravuje váš dodavatel",
+    partnerManagedBody: "Země tohoto účtu nastavuje firma, přes kterou jste účet dostali. O rozšíření o další země ji prosím požádejte — tady je aktivovat ani kupovat nemusíte.",
     title: "Předplatit {country}",
     subtitle: "Vyberte období. Platba přes App Store.",
     monthlyOpt: "Měsíčně — {price}",
@@ -4382,6 +4386,8 @@ const en: Dict = {
     consentGdprLink: "Privacy Policy",
   },
   purchase: {
+    partnerManagedTitle: "Your subscription is managed by your provider",
+    partnerManagedBody: "The countries on this account are set by the company that gave you access. Please ask them to add more countries — you don't need to activate or buy anything here.",
     title: "Subscribe to {country}",
     subtitle: "Choose a period. Payment via App Store.",
     monthlyOpt: "Monthly — {price}",
@@ -5249,6 +5255,8 @@ const de: Dict = {
     consentGdprLink: "Datenschutzerklärung zu",
   },
   purchase: {
+    partnerManagedTitle: "Ihr Abonnement verwaltet Ihr Anbieter",
+    partnerManagedBody: "Die Länder dieses Kontos legt das Unternehmen fest, über das Sie den Zugang erhalten haben. Bitte wenden Sie sich für weitere Länder an dieses Unternehmen — hier müssen Sie nichts aktivieren oder kaufen.",
     title: "{country} abonnieren",
     subtitle: "Zeitraum wählen. Zahlung über App Store.",
     monthlyOpt: "Monatlich — {price}",
@@ -6114,6 +6122,8 @@ const sk: Dict = {
     consentGdprLink: "zásadami ochrany súkromia",
   },
   purchase: {
+    partnerManagedTitle: "Predplatné spravuje váš dodávateľ",
+    partnerManagedBody: "Krajiny tohto účtu nastavuje firma, cez ktorú ste účet dostali. O rozšírenie o ďalšie krajiny ju prosím požiadajte — tu ich aktivovať ani kupovať nemusíte.",
     title: "Predplatiť {country}",
     subtitle: "Vyberte obdobie. Platba cez App Store.",
     monthlyOpt: "Mesačne — {price}",
@@ -6979,6 +6989,8 @@ const fr: Dict = {
     consentGdprLink: "Politique de confidentialité",
   },
   purchase: {
+    partnerManagedTitle: "Votre abonnement est géré par votre fournisseur",
+    partnerManagedBody: "Les pays de ce compte sont définis par l'entreprise qui vous a donné l'accès. Pour ajouter d'autres pays, adressez-vous à elle — vous n'avez rien à activer ni à acheter ici.",
     title: "S'abonner pour {country}",
     subtitle: "Choisissez une période. Paiement via l'App Store.",
     monthlyOpt: "Mensuel — {price}",
@@ -7844,6 +7856,8 @@ const it: Dict = {
     consentGdprLink: "Informativa sulla privacy",
   },
   purchase: {
+    partnerManagedTitle: "L'abbonamento è gestito dal suo fornitore",
+    partnerManagedBody: "I paesi di questo account sono impostati dall'azienda tramite cui ha ricevuto l'accesso. Per aggiungere altri paesi si rivolga a loro: qui non deve attivare né acquistare nulla.",
     title: "Abbonati a {country}",
     subtitle: "Scegli un periodo. Pagamento tramite App Store.",
     monthlyOpt: "Mensile — {price}",

@@ -3,7 +3,7 @@ import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Pressable, St
 import { AppScrollView } from "@/components/AppScroll";
 import * as WebBrowser from "expo-web-browser";
 import * as Linking from "expo-linking";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiError } from "@/lib/api";
 import {
   endpoints,
@@ -32,7 +32,14 @@ export default function BillingScreen() {
   // iOS: App Store 3.1.1 — žádný platební mechanismus v appce. „Sledované
   // země" = stejný picker jako onboarding (stav služeb, přidání země, žádost
   // o novou zemi) — unifikovaná obrazovka. Android drží legacy self-service.
-  if (Platform.OS === "ios") return <CountriesManager mode="settings" />;
+  // Partnerský účet: země i fakturaci řeší partner → CountriesManager ukáže jen hlášku
+  // (Android legacy by jinak nabídl kartu a proformu = dvojí platba).
+  const profile = useQuery({
+    queryKey: ["profile-v2"],
+    queryFn: () => endpoints.getProfileV2(),
+    staleTime: 5 * 60 * 1000,
+  });
+  if (Platform.OS === "ios" || profile.data?.partnerManaged) return <CountriesManager mode="settings" />;
   return <BillingLegacy />;
 }
 

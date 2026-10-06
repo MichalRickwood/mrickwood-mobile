@@ -424,6 +424,24 @@ export default function CountriesManager({ mode }: { mode: "onboarding" | "setti
     }
   }
 
+  // Partnerský účet (PartnerManagedAccount): země spravuje a fakturuje partner.
+  // Žádná aktivace ani nákup přes App Store — zaplatil by zákazník i partner
+  // (API to odmítá taky, viz web lib/partner/self-service-guard).
+  if (profileQuery.data?.partnerManaged) {
+    return (
+      <SafeAreaView style={styles.screen} edges={[]}>
+        <View style={{ padding: spacing.lg }}>
+          <Text style={{ fontSize: fontSize.lg, fontWeight: "600", color: colors.text }}>
+            {t("purchase", "partnerManagedTitle")}
+          </Text>
+          <Text style={{ marginTop: spacing.sm, fontSize: fontSize.base, lineHeight: 22, color: colors.textSubtle }}>
+            {t("purchase", "partnerManagedBody")}
+          </Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   if (countries === null) {
     return (
       <SafeAreaView style={styles.loadingScreen}>
