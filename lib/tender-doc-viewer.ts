@@ -1,8 +1,6 @@
 import * as WebBrowser from "expo-web-browser";
 import type { Router } from "expo-router";
 import type { TenderDocument } from "./endpoints";
-import { API_BASE_URL } from "./config";
-import { getToken } from "./auth-storage";
 
 /**
  * Klasifikace tender attachmentu pro výběr in-app vieweru. Postupně rozšiřujeme:
@@ -71,6 +69,11 @@ export async function openTenderDocument(
   router: Router,
   locale?: string,
 ): Promise<void> {
+  // Příloha jen na portálu zadavatele (bez přímého odkazu) → stránka zakázky v prohlížeči.
+  if (doc.onPortal) {
+    await WebBrowser.openBrowserAsync(doc.url);
+    return;
+  }
   const kind = inferDocKind(doc);
   const ext = inferDocExt(doc);
   // TED oznámení existují ve všech jazycích EU → přepiš URL na locale uživatele
@@ -93,27 +96,14 @@ export async function openTenderDocument(
     return;
   }
   // Starší binární formáty (.doc/.rtf/.ppt/.pptx/.odt/.ods/.odp), které neumíme
-  // renderovat in-house (docx-preview/SheetJS je nezvládnou, LibreOffice běží jen
-  // na externím workeru). Zakázkové dokumenty jsou veřejné → otevřeme je přes
-  // Microsoft Office web viewer (plná věrnost, bez vlastní infra). Vyžaduje
-  // veřejně dostupnou URL (resolver i portály jsou public).
+  // renderovat in-house (docx-preview/SheetJS je nezvládnou). Zakázkové dokumenty
+  // jsou veřejné → otevřeme je přes Microsoft Office web viewer (plná věrnost,
+  // bez vlastní infra). Vyžaduje veřejně dostupnou URL (portály jsou public).
   if (ext && OFFICE_VIEWER_EXTS.includes(ext)) {
     await WebBrowser.openBrowserAsync(officeViewerUrl(url));
     return;
   }
-  // PDF přes RWX resolver (vasedio.cz) chodí s `Content-Disposition: attachment`,
-  // takže in-app prohlížeč soubor stáhne místo zobrazení. Protáhneme ho naším
-  // inline-proxy endpointem (uloží do Spaces jako application/pdf bez attachment)
-  // a otevřeme výslednou signed URL — SFSafari/Chrome Custom Tab ji vykreslí inline.
-  if (kind === "pdf" && isResolverHost(url)) {
-    const inlineUrl = await resolveInlinePdfUrl(url);
-    if (inlineUrl) {
-      await WebBrowser.openBrowserAsync(inlineUrl);
-      return;
-    }
-    // fallthrough: kdyby proxy selhala, otevři aspoň původní URL
-  }
-  // PDF i ostatní typy přes SFSafariViewController.
+  // PDF i ostatní typy přes SFSafariViewController přímo z portálu.
   await WebBrowser.openBrowserAsync(url);
 }
 
@@ -152,29 +142,3 @@ function officeViewerUrl(url: string): string {
   return `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(url)}`;
 }
 
-/** True pro dokumenty servírované přes RWX resolver (potřebují inline-proxy). */
-function isResolverHost(url: string): boolean {
-  try {
-    return new URL(url).host.toLowerCase().endsWith("vasedio.cz");
-  } catch {
-    return false;
-  }
-}
-
-/** Získá signed inline URL z preview endpointu (Bearer auth), nebo null při chybě. */
-async function resolveInlinePdfUrl(url: string): Promise<string | null> {
-  try {
-    const token = await getToken();
-    const endpoint = `${API_BASE_URL}/api/v2/leads/documents/preview?url=${encodeURIComponent(
-      url,
-    )}&kind=pdf&redirect=json`;
-    const res = await fetch(endpoint, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    });
-    if (!res.ok) return null;
-    const data = (await res.json()) as { url?: string };
-    return data?.url ?? null;
-  } catch {
-    return null;
-  }
-}

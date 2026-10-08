@@ -223,7 +223,8 @@ export interface Dict {
     title: string;
     descLabel: string;
     documentsLabel: string;
-    unzipping: string;
+    docsOnPortal: string;
+    docsOnPortalLogin: string;
     btnEmail: string;
     btnOpenPortal: string;
     icoLine: string;
@@ -272,8 +273,6 @@ export interface Dict {
     progressFetch: string;
     progressRead: string;
     progressUnzip: string;
-    progressQueue: string;
-    progressWorkerDown: string;
     jumpToLatest: string;
     inputPlaceholder: string;
     send: string;
@@ -301,8 +300,6 @@ export interface Dict {
     profileLabel: string;
     title: string;
     errorTitle: string;
-    stQueue: string;
-    stWorkerDown: string;
     identityRequiredTitle: string;
     identityRequiredBody: string;
     identityRequiredCta: string;
@@ -640,6 +637,7 @@ export interface Dict {
     docPreviewImageFailed: string;
     docPreviewMissingUrl: string;
     docPreviewErrorTitle: string;
+    docPreviewOpenOriginal: string;
     docPreviewPreparing: string;
     docPreviewTimeout: string;
   };
@@ -3021,7 +3019,8 @@ const cs: Dict = {
     title: "Zakázka",
     descLabel: "Popis",
     documentsLabel: "Dokumenty ({count})",
-    unzipping: "Rozbaluji ZIP…",
+    docsOnPortal: "Přílohy jsou ke stažení na portálu zadavatele.",
+    docsOnPortalLogin: "Přílohy jsou ke stažení po přihlášení na portálu zadavatele.",
     btnEmail: "Odeslat emailem",
     btnOpenPortal: "Otevřít portál",
     icoLine: "IČO {ico}",
@@ -3070,8 +3069,6 @@ const cs: Dict = {
     progressFetch: "Stahuji {name}…",
     progressRead: "Čtu {name}…",
     progressUnzip: "Rozbaluji přílohy…",
-    progressQueue: "Ve frontě na stahování ({position}. v pořadí)…",
-    progressWorkerDown: "Stahování dokumentů je dočasně nedostupné. Zkuste to prosím později.",
     jumpToLatest: "Skočit na konec",
     inputPlaceholder: "Napište zprávu…",
     send: "Odeslat",
@@ -3098,8 +3095,6 @@ const cs: Dict = {
   docPrep: {
     profileLabel: "Firma",
     title: "AI příprava dokumentace",
-    stQueue: "Ve frontě na stahování ({position}. v pořadí)…",
-    stWorkerDown: "Stahování dokumentů je dočasně nedostupné. Zkuste to prosím později.",
     errorTitle: "Chyba",
     identityRequiredTitle: "Nejdřív identita firmy",
     identityRequiredBody: "Pro přípravu dokumentace je potřeba vyplnit identitu firmy (IČO, ARES, banka, kontakt, podpisující). Nastavíte ji v Nastavení.",
@@ -3438,6 +3433,7 @@ const cs: Dict = {
     docPreviewImageFailed: "Obrázek se nepodařilo načíst.",
     docPreviewMissingUrl: "Chybí URL dokumentu.",
     docPreviewErrorTitle: "Nepodařilo se zobrazit",
+    docPreviewOpenOriginal: "Otevřít původní soubor",
     docPreviewPreparing: "Stahování dokumentu… U větších příloh to může chvíli trvat.",
     docPreviewTimeout: "Dokument se nepodařilo připravit. Zkuste to prosím za chvíli.",
   },
@@ -3888,7 +3884,8 @@ const en: Dict = {
     title: "Tender",
     descLabel: "Description",
     documentsLabel: "Documents ({count})",
-    unzipping: "Unpacking ZIP…",
+    docsOnPortal: "Attachments are available for download on the contracting authority's portal.",
+    docsOnPortalLogin: "Attachments are available for download after signing in on the contracting authority's portal.",
     btnEmail: "Send by email",
     btnOpenPortal: "Open portal",
     icoLine: "Reg. no. {ico}",
@@ -3937,8 +3934,6 @@ const en: Dict = {
     progressFetch: "Downloading {name}…",
     progressRead: "Reading {name}…",
     progressUnzip: "Unpacking attachments…",
-    progressQueue: "Queued for download (position {position})…",
-    progressWorkerDown: "Document download is temporarily unavailable. Please try again later.",
     jumpToLatest: "Jump to latest",
     inputPlaceholder: "Type a message…",
     send: "Send",
@@ -3965,8 +3960,6 @@ const en: Dict = {
   docPrep: {
     profileLabel: "Company",
     title: "AI document preparation",
-    stQueue: "Queued for download (position {position})…",
-    stWorkerDown: "Document download is temporarily unavailable. Please try again later.",
     errorTitle: "Error",
     identityRequiredTitle: "Company identity needed",
     identityRequiredBody: "Document preparation requires your company identity (ID, ARES, bank, contact, signatory). Set it up in Settings.",
@@ -4305,6 +4298,7 @@ const en: Dict = {
     docPreviewImageFailed: "Failed to load image.",
     docPreviewMissingUrl: "Missing document URL.",
     docPreviewErrorTitle: "Failed to display",
+    docPreviewOpenOriginal: "Open original file",
     docPreviewPreparing: "Downloading document… Larger attachments may take a moment.",
     docPreviewTimeout: "The document could not be prepared. Please try again shortly.",
   },
@@ -4757,7 +4751,8 @@ const de: Dict = {
     title: "Ausschreibung",
     descLabel: "Beschreibung",
     documentsLabel: "Dokumente ({count})",
-    unzipping: "Entpacke ZIP…",
+    docsOnPortal: "Die Anlagen stehen auf dem Portal des Auftraggebers zum Download bereit.",
+    docsOnPortalLogin: "Die Anlagen stehen nach Anmeldung auf dem Portal des Auftraggebers zum Download bereit.",
     btnEmail: "Per E-Mail senden",
     btnOpenPortal: "Portal öffnen",
     icoLine: "USt-IdNr. {ico}",
@@ -4806,8 +4801,6 @@ const de: Dict = {
     progressFetch: "Lade {name} herunter…",
     progressRead: "Lese {name}…",
     progressUnzip: "Entpacke Anhänge…",
-    progressQueue: "In der Download-Warteschlange (Position {position})…",
-    progressWorkerDown: "Der Dokumenten-Download ist vorübergehend nicht verfügbar. Bitte versuchen Sie es später erneut.",
     jumpToLatest: "Zum Ende springen",
     inputPlaceholder: "Nachricht schreiben…",
     send: "Senden",
@@ -4834,8 +4827,6 @@ const de: Dict = {
   docPrep: {
     profileLabel: "Firma",
     title: "KI-Unterlagenerstellung",
-    stQueue: "In der Download-Warteschlange (Position {position})…",
-    stWorkerDown: "Der Dokumenten-Download ist vorübergehend nicht verfügbar. Bitte versuchen Sie es später erneut.",
     errorTitle: "Fehler",
     identityRequiredTitle: "Firmenidentität nötig",
     identityRequiredBody: "Die Unterlagenerstellung erfordert Ihre Firmenidentität (IČO, ARES, Bank, Kontakt, Unterzeichner). Richten Sie sie in den Einstellungen ein.",
@@ -5174,6 +5165,7 @@ const de: Dict = {
     docPreviewImageFailed: "Bild konnte nicht geladen werden.",
     docPreviewMissingUrl: "Dokument-URL fehlt.",
     docPreviewErrorTitle: "Anzeige fehlgeschlagen",
+    docPreviewOpenOriginal: "Originaldatei öffnen",
     docPreviewPreparing: "Dokument wird heruntergeladen… Größere Anhänge können einen Moment dauern.",
     docPreviewTimeout: "Das Dokument konnte nicht vorbereitet werden. Bitte versuchen Sie es gleich erneut.",
   },
@@ -5624,7 +5616,8 @@ const sk: Dict = {
     title: "Zákazka",
     descLabel: "Popis",
     documentsLabel: "Dokumenty ({count})",
-    unzipping: "Rozbaľujem ZIP…",
+    docsOnPortal: "Prílohy sú na stiahnutie na portáli obstarávateľa.",
+    docsOnPortalLogin: "Prílohy sú na stiahnutie po prihlásení na portáli obstarávateľa.",
     btnEmail: "Poslať e-mailom",
     btnOpenPortal: "Otvoriť portál",
     icoLine: "IČO {ico}",
@@ -5673,8 +5666,6 @@ const sk: Dict = {
     progressFetch: "Sťahujem {name}…",
     progressRead: "Čítam {name}…",
     progressUnzip: "Rozbaľujem prílohy…",
-    progressQueue: "V rade na sťahovanie ({position}. v poradí)…",
-    progressWorkerDown: "Sťahovanie dokumentov je dočasne nedostupné. Skúste to prosím neskôr.",
     jumpToLatest: "Skočiť na koniec",
     inputPlaceholder: "Napíšte správu…",
     send: "Odoslať",
@@ -5701,8 +5692,6 @@ const sk: Dict = {
   docPrep: {
     profileLabel: "Firma",
     title: "AI príprava dokumentácie",
-    stQueue: "V rade na sťahovanie ({position}. v poradí)…",
-    stWorkerDown: "Sťahovanie dokumentov je dočasne nedostupné. Skúste to prosím neskôr.",
     errorTitle: "Chyba",
     identityRequiredTitle: "Najprv identita firmy",
     identityRequiredBody: "Na prípravu dokumentácie je potrebné vyplniť identitu firmy (IČO, ARES, banka, kontakt, podpisujúci). Nastavíte ju v Nastaveniach.",
@@ -6041,6 +6030,7 @@ const sk: Dict = {
     docPreviewImageFailed: "Načítanie obrázka zlyhalo.",
     docPreviewMissingUrl: "Chýba URL dokumentu.",
     docPreviewErrorTitle: "Zobrazenie zlyhalo",
+    docPreviewOpenOriginal: "Otvoriť pôvodný súbor",
     docPreviewPreparing: "Sťahovanie dokumentu… Pri väčších prílohách to môže chvíľu trvať.",
     docPreviewTimeout: "Dokument sa nepodarilo pripraviť. Skúste to prosím o chvíľu.",
   },
@@ -6491,7 +6481,8 @@ const fr: Dict = {
     title: "Appel d'offres",
     descLabel: "Description",
     documentsLabel: "Documents ({count})",
-    unzipping: "Décompression du ZIP…",
+    docsOnPortal: "Les pièces jointes sont téléchargeables sur le portail de l'acheteur.",
+    docsOnPortalLogin: "Les pièces jointes sont téléchargeables après connexion sur le portail de l'acheteur.",
     btnEmail: "Envoyer par e-mail",
     btnOpenPortal: "Ouvrir le portail",
     icoLine: "N° d'identification {ico}",
@@ -6540,8 +6531,6 @@ const fr: Dict = {
     progressFetch: "Téléchargement de {name}…",
     progressRead: "Lecture de {name}…",
     progressUnzip: "Décompression des pièces jointes…",
-    progressQueue: "En file d'attente de téléchargement (position {position})…",
-    progressWorkerDown: "Le téléchargement des documents est temporairement indisponible. Veuillez réessayer plus tard.",
     jumpToLatest: "Aller à la fin",
     inputPlaceholder: "Écrire un message…",
     send: "Envoyer",
@@ -6568,8 +6557,6 @@ const fr: Dict = {
   docPrep: {
     profileLabel: "Société",
     title: "Préparation IA des documents",
-    stQueue: "En file d'attente de téléchargement (position {position})…",
-    stWorkerDown: "Le téléchargement des documents est temporairement indisponible. Veuillez réessayer plus tard.",
     errorTitle: "Erreur",
     identityRequiredTitle: "Identité de l'entreprise requise",
     identityRequiredBody: "La préparation des documents nécessite l'identité de votre entreprise (IČO, ARES, banque, contact, signataire). Configurez-la dans les Réglages.",
@@ -6908,6 +6895,7 @@ const fr: Dict = {
     docPreviewImageFailed: "Échec du chargement de l'image.",
     docPreviewMissingUrl: "URL du document manquante.",
     docPreviewErrorTitle: "Échec de l'affichage",
+    docPreviewOpenOriginal: "Ouvrir le fichier original",
     docPreviewPreparing: "Téléchargement du document… Les pièces jointes volumineuses peuvent prendre un moment.",
     docPreviewTimeout: "Le document n'a pas pu être préparé. Veuillez réessayer dans un instant.",
   },
@@ -7358,7 +7346,8 @@ const it: Dict = {
     title: "Gara",
     descLabel: "Descrizione",
     documentsLabel: "Documenti ({count})",
-    unzipping: "Estrazione ZIP…",
+    docsOnPortal: "Gli allegati sono scaricabili sul portale della stazione appaltante.",
+    docsOnPortalLogin: "Gli allegati sono scaricabili dopo l'accesso sul portale della stazione appaltante.",
     btnEmail: "Invia per email",
     btnOpenPortal: "Apri il portale",
     icoLine: "P. IVA {ico}",
@@ -7407,8 +7396,6 @@ const it: Dict = {
     progressFetch: "Scarico {name}…",
     progressRead: "Leggo {name}…",
     progressUnzip: "Estraggo gli allegati…",
-    progressQueue: "In coda per il download (posizione {position})…",
-    progressWorkerDown: "Il download dei documenti è temporaneamente non disponibile. Riprova più tardi.",
     jumpToLatest: "Vai alla fine",
     inputPlaceholder: "Scrivi un messaggio…",
     send: "Invia",
@@ -7435,8 +7422,6 @@ const it: Dict = {
   docPrep: {
     profileLabel: "Azienda",
     title: "Preparazione IA dei documenti",
-    stQueue: "In coda per il download (posizione {position})…",
-    stWorkerDown: "Il download dei documenti è temporaneamente non disponibile. Riprova più tardi.",
     errorTitle: "Errore",
     identityRequiredTitle: "Serve l'identità aziendale",
     identityRequiredBody: "La preparazione dei documenti richiede l'identità aziendale (IČO, ARES, banca, contatto, firmatario). Impostala nelle Impostazioni.",
@@ -7775,6 +7760,7 @@ const it: Dict = {
     docPreviewImageFailed: "Caricamento dell'immagine non riuscito.",
     docPreviewMissingUrl: "URL del documento mancante.",
     docPreviewErrorTitle: "Visualizzazione non riuscita",
+    docPreviewOpenOriginal: "Apri il file originale",
     docPreviewPreparing: "Download del documento… Gli allegati più grandi possono richiedere qualche istante.",
     docPreviewTimeout: "Impossibile preparare il documento. Riprova tra poco.",
   },

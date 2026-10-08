@@ -193,6 +193,8 @@
     "title": "入札案件",
     "descLabel": "説明",
     "documentsLabel": "書類（{count}件）",
+    "docsOnPortal": "添付書類は発注者のポータルからダウンロードできます。",
+    "docsOnPortalLogin": "添付書類は発注者のポータルにログイン後にダウンロードできます。",
     "btnEmail": "メールで送信",
     "btnOpenPortal": "ポータルを開く",
     "icoLine": "登録番号 {ico}",
@@ -210,7 +212,6 @@
     "btnAiAnalysis": "AI分析",
     "btnAiDocPrep": "AIドキュメント",
     "aiSectionLabel": "AIツール",
-    "unzipping": "ZIPを展開中…",
     "translateBtn": "🌐 翻訳する",
     "translateOriginal": "原文",
     "translateTranslated": "翻訳",
@@ -253,8 +254,6 @@
     "pdfDownloadOption": "生成してダウンロード",
     "pdfEmailSentTitle": "送信しました",
     "pdfEmailSentBody": "{email} にPDFを送信しました。",
-    "progressQueue": "ダウンロード待機中（{position}番目）…",
-    "progressWorkerDown": "書類のダウンロードは一時的に利用できません。しばらくしてからもう一度お試しください。",
     "errorReported": "問題は自動的に報告されました。修正に取り組んでいます。",
     "profileLabel": "会社",
     "profilePicked": "AIがプロファイル{label}を選択: {reason}",
@@ -300,8 +299,6 @@
     "insufficientTitle": "クレジット不足",
     "insufficientBody": "veritra.io で AI クレジットをチャージして、もう一度お試しください。",
     "topUpWeb": "veritra.io でクレジットをチャージ",
-    "stQueue": "ダウンロード待機中（{position}番目）…",
-    "stWorkerDown": "書類のダウンロードは一時的に利用できません。しばらくしてからもう一度お試しください。",
     "profileLabel": "会社"
   },
   "companyProfile": {
@@ -582,6 +579,7 @@
     "docPreviewImageFailed": "画像の読み込みに失敗しました。",
     "docPreviewMissingUrl": "ドキュメントのURLがありません。",
     "docPreviewErrorTitle": "表示に失敗しました",
+    "docPreviewOpenOriginal": "元のファイルを開く",
     "docPreviewPreparing": "ドキュメントをダウンロード中… 大きな添付ファイルは時間がかかる場合があります。",
     "docPreviewTimeout": "ドキュメントを準備できませんでした。しばらくしてからもう一度お試しください。"
   },

@@ -6,7 +6,6 @@ import { HeaderBackButton } from "@react-navigation/elements";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as WebBrowser from "expo-web-browser";
 import { endpoints, type LeadMatchRow, type TenderDocument } from "@/lib/endpoints";
-import { openAuthedFile } from "@/lib/file-open";
 import { useTheme } from "@/lib/theme-context";
 import { fontSize, radius, spacing, type Colors } from "@/constants/theme";
 import {
@@ -97,11 +96,6 @@ export default function MatchDetailScreen() {
   const [reporting, setReporting] = useState(false);
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [reportDetail, setReportDetail] = useState("");
-  // Kommersannons: přílohy za interest (prenumeration) → LAZY na klik „Zobrazit dokumenty".
-  const [kommersBusy, setKommersBusy] = useState(false);
-  // On-demand unzip: po rozbalení na serveru přepíšeme lokální seznam příloh čerstvými
-  // dokumenty (soubory místo ZIPu) — cache matches se invaliduje, ale detail nečeká.
-  const [docsOverride, setDocsOverride] = useState<TenderDocument[] | null>(null);
   // Překlad zakázky do jazyka UI (10/měs. zdarma, pak z AI konta; server cachuje).
   const [translation, setTranslation] = useState<{ title: string; description: string | null } | null>(null);
   const [showTranslation, setShowTranslation] = useState(true);
@@ -477,12 +471,12 @@ export default function MatchDetailScreen() {
         </View>
 
         {(() => {
-          // AI akce skryjeme u zakázek, kde máme JEN TED notice PDF (25 jazykových mutací
-          // oznámení) — analýza/dokumentace z nich nic nevytěží. Zakázky bez příloh nechávám
-          // (se-kommers materializuje lazy; analysis endpoint má vlastní guard).
-          const dcs = docsOverride ?? tender.documents ?? [];
-          const tedOnly = dcs.length > 0 && dcs.every((d) => d.url.includes("ted.europa.eu"));
-          if (tedOnly) return null;
+          // AI akce jen tam, kde máme reálné podklady: ne JEN TED notice PDF (25 jazykových
+          // mutací oznámení) a ne přílohy, které jsou jen na portálu zadavatele (onPortal) —
+          // ty server nestahuje. Zakázky bez příloh nechávám (analysis endpoint má vlastní guard).
+          const dcs = tender.documents ?? [];
+          const usable = dcs.some((d) => !d.onPortal && !d.url.includes("ted.europa.eu"));
+          if (dcs.length > 0 && !usable) return null;
           return (
         <View style={styles.aiSection}>
           <Text style={styles.sectionLabel}>{t("matchDetail", "aiSectionLabel")}</Text>
@@ -511,49 +505,36 @@ export default function MatchDetailScreen() {
         })()}
 
         {(() => {
-          const docs = docsOverride ?? tender.documents ?? [];
-          // Kommersannons: přílohy nejsou předharvestované (za interest) → tlačítko „Zobrazit dokumenty".
-          if (docs.length === 0 && tender.portalType === "se-kommers") {
-            return (
-              <View style={styles.docsSection}>
-                <Pressable
-                  onPress={async () => {
-                    if (kommersBusy) return;
-                    setKommersBusy(true);
-                    try {
-                      await openAuthedFile(
-                        `/api/v2/leads/tenders/${tender.id}/documents/kommers`,
-                        `zakazka-${tender.id}-prilohy.zip`,
-                        "application/zip",
-                      );
-                    } catch {
-                      Alert.alert("Dokumenty", "Dokumenty se nepodařilo získat. Zkuste to prosím za chvíli.");
-                    } finally {
-                      setKommersBusy(false);
-                    }
-                  }}
-                  disabled={kommersBusy}
-                  style={({ pressed }) => [styles.aiBtn, (pressed || kommersBusy) && { opacity: 0.85 }]}
-                >
-                  {kommersBusy ? (
-                    <ActivityIndicator color={colors.text} size="small" />
-                  ) : (
-                    <>
-                      <Text style={styles.aiBtnIcon}>📎</Text>
-                      <Text style={styles.aiBtnText}>Zobrazit dokumenty</Text>
-                      <Text style={styles.docChevron}>›</Text>
-                    </>
-                  )}
-                </Pressable>
-              </View>
-            );
-          }
-          if (docs.length === 0) return null;
+          const docs = tender.documents ?? [];
+          // Přílohy, které jsou jen na portálu zadavatele (převodník vasedio zrušen 8. 10. 2026):
+          // „login" = portál vyžaduje účet. Kommersannons dává dokumenty jen po vyjádření zájmu
+          // → zakázka bez příloh se chová jako „po přihlášení".
+          const portalKind: "portal" | "login" | null = docs.some((d) => d.onPortal === "login")
+            ? "login"
+            : docs.some((d) => d.onPortal)
+              ? "portal"
+              : docs.length === 0 && tender.portalType === "se-kommers"
+                ? "login"
+                : null;
+          if (docs.length === 0 && !portalKind) return null;
           return (
             <View style={styles.docsSection}>
               <Text style={styles.sectionLabel}>
                 {t("matchDetail", "documentsLabel", { count: docs.length })}
               </Text>
+              {portalKind ? (
+                <View style={styles.docsPortalNote}>
+                  <Text style={styles.docsPortalText}>
+                    {t("matchDetail", portalKind === "login" ? "docsOnPortalLogin" : "docsOnPortal")}
+                  </Text>
+                  <Pressable
+                    onPress={() => WebBrowser.openBrowserAsync(tender.url)}
+                    style={({ pressed }) => [styles.docsPortalBtn, pressed && { opacity: 0.85 }]}
+                  >
+                    <Text style={styles.docsPortalBtnText}>{t("matchDetail", "cta")}</Text>
+                  </Pressable>
+                </View>
+              ) : null}
               {docs.map((d, i) => (
                 <DocumentRow
                   key={`${d.url}-${i}`}
@@ -561,12 +542,6 @@ export default function MatchDetailScreen() {
                   doc={d}
                   router={router}
                   locale={locale}
-                  tenderId={tender.id}
-                  unzipLabel={t("matchDetail", "unzipping")}
-                  onDocsChanged={(next) => {
-                    setDocsOverride(next);
-                    qc.invalidateQueries({ queryKey: ["matches"] });
-                  }}
                 />
               ))}
             </View>
@@ -653,25 +628,16 @@ export default function MatchDetailScreen() {
   );
 }
 
-const isZipDoc = (d: TenderDocument) =>
-  d.fileType === "zip" || /\.zip(\?|$)/i.test(d.name) || /\.zip(\?|$)/i.test(d.url);
-
 function DocumentRow({
   styles,
   doc,
   router,
   locale,
-  tenderId,
-  unzipLabel,
-  onDocsChanged,
 }: {
   styles: ReturnType<typeof makeStyles>;
   doc: TenderDocument;
   router: Router;
   locale: string;
-  tenderId: number;
-  unzipLabel: string;
-  onDocsChanged: (docs: TenderDocument[]) => void;
 }) {
   const { colors } = useTheme();
   const kind = inferDocKind(doc);
@@ -680,47 +646,14 @@ function DocumentRow({
     .filter(Boolean)
     .join(" · ");
   const [opening, setOpening] = useState(false);
-  const [unzipping, setUnzipping] = useState(false);
-
-  // ZIP → místo otevření požádat server o rozbalení (worker), pak refetch seznamu příloh:
-  // soubory nahradí ZIP a jdou otevřít in-app viewerem. Nepodporovaný portál / fail → fallback
-  // na normální otevření ZIPu.
-  async function tryUnzip(): Promise<boolean> {
-    try {
-      const res = await endpoints.docUnzipRequest(tenderId, doc.url);
-      if (!res.done && !res.jobId) return false;
-      if (res.jobId) {
-        let ok = false;
-        for (let i = 0; i < 40; i++) {
-          await new Promise((r) => setTimeout(r, 3000));
-          const st = await endpoints.docUnzipStatus(tenderId, res.jobId).catch(() => null);
-          if (st?.status === "DONE") { ok = true; break; }
-          if (st?.status === "FAILED") return false;
-        }
-        if (!ok) return false;
-      }
-      onDocsChanged(await endpoints.tenderDocuments(tenderId));
-      return true;
-    } catch {
-      return false;
-    }
-  }
 
   async function handlePress() {
-    if (opening || unzipping) return;
-    if (isZipDoc(doc)) {
-      setUnzipping(true);
-      try {
-        if (await tryUnzip()) return;
-      } finally {
-        setUnzipping(false);
-      }
-      // fallback: rozbalení nevyšlo → otevřít původní ZIP
-    }
+    if (opening) return;
     setOpening(true);
     try {
       // Náhled/proxy může chvíli trvat (server stahuje + cachuje) — spinner drží
-      // vizuální odezvu, ať uživatel nemačká opakovaně.
+      // vizuální odezvu, ať uživatel nemačká opakovaně. Příloha „na portálu" otevře
+      // stránku zakázky u zadavatele.
       await openTenderDocument(doc, router, locale);
     } finally {
       setOpening(false);
@@ -730,8 +663,8 @@ function DocumentRow({
   return (
     <Pressable
       onPress={handlePress}
-      disabled={opening || unzipping}
-      style={({ pressed }) => [styles.docRow, (pressed || opening || unzipping) && { opacity: 0.6 }]}
+      disabled={opening}
+      style={({ pressed }) => [styles.docRow, (pressed || opening) && { opacity: 0.6 }]}
     >
       <View style={styles.docIcon}>
         <Text style={styles.docIconText}>{iconForKind(kind)}</Text>
@@ -740,10 +673,12 @@ function DocumentRow({
         <Text style={styles.docName} numberOfLines={2}>
           {cleanTedDocName(doc.name, doc.url)}
         </Text>
-        {(meta || unzipping) ? <Text style={styles.docMeta}>{unzipping ? unzipLabel : meta}</Text> : null}
+        {meta ? <Text style={styles.docMeta}>{meta}</Text> : null}
       </View>
-      {opening || unzipping ? (
+      {opening ? (
         <ActivityIndicator size="small" color={colors.textFaint} style={styles.docChevron} />
+      ) : doc.onPortal ? (
+        <Text style={styles.docBadge}>{doc.onPortal === "login" ? "🔒" : "↗"}</Text>
       ) : (
         <Text style={styles.docChevron}>›</Text>
       )}
@@ -903,6 +838,18 @@ const makeStyles = (colors: Colors) =>
   docName: { fontSize: fontSize.sm, color: colors.text, fontWeight: "500" },
   docMeta: { fontSize: fontSize.xs, color: colors.textSubtle, marginTop: 2 },
   docChevron: { fontSize: 20, color: colors.textFaint, marginLeft: spacing.sm },
+  docBadge: { fontSize: fontSize.sm, color: colors.textFaint, marginLeft: spacing.sm },
+  docsPortalNote: {
+    backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginTop: spacing.sm,
+  },
+  docsPortalText: { fontSize: fontSize.sm, color: colors.textSubtle, lineHeight: 20 },
+  docsPortalBtn: { marginTop: spacing.sm, alignSelf: "flex-start" },
+  docsPortalBtnText: { fontSize: fontSize.sm, color: colors.accent, fontWeight: "600" },
   headerActions: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
   reportModalBackdrop: {
     flex: 1,

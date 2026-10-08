@@ -6,7 +6,6 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -38,11 +37,6 @@ export default function TenderDocPrepScreen() {
   const [state, setState] = useState<DocPrepState | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [phase, setPhase] = useState<string | null>(null);
-  const [generating, setGenerating] = useState(false);
-  const [qualMode, setQualMode] = useState<"gcp" | "own">("gcp");
-  const [priceMode, setPriceMode] = useState<"amount" | "placeholder">("placeholder");
-  const [priceText, setPriceText] = useState("");
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Multi-profil: uživatelem zvolený profil (null = server rozhodne — rozpracovaná
   // příprava → dědění z analýzy → default).
@@ -67,7 +61,6 @@ export default function TenderDocPrepScreen() {
     })();
     return () => {
       alive = false;
-      if (pollRef.current) clearInterval(pollRef.current);
     };
   }, [tenderId]);
 
@@ -81,16 +74,11 @@ export default function TenderDocPrepScreen() {
         { new: false, ...(selectedProfileRef.current ? { profileId: selectedProfileRef.current } : {}) },
         (evt) => {
           if (evt.type === "status") {
-            if (evt.phase === "queue") setPhase(t("docPrep", "stQueue", { position: evt.detail ?? "?" }));
-            else if (evt.phase === "worker-down") setPhase(t("docPrep", "stWorkerDown"));
-            else setPhase(evt.detail || evt.name || evt.phase);
+            setPhase(evt.detail || evt.name || evt.phase);
           }
           else if (evt.type === "done") setState((s) => (s ? { ...s, docPrep: evt.docPrep } : s));
           else if (evt.type === "error")
-            Alert.alert(
-              t("docPrep", "errorTitle"),
-              evt.code === "WORKER_DOWN" ? t("docPrep", "stWorkerDown") : evt.message,
-            );
+            Alert.alert(t("docPrep", "errorTitle"), evt.message);
         },
       );
       await reload();
@@ -99,49 +87,6 @@ export default function TenderDocPrepScreen() {
     } finally {
       setAnalyzing(false);
       setPhase(null);
-    }
-  }
-
-  function startPolling() {
-    if (pollRef.current) clearInterval(pollRef.current);
-    pollRef.current = setInterval(async () => {
-      try {
-        const d = await reload();
-        if (d.docPrep && (d.docPrep.status === "DONE" || d.docPrep.status === "FAILED")) {
-          if (pollRef.current) clearInterval(pollRef.current);
-          pollRef.current = null;
-          setGenerating(false);
-        }
-      } catch {
-        /* keep polling */
-      }
-    }, 5000);
-  }
-
-  async function generate() {
-    if (generating) return;
-    setGenerating(true);
-    try {
-      const priceNoVat = priceMode === "amount" ? Number(priceText.replace(/[^\d.]/g, "")) : undefined;
-      const { data } = await endpoints.docPrepGenerate(tenderId, {
-        priceMode,
-        priceNoVat: priceNoVat && priceNoVat > 0 ? priceNoVat : undefined,
-        qualificationMode: qualMode,
-      });
-      setState((s) => (s ? { ...s, docPrep: data.docPrep, balance: data.balance } : s));
-      if (data.docPrep.status === "DONE") {
-        setGenerating(false);
-      } else {
-        startPolling();
-      }
-    } catch (e) {
-      setGenerating(false);
-      const msg = e instanceof Error ? e.message : "";
-      if (msg.toLowerCase().includes("kredit") || msg.toLowerCase().includes("credit") || msg.includes("402")) {
-        Alert.alert(t("docPrep", "insufficientTitle"), t("docPrep", "insufficientBody"));
-      } else {
-        Alert.alert(t("docPrep", "errorTitle"), msg);
-      }
     }
   }
 
@@ -275,41 +220,9 @@ export default function TenderDocPrepScreen() {
               </View>
             ) : null}
 
-            {/* Kvalifikace */}
-            <Text style={styles.sectionLabel}>{t("docPrep", "qualificationLabel")}</Text>
-            <View style={styles.toggleRow}>
-              <Toggle styles={styles} active={qualMode === "gcp"} label={t("docPrep", "qualGcp")} onPress={() => setQualMode("gcp")} />
-              <Toggle styles={styles} active={qualMode === "own"} label={t("docPrep", "qualOwn")} onPress={() => setQualMode("own")} />
-            </View>
-
-            {/* Cena */}
-            <Text style={styles.sectionLabel}>{t("docPrep", "priceLabel")}</Text>
-            <View style={styles.toggleRow}>
-              <Toggle styles={styles} active={priceMode === "amount"} label={t("docPrep", "priceAmount")} onPress={() => setPriceMode("amount")} />
-              <Toggle styles={styles} active={priceMode === "placeholder"} label={t("docPrep", "pricePlaceholder")} onPress={() => setPriceMode("placeholder")} />
-            </View>
-            {priceMode === "amount" ? (
-              <TextInput
-                style={styles.priceInput}
-                value={priceText}
-                onChangeText={setPriceText}
-                keyboardType="numeric"
-                placeholder={t("docPrep", "priceInputPlaceholder")}
-                placeholderTextColor={colors.textFaint}
-              />
-            ) : null}
-
-            <Pressable style={[styles.primaryBtn, generating && { opacity: 0.6 }]} disabled={generating} onPress={generate}>
-              {generating ? (
-                <View style={styles.rowCenter}>
-                  <ActivityIndicator size="small" color={colors.accentForeground} />
-                  <Text style={[styles.primaryBtnText, { marginLeft: spacing.sm }]}>{t("docPrep", "generating")}</Text>
-                </View>
-              ) : (
-                <Text style={styles.primaryBtnText}>{t("docPrep", "generateBtn")}</Text>
-              )}
-            </Pressable>
-
+            {/* Generování dokumentů (vyplnění šablon + PDF) běželo na workeru, který byl
+                8. 10. 2026 zrušen — zůstává analýza, plán a checklist. Dřív vygenerované
+                soubory se dál zobrazují níže. */}
             {/* Výsledné soubory */}
             {dp?.result?.files?.length ? (
               <View style={styles.block}>
@@ -351,14 +264,6 @@ function MetaLine({ styles, label, value }: { styles: ReturnType<typeof makeStyl
   );
 }
 
-function Toggle({ styles, active, label, onPress }: { styles: ReturnType<typeof makeStyles>; active: boolean; label: string; onPress: () => void }) {
-  return (
-    <Pressable onPress={onPress} style={[styles.toggle, active && styles.toggleActive]}>
-      <Text style={[styles.toggleText, active && styles.toggleTextActive]}>{label}</Text>
-    </Pressable>
-  );
-}
-
 const makeStyles = (c: Colors) =>
   StyleSheet.create({
     safe: { flex: 1, backgroundColor: c.bg },
@@ -392,12 +297,6 @@ const makeStyles = (c: Colors) =>
     warnBox: { backgroundColor: c.warningBg, borderRadius: radius.md, padding: spacing.md, marginTop: spacing.sm },
     warnLabel: { fontSize: fontSize.xs, color: c.warning, fontWeight: "700", marginBottom: spacing.xs, textTransform: "uppercase" },
     warnText: { fontSize: fontSize.xs, color: c.text, lineHeight: 18 },
-    toggleRow: { flexDirection: "row", gap: spacing.sm },
-    toggle: { flex: 1, borderWidth: 1, borderColor: c.border, borderRadius: radius.md, paddingVertical: spacing.sm, alignItems: "center", backgroundColor: c.card },
-    toggleActive: { borderColor: c.accent, backgroundColor: c.accent },
-    toggleText: { fontSize: fontSize.xs, color: c.text, fontWeight: "600" },
-    toggleTextActive: { color: c.accentForeground },
-    priceInput: { marginTop: spacing.sm, backgroundColor: c.card, borderWidth: 1, borderColor: c.border, borderRadius: radius.md, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, fontSize: fontSize.sm, color: c.text },
     fileRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: c.card, borderWidth: 1, borderColor: c.border, borderRadius: radius.md, padding: spacing.md, marginBottom: spacing.sm },
     fileName: { flex: 1, fontSize: fontSize.sm, color: c.text },
     download: { fontSize: fontSize.xs, color: c.link, fontWeight: "600", marginLeft: spacing.md },

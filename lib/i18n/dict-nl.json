@@ -401,7 +401,8 @@
     "title": "Aanbesteding",
     "descLabel": "Beschrijving",
     "documentsLabel": "Documenten ({count})",
-    "unzipping": "ZIP wordt uitgepakt…",
+    "docsOnPortal": "De bijlagen zijn te downloaden op het portaal van de aanbestedende dienst.",
+    "docsOnPortalLogin": "De bijlagen zijn te downloaden na inloggen op het portaal van de aanbestedende dienst.",
     "btnEmail": "Verzenden per e-mail",
     "btnOpenPortal": "Portal openen",
     "icoLine": "Reg. nr. {ico}",
@@ -461,8 +462,6 @@
     "pdfDownloadOption": "Genereren en downloaden",
     "pdfEmailSentTitle": "Verzonden",
     "pdfEmailSentBody": "We hebben de PDF naar {email} gestuurd.",
-    "progressQueue": "In de downloadwachtrij (positie {position})…",
-    "progressWorkerDown": "Het downloaden van documenten is tijdelijk niet beschikbaar. Probeer het later opnieuw.",
     "errorReported": "Het probleem is automatisch gemeld, we werken aan een oplossing.",
     "profileLabel": "Bedrijf",
     "profilePicked": "AI koos profiel {label}: {reason}",
@@ -508,8 +507,6 @@
     "insufficientTitle": "Onvoldoende tegoed",
     "insufficientBody": "Laad uw AI-tegoed op via veritra.io en probeer opnieuw.",
     "topUpWeb": "Tegoed opladen via veritra.io",
-    "stQueue": "In de downloadwachtrij (positie {position})…",
-    "stWorkerDown": "Het downloaden van documenten is tijdelijk niet beschikbaar. Probeer het later opnieuw.",
     "profileLabel": "Bedrijf"
   },
   "companyProfile": {
@@ -790,6 +787,7 @@
     "docPreviewImageFailed": "Afbeelding kon niet worden geladen.",
     "docPreviewMissingUrl": "Document-URL ontbreekt.",
     "docPreviewErrorTitle": "Weergave mislukt",
+    "docPreviewOpenOriginal": "Origineel bestand openen",
     "docPreviewPreparing": "Document wordt gedownload… Grotere bijlagen kunnen even duren.",
     "docPreviewTimeout": "Het document kon niet worden voorbereid. Probeer het over enkele ogenblikken opnieuw."
   },

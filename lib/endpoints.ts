@@ -27,6 +27,9 @@ export interface TenderDocument {
   url: string;
   fileType: string | null;
   fileSizeBytes: number | null;
+  /** Příloha bez přímého odkazu — `url` je stránka zakázky na portálu zadavatele.
+   *  "login" = portál vyžaduje účet (převodník vasedio zrušen 8. 10. 2026). */
+  onPortal?: "portal" | "login";
 }
 
 export interface PublicTender {
@@ -873,14 +876,6 @@ export const endpoints = {
     return r.data;
   },
 
-  // ── On-demand rozbalení ZIP přílohy (worker rozbalí, soubory nahradí ZIP v seznamu) ──
-  docUnzipRequest: (tenderId: number, url: string) =>
-    api.post<{ jobId?: string; done?: boolean }>(`/api/v2/leads/tenders/${tenderId}/documents/unzip`, { url }),
-  docUnzipStatus: (tenderId: number, jobId: string) =>
-    api.get<{ status: "QUEUED" | "RUNNING" | "DONE" | "FAILED" }>(
-      `/api/v2/leads/tenders/${tenderId}/documents/unzip`,
-      { params: { jobId } },
-    ),
   /**
    * Detail jedné zakázky bez vazby na shody uživatele — pro odkazy `live-<id>`
    * (marketing capture, sekce Reporty, admin Zpětná vazba). Bez toho obrazovka
@@ -899,11 +894,6 @@ export const endpoints = {
       viewedAt: null,
       tender: r.data,
     };
-  },
-
-  tenderDocuments: async (tenderId: number): Promise<TenderDocument[]> => {
-    const r = await api.get<{ data: { documents: TenderDocument[] } }>(`/api/v2/leads/tenders/${tenderId}`);
-    return r.data.documents ?? [];
   },
 
   // ── AI analýza zakázky (chat → PDF) — SSE turn jde přes lib/sse.ts ──

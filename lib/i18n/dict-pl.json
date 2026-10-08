@@ -401,7 +401,8 @@
     "title": "Przetarg",
     "descLabel": "Opis",
     "documentsLabel": "Dokumenty ({count})",
-    "unzipping": "Rozpakowywanie ZIP…",
+    "docsOnPortal": "Załączniki są dostępne do pobrania na portalu zamawiającego.",
+    "docsOnPortalLogin": "Załączniki są dostępne do pobrania po zalogowaniu na portalu zamawiającego.",
     "btnEmail": "Wyślij e-mailem",
     "btnOpenPortal": "Otwórz portal",
     "icoLine": "Nr rej. {ico}",
@@ -461,8 +462,6 @@
     "pdfDownloadOption": "Wygeneruj i pobierz",
     "pdfEmailSentTitle": "Wysłano",
     "pdfEmailSentBody": "Wysłaliśmy PDF na {email}.",
-    "progressQueue": "W kolejce do pobrania (pozycja {position})…",
-    "progressWorkerDown": "Pobieranie dokumentów jest tymczasowo niedostępne. Spróbuj ponownie później.",
     "errorReported": "Błąd został automatycznie zgłoszony, pracujemy nad naprawą.",
     "profileLabel": "Firma",
     "profilePicked": "AI wybrała profil {label}: {reason}",
@@ -508,8 +507,6 @@
     "insufficientTitle": "Niewystarczające środki AI",
     "insufficientBody": "Doładuj środki AI na veritra.io i spróbuj ponownie.",
     "topUpWeb": "Doładuj środki na veritra.io",
-    "stQueue": "W kolejce do pobrania (pozycja {position})…",
-    "stWorkerDown": "Pobieranie dokumentów jest tymczasowo niedostępne. Spróbuj ponownie później.",
     "profileLabel": "Firma"
   },
   "companyProfile": {
@@ -790,6 +787,7 @@
     "docPreviewImageFailed": "Nie udało się załadować obrazu.",
     "docPreviewMissingUrl": "Brak adresu URL dokumentu.",
     "docPreviewErrorTitle": "Nie udało się wyświetlić",
+    "docPreviewOpenOriginal": "Otwórz oryginalny plik",
     "docPreviewPreparing": "Pobieranie dokumentu… Większe załączniki mogą chwilę zająć.",
     "docPreviewTimeout": "Nie udało się przygotować dokumentu. Spróbuj ponownie za chwilę."
   },

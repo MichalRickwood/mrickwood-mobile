@@ -139,13 +139,7 @@ export default function TenderAnalysisScreen() {
           : t("aiAnalysis", "progressDownloading");
       case "zip":
         return t("aiAnalysis", "progressUnzip");
-      case "queue":
-        return t("aiAnalysis", "progressQueue", { position: evt.detail ?? "?" });
-      case "worker-down":
-        return t("aiAnalysis", "progressWorkerDown");
       case "docs":
-      case "cache-wait":
-      case "cache-miss":
         return t("aiAnalysis", "progressDownloading");
       default:
         return t("aiAnalysis", "analyzing");
@@ -225,9 +219,7 @@ export default function TenderAnalysisScreen() {
             setTurnError(
               evt.code === "AI_UNAVAILABLE"
                 ? t("aiAnalysis", "aiUnavailableBody")
-                : evt.code === "WORKER_DOWN"
-                  ? t("aiAnalysis", "progressWorkerDown")
-                  : evt.message || t("aiAnalysis", "streamFailedBody"),
+                : evt.message || t("aiAnalysis", "streamFailedBody"),
             );
           }
         },

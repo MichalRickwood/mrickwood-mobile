@@ -401,7 +401,8 @@
     "title": "Licitación",
     "descLabel": "Descripción",
     "documentsLabel": "Documentos ({count})",
-    "unzipping": "Descomprimiendo ZIP…",
+    "docsOnPortal": "Los anexos se pueden descargar en el portal del órgano de contratación.",
+    "docsOnPortalLogin": "Los anexos se pueden descargar tras iniciar sesión en el portal del órgano de contratación.",
     "btnEmail": "Enviar por correo electrónico",
     "btnOpenPortal": "Abrir portal",
     "icoLine": "N.º reg. {ico}",
@@ -461,8 +462,6 @@
     "pdfDownloadOption": "Generar y descargar",
     "pdfEmailSentTitle": "Enviado",
     "pdfEmailSentBody": "Hemos enviado el PDF a {email}.",
-    "progressQueue": "En cola de descarga (posición {position})…",
-    "progressWorkerDown": "La descarga de documentos no está disponible temporalmente. Inténtalo más tarde.",
     "errorReported": "El problema se ha notificado automáticamente y estamos trabajando en solucionarlo.",
     "profileLabel": "Empresa",
     "profilePicked": "La IA eligió el perfil {label}: {reason}",
@@ -508,8 +507,6 @@
     "insufficientTitle": "Crédito insuficiente",
     "insufficientBody": "Recargue su crédito de IA en veritra.io e inténtelo de nuevo.",
     "topUpWeb": "Recargar crédito en veritra.io",
-    "stQueue": "En cola de descarga (posición {position})…",
-    "stWorkerDown": "La descarga de documentos no está disponible temporalmente. Inténtalo más tarde.",
     "profileLabel": "Empresa"
   },
   "companyProfile": {
@@ -790,6 +787,7 @@
     "docPreviewImageFailed": "Error al cargar la imagen.",
     "docPreviewMissingUrl": "URL del documento no especificada.",
     "docPreviewErrorTitle": "Error al mostrar",
+    "docPreviewOpenOriginal": "Abrir el archivo original",
     "docPreviewPreparing": "Descargando documento… Los archivos más grandes pueden tardar un momento.",
     "docPreviewTimeout": "No se pudo preparar el documento. Por favor, inténtelo de nuevo en breve."
   },

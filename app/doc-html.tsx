@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import * as WebBrowser from "expo-web-browser";
 import { WebView } from "react-native-webview";
 import { useTheme } from "@/lib/theme-context";
 import { useI18n } from "@/lib/i18n";
@@ -31,7 +32,7 @@ export default function DocHtmlScreen() {
   const [token, setToken] = useState<string | null>(null);
   const [tokenLoaded, setTokenLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  // Signed URL hotového náhledu — získává se pollingem (nowait), viz níže.
+  // Signed URL hotového náhledu (server konvertuje přímo, bez fronty).
   const [signedUrl, setSignedUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -42,33 +43,23 @@ export default function DocHtmlScreen() {
     })();
   }, []);
 
-  // Polling konverze: server u portálů blokujících DC IP (NEN…) stahuje přes worker,
-  // což na první otevření trvá i desítky sekund — blokující request by WebView/fetch
-  // timeoutnul. nowait=1 → 202 {pending} dokud není hotovo, pak {url} (signed Spaces).
+  // Jeden požadavek: server stáhne soubor přímo z portálu a vrátí { url } náhledu.
+  // Když to nejde (portál blokuje datacentrové IP, chyba portálu…), nabídneme
+  // otevření původního souboru v systémovém prohlížeči.
   useEffect(() => {
     if (!token || !url) return;
     let cancelled = false;
-    const pollUrl = `${API_BASE_URL}/api/v2/leads/documents/preview?url=${encodeURIComponent(url)}&kind=${encodeURIComponent(kind ?? "docx")}&redirect=json&nowait=1`;
+    const previewUrl = `${API_BASE_URL}/api/v2/leads/documents/preview?url=${encodeURIComponent(url)}&kind=${encodeURIComponent(kind ?? "docx")}&redirect=json`;
     (async () => {
-      for (let i = 0; i < 45; i++) {
-        let res: Response | null = null;
-        try {
-          res = await fetch(pollUrl, { headers: { Authorization: `Bearer ${token}` } });
-        } catch {
-          /* síť — zkusíme znovu */
-        }
+      try {
+        const res = await fetch(previewUrl, { headers: { Authorization: `Bearer ${token}` } });
         if (cancelled) return;
-        if (res?.status === 200) {
-          const j = (await res.json().catch(() => null)) as { url?: string } | null;
-          if (j?.url) { setSignedUrl(j.url); return; }
-        } else if (res && res.status !== 202) {
-          setError(`HTTP ${res.status}`);
-          return;
-        }
-        await new Promise((r) => setTimeout(r, 3000));
-        if (cancelled) return;
+        const j = res.ok ? ((await res.json().catch(() => null)) as { url?: string } | null) : null;
+        if (j?.url) { setSignedUrl(j.url); return; }
+        setError(res.ok ? t("feedback", "docPreviewTimeout") : `HTTP ${res.status}`);
+      } catch {
+        if (!cancelled) setError(t("feedback", "docPreviewTimeout"));
       }
-      setError(t("feedback", "docPreviewTimeout"));
     })();
     return () => {
       cancelled = true;
@@ -102,7 +93,10 @@ export default function DocHtmlScreen() {
         <View style={styles.center}>
           <Text style={styles.errTitle}>{t("feedback", "docPreviewErrorTitle")}</Text>
           <Text style={styles.errText}>{error}</Text>
-          <Pressable onPress={() => router.back()} style={styles.backBtn}>
+          <Pressable onPress={() => WebBrowser.openBrowserAsync(url)} style={styles.backBtn}>
+            <Text style={styles.backBtnText}>{t("feedback", "docPreviewOpenOriginal")}</Text>
+          </Pressable>
+          <Pressable onPress={() => router.back()} style={styles.backBtnSecondary}>
             <Text style={styles.backBtnText}>{t("settings", "back")}</Text>
           </Pressable>
         </View>
@@ -154,4 +148,5 @@ const makeStyles = (colors: Colors) =>
       backgroundColor: colors.accent,
     },
     backBtnText: { color: colors.accentForeground, fontSize: fontSize.sm, fontWeight: "600" },
+    backBtnSecondary: { paddingHorizontal: spacing.xl, paddingVertical: spacing.md, marginTop: spacing.sm },
   });
