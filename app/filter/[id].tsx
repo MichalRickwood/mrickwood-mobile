@@ -79,6 +79,7 @@ export default function FilterFormScreen() {
   const [includeUnknownValue, setIncludeUnknownValue] = useState(true);
   const [maxValue, setMaxValue] = useState<number | null>(null);
   const [emailDigest, setEmailDigest] = useState(true);
+  const [strict, setStrict] = useState(false);
 
   const [regionPickerOpen, setRegionPickerOpen] = useState(false);
   const [valuePickerOpen, setValuePickerOpen] = useState(false);
@@ -105,6 +106,7 @@ export default function FilterFormScreen() {
       setIncludeUnknownValue(existing.includeUnknownValue ?? true);
       setMaxValue(existing.maxValue);
       setEmailDigest(existing.emailDigest);
+      setStrict(existing.matchMode === "strict");
       const icos = existing.zadavatelIcos ?? [];
       if (icos.length) {
         // Placeholder hned, názvy dotáhneme z API (include = uložená IČO).
@@ -154,6 +156,7 @@ export default function FilterFormScreen() {
       includeUnknownValue,
       maxValue,
       emailDigest,
+      matchMode: strict ? "strict" : "loose",
     };
     setSaving(true);
     try {
@@ -423,6 +426,21 @@ export default function FilterFormScreen() {
             <Switch
               value={emailDigest}
               onValueChange={setEmailDigest}
+              trackColor={{ false: colors.border, true: colors.accent }}
+              thumbColor={colors.card}
+              ios_backgroundColor={colors.border}
+            />
+          </View>
+
+          {/* Přísný režim: méně šumu (ignoruje CPV od klasifikátoru, klíčovky upřesňují obor), méně zakázek. */}
+          <View style={styles.toggleRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.label}>{t("matches", "filterFormStrict")}</Text>
+              <Text style={styles.help}>{t("matches", "filterFormStrictHelp")}</Text>
+            </View>
+            <Switch
+              value={strict}
+              onValueChange={setStrict}
               trackColor={{ false: colors.border, true: colors.accent }}
               thumbColor={colors.card}
               ios_backgroundColor={colors.border}

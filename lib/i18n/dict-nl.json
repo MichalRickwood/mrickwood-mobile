@@ -383,7 +383,9 @@
     "loadingTitle": "Aanbestedingen zoeken…",
     "loadingBody": "De beste overeenkomsten voor uw criteria worden geselecteerd.",
     "errorTitle": "Kan niet laden",
-    "errorBody": "Probeer naar beneden te trekken om te vernieuwen."
+    "errorBody": "Probeer naar beneden te trekken om te vernieuwen.",
+    "filterFormStrict": "Strikte modus",
+    "filterFormStrictHelp": "Minder ruis: de sector komt alleen uit door de aanbesteder gepubliceerde codes en trefwoorden verfijnen. Minder aanbestedingen."
   },
   "matchDetail": {
     "headerLabel": "Aanbesteding",
