@@ -780,6 +780,7 @@ export interface Dict {
     monthly: string;
     yearly: string;
     autoRenew: string;
+    webCheaper: string;
     terms: string;
     privacy: string;
   };
@@ -3616,6 +3617,7 @@ const cs: Dict = {
     monthly: "Měsíčně",
     yearly: "Ročně",
     autoRenew: "Předplatné se automaticky obnovuje, dokud ho nezrušíte. Spravovat nebo zrušit můžete v Nastavení App Store.",
+    webCheaper: "Doporučujeme platbu na webu veritra.io v Nastavení → Platby. Základní cena je tam nižší a navíc dostanete množstevní slevu za další země.",
     terms: "Obchodní podmínky (EULA)",
     privacy: "Ochrana osobních údajů",
   },
@@ -4523,6 +4525,7 @@ const en: Dict = {
     monthly: "Monthly",
     yearly: "Yearly",
     autoRenew: "Subscription auto-renews until canceled. Manage or cancel anytime in App Store settings.",
+    webCheaper: "We recommend paying on the web at veritra.io under Settings → Billing. The base price is lower there and you also get a volume discount for additional countries.",
     terms: "Terms of Use (EULA)",
     privacy: "Privacy Policy",
   },
@@ -5432,6 +5435,7 @@ const de: Dict = {
     monthly: "Monatlich",
     yearly: "Jährlich",
     autoRenew: "Das Abo verlängert sich automatisch, bis es gekündigt wird. Verwaltung und Kündigung in den App-Store-Einstellungen.",
+    webCheaper: "Wir empfehlen die Zahlung im Web auf veritra.io unter Einstellungen → Zahlungen. Dort ist der Grundpreis niedriger und Sie erhalten zusätzlich einen Mengenrabatt für weitere Länder.",
     terms: "Nutzungsbedingungen (EULA)",
     privacy: "Datenschutz",
   },
@@ -6339,6 +6343,7 @@ const sk: Dict = {
     monthly: "Mesačne",
     yearly: "Ročne",
     autoRenew: "Predplatné sa automaticky obnovuje, kým ho nezrušíte. Spravovať alebo zrušiť môžete v nastaveniach App Store.",
+    webCheaper: "Odporúčame platbu na webe veritra.io v Nastaveniach → Platby. Základná cena je tam nižšia a navyše dostanete množstevnú zľavu za ďalšie krajiny.",
     terms: "Obchodné podmienky (EULA)",
     privacy: "Ochrana osobných údajov",
   },
@@ -7246,6 +7251,7 @@ const fr: Dict = {
     monthly: "Mensuel",
     yearly: "Annuel",
     autoRenew: "L'abonnement se renouvelle automatiquement jusqu'à résiliation. Gérez ou résiliez dans les réglages de l'App Store.",
+    webCheaper: "Nous recommandons de payer sur le web, sur veritra.io, dans Paramètres → Paiements. Le prix de base y est plus bas et vous bénéficiez en plus d'une remise de volume pour les pays supplémentaires.",
     terms: "Conditions d'utilisation (EULA)",
     privacy: "Confidentialité",
   },
@@ -8153,6 +8159,7 @@ const it: Dict = {
     monthly: "Mensile",
     yearly: "Annuale",
     autoRenew: "L'abbonamento si rinnova automaticamente fino all'annullamento. Gestisci o annulla nelle impostazioni dell'App Store.",
+    webCheaper: "Consigliamo di pagare sul web su veritra.io in Impostazioni → Pagamenti. Il prezzo base è più basso e in più ottieni uno sconto quantità per i paesi aggiuntivi.",
     terms: "Termini d'uso (EULA)",
     privacy: "Privacy",
   },

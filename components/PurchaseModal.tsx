@@ -59,6 +59,10 @@ export default function PurchaseModal({ visible, countryLabel, monthly, yearly, 
         <Text style={styles.title}>{t("purchase", "title", { country: countryLabel })}</Text>
         <Text style={styles.value}>{t("purchase", "valueLine", { country: countryLabel })}</Text>
 
+        <View style={styles.webHint}>
+          <Text style={styles.webHintText}>{t("purchase", "webCheaper")}</Text>
+        </View>
+
         <View style={styles.plans}>
           {monthly && plan(t("purchase", "monthly"), monthly)}
           {yearly && plan(t("purchase", "yearly"), yearly)}
@@ -95,6 +99,8 @@ function makeStyles(c: Colors) {
     handle: { alignSelf: "center", width: 36, height: 4, borderRadius: radius.full, backgroundColor: c.border, marginBottom: spacing.md },
     title: { fontSize: fontSize.xl, fontWeight: "700", color: c.text },
     value: { fontSize: fontSize.sm, color: c.textMuted, marginTop: spacing.xs, marginBottom: spacing.lg, lineHeight: 20 },
+    webHint: { backgroundColor: c.warningBg, borderRadius: radius.md, padding: spacing.md, marginBottom: spacing.lg },
+    webHintText: { fontSize: fontSize.sm, color: c.text, lineHeight: 20 },
     plans: { gap: spacing.sm },
     plan: {
       flexDirection: "row",
