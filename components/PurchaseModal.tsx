@@ -60,7 +60,7 @@ export default function PurchaseModal({ visible, countryLabel, monthly, yearly, 
         <Text style={styles.value}>{t("purchase", "valueLine", { country: countryLabel })}</Text>
 
         <View style={styles.webHint}>
-          <Text style={styles.webHintText}>{t("purchase", "webCheaper")}</Text>
+          <Text style={styles.webHintText}>{t("purchase", "webAlsoPossible")}</Text>
         </View>
 
         <View style={styles.plans}>
