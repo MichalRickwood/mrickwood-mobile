@@ -1,5 +1,6 @@
 import * as AppleAuthentication from "expo-apple-authentication";
-import { saveToken, saveUser, type StoredUser } from "./auth-storage";
+import { type StoredUser } from "./auth-storage";
+import { prijmiPrihlaseni } from "./mfa";
 import { endpoints } from "./endpoints";
 
 /**
@@ -36,14 +37,11 @@ export async function appleSignIn(): Promise<StoredUser> {
   // Apple posílá fullName jen při první autorizaci a jen nativně (není v tokenu).
   const fullName =
     [credential.fullName?.givenName, credential.fullName?.familyName].filter(Boolean).join(" ") || undefined;
-  const { token, user } = await endpoints.mobileOauth({
+  return prijmiPrihlaseni(await endpoints.mobileOauth({
     provider: "apple",
     idToken: credential.identityToken,
     name: fullName,
-  });
-  await saveToken(token);
-  await saveUser(user);
-  return user;
+  }));
 }
 
 export function isAppleAuthAvailable(): Promise<boolean> {
@@ -52,8 +50,5 @@ export function isAppleAuthAvailable(): Promise<boolean> {
 
 /** Google — idToken už získaný přes expo-auth-session hook v komponentě. */
 export async function googleExchange(idToken: string): Promise<StoredUser> {
-  const { token, user } = await endpoints.mobileOauth({ provider: "google", idToken });
-  await saveToken(token);
-  await saveUser(user);
-  return user;
+  return prijmiPrihlaseni(await endpoints.mobileOauth({ provider: "google", idToken }));
 }

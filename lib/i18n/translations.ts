@@ -889,6 +889,27 @@ export interface Dict {
     consentGdprLabel: string;
     consentRequiredError: string;
   };
+  mfa: {
+    titulek: string;
+    kde: string;
+    vyberte: string;
+    nebylJsem: string;
+    schvaleno: string;
+    zamitnuto: string;
+    spatne: string;
+    neplatna: string;
+    zadna: string;
+    noveTitulek: string;
+    novePopis: string;
+    cekam: string;
+    kodOdkaz: string;
+    kodPopis: string;
+    kodPole: string;
+    kodPotvrdit: string;
+    kodSpatne: string;
+    vyprselo: string;
+    zpet: string;
+  };
   auth: {
     registerTitle: string;
     registerSubtitle: string;
@@ -3726,6 +3747,27 @@ const cs: Dict = {
     consentGdprLabel: "Souhlasím se zpracováním osobních údajů (GDPR).",
     consentRequiredError: "Pro pokračování zaškrtněte oba souhlasy.",
   },
+  mfa: {
+    titulek: "Potvrzení přihlášení",
+    kde: "Přihlášení: {prohlizec}",
+    vyberte: "Vyberte číslo, které vidíte na obrazovce.",
+    nebylJsem: "Nebyl jsem to",
+    schvaleno: "Přihlášení potvrzeno.",
+    zamitnuto: "Přihlášení zamítnuto.",
+    spatne: "To není správné číslo. Zkuste to znovu.",
+    neplatna: "Výzva už neplatí.",
+    zadna: "Žádné přihlášení nečeká na potvrzení.",
+    noveTitulek: "Potvrďte nové zařízení",
+    novePopis: "Na jiném telefonu s aplikací Veritra potvrďte přihlášení a vyberte toto číslo.",
+    cekam: "Čekám na potvrzení…",
+    kodOdkaz: "Použít záložní kód",
+    kodPopis: "Zadejte jeden ze záložních kódů, které jste dostali na webu.",
+    kodPole: "Záložní kód",
+    kodPotvrdit: "Přihlásit",
+    kodSpatne: "Kód nesedí nebo už byl použit.",
+    vyprselo: "Platnost vypršela. Přihlaste se znovu.",
+    zpet: "Zpět na přihlášení",
+  },
   auth: {
     registerTitle: "Vytvořit účet",
     registerSubtitle: "Začněte sledovat veřejné zakázky",
@@ -4633,6 +4675,27 @@ const en: Dict = {
     consentVopLabel: "I agree to the Terms of Service.",
     consentGdprLabel: "I agree to the processing of personal data (GDPR).",
     consentRequiredError: "Please tick both consents to continue.",
+  },
+  mfa: {
+    titulek: "Confirm sign-in",
+    kde: "Sign-in: {prohlizec}",
+    vyberte: "Select the number shown on the screen.",
+    nebylJsem: "It wasn't me",
+    schvaleno: "Sign-in confirmed.",
+    zamitnuto: "Sign-in rejected.",
+    spatne: "That's not the right number. Try again.",
+    neplatna: "This request is no longer valid.",
+    zadna: "No sign-in is waiting for confirmation.",
+    noveTitulek: "Confirm the new device",
+    novePopis: "On another phone with the Veritra app, confirm the sign-in and select this number.",
+    cekam: "Waiting for confirmation…",
+    kodOdkaz: "Use a backup code",
+    kodPopis: "Enter one of the backup codes you received on the web.",
+    kodPole: "Backup code",
+    kodPotvrdit: "Sign in",
+    kodSpatne: "The code is wrong or has already been used.",
+    vyprselo: "The request expired. Sign in again.",
+    zpet: "Back to sign-in",
   },
   auth: {
     registerTitle: "Create account",
@@ -5544,6 +5607,27 @@ const de: Dict = {
     consentGdprLabel: "Ich stimme der Verarbeitung personenbezogener Daten (DSGVO) zu.",
     consentRequiredError: "Bitte aktivieren Sie beide Zustimmungen, um fortzufahren.",
   },
+  mfa: {
+    titulek: "Anmeldung bestätigen",
+    kde: "Anmeldung: {prohlizec}",
+    vyberte: "Wählen Sie die Zahl, die auf dem Bildschirm angezeigt wird.",
+    nebylJsem: "Das war ich nicht",
+    schvaleno: "Anmeldung bestätigt.",
+    zamitnuto: "Anmeldung abgelehnt.",
+    spatne: "Das ist nicht die richtige Zahl. Versuchen Sie es erneut.",
+    neplatna: "Diese Anfrage ist nicht mehr gültig.",
+    zadna: "Keine Anmeldung wartet auf Bestätigung.",
+    noveTitulek: "Neues Gerät bestätigen",
+    novePopis: "Bestätigen Sie die Anmeldung auf einem anderen Telefon mit der Veritra-App und wählen Sie diese Zahl.",
+    cekam: "Warte auf Bestätigung…",
+    kodOdkaz: "Backup-Code verwenden",
+    kodPopis: "Geben Sie einen der Backup-Codes ein, die Sie im Web erhalten haben.",
+    kodPole: "Backup-Code",
+    kodPotvrdit: "Anmelden",
+    kodSpatne: "Der Code ist falsch oder wurde bereits verwendet.",
+    vyprselo: "Abgelaufen. Melden Sie sich erneut an.",
+    zpet: "Zurück zur Anmeldung",
+  },
   auth: {
     registerTitle: "Konto erstellen",
     registerSubtitle: "Beginne, öffentliche Ausschreibungen zu überwachen",
@@ -6451,6 +6535,27 @@ const sk: Dict = {
     consentVopLabel: "Súhlasím s obchodnými podmienkami.",
     consentGdprLabel: "Súhlasím so spracovaním osobných údajov (GDPR).",
     consentRequiredError: "Pre pokračovanie zaškrtnite oba súhlasy.",
+  },
+  mfa: {
+    titulek: "Potvrdenie prihlásenia",
+    kde: "Prihlásenie: {prohlizec}",
+    vyberte: "Vyberte číslo, ktoré vidíte na obrazovke.",
+    nebylJsem: "Nebol som to",
+    schvaleno: "Prihlásenie potvrdené.",
+    zamitnuto: "Prihlásenie zamietnuté.",
+    spatne: "To nie je správne číslo. Skúste to znova.",
+    neplatna: "Výzva už neplatí.",
+    zadna: "Žiadne prihlásenie nečaká na potvrdenie.",
+    noveTitulek: "Potvrďte nové zariadenie",
+    novePopis: "Na inom telefóne s aplikáciou Veritra potvrďte prihlásenie a vyberte toto číslo.",
+    cekam: "Čakám na potvrdenie…",
+    kodOdkaz: "Použiť záložný kód",
+    kodPopis: "Zadajte jeden zo záložných kódov, ktoré ste dostali na webe.",
+    kodPole: "Záložný kód",
+    kodPotvrdit: "Prihlásiť",
+    kodSpatne: "Kód nesedí alebo už bol použitý.",
+    vyprselo: "Platnosť vypršala. Prihláste sa znova.",
+    zpet: "Späť na prihlásenie",
   },
   auth: {
     registerTitle: "Vytvoriť účet",
@@ -7360,6 +7465,27 @@ const fr: Dict = {
     consentGdprLabel: "J'accepte le traitement des données personnelles (RGPD).",
     consentRequiredError: "Veuillez cocher les deux consentements pour continuer.",
   },
+  mfa: {
+    titulek: "Confirmer la connexion",
+    kde: "Connexion : {prohlizec}",
+    vyberte: "Sélectionnez le nombre affiché à l'écran.",
+    nebylJsem: "Ce n'était pas moi",
+    schvaleno: "Connexion confirmée.",
+    zamitnuto: "Connexion refusée.",
+    spatne: "Ce n'est pas le bon nombre. Réessayez.",
+    neplatna: "Cette demande n'est plus valide.",
+    zadna: "Aucune connexion n'attend de confirmation.",
+    noveTitulek: "Confirmer le nouvel appareil",
+    novePopis: "Sur un autre téléphone avec l'application Veritra, confirmez la connexion et sélectionnez ce nombre.",
+    cekam: "En attente de confirmation…",
+    kodOdkaz: "Utiliser un code de secours",
+    kodPopis: "Saisissez l'un des codes de secours reçus sur le web.",
+    kodPole: "Code de secours",
+    kodPotvrdit: "Se connecter",
+    kodSpatne: "Le code est incorrect ou déjà utilisé.",
+    vyprselo: "La demande a expiré. Reconnectez-vous.",
+    zpet: "Retour à la connexion",
+  },
   auth: {
     registerTitle: "Créer un compte",
     registerSubtitle: "Commencez à surveiller les marchés publics",
@@ -8267,6 +8393,27 @@ const it: Dict = {
     consentVopLabel: "Accetto le Condizioni di servizio.",
     consentGdprLabel: "Acconsento al trattamento dei dati personali (GDPR).",
     consentRequiredError: "Spunta entrambi i consensi per continuare.",
+  },
+  mfa: {
+    titulek: "Conferma l'accesso",
+    kde: "Accesso: {prohlizec}",
+    vyberte: "Seleziona il numero mostrato sullo schermo.",
+    nebylJsem: "Non sono stato io",
+    schvaleno: "Accesso confermato.",
+    zamitnuto: "Accesso rifiutato.",
+    spatne: "Non è il numero giusto. Riprova.",
+    neplatna: "Questa richiesta non è più valida.",
+    zadna: "Nessun accesso in attesa di conferma.",
+    noveTitulek: "Conferma il nuovo dispositivo",
+    novePopis: "Su un altro telefono con l'app Veritra conferma l'accesso e seleziona questo numero.",
+    cekam: "In attesa di conferma…",
+    kodOdkaz: "Usa un codice di riserva",
+    kodPopis: "Inserisci uno dei codici di riserva ricevuti sul web.",
+    kodPole: "Codice di riserva",
+    kodPotvrdit: "Accedi",
+    kodSpatne: "Il codice è errato o è già stato usato.",
+    vyprselo: "La richiesta è scaduta. Accedi di nuovo.",
+    zpet: "Torna all'accesso",
   },
   auth: {
     registerTitle: "Crea un account",

@@ -1112,5 +1112,26 @@
     "revoke": "Revocar",
     "revokeConfirm": "¿Revocar el enlace? El asistente ya no podrá abrir el expediente.",
     "loadFailed": "No se pudo cargar la configuración."
+  },
+  "mfa": {
+    "titulek": "Confirmar inicio de sesión",
+    "kde": "Inicio de sesión: {prohlizec}",
+    "vyberte": "Seleccione el número que aparece en la pantalla.",
+    "nebylJsem": "No fui yo",
+    "schvaleno": "Inicio de sesión confirmado.",
+    "zamitnuto": "Inicio de sesión rechazado.",
+    "spatne": "Ese no es el número correcto. Inténtelo de nuevo.",
+    "neplatna": "Esta solicitud ya no es válida.",
+    "zadna": "Ningún inicio de sesión espera confirmación.",
+    "noveTitulek": "Confirmar el nuevo dispositivo",
+    "novePopis": "En otro teléfono con la app Veritra, confirme el inicio de sesión y seleccione este número.",
+    "cekam": "Esperando confirmación…",
+    "kodOdkaz": "Usar un código de respaldo",
+    "kodPopis": "Introduzca uno de los códigos de respaldo que recibió en la web.",
+    "kodPole": "Código de respaldo",
+    "kodPotvrdit": "Iniciar sesión",
+    "kodSpatne": "El código no es correcto o ya se ha usado.",
+    "vyprselo": "La solicitud ha caducado. Inicie sesión de nuevo.",
+    "zpet": "Volver al inicio de sesión"
   }
 }

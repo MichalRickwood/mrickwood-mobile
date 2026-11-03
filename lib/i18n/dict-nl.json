@@ -1112,5 +1112,26 @@
     "revoke": "Intrekken",
     "revokeConfirm": "Link intrekken? De assistent kan het dossier dan niet meer openen.",
     "loadFailed": "Instellingen konden niet worden geladen."
+  },
+  "mfa": {
+    "titulek": "Aanmelding bevestigen",
+    "kde": "Aanmelding: {prohlizec}",
+    "vyberte": "Kies het getal dat op het scherm staat.",
+    "nebylJsem": "Dit was ik niet",
+    "schvaleno": "Aanmelding bevestigd.",
+    "zamitnuto": "Aanmelding geweigerd.",
+    "spatne": "Dat is niet het juiste getal. Probeer het opnieuw.",
+    "neplatna": "Dit verzoek is niet meer geldig.",
+    "zadna": "Er wacht geen aanmelding op bevestiging.",
+    "noveTitulek": "Nieuw apparaat bevestigen",
+    "novePopis": "Bevestig de aanmelding op een andere telefoon met de Veritra-app en kies dit getal.",
+    "cekam": "Wachten op bevestiging…",
+    "kodOdkaz": "Back-upcode gebruiken",
+    "kodPopis": "Voer een van de back-upcodes in die je op het web kreeg.",
+    "kodPole": "Back-upcode",
+    "kodPotvrdit": "Aanmelden",
+    "kodSpatne": "De code klopt niet of is al gebruikt.",
+    "vyprselo": "Het verzoek is verlopen. Meld je opnieuw aan.",
+    "zpet": "Terug naar aanmelden"
   }
 }

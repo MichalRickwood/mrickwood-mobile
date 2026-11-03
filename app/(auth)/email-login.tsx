@@ -13,7 +13,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/lib/auth-context";
-import { saveToken, saveUser } from "@/lib/auth-storage";
+import { MfaVyzadovana, prijmiPrihlaseni } from "@/lib/mfa";
 import { endpoints } from "@/lib/endpoints";
 import { ApiError } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
@@ -39,12 +39,10 @@ export default function EmailLoginScreen() {
     setBusy(true);
     setError(null);
     try {
-      const { token, user } = await endpoints.mobileLogin({ email: email.trim(), password });
-      await saveToken(token);
-      await saveUser(user);
-      applySession(user);
+      applySession(await prijmiPrihlaseni(await endpoints.mobileLogin({ email: email.trim(), password })));
     } catch (err) {
-      if (err instanceof ApiError) {
+      if (err instanceof MfaVyzadovana) router.push("/(auth)/mfa");
+      else if (err instanceof ApiError) {
         if (err.status === 403) setError(t("auth", "errNotVerified"));
         else if (err.status === 401) setError(t("auth", "errInvalid"));
         else if (err.message.startsWith("Fetch fail")) setError(t("auth", "errNetwork"));

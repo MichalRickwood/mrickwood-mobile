@@ -1112,5 +1112,26 @@
     "revoke": "Unieważnij",
     "revokeConfirm": "Unieważnić link? Asystent nie otworzy już materiałów.",
     "loadFailed": "Nie udało się wczytać ustawień."
+  },
+  "mfa": {
+    "titulek": "Potwierdzenie logowania",
+    "kde": "Logowanie: {prohlizec}",
+    "vyberte": "Wybierz liczbę widoczną na ekranie.",
+    "nebylJsem": "To nie ja",
+    "schvaleno": "Logowanie potwierdzone.",
+    "zamitnuto": "Logowanie odrzucone.",
+    "spatne": "To nie jest właściwa liczba. Spróbuj ponownie.",
+    "neplatna": "To żądanie jest już nieważne.",
+    "zadna": "Żadne logowanie nie czeka na potwierdzenie.",
+    "noveTitulek": "Potwierdź nowe urządzenie",
+    "novePopis": "Na innym telefonie z aplikacją Veritra potwierdź logowanie i wybierz tę liczbę.",
+    "cekam": "Czekam na potwierdzenie…",
+    "kodOdkaz": "Użyj kodu zapasowego",
+    "kodPopis": "Wpisz jeden z kodów zapasowych otrzymanych w przeglądarce.",
+    "kodPole": "Kod zapasowy",
+    "kodPotvrdit": "Zaloguj",
+    "kodSpatne": "Kod jest błędny lub został już użyty.",
+    "vyprselo": "Żądanie wygasło. Zaloguj się ponownie.",
+    "zpet": "Wróć do logowania"
   }
 }

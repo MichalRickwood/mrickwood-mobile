@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { AppState, Pressable, StyleSheet, Text, View } from "react-native";
 import { Stack, usePathname, useRouter, useSegments } from "expo-router";
 import * as Notifications from "expo-notifications";
 import { StatusBar } from "expo-status-bar";
@@ -239,6 +239,9 @@ function routeFor(d: Record<string, unknown> | null): PushTarget | null {
       const mailId = str("mailId");
       return mailId ? { pathname: `/(tabs)/admin/inbox/${mailId}` } : null;
     }
+    case "login-challenge":
+      // 2FA: potvrzení přihlášení na webu / nového zařízení (lib/mfa.ts)
+      return { pathname: "/potvrzeni-prihlaseni" };
     case "feedback_triage": {
       const feedbackId = str("feedbackId");
       return feedbackId ? { pathname: `/(tabs)/admin/feedback/${feedbackId}` } : null;
@@ -292,6 +295,31 @@ function NotificationTapHandler() {
 }
 
 /**
+ * 2FA: když push nedorazí (vypnuté notifikace, tichý režim), otevře potvrzení sama aplikace —
+ * při přihlášení a při každém návratu do popředí se zeptá na čekající výzvy.
+ */
+function MfaHlidac() {
+  const { status } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
+  const cestaRef = useRef(pathname);
+  useEffect(() => { cestaRef.current = pathname; }, [pathname]);
+  useEffect(() => {
+    if (status !== "authenticated") return;
+    const zkontroluj = () => {
+      if (cestaRef.current === "/potvrzeni-prihlaseni") return;
+      endpoints.mfaVyzvy()
+        .then((r) => { if (r.data.vyzvy.length) router.push("/potvrzeni-prihlaseni"); })
+        .catch(() => {});
+    };
+    zkontroluj();
+    const sub = AppState.addEventListener("change", (s) => { if (s === "active") zkontroluj(); });
+    return () => sub.remove();
+  }, [status, router]);
+  return null;
+}
+
+/**
  * StatusBar follows the active theme — světlý styl pro dark mode (bílý text na tmavém),
  * tmavý styl pro light mode (černý text na světlém).
  */
@@ -310,6 +338,7 @@ export default function RootLayout() {
               <ThemedStatusBar />
               <ScreenTracker />
               <NotificationTapHandler />
+              <MfaHlidac />
               <RouterGuard />
             </AuthProvider>
           </PersistQueryClientProvider>

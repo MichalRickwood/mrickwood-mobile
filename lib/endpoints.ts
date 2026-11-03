@@ -1,4 +1,5 @@
 import { api, LONG_TIMEOUT_MS } from "./api";
+import type { PrihlaseniOdpoved } from "./mfa";
 
 /**
  * Typed endpoints — sjednoceno na jednom místě, ať klient nemusí znát URL.
@@ -350,8 +351,14 @@ export const endpoints = {
   // Auth — výměna jednorázového kódu z veritra.io redirectu za mobilní
   // session (JWT + user). Přihlášení/registrace probíhá na webu, appka jen
   // dokončí handoff. Stejný tvar odpovědi jako dřívější OAuth exchange.
+  // 2FA: dokončení přihlášení na novém zařízení (stav výzvy nebo záložní kód), viz lib/mfa.ts.
+  mobileMfa: (input: { vyzva: string; kod?: string }) =>
+    api.post<PrihlaseniOdpoved | { stav: string }>("/api/auth/mobile/mfa", input, { noAuth: true }),
+  mfaVyzvy: () => api.get<{ data: { vyzvy: { id: string; prohlizec: string | null; ip: string | null; kanal: string; createdAt: string; expiresAt: string; moznosti: number[] }[] } }>("/api/v2/account/mfa/vyzvy"),
+  mfaRozhodni: (id: string, input: { akce: "schvalit" | "zamitnout"; cislo?: number }) =>
+    api.post<{ data: { vysledek: "schvaleno" | "zamitnuto" | "spatne_cislo" | "neplatna" } }>(`/api/v2/account/mfa/vyzvy/${encodeURIComponent(id)}`, input),
   exchangeWebAuthCode: (code: string) =>
-    api.post<MobileLoginResponse>("/api/auth/mobile/session/exchange", { code }, { noAuth: true }),
+    api.post<PrihlaseniOdpoved>("/api/auth/mobile/session/exchange", { code }, { noAuth: true }),
 
   // Nativní registrace (email/heslo/jméno + souhlasy). IAP je v appce, takže
   // 3.1.1 je splněno (placené přes IAP, ne mimo). Vytvoří účet + pošle ověřovací
@@ -368,7 +375,7 @@ export const endpoints = {
   // Nativní login (email/heslo) → mobilní session (JWT + user). 403 když e-mail
   // není ověřený (EMAIL_NOT_VERIFIED), 401 neplatné údaje.
   mobileLogin: (input: { email: string; password: string }) =>
-    api.post<MobileLoginResponse>("/api/auth/mobile/login", input, { noAuth: true }),
+    api.post<PrihlaseniOdpoved>("/api/auth/mobile/login", input, { noAuth: true }),
 
   // Zapomenuté heslo — pošle reset link e-mailem (vždy ok, žádná enumerace
   // e-mailů). Nové heslo se nastavuje na webu, přihlášení pak zpět v appce.
@@ -383,7 +390,7 @@ export const endpoints = {
     name?: string;
     code?: string;
     redirectUri?: string;
-  }) => api.post<MobileLoginResponse>("/api/auth/mobile/oauth", input, { noAuth: true }),
+  }) => api.post<PrihlaseniOdpoved>("/api/auth/mobile/oauth", input, { noAuth: true }),
 
   // Profile read — používáme po loginu pro detekci jestli je profil kompletní
   profile: () => api.get<ProfileView>("/api/account/profile"),

@@ -1,7 +1,8 @@
 import * as Crypto from "expo-crypto";
 import * as Linking from "expo-linking";
 import * as WebBrowser from "expo-web-browser";
-import { saveToken, saveUser, type StoredUser } from "./auth-storage";
+import { type StoredUser } from "./auth-storage";
+import { prijmiPrihlaseni } from "./mfa";
 import { AUTH_BASE_URL } from "./config";
 import { endpoints } from "./endpoints";
 
@@ -66,10 +67,7 @@ export async function startWebAuth(locale: string): Promise<StoredUser> {
   if (returnedState !== state) throw new Error("Neplatný state — přihlášení zamítnuto.");
   if (!code) throw new Error("Chybí autorizační kód.");
 
-  const { token, user } = await endpoints.exchangeWebAuthCode(code);
-  await saveToken(token);
-  await saveUser(user);
-  return user;
+  return prijmiPrihlaseni(await endpoints.exchangeWebAuthCode(code));
 }
 
 export type { StoredUser };

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Image, ImageBackground, Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
+import { MfaVyzadovana } from "@/lib/mfa";
 import * as AppleAuthentication from "expo-apple-authentication";
 import * as Google from "expo-auth-session/providers/google";
 import * as WebBrowser from "expo-web-browser";
@@ -52,7 +53,7 @@ export default function LoginScreen() {
       if (idToken) {
         googleExchange(idToken)
           .then(applySession)
-          .catch(() => setError(t("auth", "errGeneric")));
+          .catch((e) => (e instanceof MfaVyzadovana ? router.push("/(auth)/mfa") : setError(t("auth", "errGeneric"))));
       }
     } else if (gResponse?.type === "error") {
       setError(t("auth", "errGeneric"));
@@ -67,6 +68,7 @@ export default function LoginScreen() {
       applySession(user);
     } catch (e) {
       if (e instanceof OAuthCancelled) return;
+      if (e instanceof MfaVyzadovana) { router.push("/(auth)/mfa"); return; }
       setError(t("auth", "errGeneric"));
     }
   }
