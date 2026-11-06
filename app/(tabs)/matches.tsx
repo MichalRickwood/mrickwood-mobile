@@ -27,7 +27,7 @@ import {
   isAdHocActive,
   type AdHocFilter,
 } from "@/lib/ad-hoc-filter";
-import { useToggleTenderPreference } from "@/lib/use-tender-preference";
+import { useLokalneVyloucene, useToggleTenderPreference } from "@/lib/use-tender-preference";
 import { reportClientError } from "@/lib/tracker";
 import { useTheme } from "@/lib/theme-context";
 import { useI18n } from "@/lib/i18n";
@@ -297,10 +297,11 @@ export default function MatchesScreen() {
   // dalšího zúžení (search/ad-hoc). Filtruje na matchedAt >= since (dávka cronu).
   const showNewBatch =
     newBatch != null && activeFilterId === newBatch.filterId && !searchDebounced && !isAdHocActive(adHoc);
-  const displayMatches = useMemo(
-    () => (showNewBatch && newBatch ? matches.filter((m) => m.matchedAt >= newBatch.since) : matches),
-    [matches, showNewBatch, newBatch],
-  );
+  const lokalneVyloucene = useLokalneVyloucene();
+  const displayMatches = useMemo(() => {
+    const viditelne = lokalneVyloucene.size ? matches.filter((m) => !lokalneVyloucene.has(m.tender.id)) : matches;
+    return showNewBatch && newBatch ? viditelne.filter((m) => m.matchedAt >= newBatch.since) : viditelne;
+  }, [matches, showNewBatch, newBatch, lokalneVyloucene]);
   // totalCount: inline z prvního response (defer + count cache hit), jinak
   // z async count query. Než dorazí REÁLNÝ počet → null (v pillu se nezobrazí
   // ŽÁDNÉ číslo, ne provizorní počet načtených řádků = matně matoucí „· 50").

@@ -1,5 +1,24 @@
+import { useSyncExternalStore } from "react";
 import { useMutation, useQueryClient, type QueryKey } from "@tanstack/react-query";
 import { endpoints, type LeadMatchRow } from "./endpoints";
+
+/**
+ * Zakázky vyloučené palcem dolů v této relaci. Seznam je skrývá i tehdy, když
+ * odpověď dotazu odeslaného před uložením vyloučení dorazí až po něm a cache
+ * přepíše (feedback V-2026-2635: karta se po 2 s vrátila).
+ */
+let vyloucene = new Set<number>();
+const posluchaci = new Set<() => void>();
+function nastavVyloucene(next: Set<number>) {
+  vyloucene = next;
+  posluchaci.forEach((f) => f());
+}
+export function useLokalneVyloucene(): Set<number> {
+  return useSyncExternalStore(
+    (f) => { posluchaci.add(f); return () => { posluchaci.delete(f); }; },
+    () => vyloucene,
+  );
+}
 
 type Status = "STARRED" | "EXCLUDED" | "NONE";
 
@@ -15,7 +34,7 @@ interface InfiniteData {
 
 /**
  * Optimistický toggle hvězdičky / vyloučení zakázky. UI se okamžitě upraví
- * (žádný viditelný refresh), API se volá v pozadí. Při chybě vrátíme snapshot.
+ * (žádný viditelný refresh), API se volá v pozadí. Při chybě se vrátí jen ta zakázka.
  *
  * Logika filtrace v cache podle view (= queryKey[1]):
  *   - ["matches","starred"] → unstar (NONE) odstraní řádek z listu
@@ -28,6 +47,9 @@ export function useToggleTenderPreference() {
     mutationFn: ({ tenderId, status }: { tenderId: number; status: Status }) =>
       endpoints.setTenderPreference(tenderId, status),
     onMutate: async ({ tenderId, status }) => {
+      const pred = vyloucene.has(tenderId);
+      if (status === "EXCLUDED" && !pred) nastavVyloucene(new Set(vyloucene).add(tenderId));
+      if (status !== "EXCLUDED" && pred) { const n = new Set(vyloucene); n.delete(tenderId); nastavVyloucene(n); }
       await qc.cancelQueries({ queryKey: ["matches"] });
       const snapshots = qc.getQueriesData<InfiniteData>({ queryKey: ["matches"] });
 
@@ -60,13 +82,15 @@ export function useToggleTenderPreference() {
         };
         qc.setQueryData<InfiniteData>(key as QueryKey, next);
       }
-      return { snapshots };
+      return { pred };
     },
-    onError: (_err, _vars, ctx) => {
-      if (!ctx?.snapshots) return;
-      for (const [key, data] of ctx.snapshots) {
-        qc.setQueryData(key as QueryKey, data);
-      }
+    // Při chybě vrátit jen tuhle zakázku, ne celý snímek: ten by vrátil i karty
+    // vyloučené mezitím. Seznam se pak načte znovu se stavem ze serveru.
+    onError: (_err, { tenderId }, ctx) => {
+      const n = new Set(vyloucene);
+      if (ctx?.pred) n.add(tenderId); else n.delete(tenderId);
+      nastavVyloucene(n);
+      void qc.invalidateQueries({ queryKey: ["matches"] });
     },
     // Žádný invalidate v onSettled — UI už ukazuje správný stav z optimistic
     // update. Background refetch by jen způsobil viditelný flicker.
