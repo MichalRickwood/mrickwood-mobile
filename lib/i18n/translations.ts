@@ -213,6 +213,8 @@ export interface Dict {
     headerLabel: string;
     deadlineLabel: string;
     valueLabel: string;
+    valueFromDocs: string;
+    valueFromDocsHint: string;
     publishedLabel: string;
     regionLabel: string;
     cpvLabel: string;
@@ -3073,6 +3075,8 @@ const cs: Dict = {
     headerLabel: "Zakázka",
     deadlineLabel: "Lhůta podání",
     valueLabel: "Předpokládaná hodnota",
+    valueFromDocs: "z dokumentace",
+    valueFromDocsHint: "Zadavatel hodnotu v oznámení neuvedl, vyčetli jsme ji z dokumentace.",
     publishedLabel: "Publikováno",
     regionLabel: "Region",
     cpvLabel: "CPV",
@@ -4002,6 +4006,8 @@ const en: Dict = {
     headerLabel: "Tender",
     deadlineLabel: "Submission deadline",
     valueLabel: "Estimated value",
+    valueFromDocs: "from documents",
+    valueFromDocsHint: "The contracting authority did not state the value in the notice; we read it from the tender documents.",
     publishedLabel: "Published",
     regionLabel: "Region",
     cpvLabel: "CPV",
@@ -4932,6 +4938,8 @@ const de: Dict = {
     headerLabel: "Ausschreibung",
     deadlineLabel: "Abgabefrist",
     valueLabel: "Geschätzter Wert",
+    valueFromDocs: "aus Unterlagen",
+    valueFromDocsHint: "Der Auftraggeber hat den Wert in der Bekanntmachung nicht angegeben; wir haben ihn aus den Vergabeunterlagen gelesen.",
     publishedLabel: "Veröffentlicht",
     regionLabel: "Region",
     cpvLabel: "CPV",
@@ -5862,6 +5870,8 @@ const sk: Dict = {
     headerLabel: "Zákazka",
     deadlineLabel: "Termín podania",
     valueLabel: "Predpokladaná hodnota",
+    valueFromDocs: "z dokumentácie",
+    valueFromDocsHint: "Obstarávateľ hodnotu v oznámení neuviedol, vyčítali sme ju z dokumentácie.",
     publishedLabel: "Zverejnené",
     regionLabel: "Región",
     cpvLabel: "CPV",
@@ -6791,6 +6801,8 @@ const fr: Dict = {
     headerLabel: "Appel d'offres",
     deadlineLabel: "Date limite de soumission",
     valueLabel: "Valeur estimée",
+    valueFromDocs: "du dossier",
+    valueFromDocsHint: "L’acheteur n’a pas indiqué la valeur dans l’avis ; nous l’avons lue dans le dossier de consultation.",
     publishedLabel: "Publié",
     regionLabel: "Région",
     cpvLabel: "CPV",
@@ -7720,6 +7732,8 @@ const it: Dict = {
     headerLabel: "Gara",
     deadlineLabel: "Termine di presentazione",
     valueLabel: "Valore stimato",
+    valueFromDocs: "dai documenti",
+    valueFromDocsHint: "La stazione appaltante non ha indicato il valore nel bando; lo abbiamo letto dai documenti di gara.",
     publishedLabel: "Pubblicata",
     regionLabel: "Regione",
     cpvLabel: "CPV",

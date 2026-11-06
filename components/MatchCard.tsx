@@ -38,7 +38,12 @@ export default function MatchCard({ match, onPress, onToggleStar, onExclude, mod
         <View style={styles.priceTag}>
           {isNew && <View style={styles.newDot} />}
           {tender.estimatedValue ? (
-            <Text style={styles.priceText}>{formatCompactMoney(tender.estimatedValue)}</Text>
+            <View style={styles.priceCol}>
+              <Text style={styles.priceText}>{formatCompactMoney(tender.estimatedValue)}</Text>
+              {tender.estimatedValueZDokumentace ? (
+                <Text style={styles.priceFromDocs}>{t("matchDetail", "valueFromDocs")}</Text>
+              ) : null}
+            </View>
           ) : null}
         </View>
       </View>
@@ -108,6 +113,8 @@ const makeStyles = (colors: Colors) =>
     titleRow: { flexDirection: "row", alignItems: "flex-start", gap: spacing.sm },
     priceTag: { flexDirection: "row", alignItems: "center", gap: spacing.xs, paddingTop: 2 },
     priceText: { fontSize: fontSize.sm, color: colors.text, fontWeight: "600" },
+    priceCol: { alignItems: "flex-end" },
+    priceFromDocs: { fontSize: fontSize.xs, color: colors.textSubtle },
     newDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.link },
     cardTitle: { fontSize: fontSize.base, fontWeight: "600", color: colors.text, lineHeight: 22, flex: 1 },
     cardMeta: { marginTop: spacing.md },

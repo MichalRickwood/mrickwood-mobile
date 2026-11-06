@@ -391,6 +391,8 @@
     "headerLabel": "Aanbesteding",
     "deadlineLabel": "Indieningsdeadline",
     "valueLabel": "Geraamde waarde",
+    "valueFromDocs": "uit documenten",
+    "valueFromDocsHint": "De aanbestedende dienst vermeldde de waarde niet in de aankondiging; we hebben die uit de aanbestedingsstukken gehaald.",
     "publishedLabel": "Gepubliceerd",
     "regionLabel": "Regio",
     "cpvLabel": "CPV",

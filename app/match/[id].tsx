@@ -466,8 +466,19 @@ export default function MatchDetailScreen() {
           {tender.estimatedValue ? (
             <MetaCell
               styles={styles}
-              label={t("matchDetail", "valueLabel")}
+              label={tender.estimatedValueZDokumentace
+                ? `${t("matchDetail", "valueLabel")} · ${t("matchDetail", "valueFromDocs")}`
+                : t("matchDetail", "valueLabel")}
               value={formatMoney(tender.estimatedValue, tender.currency)}
+              onPress={tender.estimatedValueZDokumentace
+                ? () => {
+                    const z = tender.estimatedValueZDokumentace!;
+                    Alert.alert(
+                      t("matchDetail", "valueFromDocs"),
+                      [t("matchDetail", "valueFromDocsHint"), z.doc, z.evidence ? `„${z.evidence}“` : ""].filter(Boolean).join("\n\n"),
+                    );
+                  }
+                : undefined}
             />
           ) : null}
         </View>
@@ -707,17 +718,19 @@ function MetaCell({
   label,
   value,
   accent,
+  onPress,
 }: {
   styles: ReturnType<typeof makeStyles>;
   label: string;
   value: string;
   accent?: boolean;
+  onPress?: () => void;
 }) {
   return (
-    <View style={[styles.metaCell, accent && styles.metaCellAccent]}>
+    <Pressable onPress={onPress} disabled={!onPress} style={[styles.metaCell, accent && styles.metaCellAccent]}>
       <Text style={styles.metaLabel}>{label}</Text>
       <Text style={[styles.metaValue, accent && styles.metaValueAccent]}>{value}</Text>
-    </View>
+    </Pressable>
   );
 }
 

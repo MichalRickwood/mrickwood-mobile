@@ -43,6 +43,8 @@ export interface PublicTender {
   url: string;
   status: string;
   estimatedValue: number | null;
+  /** Hodnota vytěžená z dokumentace (zadavatel ji v oznámení neuvedl). */
+  estimatedValueZDokumentace?: { evidence: string; doc: string } | null;
   currency: string | null;
   publishedAt: string | null;
   deadlineAt: string | null;

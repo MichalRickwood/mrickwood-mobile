@@ -391,6 +391,8 @@
     "headerLabel": "Licitación",
     "deadlineLabel": "Plazo de presentación",
     "valueLabel": "Valor estimado",
+    "valueFromDocs": "de los pliegos",
+    "valueFromDocsHint": "El órgano de contratación no indicó el valor en el anuncio; lo hemos leído de los pliegos.",
     "publishedLabel": "Publicado",
     "regionLabel": "Región",
     "cpvLabel": "CPV",
