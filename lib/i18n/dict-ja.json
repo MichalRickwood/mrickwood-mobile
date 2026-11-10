@@ -183,6 +183,8 @@
     "headerLabel": "入札案件",
     "deadlineLabel": "提出期限",
     "valueLabel": "推定金額",
+    "valueFromDocs": "入札書類より",
+    "valueFromDocsHint": "発注者は公告に金額を記載していません。入札書類から読み取った値です。",
     "publishedLabel": "公開済み",
     "regionLabel": "地域",
     "cpvLabel": "CPV",

@@ -391,6 +391,8 @@
     "headerLabel": "Przetarg",
     "deadlineLabel": "Termin składania ofert",
     "valueLabel": "Szacowana wartość",
+    "valueFromDocs": "z dokumentacji",
+    "valueFromDocsHint": "Zamawiający nie podał wartości w ogłoszeniu; odczytaliśmy ją z dokumentacji.",
     "publishedLabel": "Opublikowano",
     "regionLabel": "Region",
     "cpvLabel": "CPV",
