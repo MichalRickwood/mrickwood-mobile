@@ -2896,7 +2896,7 @@ const cs: Dict = {
     welcomeTitle: "Vítejte ve Veritře 👋",
     welcomeBody:
       "Jsme rádi, že jste tu. Krátký průvodce vám ukáže to nejdůležitější — jak sledovat veřejné zakázky přesně podle sebe.",
-    trialTitle: "Prvních 7 dní zdarma",
+    trialTitle: "Prvních 14 dní zdarma",
     trialBody:
       "Vyzkoušejte si vše bez omezení. Poté pokračujete s předplatným dle platného ceníku.",
     agendaTitle: "Co vám průvodce ukáže",
@@ -3826,7 +3826,7 @@ const en: Dict = {
     welcomeTitle: "Welcome to Veritra 👋",
     welcomeBody:
       "We're glad you're here. This short guide shows you the essentials — how to monitor public tenders tailored to you.",
-    trialTitle: "Your first 7 days are free",
+    trialTitle: "Your first 14 days are free",
     trialBody:
       "Try everything without limits. Then continue with a subscription at the current price list.",
     agendaTitle: "What the guide covers",
@@ -4755,7 +4755,7 @@ const de: Dict = {
     welcomeTitle: "Willkommen bei Veritra 👋",
     welcomeBody:
       "Schön, dass Sie da sind. Dieser kurze Leitfaden zeigt Ihnen das Wichtigste — Ausschreibungen genau nach Ihren Wünschen überwachen.",
-    trialTitle: "Die ersten 7 Tage kostenlos",
+    trialTitle: "Die ersten 14 Tage kostenlos",
     trialBody:
       "Testen Sie alles ohne Einschränkungen — danach Abo gemäß aktueller Preisliste.",
     agendaTitle: "Was Ihnen der Leitfaden zeigt",
@@ -5686,7 +5686,7 @@ const sk: Dict = {
     welcomeTitle: "Vitajte vo Veritre 👋",
     welcomeBody:
       "Sme radi, že ste tu. Krátky sprievodca vám ukáže to najdôležitejšie — ako sledovať verejné zákazky presne podľa seba.",
-    trialTitle: "Prvých 7 dní zadarmo",
+    trialTitle: "Prvých 14 dní zadarmo",
     trialBody:
       "Vyskúšajte si všetko bez obmedzení. Potom pokračujete s predplatným podľa platného cenníka.",
     agendaTitle: "Čo vám sprievodca ukáže",
@@ -6615,7 +6615,7 @@ const fr: Dict = {
     welcomeTitle: "Bienvenue sur Veritra 👋",
     welcomeBody:
       "Ravis de vous accueillir. Ce court guide vous présente l'essentiel — suivre les appels d'offres selon vos besoins.",
-    trialTitle: "Vos 7 premiers jours sont gratuits",
+    trialTitle: "Vos 14 premiers jours sont gratuits",
     trialBody:
       "Essayez tout sans limites, puis continuez avec un abonnement selon les tarifs en vigueur.",
     agendaTitle: "Ce que le guide vous montre",
@@ -7544,7 +7544,7 @@ const it: Dict = {
     welcomeTitle: "Benvenuto in Veritra 👋",
     welcomeBody:
       "Siamo felici che tu sia qui. Questa breve guida ti mostra l'essenziale — monitorare le gare su misura per te.",
-    trialTitle: "I primi 7 giorni sono gratuiti",
+    trialTitle: "I primi 14 giorni sono gratuiti",
     trialBody:
       "Prova tutto senza limiti. Poi si continua con un abbonamento secondo il listino in vigore.",
     agendaTitle: "Cosa ti mostra la guida",
